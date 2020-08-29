@@ -6,6 +6,8 @@ import UniswapPairArtifact from "@uniswap/v2-core/build/UniswapV2Pair.json";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 
+import usePrices from "../../hooks/usePrices";
+
 import OptionsContext from "./context";
 import optionsReducer, { initialState, setOptions } from "./reducer";
 import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
@@ -19,6 +21,8 @@ const Options: React.FC = (props) => {
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
     });
+
+    const { prices, getPrices } = usePrices();
     useEffect(() => {
         (async () => {
             try {
@@ -37,6 +41,16 @@ const Options: React.FC = (props) => {
             { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
         }
     } */
+
+    const calculateBreakeven = (strike, price, isCall) => {
+        let breakeven;
+        if (isCall) {
+            breakeven = price + strike;
+        } else {
+            breakeven = price + strike;
+        }
+        return breakeven;
+    };
 
     const getPair = async (providerOrSigner, optionAddr) => {
         let poolAddr = ethers.constants.AddressZero;
@@ -120,6 +134,7 @@ const Options: React.FC = (props) => {
                 let price = 0;
                 let strike = 0;
                 let volume = 0;
+                let isCall;
 
                 // Get the option price data from uniswap pair.
                 const { premium, openInterest } = await getPairData(address);
@@ -130,21 +145,25 @@ const Options: React.FC = (props) => {
                 // If a call, set the strike to the quote. If a put, set the strike to the base.
                 let arrayToPushTo: OptionsAttributes[] = [];
                 if (base == "1") {
-                    strike = quote;
+                    isCall = true;
+                    strike = Number(quote);
                     arrayToPushTo = calls;
                 }
 
                 if (quote == "1") {
-                    strike = base;
+                    isCall = false;
+                    strike = Number(base);
                     arrayToPushTo = puts;
                 }
+
+                breakEven = calculateBreakeven(strike, price, isCall);
 
                 // Push the option object with the parsed data to the options call or puts array.
                 arrayToPushTo.push({
                     breakEven: breakEven,
                     change: change,
                     price: price,
-                    strike: Number(strike),
+                    strike: strike,
                     volume: volume,
                     address: address,
                 });

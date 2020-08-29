@@ -48,8 +48,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableRow isHead>
                         <TableCell>Strike Price</TableCell>
                         <TableCell>Break Even</TableCell>
-                        <TableCell>24h Volume</TableCell>
-                        <TableCell>Change</TableCell>
+                        {/* <TableCell>24h Volume</TableCell>
+                        <TableCell>Change</TableCell> */}
                         <TableCell>Price</TableCell>
                         <TableCell>Address</TableCell>
                         <StyledButtonCell />
@@ -61,20 +61,20 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     {options[type].map((option, i) => {
                         const {
                             breakEven,
-                            change,
+                            //change,
                             price,
                             strike,
-                            volume,
+                            //volume,
                             address,
                         } = option;
                         return (
                             <TableRow key={address}>
                                 <TableCell>${strike}</TableCell>
-                                <TableCell>${breakEven}</TableCell>
-                                <TableCell>${volume}</TableCell>
+                                <TableCell>${breakEven.toFixed(2)}</TableCell>
+                                {/* <TableCell>${volume}</TableCell>
                                 <TableCell>
                                     {(change * 100).toFixed(2)}%
-                                </TableCell>
+                                </TableCell> */}
                                 <TableCell>${price.toFixed(2)}</TableCell>
                                 <TableCell>{address.substring(0, 6)}</TableCell>
                                 <StyledButtonCell>
