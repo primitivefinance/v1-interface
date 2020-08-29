@@ -22,7 +22,8 @@ const App: React.FC = () => {
             <Web3ReactProvider getLibrary={getLibrary}>
                 <Router>
                     <TopBar />
-                    <Minting />
+                    {/* <Minting /> */}
+                    <Market />
                 </Router>
             </Web3ReactProvider>
         </ThemeProvider>
