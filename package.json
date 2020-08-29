@@ -58,6 +58,7 @@
         "@types/react-dom": "^16.9.8",
         "@types/react-router-dom": "^5.1.5",
         "@types/styled-components": "^5.1.1",
+        "@uniswap/v2-core": "^1.0.1",
         "typescript": "^3.9.7"
     }
 }

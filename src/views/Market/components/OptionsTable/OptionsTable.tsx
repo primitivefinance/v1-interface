@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import useOrders from "../../../../hooks/useOrders";
+import useOptions from "../../../../hooks/useOptions";
 
 import AddIcon from "@material-ui/icons/Add";
+
+import { useWeb3React } from "@web3-react/core";
+import { InjectedConnector } from "@web3-react/injected-connector";
 
 import IconButton from "../../../../components/IconButton";
 import LitContainer from "../../../../components/LitContainer";
@@ -25,8 +29,14 @@ export interface OptionsTableProps {
 }
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-    const { options } = props;
+    const { options, getOptions } = useOptions();
     const { onAddItem } = useOrders();
+    const web3React = useWeb3React();
+
+    useEffect(() => {
+        getOptions("0xc45c339313533a6c9B05184CD8B5486BC53F75Fb");
+    }, [web3React.library]);
+
     return (
         <Table>
             <StyledTableHead>
@@ -37,27 +47,32 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                         <TableCell>24h Volume</TableCell>
                         <TableCell>Change</TableCell>
                         <TableCell>Price</TableCell>
+                        <TableCell>Address</TableCell>
                         <StyledButtonCell />
                     </TableRow>
                 </LitContainer>
             </StyledTableHead>
             <LitContainer>
                 <TableBody>
-                    {options.map((option, i) => {
+                    {options.calls.map((option, i) => {
                         const {
                             breakEven,
                             change,
                             price,
                             strike,
                             volume,
+                            address,
                         } = option;
                         return (
-                            <TableRow key={i}>
+                            <TableRow key={address}>
                                 <TableCell>${strike}</TableCell>
                                 <TableCell>${breakEven}</TableCell>
                                 <TableCell>${volume}</TableCell>
-                                <TableCell>{change * 100}%</TableCell>
-                                <TableCell>${price}</TableCell>
+                                <TableCell>
+                                    {(change * 100).toFixed(2)}%
+                                </TableCell>
+                                <TableCell>${price.toFixed(2)}</TableCell>
+                                <TableCell>{address.substring(0, 6)}</TableCell>
                                 <StyledButtonCell>
                                     <IconButton
                                         onClick={() => {
