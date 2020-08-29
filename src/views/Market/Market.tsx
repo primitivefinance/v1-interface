@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import OrderProvider from "../../contexts/Order";
@@ -19,6 +19,11 @@ const mockOptions = [
 ];
 
 const Market: React.FC = () => {
+    const [callPutActive, setCallPutActive] = useState(false);
+
+    const handleFilter = () => {
+        setCallPutActive(!callPutActive);
+    };
     return (
         <PricesProvider>
             <OrderProvider>
@@ -30,8 +35,14 @@ const Market: React.FC = () => {
                                 price={280.33}
                                 symbol="ETH"
                             />
-                            <FilterBar />
-                            <OptionsTable options={mockOptions} />
+                            <FilterBar
+                                active={callPutActive}
+                                setCallActive={handleFilter}
+                            />
+                            <OptionsTable
+                                options={mockOptions}
+                                callActive={callPutActive}
+                            />
                         </StyledMain>
                         <StyledSideBar>
                             <OrderCard />

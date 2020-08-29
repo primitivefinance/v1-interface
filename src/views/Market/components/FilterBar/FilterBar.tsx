@@ -4,9 +4,14 @@ import styled from "styled-components";
 import LitContainer from "../../../../components/LitContainer";
 import ToggleButton from "../../../../components/ToggleButton";
 
-const FilterBar: React.FC = () => {
+export interface FilterBarProps {
+    active: boolean;
+    setCallActive: Function;
+}
+
+const FilterBar: React.FC<FilterBarProps> = (props) => {
     const [buySellActive, setBuySellActive] = useState(false);
-    const [callPutActive, setCallPutActive] = useState(false);
+    const { active, setCallActive } = props;
     return (
         <StyledFilterBar>
             <LitContainer>
@@ -19,10 +24,10 @@ const FilterBar: React.FC = () => {
                     />
                     <StyledSpacer /> */}
                     <ToggleButton
-                        active={callPutActive}
+                        active={active}
                         button1Text="Calls"
                         button2Text="Puts"
-                        onToggle={() => setCallPutActive(!callPutActive)}
+                        onToggle={() => setCallActive(!active)}
                     />
                 </StyledFilterBarInner>
             </LitContainer>

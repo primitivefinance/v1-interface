@@ -26,9 +26,11 @@ export type FormattedOption = {
 
 export interface OptionsTableProps {
     options: FormattedOption[];
+    callActive: boolean;
 }
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
+    const { callActive } = props;
     const { options, getOptions } = useOptions();
     const { onAddItem } = useOrders();
     const web3React = useWeb3React();
@@ -36,6 +38,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     useEffect(() => {
         getOptions("0xc45c339313533a6c9B05184CD8B5486BC53F75Fb");
     }, [web3React.library]);
+
+    const type = callActive ? "calls" : "puts";
 
     return (
         <Table>
@@ -54,7 +58,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             </StyledTableHead>
             <LitContainer>
                 <TableBody>
-                    {options.calls.map((option, i) => {
+                    {options[type].map((option, i) => {
                         const {
                             breakEven,
                             change,
