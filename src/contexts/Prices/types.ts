@@ -1,9 +1,9 @@
 export interface PricesContextValues {
     prices: PricesData;
-    getPrices: () => void;
+    getPrices: (asset: string) => void;
 }
 export interface PricesData {
-    [key: string]: string;
+    [key: string]: number;
 }
 
 export interface PricesState {

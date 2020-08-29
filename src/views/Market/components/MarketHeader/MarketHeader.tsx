@@ -17,7 +17,10 @@ export interface MarketHeaderProps {
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     const { name, price, symbol } = props;
     const { prices, getPrices } = usePrices();
-    console.log(prices, getPrices());
+
+    useEffect(() => {
+        getPrices(name.toLowerCase());
+    }, []);
 
     return (
         <StyledHeader>
@@ -27,13 +30,12 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
                     <StyledName>{name}</StyledName>
                     <StyledSymbol>{symbol}</StyledSymbol>
                 </StyledTitle>
-                <StyledPrice>${prices?.usd}</StyledPrice>
-                <Button
-                    onClick={async () => {
-                        await getPrices();
-                    }}
-                    text="prices"
-                />
+                <StyledPrice>
+                    $
+                    {prices[name.toLowerCase()]
+                        ? prices[name.toLowerCase()]
+                        : 0}
+                </StyledPrice>
             </LitContainer>
         </StyledHeader>
     );

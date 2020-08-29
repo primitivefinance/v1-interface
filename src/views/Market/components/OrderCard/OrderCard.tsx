@@ -13,7 +13,6 @@ interface OrderCardProps {}
 const OrderCard: React.FC<OrderCardProps> = (props) => {
     const { items } = useOrders();
     useEffect(() => {}, [items]);
-    console.log(items);
     return (
         <Card>
             <CardTitle>Your Order</CardTitle>

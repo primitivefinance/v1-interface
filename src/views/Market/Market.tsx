@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import OrderProvider from "../../contexts/Order";
+import PricesProvider from "../../contexts/Prices";
 
 import FilterBar from "./components/FilterBar";
 import MarketHeader from "./components/MarketHeader";
@@ -18,18 +19,24 @@ const mockOptions = [
 
 const Market: React.FC = () => {
     return (
-        <OrderProvider>
-            <StyledMarket>
-                <StyledMain>
-                    <MarketHeader name="Ethereum" price={280.33} symbol="ETH" />
-                    <FilterBar />
-                    <OptionsTable options={mockOptions} />
-                </StyledMain>
-                <StyledSideBar>
-                    <OrderCard />
-                </StyledSideBar>
-            </StyledMarket>
-        </OrderProvider>
+        <PricesProvider>
+            <OrderProvider>
+                <StyledMarket>
+                    <StyledMain>
+                        <MarketHeader
+                            name="Ethereum"
+                            price={280.33}
+                            symbol="ETH"
+                        />
+                        <FilterBar />
+                        <OptionsTable options={mockOptions} />
+                    </StyledMain>
+                    <StyledSideBar>
+                        <OrderCard />
+                    </StyledSideBar>
+                </StyledMarket>
+            </OrderProvider>
+        </PricesProvider>
     );
 };
 
