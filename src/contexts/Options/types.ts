@@ -14,6 +14,7 @@ export type OptionsAttributes = {
     strike: number;
     volume: number;
     address: string;
+    id: string;
 };
 
 export const EmptyAttributes = {
@@ -23,6 +24,7 @@ export const EmptyAttributes = {
     strike: 0,
     volume: 0,
     address: "",
+    id: "",
 };
 
 export interface OptionsState {

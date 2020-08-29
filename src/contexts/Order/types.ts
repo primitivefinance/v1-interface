@@ -10,6 +10,8 @@ export interface OrderItem {
     price: number;
     strike: number;
     volume: number;
+    address: string;
+    id: string;
 }
 
 export interface OrderState {

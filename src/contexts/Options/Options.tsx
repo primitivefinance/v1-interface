@@ -113,6 +113,7 @@ const Options: React.FC = (props) => {
             for (let i = 0; i < optionsLength; i++) {
                 // Get the parameters for the option object in the option_deployments json file.
                 let key = Object.keys(OptionDeployments)[i];
+                let id = key;
                 let parameters = OptionDeployments[key].optionParameters;
                 let address = OptionDeployments[key].address;
                 let underlyingToken = parameters[0];
@@ -166,6 +167,7 @@ const Options: React.FC = (props) => {
                     strike: strike,
                     volume: volume,
                     address: address,
+                    id: id,
                 });
             }
 

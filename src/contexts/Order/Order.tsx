@@ -20,6 +20,8 @@ const Order: React.FC = (props) => {
         dispatch(removeItem());
     }, [dispatch]);
 
+    const handleBuyOptions = async (optionAddress, quantity) => {};
+
     return (
         <OrderContext.Provider
             value={{

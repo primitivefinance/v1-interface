@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 
-import IconButton from "../../../../components/IconButton";
+import Button from "../../../../components/Button";
 import LitContainer from "../../../../components/LitContainer";
 import Table from "../../../../components/Table";
 import TableBody from "../../../../components/TableBody";
@@ -53,6 +53,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                         <TableCell>Price</TableCell>
                         <TableCell>Address</TableCell>
                         <StyledButtonCell />
+                        <StyledButtonCell />
+                        <StyledButtonCell />
                     </TableRow>
                 </LitContainer>
             </StyledTableHead>
@@ -78,14 +80,37 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                                 <TableCell>${price.toFixed(2)}</TableCell>
                                 <TableCell>{address.substring(0, 6)}</TableCell>
                                 <StyledButtonCell>
-                                    <IconButton
+                                    <Button
                                         onClick={() => {
                                             onAddItem(option);
                                         }}
                                         variant="outlined"
+                                        text="Buy"
                                     >
-                                        <AddIcon />
-                                    </IconButton>
+                                        Buy
+                                    </Button>
+                                </StyledButtonCell>
+                                <StyledButtonCell>
+                                    <Button
+                                        onClick={() => {
+                                            onAddItem(option);
+                                        }}
+                                        variant="outlined"
+                                        text="Earn $"
+                                    >
+                                        Earn Premium
+                                    </Button>
+                                </StyledButtonCell>
+                                <StyledButtonCell>
+                                    <Button
+                                        onClick={() => {
+                                            onAddItem(option);
+                                        }}
+                                        variant="outlined"
+                                        text="Earn Fees"
+                                    >
+                                        Earn Trading Fees
+                                    </Button>
                                 </StyledButtonCell>
                             </TableRow>
                         );
@@ -102,7 +127,8 @@ const StyledTableHead = styled.div`
 `;
 
 const StyledButtonCell = styled.div`
-    width: ${(props) => props.theme.buttonSize}px;
+    /* width: ${(props) => props.theme.buttonSize}px; */
+    margin-right: ${(props) => props.theme.spacing[2]}px;
 `;
 
 export default OptionsTable;
