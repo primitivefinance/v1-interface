@@ -1,29 +1,32 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from "react";
+import styled from "styled-components";
 
-import AddIcon from '@material-ui/icons/Add'
+import useOrders from "../../../../hooks/useOrders";
 
-import IconButton from '../../../../components/IconButton'
-import LitContainer from '../../../../components/LitContainer'
-import Table from '../../../../components/Table'
-import TableBody from '../../../../components/TableBody'
-import TableCell from '../../../../components/TableCell'
-import TableRow from '../../../../components/TableRow'
+import AddIcon from "@material-ui/icons/Add";
+
+import IconButton from "../../../../components/IconButton";
+import LitContainer from "../../../../components/LitContainer";
+import Table from "../../../../components/Table";
+import TableBody from "../../../../components/TableBody";
+import TableCell from "../../../../components/TableCell";
+import TableRow from "../../../../components/TableRow";
 
 export type FormattedOption = {
-    breakEven: number,
-    change: number,
-    price: number,
-    strike: number,
-    volume: number,
-}
+    breakEven: number;
+    change: number;
+    price: number;
+    strike: number;
+    volume: number;
+};
 
 export interface OptionsTableProps {
-    options: FormattedOption[],
+    options: FormattedOption[];
 }
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-    const { options } = props
+    const { options } = props;
+    const { onAddItem } = useOrders();
     return (
         <Table>
             <StyledTableHead>
@@ -41,7 +44,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <LitContainer>
                 <TableBody>
                     {options.map((option, i) => {
-                        const { breakEven, change, price, strike, volume } = option
+                        const {
+                            breakEven,
+                            change,
+                            price,
+                            strike,
+                            volume,
+                        } = option;
                         return (
                             <TableRow key={i}>
                                 <TableCell>${strike}</TableCell>
@@ -51,28 +60,30 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                                 <TableCell>${price}</TableCell>
                                 <StyledButtonCell>
                                     <IconButton
-                                        onClick={() => {}}
+                                        onClick={() => {
+                                            onAddItem(option);
+                                        }}
                                         variant="outlined"
                                     >
                                         <AddIcon />
                                     </IconButton>
                                 </StyledButtonCell>
                             </TableRow>
-                        )
+                        );
                     })}
                 </TableBody>
             </LitContainer>
         </Table>
-    )
-}
+    );
+};
 
 const StyledTableHead = styled.div`
-    background-color: ${props => props.theme.color.grey[800]};
-    border-bottom: 1px solid ${props => props.theme.color.grey[600]};
-`
+    background-color: ${(props) => props.theme.color.grey[800]};
+    border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+`;
 
 const StyledButtonCell = styled.div`
-    width: ${props => props.theme.buttonSize}px;
-`
+    width: ${(props) => props.theme.buttonSize}px;
+`;
 
-export default OptionsTable
+export default OptionsTable;

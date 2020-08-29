@@ -10,7 +10,8 @@ const ethPriceApi =
 const Prices: React.FC = (props) => {
     const [state, dispatch] = useReducer(pricesReducer, initialState);
 
-    const getPrices = useCallback(() => {
+    const handlePrices = useCallback(async () => {
+        console.log("fetching prices...");
         let pricesData: PricesData = {};
         fetch(ethPriceApi)
             .then((res) => res.json())
@@ -34,14 +35,11 @@ const Prices: React.FC = (props) => {
             );
     }, [dispatch]);
 
-    useEffect(() => {
-        getPrices();
-    }, [getPrices]);
-
     return (
         <PricesContext.Provider
             value={{
                 prices: state.prices,
+                getPrices: handlePrices,
             }}
         >
             {props.children}

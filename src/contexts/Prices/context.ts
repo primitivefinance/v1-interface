@@ -1,9 +1,10 @@
 import { createContext } from "react";
 
-import { PricesContext } from "./types";
+import { PricesContextValues } from "./types";
 
-const context = createContext<PricesContext>({
+const PricesContext = createContext<PricesContextValues>({
     prices: {},
+    getPrices: () => {},
 });
 
-export default context;
+export default PricesContext;

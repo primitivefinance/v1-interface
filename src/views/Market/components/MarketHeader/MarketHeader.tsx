@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import GoBack from "../../../../components/GoBack";
 import LitContainer from "../../../../components/LitContainer";
+import Button from "../../../../components/Button";
 
 import usePrices from "../../../../hooks/usePrices";
 import { namehash } from "ethers/lib/utils";
@@ -15,8 +16,9 @@ export interface MarketHeaderProps {
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     const { name, price, symbol } = props;
-    const { prices } = usePrices();
-    console.log(prices);
+    const { prices, getPrices } = usePrices();
+    console.log(prices, getPrices());
+
     return (
         <StyledHeader>
             <LitContainer>
@@ -26,6 +28,12 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
                     <StyledSymbol>{symbol}</StyledSymbol>
                 </StyledTitle>
                 <StyledPrice>${prices?.usd}</StyledPrice>
+                <Button
+                    onClick={async () => {
+                        await getPrices();
+                    }}
+                    text="prices"
+                />
             </LitContainer>
         </StyledHeader>
     );
