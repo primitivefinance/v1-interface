@@ -37,6 +37,7 @@ const Market: React.FC = () => {
                             />
                             <OptionsTable
                                 options={mockOptions}
+                                asset="Ethereum"
                                 callActive={callPutActive}
                             />
                         </StyledMain>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import LitContainer from "../../../../components/LitContainer";
@@ -10,19 +10,11 @@ export interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
-    const [buySellActive, setBuySellActive] = useState(false);
     const { active, setCallActive } = props;
     return (
         <StyledFilterBar>
             <LitContainer>
                 <StyledFilterBarInner>
-                    {/* <ToggleButton
-                        active={buySellActive}
-                        button1Text="Buy"
-                        button2Text="Sell"
-                        onToggle={() => setBuySellActive(!buySellActive)}
-                    />
-                    <StyledSpacer /> */}
                     <ToggleButton
                         active={active}
                         button1Text="Calls"
@@ -43,10 +35,6 @@ const StyledFilterBarInner = styled.div`
     align-items: center;
     display: flex;
     height: ${(props) => props.theme.barHeight}px;
-`;
-
-const StyledSpacer = styled.div`
-    width: ${(props) => props.theme.spacing[4]}px;
 `;
 
 export default FilterBar;

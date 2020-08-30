@@ -4,7 +4,7 @@ import { OptionsContextValues, OptionsData, EmptyAttributes } from "./types";
 
 const OptionsContext = createContext<OptionsContextValues>({
     options: { calls: [EmptyAttributes], puts: [EmptyAttributes] },
-    getOptions: (assetAddres: string) => {},
+    getOptions: (assetName: string) => {},
 });
 
 export default OptionsContext;

@@ -22,7 +22,6 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
 
     const handleChange = (event) => {
         setQuantity(event.target.value);
-        console.log("Changing quantity", event.target.value);
     };
     return (
         <Card>
@@ -50,7 +49,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     quantity
                                 );
                             }}
-                            text="Submit"
+                            text="Buy"
                         />
                         <StyledAvailable>$250,000 Buying Power</StyledAvailable>
                     </>

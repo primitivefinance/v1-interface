@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 
-import Button from "../../../../components/Button";
+import IconButton from "../../../../components/IconButton";
 import LitContainer from "../../../../components/LitContainer";
 import Table from "../../../../components/Table";
 import TableBody from "../../../../components/TableBody";
@@ -26,17 +26,20 @@ export type FormattedOption = {
 
 export interface OptionsTableProps {
     options: FormattedOption[];
+    asset: string;
     callActive: boolean;
 }
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-    const { callActive } = props;
+    const { callActive, asset } = props;
     const { options, getOptions } = useOptions();
     const { onAddItem } = useOrders();
     const web3React = useWeb3React();
 
     useEffect(() => {
-        getOptions("0xc45c339313533a6c9B05184CD8B5486BC53F75Fb");
+        if (web3React.library) {
+            getOptions(asset.toLowerCase());
+        }
     }, [web3React.library]);
 
     const type = callActive ? "calls" : "puts";
@@ -48,12 +51,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableRow isHead>
                         <TableCell>Strike Price</TableCell>
                         <TableCell>Break Even</TableCell>
-                        {/* <TableCell>24h Volume</TableCell>
-                        <TableCell>Change</TableCell> */}
                         <TableCell>Price</TableCell>
                         <TableCell>Address</TableCell>
-                        <StyledButtonCell />
-                        <StyledButtonCell />
                         <StyledButtonCell />
                     </TableRow>
                 </LitContainer>
@@ -61,56 +60,22 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <LitContainer>
                 <TableBody>
                     {options[type].map((option, i) => {
-                        const {
-                            breakEven,
-                            //change,
-                            price,
-                            strike,
-                            //volume,
-                            address,
-                        } = option;
+                        const { breakEven, price, strike, address } = option;
                         return (
                             <TableRow key={address}>
                                 <TableCell>${strike}</TableCell>
                                 <TableCell>${breakEven.toFixed(2)}</TableCell>
-                                {/* <TableCell>${volume}</TableCell>
-                                <TableCell>
-                                    {(change * 100).toFixed(2)}%
-                                </TableCell> */}
-                                <TableCell>${price.toFixed(2)}</TableCell>
+                                <TableCell>${price.toFixed(5)}</TableCell>
                                 <TableCell>{address.substring(0, 6)}</TableCell>
                                 <StyledButtonCell>
-                                    <Button
+                                    <IconButton
                                         onClick={() => {
                                             onAddItem(option);
                                         }}
                                         variant="outlined"
-                                        text="Buy"
                                     >
-                                        Buy
-                                    </Button>
-                                </StyledButtonCell>
-                                <StyledButtonCell>
-                                    <Button
-                                        onClick={() => {
-                                            onAddItem(option);
-                                        }}
-                                        variant="outlined"
-                                        text="Earn $"
-                                    >
-                                        Earn Premium
-                                    </Button>
-                                </StyledButtonCell>
-                                <StyledButtonCell>
-                                    <Button
-                                        onClick={() => {
-                                            onAddItem(option);
-                                        }}
-                                        variant="outlined"
-                                        text="Earn Fees"
-                                    >
-                                        Earn Trading Fees
-                                    </Button>
+                                        <AddIcon />
+                                    </IconButton>
                                 </StyledButtonCell>
                             </TableRow>
                         );
@@ -127,7 +92,7 @@ const StyledTableHead = styled.div`
 `;
 
 const StyledButtonCell = styled.div`
-    /* width: ${(props) => props.theme.buttonSize}px; */
+    width: ${(props) => props.theme.buttonSize}px;
     margin-right: ${(props) => props.theme.spacing[2]}px;
 `;
 

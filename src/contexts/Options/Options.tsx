@@ -17,24 +17,26 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 
-import usePrices from "../../hooks/usePrices";
-
 import OptionsContext from "./context";
 import optionsReducer, { initialState, setOptions } from "./reducer";
 import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
+import AssetAddresses from "./assets.json";
 import { formatEther } from "ethers/lib/utils";
 const UniswapFactoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
 
 const Options: React.FC = (props) => {
     const [state, dispatch] = useReducer(optionsReducer, initialState);
+
+    // Web3 injection
     const web3React = useWeb3React();
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
     });
+    const provider = web3React.library;
 
-    const { prices, getPrices } = usePrices();
+    // Connect to web3 automatically using injected
     useEffect(() => {
         (async () => {
             try {
@@ -44,15 +46,6 @@ const Options: React.FC = (props) => {
             }
         })();
     }, []);
-
-    /* options = {
-        calls: {
-            [key] : { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
-        },
-        puts: {
-            { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
-        }
-    } */
 
     const calculateBreakeven = (strike, price, isCall) => {
         let breakeven;
@@ -64,7 +57,7 @@ const Options: React.FC = (props) => {
         return Number(breakeven);
     };
 
-    const getPair = async (providerOrSigner, optionAddr) => {
+    /* const getPair = async (providerOrSigner, optionAddr) => {
         let poolAddr = ethers.constants.AddressZero;
         const signer = await providerOrSigner.getSigner();
         const uniFac = new ethers.Contract(
@@ -99,17 +92,6 @@ const Options: React.FC = (props) => {
         const token0 = await pair.token0();
         const reserves = await pair.getReserves();
 
-        /* if (token0 == optionAddress) {
-            premium = await pair.price0CumulativeLast();
-            openInterest = reserves._reserve0;
-        } else {
-            premium = await pair.price1CumulativeLast();
-            openInterest = reserves._reserve1;
-        }
-
-        if (premium == 0) {
-            premium = reserves._reserve0 / reserves._reserve1;
-        } */
         premium = reserves._reserve0 / reserves._reserve1;
         openInterest = reserves._reserve0;
 
@@ -117,10 +99,65 @@ const Options: React.FC = (props) => {
             premium = Number(formatEther(premium.toString()));
         }
         return { premium, openInterest };
+    }; */
+
+    const checkProvider = (...args) => {
+        if (!provider) {
+            console.error("No connected provider");
+            return { ...args };
+        }
+    };
+
+    /**
+     *
+     * @param optionAddress The address of the option token to get a uniswap pair of.
+     * @param stablecoinAddress The address of the stablecoin token to get the uniswap pair of.
+     */
+    const getPairData = async (optionAddress) => {
+        let premium = 0;
+
+        // Check to make sure we are connected to a web3 provider.
+        checkProvider();
+        let signer = await provider.getSigner();
+        let chain = await signer.getChainId();
+
+        const OPTION = new Token(chain, optionAddress, 18);
+        const STABLECOIN = new Token(
+            chain,
+            "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2",
+            18
+        );
+
+        const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+        const route = new Route([pair], STABLECOIN, OPTION);
+        const midPrice = route.midPrice.toSignificant(6);
+
+        const trade = new Trade(
+            route,
+            new TokenAmount(OPTION, parseEther("1").toString()),
+            TradeType.EXACT_OUTPUT
+        );
+        const executionPrice = trade.executionPrice.toSignificant(6);
+        premium = Number(executionPrice);
+        return { premium };
+    };
+
+    /**
+     * @dev Gets the address of an asset using its name and respective network id.
+     * @param assetName The name of the asset.
+     * @param chainId The chain of the network to get the asset on.
+     */
+    const getAssetAddress = (assetName, chainId) => {
+        let address = AssetAddresses[assetName][chainId];
+        return address;
     };
 
     const handleOptions = useCallback(
-        async (assetAddress) => {
+        async (assetName) => {
+            const provider = web3React.library;
+            const signer = await provider.getSigner();
+            const chain = await signer.getChainId();
+            let assetAddress = getAssetAddress(assetName, chain);
             let optionsObject = {
                 calls: [EmptyAttributes],
                 puts: [EmptyAttributes],
@@ -156,7 +193,7 @@ const Options: React.FC = (props) => {
                 let isCall;
 
                 // Get the option price data from uniswap pair.
-                const { premium, openInterest } = await getPairData(address);
+                const { premium } = await getPairData(address);
                 price = Number(premium);
                 console.log({ premium });
 
@@ -194,7 +231,6 @@ const Options: React.FC = (props) => {
                 calls: calls,
                 puts: puts,
             });
-            console.log(optionsObject);
             dispatch(setOptions(optionsObject));
         },
         [dispatch, web3React.library]
