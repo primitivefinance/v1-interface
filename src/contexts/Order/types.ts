@@ -2,6 +2,10 @@ export interface OrderContextValues {
     item: OrderItem;
     onAddItem: (item: OrderItem) => void;
     onChangeItem: (item: OrderItem) => void;
+    buyOptions: (
+        optionAddress: string,
+        quantity: number | undefined
+    ) => Promise<void>;
 }
 
 export interface OrderItem {

@@ -7,6 +7,10 @@ const OrderContext = createContext<OrderContextValues>({
     item: EmptyAttributes,
     onAddItem: (item: OrderItem) => {},
     onChangeItem: (item: OrderItem) => {},
+    buyOptions: async (
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
 });
 
 export default OrderContext;

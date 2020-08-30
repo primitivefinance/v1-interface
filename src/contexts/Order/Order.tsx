@@ -35,7 +35,9 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleBuyOptions = async (optionAddress, quantity) => {};
+    const handleBuyOptions = async (optionAddress, quantity: any) => {
+        console.log("Buying options:", { optionAddress, quantity });
+    };
 
     return (
         <OrderContext.Provider
@@ -43,6 +45,7 @@ const Order: React.FC = (props) => {
                 item: state.item,
                 onAddItem: handleAddItem,
                 onChangeItem: handleChangeItem,
+                buyOptions: handleBuyOptions,
             }}
         >
             {props.children}

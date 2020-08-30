@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Card from "../../../../components/Card";
@@ -13,8 +13,14 @@ import EmptyContent from "./components/EmptyContent";
 interface OrderCardProps {}
 
 const OrderCard: React.FC<OrderCardProps> = (props) => {
-    const { item } = useOrders();
+    const [quantity, setQuantity] = useState();
+    const { item, buyOptions } = useOrders();
     useEffect(() => {}, [item]);
+
+    const handleChange = (event) => {
+        setQuantity(event.target.value);
+        console.log("Changing quantity", event.target.value);
+    };
     return (
         <Card>
             <CardTitle>Your Order</CardTitle>
@@ -27,8 +33,18 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                         </h4>
                         <h4>Price: ${item.price.toFixed(2)}</h4>
                         <StyledLabel>Quantity: </StyledLabel>
-                        <StyledInput placeholder="0.00" type="number" />
-                        <Button onClick={() => {}} text="Submit" />
+                        <StyledInput
+                            placeholder="0.00"
+                            type="number"
+                            onChange={handleChange}
+                            value={quantity}
+                        />
+                        <Button
+                            onClick={() => {
+                                buyOptions(item?.address, quantity);
+                            }}
+                            text="Submit"
+                        />
                     </>
                 }
             </CardContent>
