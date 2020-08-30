@@ -1,11 +1,12 @@
-import { createContext } from 'react'
+import { createContext } from "react";
 
-import { OrderContextValues, OrderItem } from './types'
+import { OrderContextValues, OrderItem } from "./types";
+import { EmptyAttributes } from "../Options/types";
 
 const OrderContext = createContext<OrderContextValues>({
-    items: [],
+    item: EmptyAttributes,
     onAddItem: (item: OrderItem) => {},
-    onRemoveItem: () => {},
-})
+    onChangeItem: (item: OrderItem) => {},
+});
 
-export default OrderContext
+export default OrderContext;

@@ -1,11 +1,19 @@
 export interface OrderContextValues {
-    items: OrderItem[],
-    onAddItem: (item: OrderItem) => void,
-    onRemoveItem: () => void
+    item: OrderItem;
+    onAddItem: (item: OrderItem) => void;
+    onChangeItem: (item: OrderItem) => void;
 }
 
-export interface OrderItem {}
+export interface OrderItem {
+    breakEven: number;
+    change: number;
+    price: number;
+    strike: number;
+    volume: number;
+    address: string;
+    id: string;
+}
 
 export interface OrderState {
-    items: OrderItem[]
+    item: OrderItem;
 }

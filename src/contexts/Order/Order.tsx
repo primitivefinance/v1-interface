@@ -1,35 +1,53 @@
-import React, { useCallback, useReducer } from 'react'
+import React, { useCallback, useReducer } from "react";
 
-import OrderContext from './context'
+import OrderContext from "./context";
 
 import reducer, {
     addItem,
     initialState,
     removeItem,
-} from './reducer'
+    changeItem,
+} from "./reducer";
 
-import { OrderItem } from './types'
+import { OrderItem } from "./types";
 
 const Order: React.FC = (props) => {
-    const [state, dispatch] = useReducer(reducer, initialState)
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    const handleAddItem = useCallback((item: OrderItem) => {
-        dispatch(addItem(item))
-    }, [dispatch])
+    const handleAddItem = useCallback(
+        (item: OrderItem) => {
+            dispatch(addItem(item));
+        },
+        [dispatch]
+    );
 
-    const handleRemoveItem = useCallback(() => {
-        dispatch(removeItem())
-    }, [dispatch])
+    const handleRemoveItem = useCallback(
+        (item: OrderItem) => {
+            dispatch(changeItem(item));
+        },
+        [dispatch]
+    );
+
+    const handleChangeItem = useCallback(
+        (item: OrderItem) => {
+            dispatch(changeItem(item));
+        },
+        [dispatch]
+    );
+
+    const handleBuyOptions = async (optionAddress, quantity) => {};
 
     return (
-        <OrderContext.Provider value={{
-            items: state.items,
-            onAddItem: handleAddItem,
-            onRemoveItem: handleRemoveItem,
-        }}>
+        <OrderContext.Provider
+            value={{
+                item: state.item,
+                onAddItem: handleAddItem,
+                onChangeItem: handleChangeItem,
+            }}
+        >
             {props.children}
         </OrderContext.Provider>
-    )
-}
+    );
+};
 
-export default Order
+export default Order;

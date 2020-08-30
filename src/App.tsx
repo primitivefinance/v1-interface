@@ -1,22 +1,33 @@
-import React from 'react'
-import { ThemeProvider } from 'styled-components'
-import { BrowserRouter as Router } from 'react-router-dom'
+import React from "react";
+import { ThemeProvider } from "styled-components";
+import { BrowserRouter as Router } from "react-router-dom";
+import ethers from "ethers";
 
-import TopBar from './components/TopBar'
+import TopBar from "./components/TopBar";
 
-import Market from './views/Market'
+import Market from "./views/Market";
+import Minting from "./views/Minting";
 
-import theme from './theme'
+import { Web3ReactProvider } from "@web3-react/core";
+
+import theme from "./theme";
+
+function getLibrary(provider, connector) {
+    return new ethers.providers.Web3Provider(provider);
+}
 
 const App: React.FC = () => {
     return (
         <ThemeProvider theme={theme}>
-            <Router>
-                <TopBar />
-                <Market />
-            </Router>
+            <Web3ReactProvider getLibrary={getLibrary}>
+                <Router>
+                    <TopBar />
+                    {/* <Minting /> */}
+                    <Market />
+                </Router>
+            </Web3ReactProvider>
         </ThemeProvider>
-    )
-}
+    );
+};
 
-export default App
+export default App;
