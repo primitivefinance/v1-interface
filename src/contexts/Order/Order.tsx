@@ -2,12 +2,7 @@ import React, { useCallback, useReducer } from "react";
 
 import OrderContext from "./context";
 
-import reducer, {
-    addItem,
-    initialState,
-    removeItem,
-    changeItem,
-} from "./reducer";
+import reducer, { addItem, initialState, changeItem } from "./reducer";
 
 import { OrderItem } from "./types";
 
@@ -24,13 +19,6 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleRemoveItem = useCallback(
-        (item: OrderItem) => {
-            dispatch(changeItem(item));
-        },
-        [dispatch]
-    );
-
     const handleChangeItem = useCallback(
         (item: OrderItem) => {
             dispatch(changeItem(item));
@@ -39,7 +27,6 @@ const Order: React.FC = (props) => {
     );
 
     const handleBuyOptions = async (provider, optionAddress, quantity: any) => {
-        console.log("Buying options:", { optionAddress, quantity });
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
         await swap(signer, quantity, optionAddress, stablecoinAddress);
