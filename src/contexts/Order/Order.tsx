@@ -11,6 +11,9 @@ import reducer, {
 
 import { OrderItem } from "./types";
 
+import UniswapPairs from "./uniswap_pairs.json";
+import { swap } from "../../lib/uniswap";
+
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -35,8 +38,11 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleBuyOptions = async (optionAddress, quantity: any) => {
+    const handleBuyOptions = async (provider, optionAddress, quantity: any) => {
         console.log("Buying options:", { optionAddress, quantity });
+        let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
+        let signer = await provider.getSigner();
+        await swap(signer, quantity, optionAddress, stablecoinAddress);
     };
 
     return (

@@ -3,6 +3,7 @@ export interface OrderContextValues {
     onAddItem: (item: OrderItem) => void;
     onChangeItem: (item: OrderItem) => void;
     buyOptions: (
+        provider: any,
         optionAddress: string,
         quantity: number | undefined
     ) => Promise<void>;

@@ -8,6 +8,7 @@ const OrderContext = createContext<OrderContextValues>({
     onAddItem: (item: OrderItem) => {},
     onChangeItem: (item: OrderItem) => {},
     buyOptions: async (
+        provider: any,
         optionAddress: string,
         quantity: number | undefined
     ) => {},

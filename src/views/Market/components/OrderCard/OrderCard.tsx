@@ -7,6 +7,7 @@ import CardTitle from "../../../../components/CardTitle";
 import Button from "../../../../components/Button";
 
 import useOrders from "../../../../hooks/useOrders";
+import { useWeb3React } from "@web3-react/core";
 
 import EmptyContent from "./components/EmptyContent";
 
@@ -15,6 +16,7 @@ interface OrderCardProps {}
 const OrderCard: React.FC<OrderCardProps> = (props) => {
     const [quantity, setQuantity] = useState();
     const { item, buyOptions } = useOrders();
+    const web3React = useWeb3React();
     useEffect(() => {}, [item]);
 
     const handleChange = (event) => {
@@ -41,7 +43,11 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                         />
                         <Button
                             onClick={() => {
-                                buyOptions(item?.address, quantity);
+                                buyOptions(
+                                    web3React.library,
+                                    item?.address,
+                                    quantity
+                                );
                             }}
                             text="Submit"
                         />
