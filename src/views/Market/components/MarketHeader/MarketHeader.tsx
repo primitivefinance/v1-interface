@@ -3,10 +3,8 @@ import styled from "styled-components";
 
 import GoBack from "../../../../components/GoBack";
 import LitContainer from "../../../../components/LitContainer";
-import Button from "../../../../components/Button";
 
 import usePrices from "../../../../hooks/usePrices";
-import { namehash } from "ethers/lib/utils";
 
 export interface MarketHeaderProps {
     name: string;
