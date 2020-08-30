@@ -1,17 +1,12 @@
 import React, { useCallback, useReducer, useEffect } from "react";
-import ethers from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import UniswapFactoryArtifact from "@uniswap/v2-core/build/UniswapV2Factory.json";
-import UniswapPairArtifact from "@uniswap/v2-core/build/UniswapV2Pair.json";
 import {
     Token,
-    WETH,
     Fetcher,
     Trade,
     TokenAmount,
     TradeType,
     Route,
-    Percent,
 } from "@uniswap/sdk";
 
 import { useWeb3React } from "@web3-react/core";
@@ -23,8 +18,7 @@ import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
 import AssetAddresses from "./assets.json";
-import { formatEther } from "ethers/lib/utils";
-const UniswapFactoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
+import { parse } from "path";
 
 const Options: React.FC = (props) => {
     const [state, dispatch] = useReducer(optionsReducer, initialState);
@@ -47,6 +41,12 @@ const Options: React.FC = (props) => {
         })();
     }, []);
 
+    /**
+     * @dev Calculates the breakeven asset price depending on if the option is a call or put.
+     * @param strike The strike price of the option.
+     * @param price The current price of the option.
+     * @param isCall If the option is a call, if not a call, its a put.
+     */
     const calculateBreakeven = (strike, price, isCall) => {
         let breakeven;
         if (isCall) {
@@ -57,50 +57,10 @@ const Options: React.FC = (props) => {
         return Number(breakeven);
     };
 
-    /* const getPair = async (providerOrSigner, optionAddr) => {
-        let poolAddr = ethers.constants.AddressZero;
-        const signer = await providerOrSigner.getSigner();
-        const uniFac = new ethers.Contract(
-            UniswapFactoryAddress,
-            UniswapFactoryArtifact.abi,
-            signer
-        );
-        poolAddr = await uniFac.getPair(
-            optionAddr,
-            "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2"
-        );
-
-        return poolAddr;
-    };
-
-    const getPairData = async (optionAddress) => {
-        let premium = 0;
-        let openInterest = 0;
-        const provider = web3React.library;
-        if (!provider) {
-            console.error("No connected provider");
-            return { premium, openInterest };
-        }
-        const pairAddress = await getPair(provider, optionAddress);
-        let signer = await provider.getSigner();
-        // need price to calc premium + breakeven, total liquidity for option, volume
-        const pair = new ethers.Contract(
-            pairAddress,
-            UniswapPairArtifact.abi,
-            signer
-        );
-        const token0 = await pair.token0();
-        const reserves = await pair.getReserves();
-
-        premium = reserves._reserve0 / reserves._reserve1;
-        openInterest = reserves._reserve0;
-
-        if (premium > 10 ** 18) {
-            premium = Number(formatEther(premium.toString()));
-        }
-        return { premium, openInterest };
-    }; */
-
+    /**
+     * @dev If no provider is connected, it will stop execution by returning.
+     * @param args Any args...
+     */
     const checkProvider = (...args) => {
         if (!provider) {
             console.error("No connected provider");
@@ -109,36 +69,32 @@ const Options: React.FC = (props) => {
     };
 
     /**
-     *
+     * @dev Gets the execution price for 1 unit of option tokens and returns it.
      * @param optionAddress The address of the option token to get a uniswap pair of.
-     * @param stablecoinAddress The address of the stablecoin token to get the uniswap pair of.
      */
     const getPairData = async (optionAddress) => {
         let premium = 0;
 
         // Check to make sure we are connected to a web3 provider.
         checkProvider();
-        let signer = await provider.getSigner();
-        let chain = await signer.getChainId();
+        const signer = await provider.getSigner();
+        const chain = await signer.getChainId();
+        const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
 
         const OPTION = new Token(chain, optionAddress, 18);
-        const STABLECOIN = new Token(
-            chain,
-            "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2",
-            18
-        );
+        const STABLECOIN = new Token(chain, stablecoinAddress, 18);
 
         const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
         const route = new Route([pair], STABLECOIN, OPTION);
-        const midPrice = route.midPrice.toSignificant(6);
+        const midPrice = Number(route.midPrice.toSignificant(6));
 
-        const trade = new Trade(
-            route,
-            new TokenAmount(OPTION, parseEther("1").toString()),
-            TradeType.EXACT_OUTPUT
-        );
-        const executionPrice = trade.executionPrice.toSignificant(6);
-        premium = Number(executionPrice);
+        const unit = parseEther("1").toString();
+        const tokenAmount = new TokenAmount(OPTION, unit);
+        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+
+        const executionPrice = Number(trade.executionPrice.toSignificant(6));
+
+        premium = executionPrice > midPrice ? executionPrice : midPrice;
         return { premium };
     };
 
@@ -154,17 +110,24 @@ const Options: React.FC = (props) => {
 
     const handleOptions = useCallback(
         async (assetName) => {
+            // Web3 variables
             const provider = web3React.library;
             const signer = await provider.getSigner();
             const chain = await signer.getChainId();
+
+            // Asset address and quantity of options
             let assetAddress = getAssetAddress(assetName, chain);
+            let optionsLength = Object.keys(OptionDeployments).length;
+
+            // Objects and arrays to populate
             let optionsObject = {
                 calls: [EmptyAttributes],
                 puts: [EmptyAttributes],
             };
-            let optionsLength = Object.keys(OptionDeployments).length;
             let calls: OptionsAttributes[] = [];
             let puts: OptionsAttributes[] = [];
+
+            // For each option in the option deployments file...
             for (let i = 0; i < optionsLength; i++) {
                 // Get the parameters for the option object in the option_deployments json file.
                 let key = Object.keys(OptionDeployments)[i];
@@ -194,8 +157,7 @@ const Options: React.FC = (props) => {
 
                 // Get the option price data from uniswap pair.
                 const { premium } = await getPairData(address);
-                price = Number(premium);
-                console.log({ premium });
+                price = premium;
 
                 // If the base is 1, push to calls array. If quote is 1, push to puts array.
                 // If a call, set the strike to the quote. If a put, set the strike to the base.
@@ -205,7 +167,6 @@ const Options: React.FC = (props) => {
                     strike = Number(quote);
                     arrayToPushTo = calls;
                 }
-
                 if (quote == "1") {
                     isCall = false;
                     strike = Number(base);
