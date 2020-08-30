@@ -7,7 +7,6 @@ import useOptions from "../../../../hooks/useOptions";
 import AddIcon from "@material-ui/icons/Add";
 
 import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
 
 import IconButton from "../../../../components/IconButton";
 import LitContainer from "../../../../components/LitContainer";
