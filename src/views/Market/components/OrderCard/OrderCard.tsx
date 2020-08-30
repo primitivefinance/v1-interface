@@ -13,30 +13,24 @@ import EmptyContent from "./components/EmptyContent";
 interface OrderCardProps {}
 
 const OrderCard: React.FC<OrderCardProps> = (props) => {
-    const { items } = useOrders();
-    useEffect(() => {}, [items]);
+    const { item } = useOrders();
+    useEffect(() => {}, [item]);
     return (
         <Card>
             <CardTitle>Your Order</CardTitle>
             <CardContent>
-                {items.length > 0 ? (
-                    items.map((item, i) => {
-                        return (
-                            <>
-                                <h4>
-                                    Option: {""}
-                                    {item?.id}
-                                </h4>
-                                <h4>Price: ${item.price.toFixed(2)}</h4>
-                                <StyledLabel>Quantity: </StyledLabel>
-                                <StyledInput placeholder="0.00" type="number" />
-                                <Button onClick={() => {}} text="Submit" />
-                            </>
-                        );
-                    })
-                ) : (
-                    <EmptyContent />
-                )}
+                {
+                    <>
+                        <h4>
+                            Option: {""}
+                            {item?.id}
+                        </h4>
+                        <h4>Price: ${item.price.toFixed(2)}</h4>
+                        <StyledLabel>Quantity: </StyledLabel>
+                        <StyledInput placeholder="0.00" type="number" />
+                        <Button onClick={() => {}} text="Submit" />
+                    </>
+                }
             </CardContent>
         </Card>
     );

@@ -1,7 +1,7 @@
 export interface OrderContextValues {
-    items: OrderItem[];
+    item: OrderItem;
     onAddItem: (item: OrderItem) => void;
-    onRemoveItem: () => void;
+    onChangeItem: (item: OrderItem) => void;
 }
 
 export interface OrderItem {
@@ -15,5 +15,5 @@ export interface OrderItem {
 }
 
 export interface OrderState {
-    items: OrderItem[];
+    item: OrderItem;
 }

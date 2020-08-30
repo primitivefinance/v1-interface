@@ -2,7 +2,12 @@ import React, { useCallback, useReducer } from "react";
 
 import OrderContext from "./context";
 
-import reducer, { addItem, initialState, removeItem } from "./reducer";
+import reducer, {
+    addItem,
+    initialState,
+    removeItem,
+    changeItem,
+} from "./reducer";
 
 import { OrderItem } from "./types";
 
@@ -16,18 +21,28 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleRemoveItem = useCallback(() => {
-        dispatch(removeItem());
-    }, [dispatch]);
+    const handleRemoveItem = useCallback(
+        (item: OrderItem) => {
+            dispatch(changeItem(item));
+        },
+        [dispatch]
+    );
+
+    const handleChangeItem = useCallback(
+        (item: OrderItem) => {
+            dispatch(changeItem(item));
+        },
+        [dispatch]
+    );
 
     const handleBuyOptions = async (optionAddress, quantity) => {};
 
     return (
         <OrderContext.Provider
             value={{
-                items: state.items,
+                item: state.item,
                 onAddItem: handleAddItem,
-                onRemoveItem: handleRemoveItem,
+                onChangeItem: handleChangeItem,
             }}
         >
             {props.children}
