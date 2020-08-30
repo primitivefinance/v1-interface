@@ -10,12 +10,11 @@ import { namehash } from "ethers/lib/utils";
 
 export interface MarketHeaderProps {
     name: string;
-    price: number;
     symbol: string;
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
-    const { name, price, symbol } = props;
+    const { name, symbol } = props;
     const { prices, getPrices } = usePrices();
 
     useEffect(() => {

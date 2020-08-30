@@ -10,6 +10,7 @@ import useOrders from "../../../../hooks/useOrders";
 import { useWeb3React } from "@web3-react/core";
 
 import EmptyContent from "./components/EmptyContent";
+import { StyledAvailable } from "./components/EmptyContent";
 
 interface OrderCardProps {}
 
@@ -27,7 +28,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         <Card>
             <CardTitle>Your Order</CardTitle>
             <CardContent>
-                {
+                {item.id ? (
                     <>
                         <h4>
                             Option: {""}
@@ -51,8 +52,11 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                             }}
                             text="Submit"
                         />
+                        <StyledAvailable>$250,000 Buying Power</StyledAvailable>
                     </>
-                }
+                ) : (
+                    <EmptyContent />
+                )}
             </CardContent>
         </Card>
     );

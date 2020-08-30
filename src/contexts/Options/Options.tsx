@@ -1,7 +1,18 @@
 import React, { useCallback, useReducer, useEffect } from "react";
 import ethers from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import UniswapFactoryArtifact from "@uniswap/v2-core/build/UniswapV2Factory.json";
 import UniswapPairArtifact from "@uniswap/v2-core/build/UniswapV2Pair.json";
+import {
+    Token,
+    WETH,
+    Fetcher,
+    Trade,
+    TokenAmount,
+    TradeType,
+    Route,
+    Percent,
+} from "@uniswap/sdk";
 
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
@@ -13,6 +24,7 @@ import optionsReducer, { initialState, setOptions } from "./reducer";
 import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
+import { formatEther } from "ethers/lib/utils";
 const UniswapFactoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
 
 const Options: React.FC = (props) => {
@@ -49,7 +61,7 @@ const Options: React.FC = (props) => {
         } else {
             breakeven = price + strike;
         }
-        return breakeven;
+        return Number(breakeven);
     };
 
     const getPair = async (providerOrSigner, optionAddr) => {
@@ -87,7 +99,7 @@ const Options: React.FC = (props) => {
         const token0 = await pair.token0();
         const reserves = await pair.getReserves();
 
-        if (token0 == optionAddress) {
+        /* if (token0 == optionAddress) {
             premium = await pair.price0CumulativeLast();
             openInterest = reserves._reserve0;
         } else {
@@ -97,6 +109,12 @@ const Options: React.FC = (props) => {
 
         if (premium == 0) {
             premium = reserves._reserve0 / reserves._reserve1;
+        } */
+        premium = reserves._reserve0 / reserves._reserve1;
+        openInterest = reserves._reserve0;
+
+        if (premium > 10 ** 18) {
+            premium = Number(formatEther(premium.toString()));
         }
         return { premium, openInterest };
     };
@@ -139,7 +157,7 @@ const Options: React.FC = (props) => {
 
                 // Get the option price data from uniswap pair.
                 const { premium, openInterest } = await getPairData(address);
-                price = premium;
+                price = Number(premium);
                 console.log({ premium });
 
                 // If the base is 1, push to calls array. If quote is 1, push to puts array.

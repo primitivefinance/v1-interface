@@ -19,7 +19,7 @@ const mockOptions = [
 ];
 
 const Market: React.FC = () => {
-    const [callPutActive, setCallPutActive] = useState(false);
+    const [callPutActive, setCallPutActive] = useState(true);
 
     const handleFilter = () => {
         setCallPutActive(!callPutActive);
@@ -30,11 +30,7 @@ const Market: React.FC = () => {
                 <OptionsProvider>
                     <StyledMarket>
                         <StyledMain>
-                            <MarketHeader
-                                name="Ethereum"
-                                price={280.33}
-                                symbol="ETH"
-                            />
+                            <MarketHeader name="Ethereum" symbol="ETH" />
                             <FilterBar
                                 active={callPutActive}
                                 setCallActive={handleFilter}
