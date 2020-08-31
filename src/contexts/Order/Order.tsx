@@ -8,6 +8,7 @@ import { OrderItem } from "./types";
 
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
+import { mint } from "../../lib/primitive";
 
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -26,10 +27,23 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleBuyOptions = async (provider, optionAddress, quantity: any) => {
+    const handleBuyOptions = async (
+        provider,
+        optionAddress: string,
+        quantity: any
+    ) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
         await swap(signer, quantity, optionAddress, stablecoinAddress);
+    };
+
+    const handleMintOptions = async (
+        provider,
+        optionAddress: string,
+        quantity: any
+    ) => {
+        let signer = await provider.getSigner();
+        await mint(signer, quantity, optionAddress);
     };
 
     return (
@@ -39,6 +53,7 @@ const Order: React.FC = (props) => {
                 onAddItem: handleAddItem,
                 onChangeItem: handleChangeItem,
                 buyOptions: handleBuyOptions,
+                mintOptions: handleMintOptions,
             }}
         >
             {props.children}

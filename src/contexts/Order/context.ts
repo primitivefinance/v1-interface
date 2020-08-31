@@ -12,6 +12,11 @@ const OrderContext = createContext<OrderContextValues>({
         optionAddress: string,
         quantity: number | undefined
     ) => {},
+    mintOptions: async (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
 });
 
 export default OrderContext;

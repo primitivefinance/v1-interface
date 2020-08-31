@@ -1907,17 +1907,17 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@openzeppelin/contracts@^3.0.1":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.1.0.tgz#bcea457ef89069fbe5a617f50b25b6a8272895d5"
-  integrity sha512-dVXDnUKxrAKLzPdCRkz+N8qsVkK1XxJ6kk3zuI6zaQmcKxN7CkizoDP7lXxcs/Mi2I0mxceTRjJBqlzFffLJrQ==
+"@openzeppelin/contracts@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.0.1.tgz#2f327f77d16b43f14674086b2b634bda38cb0838"
+  integrity sha512-uSrD7hZ0ViuHGqHZbeHawZBi/uy7aBiNramXAt2dFFuSuoU4u9insS3V3zdVfOnYSPreUo636xSOuQIFN4//HA==
 
-"@primitivefi/contracts@^0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.2.9.tgz#af6d4ed57e4911fb5dd9f1b430c4ec017cdb4e66"
-  integrity sha512-dEL3gz8Fj/kZrYrH536KiX6mj0C8Jd+AxzAxPa7aD0dEKCAJ2ZMuqJ8gY/0/bbYdwJSuB/ZJ52NVEWC87e6TMg==
+"@primitivefi/contracts@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.3.1.tgz#8664da6f1ebc6c166ac1f16f60a6ea858c7588f0"
+  integrity sha512-9V556P/SAqG+FdAa8Kd2PcCF2yfKHQ6OHnPpKese5ig5K4paDC5uuMYx3PYwDo8qHZ73cNc4LbqCu+G9N6y0iw==
   dependencies:
-    "@openzeppelin/contracts" "^3.0.1"
+    "@openzeppelin/contracts" "3.0.1"
     "@uniswap/v2-core" "^1.0.1"
     "@uniswap/v2-periphery" "^1.1.0-beta.0"
     bip39 "^3.0.2"

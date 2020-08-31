@@ -15,19 +15,67 @@ import { StyledAvailable } from "./components/EmptyContent";
 interface OrderCardProps {}
 
 const OrderCard: React.FC<OrderCardProps> = (props) => {
+    const [buyCard, setBuyCard] = useState(true);
     const [quantity, setQuantity] = useState();
-    const { item, buyOptions } = useOrders();
+    const { item, buyOptions, mintOptions } = useOrders();
     const web3React = useWeb3React();
     useEffect(() => {}, [item]);
 
     const handleChange = (event) => {
         setQuantity(event.target.value);
     };
+
+    const onToggle = () => {
+        setBuyCard(!buyCard);
+    };
+
     return (
         <Card>
             <CardTitle>Your Order</CardTitle>
             <CardContent>
-                {item.id ? (
+                <Button
+                    onClick={onToggle}
+                    text={"Buy"}
+                    variant={!buyCard ? "transparent" : "filled"}
+                />
+                <Button
+                    onClick={onToggle}
+                    text={"Mint"}
+                    variant={!buyCard ? "filled" : "transparent"}
+                />
+                {buyCard ? (
+                    item.id ? (
+                        <>
+                            <h4>
+                                Option: {""}
+                                {item?.id}
+                            </h4>
+                            <h4>Price: ${item.price.toFixed(2)}</h4>
+                            <StyledLabel>Quantity: </StyledLabel>
+                            <StyledInput
+                                placeholder="0.00"
+                                type="number"
+                                onChange={handleChange}
+                                value={quantity}
+                            />
+                            <Button
+                                onClick={() => {
+                                    buyOptions(
+                                        web3React.library,
+                                        item?.address,
+                                        quantity
+                                    );
+                                }}
+                                text="Buy"
+                            />
+                            <StyledAvailable>
+                                $250,000 Buying Power
+                            </StyledAvailable>
+                        </>
+                    ) : (
+                        <EmptyContent />
+                    )
+                ) : item.id ? (
                     <>
                         <h4>
                             Option: {""}
@@ -43,13 +91,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                         />
                         <Button
                             onClick={() => {
-                                buyOptions(
+                                mintOptions(
                                     web3React.library,
                                     item?.address,
                                     quantity
                                 );
                             }}
-                            text="Buy"
+                            text="Mint"
                         />
                         <StyledAvailable>$250,000 Buying Power</StyledAvailable>
                     </>
