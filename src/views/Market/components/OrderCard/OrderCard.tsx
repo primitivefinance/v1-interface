@@ -12,6 +12,8 @@ import { useWeb3React } from "@web3-react/core";
 import EmptyContent from "./components/EmptyContent";
 import { StyledAvailable } from "./components/EmptyContent";
 
+import { destructureOptionSymbol } from "../../../../lib/utils";
+
 interface OrderCardProps {}
 
 const OrderCard: React.FC<OrderCardProps> = (props) => {
@@ -20,6 +22,10 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
     const { item, buyOptions, mintOptions } = useOrders();
     const web3React = useWeb3React();
     useEffect(() => {}, [item]);
+
+    const { asset, year, month, day, type, strike } = destructureOptionSymbol(
+        item.id
+    );
 
     const handleChange = (event) => {
         setQuantity(event.target.value);
@@ -47,8 +53,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                     item.id ? (
                         <>
                             <h4>
-                                Option: {""}
-                                {item?.id}
+                                Buying {asset} {type == "C" ? "Call" : "Put"} $
+                                {strike} {month}/{day}/{year}
                             </h4>
                             <h4>Price: ${item.price.toFixed(2)}</h4>
                             <StyledLabel>Quantity: </StyledLabel>
