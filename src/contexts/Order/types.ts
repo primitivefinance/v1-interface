@@ -13,6 +13,21 @@ export interface OrderContextValues {
         optionAddress: string,
         quantity: number | undefined
     ) => Promise<void>;
+    exerciseOptions: (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => Promise<void>;
+    redeemOptions: (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => Promise<void>;
+    closeOptions: (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => Promise<void>;
 }
 
 export interface OrderItem {

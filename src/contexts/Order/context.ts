@@ -18,6 +18,21 @@ const OrderContext = createContext<OrderContextValues>({
         optionAddress: string,
         quantity: number | undefined
     ) => {},
+    exerciseOptions: async (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
+    redeemOptions: async (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
+    closeOptions: async (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
 });
 
 export default OrderContext;
