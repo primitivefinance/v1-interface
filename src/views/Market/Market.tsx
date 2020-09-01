@@ -4,6 +4,7 @@ import styled from "styled-components";
 import OrderProvider from "../../contexts/Order";
 import PricesProvider from "../../contexts/Prices";
 import OptionsProvider from "../../contexts/Options";
+import PositionsProvider from "../../contexts/Positions";
 
 import FilterBar from "./components/FilterBar";
 import MarketHeader from "./components/MarketHeader";
@@ -30,29 +31,31 @@ const Market: React.FC = () => {
         <PricesProvider>
             <OrderProvider>
                 <OptionsProvider>
-                    <StyledMarket>
-                        <StyledMain>
-                            <MarketHeader name="Ethereum" symbol="ETH" />
-                            <FilterBar
-                                active={callPutActive}
-                                setCallActive={handleFilter}
-                            />
-                            <OptionsTable
-                                options={mockOptions}
-                                asset="Ethereum"
-                                callActive={callPutActive}
-                            />
-                            <PositionsHeader name="Ethereum" symbol="ETH" />
-                            <PositionsTable
-                                positions={mockOptions}
-                                asset="Ethereum"
-                                callActive={callPutActive}
-                            />
-                        </StyledMain>
-                        <StyledSideBar>
-                            <OrderCard />
-                        </StyledSideBar>
-                    </StyledMarket>
+                    <PositionsProvider>
+                        <StyledMarket>
+                            <StyledMain>
+                                <MarketHeader name="Ethereum" symbol="ETH" />
+                                <FilterBar
+                                    active={callPutActive}
+                                    setCallActive={handleFilter}
+                                />
+                                <OptionsTable
+                                    options={mockOptions}
+                                    asset="Ethereum"
+                                    callActive={callPutActive}
+                                />
+                                <PositionsHeader name="Ethereum" symbol="ETH" />
+                                <PositionsTable
+                                    positions={mockOptions}
+                                    asset="Ethereum"
+                                    callActive={callPutActive}
+                                />
+                            </StyledMain>
+                            <StyledSideBar>
+                                <OrderCard />
+                            </StyledSideBar>
+                        </StyledMarket>
+                    </PositionsProvider>
                 </OptionsProvider>
             </OrderProvider>
         </PricesProvider>

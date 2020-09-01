@@ -12,14 +12,12 @@ const Prices: React.FC = (props) => {
 
     const handlePrices = useCallback(
         async (asset) => {
-            console.log("fetching prices...");
             let pricesData: PricesData = {};
             const priceAPI = `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd&include_24hr_change=true`;
             fetch(priceAPI)
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        console.log({ result });
                         let key = Object.keys(result)[0];
                         let price = result[key].usd;
                         Object.assign(pricesData, {

@@ -15,6 +15,7 @@ export type OptionsAttributes = {
     volume: number;
     address: string;
     id: string;
+    expiry: number;
 };
 
 export const EmptyAttributes = {
@@ -25,6 +26,7 @@ export const EmptyAttributes = {
     volume: 0,
     address: "",
     id: "",
+    expiry: 0,
 };
 
 export interface OptionsState {

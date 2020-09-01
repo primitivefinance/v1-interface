@@ -3,12 +3,14 @@ import styled from "styled-components";
 
 import useOrders from "../../../../hooks/useOrders";
 import useOptions from "../../../../hooks/useOptions";
+import usePositions from "../../../../hooks/usePositions";
 
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 
 import { useWeb3React } from "@web3-react/core";
 
+import Timer from "../Timer";
 import IconButton from "../../../../components/IconButton";
 import LitContainer from "../../../../components/LitContainer";
 import Table from "../../../../components/Table";
@@ -33,16 +35,45 @@ export interface PositionsTableProps {
 const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     const { callActive, asset } = props;
     const { options, getOptions } = useOptions();
+    const { positions, getPositions } = usePositions();
     const { onAddItem } = useOrders();
     const web3React = useWeb3React();
 
     useEffect(() => {
         if (web3React.library) {
             getOptions(asset.toLowerCase());
+            if (options.calls.length > 1) {
+                getPositions(asset.toLowerCase(), options);
+            }
         }
     }, [web3React.library]);
 
+    useEffect(() => {
+        if (web3React.library) {
+            getPositions(asset.toLowerCase(), options);
+        }
+    }, [options]);
+
     const type = callActive ? "calls" : "puts";
+
+    const formatDateFromSymbol = (symbol) => {
+        // symbol = ASSET yyyy mm dd TYPE STRIKE
+        // 0-5 asset
+        // 5-9 year
+        // 9-11 month
+        // 11-12 day
+        // 13-14 type
+        // 14-19 strike
+
+        let asset = symbol.substring(0, 5);
+        let year = symbol.substring(5, 9);
+        let month = symbol.substring(9, 11);
+        let day = symbol.substring(11, 12); // fix day should be 2 => dd
+        let type = symbol.substring(12, 13);
+        let strike = Number(symbol.substring(13, 19)).toString();
+
+        return { year, month, day };
+    };
 
     return (
         <Table>
@@ -59,18 +90,23 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
             </StyledTableHead>
             <LitContainer>
                 <TableBody>
-                    {options[type].map((option, i) => {
-                        const { breakEven, price, strike, address } = option;
+                    {positions[type].map((position, i) => {
+                        const { name, symbol, address, balance } = position;
+                        const { price, id, expiry } = options[type][i];
+                        const { month, day, year } = formatDateFromSymbol(id);
                         return (
                             <TableRow key={address}>
-                                <TableCell>${strike}</TableCell>
-                                <TableCell>${breakEven.toFixed(2)}</TableCell>
+                                <TableCell>{name}</TableCell>
+                                <TableCell>{balance.toFixed(2)}</TableCell>
                                 <TableCell>${price.toFixed(5)}</TableCell>
-                                <TableCell>{address.substring(0, 6)}</TableCell>
+                                <TableCell>
+                                    {/* {month}/{day}/{year}  */}
+                                    <Timer expiry={expiry} />
+                                </TableCell>
                                 <StyledButtonCell>
                                     <IconButton
                                         onClick={() => {
-                                            onAddItem(option);
+                                            /* onAddItem(position); */
                                         }}
                                         variant="outlined"
                                     >

@@ -1,6 +1,6 @@
 export interface PositionsContextValues {
     positions: PositionsData;
-    getPositions: (assetName: string) => void;
+    getPositions: (assetName: string, options: any) => void;
 }
 export interface PositionsData {
     calls: PositionsAttributes[];
@@ -16,7 +16,7 @@ export type PositionsAttributes = {
 
 export const EmptyPositionsAttributes = {
     name: "",
-    symbol: 0,
+    symbol: "",
     address: "",
     balance: 0,
 };

@@ -11,7 +11,7 @@ const PositionsContext = createContext<PositionsContextValues>({
         calls: [EmptyPositionsAttributes],
         puts: [EmptyPositionsAttributes],
     },
-    getPositions: (assetName: string) => {},
+    getPositions: (assetName: string, options: any) => {},
 });
 
 export default PositionsContext;
