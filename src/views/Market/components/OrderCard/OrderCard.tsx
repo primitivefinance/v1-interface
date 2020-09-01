@@ -19,7 +19,14 @@ interface OrderCardProps {}
 const OrderCard: React.FC<OrderCardProps> = (props) => {
     const [buyCard, setBuyCard] = useState(true);
     const [quantity, setQuantity] = useState();
-    const { item, buyOptions, mintOptions, orderType } = useOrders();
+    const {
+        item,
+        buyOptions,
+        mintOptions,
+        exerciseOptions,
+        closeOptions,
+        orderType,
+    } = useOrders();
     const { buyOrMint } = orderType;
     const web3React = useWeb3React();
     useEffect(() => {}, [item]);
@@ -122,12 +129,12 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                     <>
                         <Button
                             onClick={onToggle}
-                            text={"Buy"}
+                            text={"Exercise"}
                             variant={!buyCard ? "transparent" : "filled"}
                         />
                         <Button
                             onClick={onToggle}
-                            text={"Mint"}
+                            text={"Close"}
                             variant={!buyCard ? "filled" : "transparent"}
                         />
                         {buyCard ? (
@@ -148,13 +155,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     />
                                     <Button
                                         onClick={() => {
-                                            buyOptions(
+                                            exerciseOptions(
                                                 web3React.library,
                                                 item?.address,
                                                 quantity
                                             );
                                         }}
-                                        text="Buy"
+                                        text="Exercise"
                                     />
                                     <StyledAvailable>
                                         $250,000 Buying Power
@@ -180,13 +187,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 />
                                 <Button
                                     onClick={() => {
-                                        mintOptions(
+                                        closeOptions(
                                             web3React.library,
                                             item?.address,
                                             quantity
                                         );
                                     }}
-                                    text="Mint"
+                                    text="Close"
                                 />
                                 <StyledAvailable>
                                     $250,000 Buying Power
