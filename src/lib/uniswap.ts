@@ -82,4 +82,97 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     }
 };
 
+/* const getPairData = async (optionAddress) => {
+    let premium = 0;
+
+    // Check to make sure we are connected to a web3 provider.
+    const signer = await provider.getSigner();
+    const chain = await signer.getChainId();
+    const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
+
+    const OPTION = new Token(chain, optionAddress, 18);
+    const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+
+    const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+    const route = new Route([pair], STABLECOIN, OPTION);
+    const midPrice = Number(route.midPrice.toSignificant(6));
+
+    const unit = parseEther("1").toString();
+    const tokenAmount = new TokenAmount(OPTION, unit);
+    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+
+    const executionPrice = Number(trade.executionPrice.toSignificant(6));
+
+    premium = executionPrice > midPrice ? executionPrice : midPrice;
+    return { premium };
+}; */
+
+const addLiquidity = async (
+    signer,
+    quantity,
+    optionAddress,
+    stablecoinAddress
+) => {
+    /* 
+        function addLiquidity(
+          address tokenA,
+          address tokenB,
+          uint amountADesired,
+          uint amountBDesired,
+          uint amountAMin,
+          uint amountBMin,
+          address to,
+          uint deadline
+        ) external returns (uint amountA, uint amountB, uint liquidity);
+    */
+
+    // Get router instances
+    let router = new ethers.Contract(
+        UNI_ROUTER_ADDRESS,
+        UniswapV2Router02Artifact.abi,
+        signer
+    );
+
+    // Check allowances
+    await checkAllowance(signer, stablecoinAddress, UNI_ROUTER_ADDRESS);
+    await checkAllowance(signer, optionAddress, UNI_ROUTER_ADDRESS);
+
+    const chain = await signer.getChainId();
+    const OPTION = new Token(chain, optionAddress, 18);
+    const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+
+    const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+    const route = new Route([pair], STABLECOIN, OPTION);
+    const midPrice = Number(route.midPrice.toSignificant(6));
+
+    const unit = parseEther("1").toString();
+    const tokenAmount = new TokenAmount(OPTION, unit);
+    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+
+    // Craft the trade parameters
+    const tokenA = optionAddress;
+    const tokenB = stablecoinAddress;
+    let amountADesired;
+    let amountBDesired;
+    let amountAMin;
+    let amountBMin;
+    const to = await signer.getAddress();
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+
+    try {
+        await router.addLiquidity(
+            tokenA,
+            tokenB,
+            amountADesired,
+            amountBDesired,
+            amountAMin,
+            amountBMin,
+            to,
+            deadline
+        );
+    } catch (err) {
+        console.log("Error adding liquidity: ", err);
+    }
+};
+
 export { swap };

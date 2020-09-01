@@ -13,7 +13,6 @@ const destructureOptionSymbol = (symbol) => {
     let day = symbol.substring(11, 12); // fix day should be 2 => dd
     let type = symbol.substring(12, 13);
     let strike = Number(symbol.substring(13, 19)).toString();
-    console.log({ asset, year, month, day, type, strike });
 
     return { asset, year, month, day, type, strike };
 };

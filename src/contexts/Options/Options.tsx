@@ -18,7 +18,6 @@ import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
 import AssetAddresses from "./assets.json";
-import { parse } from "path";
 
 const Options: React.FC = (props) => {
     const [state, dispatch] = useReducer(optionsReducer, initialState);

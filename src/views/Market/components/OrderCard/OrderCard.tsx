@@ -84,8 +84,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                 ) : item.id ? (
                     <>
                         <h4>
-                            Option: {""}
-                            {item?.id}
+                            Minting {asset} {type == "C" ? "Call" : "Put"} $
+                            {strike} {month}/{day}/{year}
                         </h4>
                         <h4>Price: ${item.price.toFixed(2)}</h4>
                         <StyledLabel>Quantity: </StyledLabel>
