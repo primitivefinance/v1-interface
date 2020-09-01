@@ -10,6 +10,8 @@ import RemoveIcon from "@material-ui/icons/Remove";
 
 import { useWeb3React } from "@web3-react/core";
 
+import { OrderItem } from "../../../../contexts/Order/types";
+
 import Timer from "../Timer";
 import IconButton from "../../../../components/IconButton";
 import LitContainer from "../../../../components/LitContainer";
@@ -56,25 +58,6 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
 
     const type = callActive ? "calls" : "puts";
 
-    const formatDateFromSymbol = (symbol) => {
-        // symbol = ASSET yyyy mm dd TYPE STRIKE
-        // 0-5 asset
-        // 5-9 year
-        // 9-11 month
-        // 11-12 day
-        // 13-14 type
-        // 14-19 strike
-
-        let asset = symbol.substring(0, 5);
-        let year = symbol.substring(5, 9);
-        let month = symbol.substring(9, 11);
-        let day = symbol.substring(11, 12); // fix day should be 2 => dd
-        let type = symbol.substring(12, 13);
-        let strike = Number(symbol.substring(13, 19)).toString();
-
-        return { year, month, day };
-    };
-
     return (
         <Table>
             <StyledTableHead>
@@ -92,21 +75,22 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                 <TableBody>
                     {positions[type].map((position, i) => {
                         const { name, symbol, address, balance } = position;
-                        const { price, id, expiry } = options[type][i];
-                        const { month, day, year } = formatDateFromSymbol(id);
+                        const option: OrderItem = options[type][i];
+                        const { price, id, expiry } = option;
                         return (
                             <TableRow key={address}>
                                 <TableCell>{name}</TableCell>
                                 <TableCell>{balance.toFixed(2)}</TableCell>
                                 <TableCell>${price.toFixed(5)}</TableCell>
                                 <TableCell>
-                                    {/* {month}/{day}/{year}  */}
                                     <Timer expiry={expiry} />
                                 </TableCell>
                                 <StyledButtonCell>
                                     <IconButton
                                         onClick={() => {
-                                            /* onAddItem(position); */
+                                            onAddItem(option, {
+                                                buyOrMint: false,
+                                            });
                                         }}
                                         variant="outlined"
                                     >

@@ -1,7 +1,8 @@
 export interface OrderContextValues {
     item: OrderItem;
-    onAddItem: (item: OrderItem) => void;
-    onChangeItem: (item: OrderItem) => void;
+    orderType: OrderType;
+    onAddItem: (item: OrderItem, orderType: OrderType) => void;
+    onChangeItem: (item: OrderItem, orderType: OrderType) => void;
     buyOptions: (
         provider: any,
         optionAddress: string,
@@ -22,8 +23,14 @@ export interface OrderItem {
     volume: number;
     address: string;
     id: string;
+    expiry: number;
 }
 
 export interface OrderState {
     item: OrderItem;
+    orderType: OrderType;
+}
+
+export interface OrderType {
+    buyOrMint: boolean;
 }

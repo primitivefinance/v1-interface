@@ -4,7 +4,7 @@ import OrderContext from "./context";
 
 import reducer, { addItem, initialState, changeItem } from "./reducer";
 
-import { OrderItem } from "./types";
+import { OrderItem, OrderType } from "./types";
 
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
@@ -14,15 +14,22 @@ const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     const handleAddItem = useCallback(
-        (item: OrderItem) => {
-            dispatch(addItem(item));
+        (item: OrderItem, orderType: OrderType) => {
+            dispatch(addItem(item, orderType));
         },
         [dispatch]
     );
 
     const handleChangeItem = useCallback(
-        (item: OrderItem) => {
-            dispatch(changeItem(item));
+        (item: OrderItem, orderType: OrderType) => {
+            dispatch(changeItem(item, orderType));
+        },
+        [dispatch]
+    );
+
+    const handleRemoveItem = useCallback(
+        (item: OrderItem, orderType: OrderType) => {
+            dispatch(changeItem(item, orderType));
         },
         [dispatch]
     );
@@ -50,6 +57,7 @@ const Order: React.FC = (props) => {
         <OrderContext.Provider
             value={{
                 item: state.item,
+                orderType: state.orderType,
                 onAddItem: handleAddItem,
                 onChangeItem: handleChangeItem,
                 buyOptions: handleBuyOptions,
