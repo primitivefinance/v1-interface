@@ -8,7 +8,9 @@ import OptionsProvider from "../../contexts/Options";
 import FilterBar from "./components/FilterBar";
 import MarketHeader from "./components/MarketHeader";
 import OptionsTable from "./components/OptionsTable";
+import PositionsTable from "./components/PositionsTable";
 import OrderCard from "./components/OrderCard";
+import PositionsHeader from "./components/PositionsHeader";
 
 const mockOptions = [
     { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
@@ -19,7 +21,7 @@ const mockOptions = [
 ];
 
 const Market: React.FC = () => {
-    const [callPutActive, setCallPutActive] = useState(false);
+    const [callPutActive, setCallPutActive] = useState(true);
 
     const handleFilter = () => {
         setCallPutActive(!callPutActive);
@@ -30,17 +32,20 @@ const Market: React.FC = () => {
                 <OptionsProvider>
                     <StyledMarket>
                         <StyledMain>
-                            <MarketHeader
-                                name="Ethereum"
-                                price={280.33}
-                                symbol="ETH"
-                            />
+                            <MarketHeader name="Ethereum" symbol="ETH" />
                             <FilterBar
                                 active={callPutActive}
                                 setCallActive={handleFilter}
                             />
                             <OptionsTable
                                 options={mockOptions}
+                                asset="Ethereum"
+                                callActive={callPutActive}
+                            />
+                            <PositionsHeader name="Ethereum" symbol="ETH" />
+                            <PositionsTable
+                                positions={mockOptions}
+                                asset="Ethereum"
                                 callActive={callPutActive}
                             />
                         </StyledMain>

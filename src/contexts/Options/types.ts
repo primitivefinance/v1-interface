@@ -1,6 +1,6 @@
 export interface OptionsContextValues {
     options: OptionsData;
-    getOptions: (assetAddres: string) => void;
+    getOptions: (assetName: string) => void;
 }
 export interface OptionsData {
     calls: OptionsAttributes[];

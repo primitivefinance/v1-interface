@@ -1,28 +1,35 @@
 import React, { useCallback, useReducer, useEffect } from "react";
-import ethers from "ethers";
-import UniswapFactoryArtifact from "@uniswap/v2-core/build/UniswapV2Factory.json";
-import UniswapPairArtifact from "@uniswap/v2-core/build/UniswapV2Pair.json";
+import { parseEther } from "ethers/lib/utils";
+import {
+    Token,
+    Fetcher,
+    Trade,
+    TokenAmount,
+    TradeType,
+    Route,
+} from "@uniswap/sdk";
 
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
-
-import usePrices from "../../hooks/usePrices";
 
 import OptionsContext from "./context";
 import optionsReducer, { initialState, setOptions } from "./reducer";
 import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
-const UniswapFactoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
+import AssetAddresses from "./assets.json";
 
 const Options: React.FC = (props) => {
     const [state, dispatch] = useReducer(optionsReducer, initialState);
+
+    // Web3 injection
     const web3React = useWeb3React();
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
     });
+    const provider = web3React.library;
 
-    const { prices, getPrices } = usePrices();
+    // Connect to web3 automatically using injected
     useEffect(() => {
         (async () => {
             try {
@@ -33,15 +40,12 @@ const Options: React.FC = (props) => {
         })();
     }, []);
 
-    /* options = {
-        calls: {
-            [key] : { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
-        },
-        puts: {
-            { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
-        }
-    } */
-
+    /**
+     * @dev Calculates the breakeven asset price depending on if the option is a call or put.
+     * @param strike The strike price of the option.
+     * @param price The current price of the option.
+     * @param isCall If the option is a call, if not a call, its a put.
+     */
     const calculateBreakeven = (strike, price, isCall) => {
         let breakeven;
         if (isCall) {
@@ -49,67 +53,80 @@ const Options: React.FC = (props) => {
         } else {
             breakeven = price + strike;
         }
-        return breakeven;
+        return Number(breakeven);
     };
 
-    const getPair = async (providerOrSigner, optionAddr) => {
-        let poolAddr = ethers.constants.AddressZero;
-        const signer = await providerOrSigner.getSigner();
-        const uniFac = new ethers.Contract(
-            UniswapFactoryAddress,
-            UniswapFactoryArtifact.abi,
-            signer
-        );
-        poolAddr = await uniFac.getPair(
-            optionAddr,
-            "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2"
-        );
-
-        return poolAddr;
-    };
-
-    const getPairData = async (optionAddress) => {
-        let premium = 0;
-        let openInterest = 0;
-        const provider = web3React.library;
+    /**
+     * @dev If no provider is connected, it will stop execution by returning.
+     * @param args Any args...
+     */
+    const checkProvider = (...args) => {
         if (!provider) {
             console.error("No connected provider");
-            return { premium, openInterest };
+            return { ...args };
         }
-        const pairAddress = await getPair(provider, optionAddress);
-        let signer = await provider.getSigner();
-        // need price to calc premium + breakeven, total liquidity for option, volume
-        const pair = new ethers.Contract(
-            pairAddress,
-            UniswapPairArtifact.abi,
-            signer
-        );
-        const token0 = await pair.token0();
-        const reserves = await pair.getReserves();
+    };
 
-        if (token0 == optionAddress) {
-            premium = await pair.price0CumulativeLast();
-            openInterest = reserves._reserve0;
-        } else {
-            premium = await pair.price1CumulativeLast();
-            openInterest = reserves._reserve1;
-        }
+    /**
+     * @dev Gets the execution price for 1 unit of option tokens and returns it.
+     * @param optionAddress The address of the option token to get a uniswap pair of.
+     */
+    const getPairData = async (optionAddress) => {
+        let premium = 0;
 
-        if (premium == 0) {
-            premium = reserves._reserve0 / reserves._reserve1;
-        }
-        return { premium, openInterest };
+        // Check to make sure we are connected to a web3 provider.
+        checkProvider();
+        const signer = await provider.getSigner();
+        const chain = await signer.getChainId();
+        const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
+
+        const OPTION = new Token(chain, optionAddress, 18);
+        const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+
+        const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+        const route = new Route([pair], STABLECOIN, OPTION);
+        const midPrice = Number(route.midPrice.toSignificant(6));
+
+        const unit = parseEther("1").toString();
+        const tokenAmount = new TokenAmount(OPTION, unit);
+        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+
+        const executionPrice = Number(trade.executionPrice.toSignificant(6));
+
+        premium = executionPrice > midPrice ? executionPrice : midPrice;
+        return { premium };
+    };
+
+    /**
+     * @dev Gets the address of an asset using its name and respective network id.
+     * @param assetName The name of the asset.
+     * @param chainId The chain of the network to get the asset on.
+     */
+    const getAssetAddress = (assetName, chainId) => {
+        let address = AssetAddresses[assetName][chainId];
+        return address;
     };
 
     const handleOptions = useCallback(
-        async (assetAddress) => {
+        async (assetName) => {
+            // Web3 variables
+            const provider = web3React.library;
+            const signer = await provider.getSigner();
+            const chain = await signer.getChainId();
+
+            // Asset address and quantity of options
+            let assetAddress = getAssetAddress(assetName, chain);
+            let optionsLength = Object.keys(OptionDeployments).length;
+
+            // Objects and arrays to populate
             let optionsObject = {
                 calls: [EmptyAttributes],
                 puts: [EmptyAttributes],
             };
-            let optionsLength = Object.keys(OptionDeployments).length;
             let calls: OptionsAttributes[] = [];
             let puts: OptionsAttributes[] = [];
+
+            // For each option in the option deployments file...
             for (let i = 0; i < optionsLength; i++) {
                 // Get the parameters for the option object in the option_deployments json file.
                 let key = Object.keys(OptionDeployments)[i];
@@ -138,9 +155,8 @@ const Options: React.FC = (props) => {
                 let isCall;
 
                 // Get the option price data from uniswap pair.
-                const { premium, openInterest } = await getPairData(address);
+                const { premium } = await getPairData(address);
                 price = premium;
-                console.log({ premium });
 
                 // If the base is 1, push to calls array. If quote is 1, push to puts array.
                 // If a call, set the strike to the quote. If a put, set the strike to the base.
@@ -150,7 +166,6 @@ const Options: React.FC = (props) => {
                     strike = Number(quote);
                     arrayToPushTo = calls;
                 }
-
                 if (quote == "1") {
                     isCall = false;
                     strike = Number(base);
@@ -176,7 +191,6 @@ const Options: React.FC = (props) => {
                 calls: calls,
                 puts: puts,
             });
-            console.log(optionsObject);
             dispatch(setOptions(optionsObject));
         },
         [dispatch, web3React.library]

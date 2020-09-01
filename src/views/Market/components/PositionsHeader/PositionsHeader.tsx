@@ -6,12 +6,12 @@ import LitContainer from "../../../../components/LitContainer";
 
 import usePrices from "../../../../hooks/usePrices";
 
-export interface MarketHeaderProps {
+export interface PositionsHeaderProps {
     name: string;
     symbol: string;
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
+const PositionsHeader: React.FC<PositionsHeaderProps> = (props) => {
     const { name, symbol } = props;
     const { prices, getPrices } = usePrices();
 
@@ -22,17 +22,9 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     return (
         <StyledHeader>
             <LitContainer>
-                <GoBack />
                 <StyledTitle>
-                    <StyledName>{name}</StyledName>
-                    <StyledSymbol>{symbol}</StyledSymbol>
+                    <StyledName>Open Positions</StyledName>
                 </StyledTitle>
-                <StyledPrice>
-                    $
-                    {prices[name.toLowerCase()]
-                        ? prices[name.toLowerCase()]
-                        : 0}
-                </StyledPrice>
             </LitContainer>
         </StyledHeader>
     );
@@ -67,4 +59,4 @@ const StyledPrice = styled.span`
     font-weight: 700;
 `;
 
-export default MarketHeader;
+export default PositionsHeader;

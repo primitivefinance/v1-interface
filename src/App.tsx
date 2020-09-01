@@ -1,14 +1,12 @@
 import React from "react";
+import ethers from "ethers";
 import { ThemeProvider } from "styled-components";
 import { BrowserRouter as Router } from "react-router-dom";
-import ethers from "ethers";
+import { Web3ReactProvider } from "@web3-react/core";
 
 import TopBar from "./components/TopBar";
 
 import Market from "./views/Market";
-import Minting from "./views/Minting";
-
-import { Web3ReactProvider } from "@web3-react/core";
 
 import theme from "./theme";
 
@@ -22,7 +20,6 @@ const App: React.FC = () => {
             <Web3ReactProvider getLibrary={getLibrary}>
                 <Router>
                     <TopBar />
-                    {/* <Minting /> */}
                     <Market />
                 </Router>
             </Web3ReactProvider>

@@ -5,6 +5,7 @@ import useOrders from "../../../../hooks/useOrders";
 import useOptions from "../../../../hooks/useOptions";
 
 import AddIcon from "@material-ui/icons/Add";
+import RemoveIcon from "@material-ui/icons/Remove";
 
 import { useWeb3React } from "@web3-react/core";
 
@@ -23,13 +24,13 @@ export type FormattedOption = {
     volume: number;
 };
 
-export interface OptionsTableProps {
-    options: FormattedOption[];
+export interface PositionsTableProps {
+    positions: FormattedOption[];
     asset: string;
     callActive: boolean;
 }
 
-const OptionsTable: React.FC<OptionsTableProps> = (props) => {
+const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     const { callActive, asset } = props;
     const { options, getOptions } = useOptions();
     const { onAddItem } = useOrders();
@@ -48,10 +49,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <StyledTableHead>
                 <LitContainer>
                     <TableRow isHead>
-                        <TableCell>Strike Price</TableCell>
-                        <TableCell>Break Even</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Qty</TableCell>
                         <TableCell>Price</TableCell>
-                        <TableCell>Address</TableCell>
+                        <TableCell>Expires</TableCell>
                         <StyledButtonCell />
                     </TableRow>
                 </LitContainer>
@@ -73,7 +74,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                                         }}
                                         variant="outlined"
                                     >
-                                        <AddIcon />
+                                        <RemoveIcon />
                                     </IconButton>
                                 </StyledButtonCell>
                             </TableRow>
@@ -95,4 +96,4 @@ const StyledButtonCell = styled.div`
     margin-right: ${(props) => props.theme.spacing[2]}px;
 `;
 
-export default OptionsTable;
+export default PositionsTable;
