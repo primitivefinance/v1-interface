@@ -40,7 +40,7 @@ const TopBar: React.FC = () => {
                     <Logo />
                 </StyledFlex>
                 <StyledNav>
-                    <StyledNavItem to="/">Portfolio</StyledNavItem>
+                    <StyledNavItem to="/portfolio">Portfolio</StyledNavItem>
                     <StyledNavItem active={true} to="/">
                         Markets
                     </StyledNavItem>
