@@ -35,6 +35,7 @@ const TopBar: React.FC = () => {
         supportedChainIds: [1, 3, 4, 5, 42],
     });
     const web3React = useWeb3React();
+    console.log(location.hash);
     return (
         <StyledTopBar>
             <Container alignItems="center" display="flex" height={72}>
@@ -51,8 +52,8 @@ const TopBar: React.FC = () => {
                         Portfolio
                     </StyledNavItem>
                     <StyledNavItem
-                        active={location.pathname == "/" ? true : false}
-                        to="/"
+                        active={location.pathname == "/markets" ? true : false}
+                        to="/markets"
                     >
                         Markets
                     </StyledNavItem>

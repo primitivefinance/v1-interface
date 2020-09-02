@@ -1,7 +1,12 @@
 import React from "react";
 import ethers from "ethers";
 import { ThemeProvider } from "styled-components";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+    HashRouter as Router,
+    Switch,
+    Route,
+    Redirect,
+} from "react-router-dom";
 import { Web3ReactProvider } from "@web3-react/core";
 
 import TopBar from "./components/TopBar";
@@ -19,10 +24,15 @@ const App: React.FC = () => {
     return (
         <ThemeProvider theme={theme}>
             <Web3ReactProvider getLibrary={getLibrary}>
-                <Router>
+                <Router basename="/">
                     <TopBar />
                     <Switch>
-                        <Route exact path="/" component={Market} />
+                        <Route exact path="/">
+                            <Redirect to="/markets" />
+                        </Route>
+                    </Switch>
+                    <Switch>
+                        <Route exact path="/markets" component={Market} />
                     </Switch>
                     <Switch>
                         <Route exact path="/portfolio" component={Portfolio} />
