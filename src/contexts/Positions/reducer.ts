@@ -4,10 +4,10 @@ import {
     EmptyPositionsAttributes,
 } from "./types";
 
-export const SET_OPTIONS = "SET_OPTIONS";
+export const SET_POSITIONS = "SET_POSITIONS";
 
 export interface SetPositionsAction {
-    type: typeof SET_OPTIONS;
+    type: typeof SET_POSITIONS;
     positions: PositionsData;
 }
 
@@ -23,14 +23,14 @@ export const setPositions = (
     positionsData: PositionsData
 ): SetPositionsAction => {
     return {
-        type: SET_OPTIONS,
+        type: SET_POSITIONS,
         positions: positionsData,
     };
 };
 
 const reducer = (state: PositionsState, action: PositionsActions) => {
     switch (action.type) {
-        case SET_OPTIONS:
+        case SET_POSITIONS:
             return {
                 ...state,
                 positions: {

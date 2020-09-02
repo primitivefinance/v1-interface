@@ -19,7 +19,15 @@ interface OrderCardProps {}
 const OrderCard: React.FC<OrderCardProps> = (props) => {
     const [buyCard, setBuyCard] = useState(true);
     const [quantity, setQuantity] = useState();
-    const { item, buyOptions, mintOptions } = useOrders();
+    const {
+        item,
+        buyOptions,
+        mintOptions,
+        exerciseOptions,
+        closeOptions,
+        orderType,
+    } = useOrders();
+    const { buyOrMint } = orderType;
     const web3React = useWeb3React();
     useEffect(() => {}, [item]);
 
@@ -39,76 +47,162 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         <Card>
             <CardTitle>Your Order</CardTitle>
             <CardContent>
-                <Button
-                    onClick={onToggle}
-                    text={"Buy"}
-                    variant={!buyCard ? "transparent" : "filled"}
-                />
-                <Button
-                    onClick={onToggle}
-                    text={"Mint"}
-                    variant={!buyCard ? "filled" : "transparent"}
-                />
-                {buyCard ? (
-                    item.id ? (
-                        <>
-                            <h4>
-                                Buying {asset} {type == "C" ? "Call" : "Put"} $
-                                {strike} {month}/{day}/{year}
-                            </h4>
-                            <h4>Price: ${item.price.toFixed(2)}</h4>
-                            <StyledLabel>Quantity: </StyledLabel>
-                            <StyledInput
-                                placeholder="0.00"
-                                type="number"
-                                onChange={handleChange}
-                                value={quantity}
-                            />
-                            <Button
-                                onClick={() => {
-                                    buyOptions(
-                                        web3React.library,
-                                        item?.address,
-                                        quantity
-                                    );
-                                }}
-                                text="Buy"
-                            />
-                            <StyledAvailable>
-                                $250,000 Buying Power
-                            </StyledAvailable>
-                        </>
-                    ) : (
-                        <EmptyContent />
-                    )
-                ) : item.id ? (
+                {buyOrMint ? (
                     <>
-                        <h4>
-                            Minting {asset} {type == "C" ? "Call" : "Put"} $
-                            {strike} {month}/{day}/{year}
-                        </h4>
-                        <h4>Price: ${item.price.toFixed(2)}</h4>
-                        <StyledLabel>Quantity: </StyledLabel>
-                        <StyledInput
-                            placeholder="0.00"
-                            type="number"
-                            onChange={handleChange}
-                            value={quantity}
+                        <Button
+                            onClick={onToggle}
+                            text={"Buy"}
+                            variant={!buyCard ? "transparent" : "filled"}
                         />
                         <Button
-                            onClick={() => {
-                                mintOptions(
-                                    web3React.library,
-                                    item?.address,
-                                    quantity
-                                );
-                            }}
-                            text="Mint"
+                            onClick={onToggle}
+                            text={"Mint"}
+                            variant={!buyCard ? "filled" : "transparent"}
                         />
-                        <StyledAvailable>$250,000 Buying Power</StyledAvailable>
+                        {buyCard ? (
+                            item.id ? (
+                                <>
+                                    <h4>
+                                        Buying {asset}{" "}
+                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                        {month}/{day}/{year}
+                                    </h4>
+                                    <h4>Price: ${item.price.toFixed(2)}</h4>
+                                    <StyledLabel>Quantity: </StyledLabel>
+                                    <StyledInput
+                                        placeholder="0.00"
+                                        type="number"
+                                        onChange={handleChange}
+                                        value={quantity}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            buyOptions(
+                                                web3React.library,
+                                                item?.address,
+                                                quantity
+                                            );
+                                        }}
+                                        text="Buy"
+                                    />
+                                    <StyledAvailable>
+                                        $250,000 Buying Power
+                                    </StyledAvailable>
+                                </>
+                            ) : (
+                                <EmptyContent />
+                            )
+                        ) : item.id ? (
+                            <>
+                                <h4>
+                                    Minting {asset}{" "}
+                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {month}/{day}/{year}
+                                </h4>
+                                <h4>Price: ${item.price.toFixed(2)}</h4>
+                                <StyledLabel>Quantity: </StyledLabel>
+                                <StyledInput
+                                    placeholder="0.00"
+                                    type="number"
+                                    onChange={handleChange}
+                                    value={quantity}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        mintOptions(
+                                            web3React.library,
+                                            item?.address,
+                                            quantity
+                                        );
+                                    }}
+                                    text="Mint"
+                                />
+                                <StyledAvailable>
+                                    $250,000 Buying Power
+                                </StyledAvailable>
+                            </>
+                        ) : (
+                            <EmptyContent />
+                        )}{" "}
                     </>
                 ) : (
-                    <EmptyContent />
+                    <>
+                        <Button
+                            onClick={onToggle}
+                            text={"Exercise"}
+                            variant={!buyCard ? "transparent" : "filled"}
+                        />
+                        <Button
+                            onClick={onToggle}
+                            text={"Close"}
+                            variant={!buyCard ? "filled" : "transparent"}
+                        />
+                        {buyCard ? (
+                            item.id ? (
+                                <>
+                                    <h4>
+                                        Exercising {asset}{" "}
+                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                        {month}/{day}/{year}
+                                    </h4>
+                                    <h4>Price: ${item.price.toFixed(2)}</h4>
+                                    <StyledLabel>Quantity: </StyledLabel>
+                                    <StyledInput
+                                        placeholder="0.00"
+                                        type="number"
+                                        onChange={handleChange}
+                                        value={quantity}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            exerciseOptions(
+                                                web3React.library,
+                                                item?.address,
+                                                quantity
+                                            );
+                                        }}
+                                        text="Exercise"
+                                    />
+                                    <StyledAvailable>
+                                        $250,000 Buying Power
+                                    </StyledAvailable>
+                                </>
+                            ) : (
+                                <EmptyContent />
+                            )
+                        ) : item.id ? (
+                            <>
+                                <h4>
+                                    Closing {asset}{" "}
+                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {month}/{day}/{year}
+                                </h4>
+                                <h4>Price: ${item.price.toFixed(2)}</h4>
+                                <StyledLabel>Quantity: </StyledLabel>
+                                <StyledInput
+                                    placeholder="0.00"
+                                    type="number"
+                                    onChange={handleChange}
+                                    value={quantity}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        closeOptions(
+                                            web3React.library,
+                                            item?.address,
+                                            quantity
+                                        );
+                                    }}
+                                    text="Close"
+                                />
+                                <StyledAvailable>
+                                    $250,000 Buying Power
+                                </StyledAvailable>
+                            </>
+                        ) : (
+                            <EmptyContent />
+                        )}
+                    </>
                 )}
             </CardContent>
         </Card>

@@ -69,7 +69,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                                 <StyledButtonCell>
                                     <IconButton
                                         onClick={() => {
-                                            onAddItem(option);
+                                            onAddItem(option, {
+                                                buyOrMint: true,
+                                            });
                                         }}
                                         variant="outlined"
                                     >

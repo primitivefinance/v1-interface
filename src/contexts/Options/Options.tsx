@@ -137,6 +137,7 @@ const Options: React.FC = (props) => {
                 let strikeToken = parameters[1];
                 let base = parameters[2];
                 let quote = parameters[3];
+                let expiry = parameters[4];
 
                 // If the selected asset is not one of the assets in the option, skip it.
                 if (
@@ -183,6 +184,7 @@ const Options: React.FC = (props) => {
                     volume: volume,
                     address: address,
                     id: id,
+                    expiry: expiry,
                 });
             }
 
