@@ -16,7 +16,7 @@ const PositionsHeader: React.FC<PositionsHeaderProps> = (props) => {
 
     useEffect(() => {
         getPrices(name.toLowerCase());
-    }, [name, getPrices]);
+    }, [name]);
 
     return (
         <StyledHeader>

@@ -102,7 +102,7 @@ const Order: React.FC = (props) => {
         notifyInstance.hash(tx.hash);
     };
 
-    const loadPendingTx = async () => {
+    const loadPendingTx = useCallback(async () => {
         const pendingTx = localStorage.getItem("pendingTx");
         if (pendingTx && provider) {
             let receipt = await provider.getTransactionReceipt(pendingTx);
@@ -112,7 +112,7 @@ const Order: React.FC = (props) => {
                 notifyInstance.hash(pendingTx);
             }
         }
-    };
+    }, [provider, notifyInstance]);
 
     return (
         <OrderContext.Provider

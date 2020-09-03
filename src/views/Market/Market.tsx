@@ -28,20 +28,21 @@ const Market: React.FC = () => {
     const [callPutActive, setCallPutActive] = useState(true);
 
     // Web3
-    const injected = new InjectedConnector({
-        supportedChainIds: [1, 3, 4, 5, 42],
-    });
+
     const { activate } = useWeb3React();
     // Connect to web3 automatically using injected
     useEffect(() => {
         (async () => {
             try {
+                const injected = new InjectedConnector({
+                    supportedChainIds: [1, 3, 4, 5, 42],
+                });
                 await activate(injected);
             } catch (err) {
                 console.log(err);
             }
         })();
-    }, [activate, injected]);
+    }, [activate]);
 
     const handleFilter = () => {
         setCallPutActive(!callPutActive);

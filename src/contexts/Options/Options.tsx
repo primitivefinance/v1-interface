@@ -42,71 +42,42 @@ const Options: React.FC = (props) => {
     };
 
     /**
-     * @dev If no provider is connected, it will stop execution by returning.
-     * @param args Any args...
-     */
-    const checkProvider = useCallback(
-        (...args) => {
-            if (!provider) {
-                console.error("No connected provider");
-                return { ...args };
-            }
-        },
-        [provider]
-    );
-
-    /**
      * @dev Gets the execution price for 1 unit of option tokens and returns it.
      * @param optionAddress The address of the option token to get a uniswap pair of.
      */
-    const getPairData = useCallback(
-        async (optionAddress) => {
-            let premium = 0;
+    const getPairData = useCallback(async (provider, optionAddress) => {
+        let premium = 0;
 
-            // Check to make sure we are connected to a web3 provider.
-            checkProvider();
-            const signer = await provider.getSigner();
-            const chainId = await signer.getChainId();
-            const stablecoinAddress =
-                "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
-
-            const OPTION = new Token(chainId, optionAddress, 18);
-            const STABLECOIN = new Token(chainId, stablecoinAddress, 18);
-
-            const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
-            const route = new Route([pair], STABLECOIN, OPTION);
-            const midPrice = Number(route.midPrice.toSignificant(6));
-
-            const unit = parseEther("1").toString();
-            const tokenAmount = new TokenAmount(OPTION, unit);
-            const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
-
-            const executionPrice = Number(
-                trade.executionPrice.toSignificant(6)
-            );
-
-            premium = executionPrice > midPrice ? executionPrice : midPrice;
+        // Check to make sure we are connected to a web3 provider.
+        if (!provider) {
+            console.error("No connected connectedProvider");
             return { premium };
-        },
-        [provider, checkProvider]
-    );
+        }
+        const signer = await provider.getSigner();
+        const chain = await signer.getChainId();
+        const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
 
-    /**
-     * @dev Gets the address of an asset using its name and respective network id.
-     * @param assetName The name of the asset.
-     */
-    const getAssetAddress = useCallback(
-        (assetName) => {
-            let address = AssetAddresses[assetName][chainId];
-            return address;
-        },
-        [chainId]
-    );
+        const OPTION = new Token(chain, optionAddress, 18);
+        const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+
+        const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+        const route = new Route([pair], STABLECOIN, OPTION);
+        const midPrice = Number(route.midPrice.toSignificant(6));
+
+        const unit = parseEther("1").toString();
+        const tokenAmount = new TokenAmount(OPTION, unit);
+        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+
+        const executionPrice = Number(trade.executionPrice.toSignificant(6));
+
+        premium = executionPrice > midPrice ? executionPrice : midPrice;
+        return { premium };
+    }, []);
 
     const handleOptions = useCallback(
         async (assetName) => {
             // Asset address and quantity of options
-            let assetAddress = getAssetAddress(assetName);
+            let assetAddress = AssetAddresses[assetName][chainId];
             let optionsLength = Object.keys(OptionDeployments).length;
 
             // Objects and arrays to populate
@@ -147,7 +118,7 @@ const Options: React.FC = (props) => {
                 let isCall;
 
                 // Get the option price data from uniswap pair.
-                const { premium } = await getPairData(address);
+                const { premium } = await getPairData(provider, address);
                 price = premium;
 
                 // If the base is 1, push to calls array. If quote is 1, push to puts array.
@@ -186,7 +157,7 @@ const Options: React.FC = (props) => {
             });
             dispatch(setOptions(optionsObject));
         },
-        [dispatch, getAssetAddress, getPairData]
+        [dispatch, provider, chainId, getPairData]
     );
 
     return (

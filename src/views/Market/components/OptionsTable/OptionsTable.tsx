@@ -39,7 +39,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         if (library) {
             getOptions(asset.toLowerCase());
         }
-    }, [library, getOptions, asset]);
+    }, [library, asset]);
 
     const type = callActive ? "calls" : "puts";
 
