@@ -1,27 +1,13 @@
-import React, { useCallback, useReducer, useEffect } from "react";
-import { parseEther, formatEther } from "ethers/lib/utils";
-import {
-    Token,
-    Fetcher,
-    Trade,
-    TokenAmount,
-    TradeType,
-    Route,
-} from "@uniswap/sdk";
+import React, { useCallback, useReducer } from "react";
+import { formatEther } from "ethers/lib/utils";
 
 import { useWeb3React } from "@web3-react/core";
 
 import ERC20 from "@primitivefi/contracts/artifacts/TestERC20.json";
 
-import useOptions from "../../hooks/useOptions";
-
 import PositionsContext from "./context";
 import positionsReducer, { initialState, setPositions } from "./reducer";
-import {
-    PositionsData,
-    EmptyPositionsAttributes,
-    PositionsAttributes,
-} from "./types";
+import { EmptyPositionsAttributes, PositionsAttributes } from "./types";
 import { ethers } from "ethers";
 
 const Positions: React.FC = (props) => {

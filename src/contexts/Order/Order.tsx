@@ -43,12 +43,12 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    const handleRemoveItem = useCallback(
+    /* const handleRemoveItem = useCallback(
         (item: OrderItem, orderType: OrderType) => {
             dispatch(changeItem(item, orderType));
         },
         [dispatch]
-    );
+    ); */
 
     const handleBuyOptions = async (
         provider,

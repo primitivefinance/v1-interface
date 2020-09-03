@@ -35,7 +35,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         (async () => {
             loadPendingTx();
         })();
-    }, []);
+    }, [loadPendingTx]);
 
     const { asset, year, month, day, type, strike } = destructureOptionSymbol(
         item.id
@@ -70,8 +70,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <>
                                     <h4>
                                         Buying {asset}{" "}
-                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
-                                        {month}/{day}/{year}
+                                        {type === "C" ? "Call" : "Put"} $
+                                        {strike} {month}/{day}/{year}
                                     </h4>
                                     <h4>Price: ${item.price.toFixed(2)}</h4>
                                     <StyledLabel>Quantity: </StyledLabel>
@@ -102,7 +102,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                             <>
                                 <h4>
                                     Minting {asset}{" "}
-                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {type === "C" ? "Call" : "Put"} ${strike}{" "}
                                     {month}/{day}/{year}
                                 </h4>
                                 <h4>Price: ${item.price.toFixed(2)}</h4>
@@ -148,8 +148,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <>
                                     <h4>
                                         Exercising {asset}{" "}
-                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
-                                        {month}/{day}/{year}
+                                        {type === "C" ? "Call" : "Put"} $
+                                        {strike} {month}/{day}/{year}
                                     </h4>
                                     <h4>Price: ${item.price.toFixed(2)}</h4>
                                     <StyledLabel>Quantity: </StyledLabel>
@@ -180,7 +180,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                             <>
                                 <h4>
                                     Closing {asset}{" "}
-                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {type === "C" ? "Call" : "Put"} ${strike}{" "}
                                     {month}/{day}/{year}
                                 </h4>
                                 <h4>Price: ${item.price.toFixed(2)}</h4>

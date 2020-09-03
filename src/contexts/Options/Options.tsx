@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useEffect } from "react";
+import React, { useCallback, useReducer } from "react";
 import { parseEther } from "ethers/lib/utils";
 import {
     Token,
@@ -13,7 +13,7 @@ import { useWeb3React } from "@web3-react/core";
 
 import OptionsContext from "./context";
 import optionsReducer, { initialState, setOptions } from "./reducer";
-import { OptionsData, EmptyAttributes, OptionsAttributes } from "./types";
+import { EmptyAttributes, OptionsAttributes } from "./types";
 
 import OptionDeployments from "./options_deployments.json";
 import AssetAddresses from "./assets.json";
@@ -45,57 +45,66 @@ const Options: React.FC = (props) => {
      * @dev If no provider is connected, it will stop execution by returning.
      * @param args Any args...
      */
-    const checkProvider = (...args) => {
-        if (!provider) {
-            console.error("No connected provider");
-            return { ...args };
-        }
-    };
+    const checkProvider = useCallback(
+        (...args) => {
+            if (!provider) {
+                console.error("No connected provider");
+                return { ...args };
+            }
+        },
+        [provider]
+    );
 
     /**
      * @dev Gets the execution price for 1 unit of option tokens and returns it.
      * @param optionAddress The address of the option token to get a uniswap pair of.
      */
-    const getPairData = async (optionAddress) => {
-        let premium = 0;
+    const getPairData = useCallback(
+        async (optionAddress) => {
+            let premium = 0;
 
-        // Check to make sure we are connected to a web3 provider.
-        checkProvider();
-        const signer = await provider.getSigner();
-        const chainId = await signer.getChainId();
-        const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
+            // Check to make sure we are connected to a web3 provider.
+            checkProvider();
+            const signer = await provider.getSigner();
+            const chainId = await signer.getChainId();
+            const stablecoinAddress =
+                "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
 
-        const OPTION = new Token(chainId, optionAddress, 18);
-        const STABLECOIN = new Token(chainId, stablecoinAddress, 18);
+            const OPTION = new Token(chainId, optionAddress, 18);
+            const STABLECOIN = new Token(chainId, stablecoinAddress, 18);
 
-        const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
-        const route = new Route([pair], STABLECOIN, OPTION);
-        const midPrice = Number(route.midPrice.toSignificant(6));
+            const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
+            const route = new Route([pair], STABLECOIN, OPTION);
+            const midPrice = Number(route.midPrice.toSignificant(6));
 
-        const unit = parseEther("1").toString();
-        const tokenAmount = new TokenAmount(OPTION, unit);
-        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+            const unit = parseEther("1").toString();
+            const tokenAmount = new TokenAmount(OPTION, unit);
+            const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
 
-        const executionPrice = Number(trade.executionPrice.toSignificant(6));
+            const executionPrice = Number(
+                trade.executionPrice.toSignificant(6)
+            );
 
-        premium = executionPrice > midPrice ? executionPrice : midPrice;
-        return { premium };
-    };
+            premium = executionPrice > midPrice ? executionPrice : midPrice;
+            return { premium };
+        },
+        [provider, checkProvider]
+    );
 
     /**
      * @dev Gets the address of an asset using its name and respective network id.
      * @param assetName The name of the asset.
      */
-    const getAssetAddress = (assetName) => {
-        let address = AssetAddresses[assetName][chainId];
-        return address;
-    };
+    const getAssetAddress = useCallback(
+        (assetName) => {
+            let address = AssetAddresses[assetName][chainId];
+            return address;
+        },
+        [chainId]
+    );
 
     const handleOptions = useCallback(
         async (assetName) => {
-            // Web3 variables
-            const signer = await provider.getSigner();
-
             // Asset address and quantity of options
             let assetAddress = getAssetAddress(assetName);
             let optionsLength = Object.keys(OptionDeployments).length;
@@ -123,8 +132,8 @@ const Options: React.FC = (props) => {
 
                 // If the selected asset is not one of the assets in the option, skip it.
                 if (
-                    assetAddress != underlyingToken &&
-                    assetAddress != strikeToken
+                    assetAddress !== underlyingToken &&
+                    assetAddress !== strikeToken
                 ) {
                     return;
                 }
@@ -144,12 +153,12 @@ const Options: React.FC = (props) => {
                 // If the base is 1, push to calls array. If quote is 1, push to puts array.
                 // If a call, set the strike to the quote. If a put, set the strike to the base.
                 let arrayToPushTo: OptionsAttributes[] = [];
-                if (base == "1") {
+                if (base === "1") {
                     isCall = true;
                     strike = Number(quote);
                     arrayToPushTo = calls;
                 }
-                if (quote == "1") {
+                if (quote === "1") {
                     isCall = false;
                     strike = Number(base);
                     arrayToPushTo = puts;
@@ -177,7 +186,7 @@ const Options: React.FC = (props) => {
             });
             dispatch(setOptions(optionsObject));
         },
-        [dispatch, provider]
+        [dispatch, getAssetAddress, getPairData]
     );
 
     return (

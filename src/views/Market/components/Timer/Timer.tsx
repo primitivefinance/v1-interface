@@ -6,7 +6,7 @@ export interface TimerProps {
 }
 
 const calculateRemainingTime = (expiry) => {
-    let year = new Date().getFullYear();
+    //let year = new Date().getFullYear();
     let difference = +new Date(expiry * 1000) - +new Date();
     let timeLeft: any = {};
     if (difference > 0) {
@@ -22,7 +22,7 @@ const calculateRemainingTime = (expiry) => {
 };
 
 const formatDigits = (number) => {
-    if (number == 0) {
+    if (number === 0) {
         return "00";
     }
     let formattedNumber = ("0" + number).slice(-2);
@@ -50,10 +50,10 @@ const Timer: React.FC<TimerProps> = (props) => {
 
         timerComponents.push(
             <>
-                {interval == "days"
+                {interval === "days"
                     ? timeLeft[interval]
                     : formatDigits(timeLeft[interval])}
-                {interval == "seconds" ? "" : ":"}
+                {interval === "seconds" ? "" : ":"}
             </>
         );
     });

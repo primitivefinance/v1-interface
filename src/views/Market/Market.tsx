@@ -41,7 +41,7 @@ const Market: React.FC = () => {
                 console.log(err);
             }
         })();
-    }, []);
+    }, [activate, injected]);
 
     const handleFilter = () => {
         setCallPutActive(!callPutActive);

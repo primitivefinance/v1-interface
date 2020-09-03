@@ -19,7 +19,7 @@ const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
 
 const getTraderAddress = (chainId) => {
     let address;
-    if (chainId == "4") {
+    if (chainId === "4") {
         address = TraderRinkeby.address;
     }
 

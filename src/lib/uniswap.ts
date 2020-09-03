@@ -1,10 +1,8 @@
-import UniswapV2PairArtifact from "@uniswap/v2-core/build/UniswapV2Pair.json";
 import UniswapV2Router02Artifact from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
 import ERC20 from "@primitivefi/contracts/artifacts/ERC20.json";
 import { ethers } from "ethers";
 import {
     Token,
-    WETH,
     Fetcher,
     Trade,
     TokenAmount,
@@ -61,7 +59,6 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     const path = [STABLECOIN.address, OPTION.address];
     const to = await signer.getAddress();
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-    const value = trade.inputAmount.raw;
 
     let tx;
     try {
@@ -141,7 +138,7 @@ const addLiquidity = async (
     await checkAllowance(signer, stablecoinAddress, UNI_ROUTER_ADDRESS);
     await checkAllowance(signer, optionAddress, UNI_ROUTER_ADDRESS);
 
-    const chain = await signer.getChainId();
+    /* const chain = await signer.getChainId();
     const OPTION = new Token(chain, optionAddress, 18);
     const STABLECOIN = new Token(chain, stablecoinAddress, 18);
 
@@ -151,7 +148,7 @@ const addLiquidity = async (
 
     const unit = parseEther("1").toString();
     const tokenAmount = new TokenAmount(OPTION, unit);
-    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT); */
 
     // Craft the trade parameters
     const tokenA = optionAddress;
@@ -182,4 +179,4 @@ const addLiquidity = async (
     return tx;
 };
 
-export { swap };
+export { swap, addLiquidity };

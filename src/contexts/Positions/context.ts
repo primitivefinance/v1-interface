@@ -1,10 +1,6 @@
 import { createContext } from "react";
 
-import {
-    PositionsContextValues,
-    PositionsData,
-    EmptyPositionsAttributes,
-} from "./types";
+import { PositionsContextValues, EmptyPositionsAttributes } from "./types";
 
 const PositionsContext = createContext<PositionsContextValues>({
     positions: {

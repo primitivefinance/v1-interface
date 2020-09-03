@@ -43,17 +43,14 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     useEffect(() => {
         if (library) {
             getOptions(asset.toLowerCase());
-            if (options.calls.length > 1) {
-                getPositions(asset.toLowerCase(), options);
-            }
         }
-    }, [library]);
+    }, [library, asset, getOptions]);
 
     useEffect(() => {
         if (library) {
             getPositions(asset.toLowerCase(), options);
         }
-    }, [options]);
+    }, [library, options, asset, getPositions]);
 
     const type = callActive ? "calls" : "puts";
 
@@ -73,9 +70,9 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
             <LitContainer>
                 <TableBody>
                     {positions[type].map((position, i) => {
-                        const { name, symbol, address, balance } = position;
+                        const { name, address, balance } = position;
                         const option: OrderItem = options[type][i];
-                        const { price, id, expiry } = option;
+                        const { price, expiry } = option;
                         return (
                             <TableRow key={address}>
                                 <TableCell>{name}</TableCell>
