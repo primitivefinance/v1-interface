@@ -28,6 +28,7 @@ export interface OrderContextValues {
         optionAddress: string,
         quantity: number | undefined
     ) => Promise<void>;
+    loadPendingTx: () => void;
 }
 
 export interface OrderItem {

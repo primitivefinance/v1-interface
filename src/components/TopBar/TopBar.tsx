@@ -35,7 +35,6 @@ const TopBar: React.FC = () => {
         supportedChainIds: [1, 3, 4, 5, 42],
     });
     const web3React = useWeb3React();
-    console.log(location.hash);
     return (
         <StyledTopBar>
             <Container alignItems="center" display="flex" height={72}>

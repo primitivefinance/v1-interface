@@ -33,6 +33,7 @@ const OrderContext = createContext<OrderContextValues>({
         optionAddress: string,
         quantity: number | undefined
     ) => {},
+    loadPendingTx: () => {},
 });
 
 export default OrderContext;

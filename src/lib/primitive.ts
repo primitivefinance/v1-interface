@@ -42,11 +42,15 @@ const mint = async (signer, quantity, optionAddress) => {
 
     await checkAllowance(signer, underlyingAddress, traderAddress);
 
+    let tx;
     try {
-        await trader.safeMint(optionAddress, mintQuantity, account);
+        tx = await trader.safeMint(optionAddress, mintQuantity, account);
     } catch (err) {
         console.log("Error on minting: ", err);
     }
+
+    console.log(tx);
+    return tx;
 };
 
 const exercise = async (signer, quantity, optionAddress) => {
@@ -59,11 +63,18 @@ const exercise = async (signer, quantity, optionAddress) => {
     await checkAllowance(signer, strikeAddress, traderAddress);
     await checkAllowance(signer, optionAddress, traderAddress);
 
+    let tx;
     try {
-        await trader.safeExercise(optionAddress, exerciseQuantity, account);
+        tx = await trader.safeExercise(
+            optionAddress,
+            exerciseQuantity,
+            account
+        );
     } catch (err) {
         console.log("Error on exercising: ", err);
     }
+
+    return tx;
 };
 
 const redeem = async (signer, quantity, optionAddress) => {
@@ -75,11 +86,14 @@ const redeem = async (signer, quantity, optionAddress) => {
 
     await checkAllowance(signer, redeemAddress, traderAddress);
 
+    let tx;
     try {
-        await trader.safeRedeem(optionAddress, redeemQuantity, account);
+        tx = await trader.safeRedeem(optionAddress, redeemQuantity, account);
     } catch (err) {
         console.log("Error on redeeming: ", err);
     }
+
+    return tx;
 };
 
 const close = async (signer, quantity, optionAddress) => {
@@ -92,11 +106,14 @@ const close = async (signer, quantity, optionAddress) => {
     await checkAllowance(signer, redeemAddress, traderAddress);
     await checkAllowance(signer, optionAddress, traderAddress);
 
+    let tx;
     try {
-        await trader.safeClose(optionAddress, closeQuantity, account);
+        tx = await trader.safeClose(optionAddress, closeQuantity, account);
     } catch (err) {
         console.log("Error on closing: ", err);
     }
+
+    return tx;
 };
 
 export { mint, exercise, redeem, close };
