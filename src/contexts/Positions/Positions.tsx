@@ -10,7 +10,6 @@ import {
 } from "@uniswap/sdk";
 
 import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
 
 import ERC20 from "@primitivefi/contracts/artifacts/TestERC20.json";
 
@@ -29,22 +28,8 @@ const Positions: React.FC = (props) => {
     const [state, dispatch] = useReducer(positionsReducer, initialState);
 
     // Web3 injection
-    const web3React = useWeb3React();
-    const injected = new InjectedConnector({
-        supportedChainIds: [1, 3, 4, 5, 42],
-    });
-    const provider = web3React.library;
-
-    // Connect to web3 automatically using injected
-    useEffect(() => {
-        (async () => {
-            try {
-                await web3React.activate(injected);
-            } catch (err) {
-                console.log(err);
-            }
-        })();
-    }, []);
+    const { library } = useWeb3React();
+    const provider = library;
 
     const handlePositions = useCallback(
         async (assetName: string, options) => {
@@ -112,7 +97,7 @@ const Positions: React.FC = (props) => {
 
             dispatch(setPositions(positionsObject));
         },
-        [dispatch, web3React.library]
+        [dispatch, provider]
     );
 
     return (

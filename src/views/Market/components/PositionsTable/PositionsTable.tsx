@@ -5,7 +5,6 @@ import useOrders from "../../../../hooks/useOrders";
 import useOptions from "../../../../hooks/useOptions";
 import usePositions from "../../../../hooks/usePositions";
 
-import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 
 import { useWeb3React } from "@web3-react/core";
@@ -39,19 +38,19 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     const { options, getOptions } = useOptions();
     const { positions, getPositions } = usePositions();
     const { onAddItem } = useOrders();
-    const web3React = useWeb3React();
+    const { library } = useWeb3React();
 
     useEffect(() => {
-        if (web3React.library) {
+        if (library) {
             getOptions(asset.toLowerCase());
             if (options.calls.length > 1) {
                 getPositions(asset.toLowerCase(), options);
             }
         }
-    }, [web3React.library]);
+    }, [library]);
 
     useEffect(() => {
-        if (web3React.library) {
+        if (library) {
             getPositions(asset.toLowerCase(), options);
         }
     }, [options]);

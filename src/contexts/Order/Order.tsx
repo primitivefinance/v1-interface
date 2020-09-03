@@ -7,6 +7,8 @@ import reducer, { addItem, initialState, changeItem } from "./reducer";
 
 import { OrderItem, OrderType } from "./types";
 
+import { useWeb3React } from "@web3-react/core";
+
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
 import { mint, exercise, redeem, close } from "../../lib/primitive";
@@ -16,6 +18,8 @@ const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
 
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const web3React = useWeb3React();
+    const provider = web3React.library;
 
     let notifyInstance;
     if (NotifyKey) {
@@ -98,10 +102,15 @@ const Order: React.FC = (props) => {
         notifyInstance.hash(tx.hash);
     };
 
-    const loadPendingTx = () => {
+    const loadPendingTx = async () => {
         const pendingTx = localStorage.getItem("pendingTx");
-        if (pendingTx) {
-            notifyInstance.hash(pendingTx);
+        if (pendingTx && provider) {
+            let receipt = await provider.getTransactionReceipt(pendingTx);
+            if (receipt && receipt.confirmations) {
+                return;
+            } else {
+                notifyInstance.hash(pendingTx);
+            }
         }
     };
 

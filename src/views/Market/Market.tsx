@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import OrderProvider from "../../contexts/Order";
@@ -13,6 +13,9 @@ import PositionsTable from "./components/PositionsTable";
 import OrderCard from "./components/OrderCard";
 import PositionsHeader from "./components/PositionsHeader";
 
+import { useWeb3React } from "@web3-react/core";
+import { InjectedConnector } from "@web3-react/injected-connector";
+
 const mockOptions = [
     { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
     { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
@@ -23,6 +26,22 @@ const mockOptions = [
 
 const Market: React.FC = () => {
     const [callPutActive, setCallPutActive] = useState(true);
+
+    // Web3
+    const injected = new InjectedConnector({
+        supportedChainIds: [1, 3, 4, 5, 42],
+    });
+    const { activate } = useWeb3React();
+    // Connect to web3 automatically using injected
+    useEffect(() => {
+        (async () => {
+            try {
+                await activate(injected);
+            } catch (err) {
+                console.log(err);
+            }
+        })();
+    }, []);
 
     const handleFilter = () => {
         setCallPutActive(!callPutActive);

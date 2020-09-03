@@ -29,10 +29,12 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         loadPendingTx,
     } = useOrders();
     const { buyOrMint } = orderType;
-    const web3React = useWeb3React();
+    const { library } = useWeb3React();
     useEffect(() => {}, [item]);
     useEffect(() => {
-        loadPendingTx();
+        (async () => {
+            loadPendingTx();
+        })();
     }, []);
 
     const { asset, year, month, day, type, strike } = destructureOptionSymbol(
@@ -82,7 +84,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     <Button
                                         onClick={() => {
                                             buyOptions(
-                                                web3React.library,
+                                                library,
                                                 item?.address,
                                                 quantity
                                             );
@@ -114,7 +116,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <Button
                                     onClick={() => {
                                         mintOptions(
-                                            web3React.library,
+                                            library,
                                             item?.address,
                                             quantity
                                         );
@@ -160,7 +162,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     <Button
                                         onClick={() => {
                                             exerciseOptions(
-                                                web3React.library,
+                                                library,
                                                 item?.address,
                                                 quantity
                                             );
@@ -192,7 +194,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <Button
                                     onClick={() => {
                                         closeOptions(
-                                            web3React.library,
+                                            library,
                                             item?.address,
                                             quantity
                                         );

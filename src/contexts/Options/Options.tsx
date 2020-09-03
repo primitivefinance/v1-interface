@@ -10,7 +10,6 @@ import {
 } from "@uniswap/sdk";
 
 import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
 
 import OptionsContext from "./context";
 import optionsReducer, { initialState, setOptions } from "./reducer";
@@ -23,22 +22,8 @@ const Options: React.FC = (props) => {
     const [state, dispatch] = useReducer(optionsReducer, initialState);
 
     // Web3 injection
-    const web3React = useWeb3React();
-    const injected = new InjectedConnector({
-        supportedChainIds: [1, 3, 4, 5, 42],
-    });
-    const provider = web3React.library;
-
-    // Connect to web3 automatically using injected
-    useEffect(() => {
-        (async () => {
-            try {
-                await web3React.activate(injected);
-            } catch (err) {
-                console.log(err);
-            }
-        })();
-    }, []);
+    const { library, chainId } = useWeb3React();
+    const provider = library;
 
     /**
      * @dev Calculates the breakeven asset price depending on if the option is a call or put.
@@ -77,11 +62,11 @@ const Options: React.FC = (props) => {
         // Check to make sure we are connected to a web3 provider.
         checkProvider();
         const signer = await provider.getSigner();
-        const chain = await signer.getChainId();
+        const chainId = await signer.getChainId();
         const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
 
-        const OPTION = new Token(chain, optionAddress, 18);
-        const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+        const OPTION = new Token(chainId, optionAddress, 18);
+        const STABLECOIN = new Token(chainId, stablecoinAddress, 18);
 
         const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
         const route = new Route([pair], STABLECOIN, OPTION);
@@ -100,9 +85,8 @@ const Options: React.FC = (props) => {
     /**
      * @dev Gets the address of an asset using its name and respective network id.
      * @param assetName The name of the asset.
-     * @param chainId The chain of the network to get the asset on.
      */
-    const getAssetAddress = (assetName, chainId) => {
+    const getAssetAddress = (assetName) => {
         let address = AssetAddresses[assetName][chainId];
         return address;
     };
@@ -110,12 +94,10 @@ const Options: React.FC = (props) => {
     const handleOptions = useCallback(
         async (assetName) => {
             // Web3 variables
-            const provider = web3React.library;
             const signer = await provider.getSigner();
-            const chain = await signer.getChainId();
 
             // Asset address and quantity of options
-            let assetAddress = getAssetAddress(assetName, chain);
+            let assetAddress = getAssetAddress(assetName);
             let optionsLength = Object.keys(OptionDeployments).length;
 
             // Objects and arrays to populate
@@ -195,7 +177,7 @@ const Options: React.FC = (props) => {
             });
             dispatch(setOptions(optionsObject));
         },
-        [dispatch, web3React.library]
+        [dispatch, provider]
     );
 
     return (

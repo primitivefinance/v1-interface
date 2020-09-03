@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ethers from "ethers";
 import { ThemeProvider } from "styled-components";
 import {
