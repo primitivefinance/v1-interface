@@ -1,4 +1,5 @@
 import React, { useCallback, useReducer } from "react";
+import Notify from "bnc-notify";
 
 import OrderContext from "./context";
 
@@ -9,9 +10,20 @@ import { OrderItem, OrderType } from "./types";
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
 import { mint, exercise, redeem, close } from "../../lib/primitive";
+require("dotenv").config();
+
+const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
 
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    let notifyInstance;
+    if (NotifyKey) {
+        notifyInstance = Notify({
+            dappId: NotifyKey,
+            networkId: 4,
+        });
+    }
 
     const handleAddItem = useCallback(
         (item: OrderItem, orderType: OrderType) => {
@@ -41,7 +53,8 @@ const Order: React.FC = (props) => {
     ) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
-        await swap(signer, quantity, optionAddress, stablecoinAddress);
+        let tx = await swap(signer, quantity, optionAddress, stablecoinAddress);
+        notifyInstance.hash(tx.hash);
     };
 
     const handleMintOptions = async (
@@ -50,7 +63,9 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
-        await mint(signer, quantity, optionAddress);
+        let tx = await mint(signer, quantity, optionAddress);
+        notifyInstance.hash(tx.hash);
+        localStorage.setItem("pendingTx", tx.hash);
     };
 
     const handleExerciseOptions = async (
@@ -59,7 +74,8 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
-        await exercise(signer, quantity, optionAddress);
+        let tx = await exercise(signer, quantity, optionAddress);
+        notifyInstance.hash(tx.hash);
     };
 
     const handleRedeemOptions = async (
@@ -68,7 +84,8 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
-        await redeem(signer, quantity, optionAddress);
+        let tx = await redeem(signer, quantity, optionAddress);
+        notifyInstance.hash(tx.hash);
     };
 
     const handleCloseOptions = async (
@@ -77,7 +94,15 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
-        await close(signer, quantity, optionAddress);
+        let tx = await close(signer, quantity, optionAddress);
+        notifyInstance.hash(tx.hash);
+    };
+
+    const loadPendingTx = () => {
+        const pendingTx = localStorage.getItem("pendingTx");
+        if (pendingTx) {
+            notifyInstance.hash(pendingTx);
+        }
     };
 
     return (
@@ -92,6 +117,7 @@ const Order: React.FC = (props) => {
                 exerciseOptions: handleExerciseOptions,
                 redeemOptions: handleRedeemOptions,
                 closeOptions: handleCloseOptions,
+                loadPendingTx: loadPendingTx,
             }}
         >
             {props.children}

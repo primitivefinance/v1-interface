@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
@@ -29,6 +29,8 @@ export const disconnect = async (web3React) => {
 };
 
 const TopBar: React.FC = () => {
+    const [isMarkets, setIsMarkets] = useState(true);
+    const location = useLocation();
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
     });
@@ -40,8 +42,18 @@ const TopBar: React.FC = () => {
                     <Logo />
                 </StyledFlex>
                 <StyledNav>
-                    <StyledNavItem to="/">Portfolio</StyledNavItem>
-                    <StyledNavItem active={true} to="/">
+                    <StyledNavItem
+                        active={
+                            location.pathname == "/portfolio" ? true : false
+                        }
+                        to="/portfolio"
+                    >
+                        Portfolio
+                    </StyledNavItem>
+                    <StyledNavItem
+                        active={location.pathname == "/markets" ? true : false}
+                        to="/markets"
+                    >
                         Markets
                     </StyledNavItem>
                 </StyledNav>

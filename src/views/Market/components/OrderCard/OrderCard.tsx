@@ -26,10 +26,14 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         exerciseOptions,
         closeOptions,
         orderType,
+        loadPendingTx,
     } = useOrders();
     const { buyOrMint } = orderType;
     const web3React = useWeb3React();
     useEffect(() => {}, [item]);
+    useEffect(() => {
+        loadPendingTx();
+    }, []);
 
     const { asset, year, month, day, type, strike } = destructureOptionSymbol(
         item.id

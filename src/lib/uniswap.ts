@@ -62,6 +62,8 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     const to = await signer.getAddress();
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
     const value = trade.inputAmount.raw;
+
+    let tx;
     try {
         console.log("Submitting trade: ", {
             amountOut,
@@ -70,7 +72,7 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
             to,
             deadline,
         });
-        await router.swapTokensForExactTokens(
+        tx = await router.swapTokensForExactTokens(
             amountOut,
             amountInMax,
             path,
@@ -80,6 +82,8 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     } catch (err) {
         console.log("Swap tokens for exact tokens error:", err);
     }
+
+    return tx;
 };
 
 /* const getPairData = async (optionAddress) => {
@@ -159,8 +163,9 @@ const addLiquidity = async (
     const to = await signer.getAddress();
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
+    let tx;
     try {
-        await router.addLiquidity(
+        tx = await router.addLiquidity(
             tokenA,
             tokenB,
             amountADesired,
@@ -173,6 +178,8 @@ const addLiquidity = async (
     } catch (err) {
         console.log("Error adding liquidity: ", err);
     }
+
+    return tx;
 };
 
 export { swap };
