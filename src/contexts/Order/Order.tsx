@@ -1,4 +1,5 @@
 import React, { useCallback, useReducer } from "react";
+import Notify from "bnc-notify";
 
 import OrderContext from "./context";
 
@@ -9,9 +10,20 @@ import { OrderItem, OrderType } from "./types";
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
 import { mint, exercise, redeem, close } from "../../lib/primitive";
+require("dotenv").config();
+
+const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
 
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    let notifyInstance;
+    if (NotifyKey) {
+        notifyInstance = Notify({
+            dappId: NotifyKey,
+            networkId: 4,
+        });
+    }
 
     const handleAddItem = useCallback(
         (item: OrderItem, orderType: OrderType) => {
