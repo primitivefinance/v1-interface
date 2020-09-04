@@ -44,13 +44,15 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
         if (library) {
             getOptions(asset.toLowerCase());
         }
-    }, [library, asset]);
+    }, [library, asset, getOptions]);
 
     useEffect(() => {
         if (library) {
-            getPositions(asset.toLowerCase(), options);
+            if (options.calls.length > 1) {
+                getPositions(asset.toLowerCase(), options);
+            }
         }
-    }, [options]);
+    }, [library, asset, getPositions, options]);
 
     const type = callActive ? "calls" : "puts";
 
