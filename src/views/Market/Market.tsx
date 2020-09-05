@@ -28,7 +28,6 @@ const Market: React.FC = () => {
     const [callPutActive, setCallPutActive] = useState(true);
 
     // Web3
-
     const { activate } = useWeb3React();
     // Connect to web3 automatically using injected
     useEffect(() => {

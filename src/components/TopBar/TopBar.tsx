@@ -55,6 +55,12 @@ const TopBar: React.FC = () => {
                     >
                         Markets
                     </StyledNavItem>
+                    <StyledNavItem
+                        active={location.pathname === "/create" ? true : false}
+                        to="/create"
+                    >
+                        Create
+                    </StyledNavItem>
                 </StyledNav>
                 <StyledFlex>
                     <StyledFlex />

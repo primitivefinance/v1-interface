@@ -11,7 +11,7 @@ import { useWeb3React } from "@web3-react/core";
 
 import UniswapPairs from "./uniswap_pairs.json";
 import { swap } from "../../lib/uniswap";
-import { mint, exercise, redeem, close } from "../../lib/primitive";
+import { mint, exercise, redeem, close, create } from "../../lib/primitive";
 require("dotenv").config();
 
 const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
@@ -102,6 +102,18 @@ const Order: React.FC = (props) => {
         notifyInstance.hash(tx.hash);
     };
 
+    const handleCreateOption = async (
+        provider,
+        asset,
+        isCallType,
+        expiry,
+        strike
+    ) => {
+        let signer = await provider.getSigner();
+        let tx = await create(signer, asset, isCallType, expiry, strike);
+        notifyInstance.hash(tx.hash);
+    };
+
     const loadPendingTx = useCallback(async () => {
         const pendingTx = localStorage.getItem("pendingTx");
         if (pendingTx && provider) {
@@ -127,6 +139,7 @@ const Order: React.FC = (props) => {
                 redeemOptions: handleRedeemOptions,
                 closeOptions: handleCloseOptions,
                 loadPendingTx: loadPendingTx,
+                createOption: handleCreateOption,
             }}
         >
             {props.children}

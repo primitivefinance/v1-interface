@@ -1,10 +1,14 @@
 import ERC20 from "@primitivefi/contracts/artifacts/ERC20.json";
 import Option from "@primitivefi/contracts/artifacts/Option.json";
 import Trader from "@primitivefi/contracts/artifacts/Trader.json";
+import Registry from "@primitivefi/contracts/artifacts/Registry.json";
 import TraderRinkeby from "@primitivefi/contracts/deployments/rinkeby/Trader.json";
+import RegistryRinkeby from "@primitivefi/contracts/deployments/rinkeby/Registry.json";
 import { ethers } from "ethers";
 
 import { parseEther } from "ethers/lib/utils";
+
+import Assets from "../contexts/Options/assets.json";
 
 const MIN_ALLOWANCE = parseEther("10000000");
 
@@ -19,8 +23,17 @@ const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
 
 const getTraderAddress = (chainId) => {
     let address;
-    if (chainId === "4") {
+    if (chainId.toString() === "4") {
         address = TraderRinkeby.address;
+    }
+
+    return address;
+};
+
+const getRegistryAddress = (chainId) => {
+    let address;
+    if (chainId.toString() === "4") {
+        address = RegistryRinkeby.address;
     }
 
     return address;
@@ -31,6 +44,13 @@ const getTrader = async (signer) => {
     const traderAddress = getTraderAddress(chain);
     const trader = new ethers.Contract(traderAddress, Trader.abi, signer);
     return { traderAddress, trader };
+};
+
+const getRegistry = async (signer) => {
+    const chain = await signer.getChainId();
+    const registryAddress = getRegistryAddress(chain);
+    const registry = new ethers.Contract(registryAddress, Registry.abi, signer);
+    return { registryAddress, registry };
 };
 
 const mint = async (signer, quantity, optionAddress) => {
@@ -116,4 +136,61 @@ const close = async (signer, quantity, optionAddress) => {
     return tx;
 };
 
-export { mint, exercise, redeem, close };
+const create = async (signer, underlying, isCallType, expiry, strike) => {
+    const chain = await signer.getChainId();
+    const { registryAddress, registry } = await getRegistry(signer);
+    const stablecoin = Assets["dai"][chain];
+
+    /* 
+     
+     * @dev Deploys an option contract clone with create2.
+     * @param underlyingToken The address of the ERC-20 underlying token.
+     * @param strikeToken The address of the ERC-20 strike token.
+     * @param base The quantity of underlying tokens per unit of quote amount of strike tokens.
+     * @param quote The quantity of strike tokens per unit of base amount of underlying tokens.
+     * @param expiry The unix timestamp of the option's expiration date.
+     * @return The address of the deployed option clone.
+        function deployOption(
+            address underlyingToken,
+            address strikeToken,
+            uint256 base,
+            uint256 quote,
+            uint256 expiry
+        )
+    */
+
+    let underlyingToken = "";
+    let strikeToken = "";
+    let base = "0";
+    let quote = "0";
+
+    if (isCallType) {
+        underlyingToken = underlying;
+        strikeToken = stablecoin;
+        base = parseEther("1").toString();
+        quote = parseEther(strike.toString()).toString();
+    } else {
+        underlyingToken = stablecoin;
+        strikeToken = underlying;
+        base = parseEther(strike.toString()).toString();
+        quote = parseEther("1").toString();
+    }
+
+    let tx;
+    try {
+        tx = await registry.deployOption(
+            underlyingToken,
+            strikeToken,
+            base,
+            quote,
+            expiry
+        );
+    } catch (err) {
+        console.log("Error on creating: ", err);
+    }
+
+    console.log("Deployed option tx: ", tx, { registryAddress });
+    return tx;
+};
+
+export { mint, exercise, redeem, close, create };
