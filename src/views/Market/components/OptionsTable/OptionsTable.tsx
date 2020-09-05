@@ -33,13 +33,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     const { callActive, asset } = props;
     const { options, getOptions } = useOptions();
     const { onAddItem } = useOrders();
-    const web3React = useWeb3React();
+    const { library } = useWeb3React();
 
     useEffect(() => {
-        if (web3React.library) {
+        if (library) {
             getOptions(asset.toLowerCase());
         }
-    }, [web3React.library]);
+    }, [library, asset, getOptions]);
 
     const type = callActive ? "calls" : "puts";
 

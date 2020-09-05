@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
@@ -29,7 +29,6 @@ export const disconnect = async (web3React) => {
 };
 
 const TopBar: React.FC = () => {
-    const [isMarkets, setIsMarkets] = useState(true);
     const location = useLocation();
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
@@ -44,17 +43,23 @@ const TopBar: React.FC = () => {
                 <StyledNav>
                     <StyledNavItem
                         active={
-                            location.pathname == "/portfolio" ? true : false
+                            location.pathname === "/portfolio" ? true : false
                         }
                         to="/portfolio"
                     >
                         Portfolio
                     </StyledNavItem>
                     <StyledNavItem
-                        active={location.pathname == "/markets" ? true : false}
+                        active={location.pathname === "/markets" ? true : false}
                         to="/markets"
                     >
                         Markets
+                    </StyledNavItem>
+                    <StyledNavItem
+                        active={location.pathname === "/create" ? true : false}
+                        to="/create"
+                    >
+                        Create
                     </StyledNavItem>
                 </StyledNav>
                 <StyledFlex>

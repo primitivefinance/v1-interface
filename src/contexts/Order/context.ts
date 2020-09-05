@@ -34,6 +34,13 @@ const OrderContext = createContext<OrderContextValues>({
         quantity: number | undefined
     ) => {},
     loadPendingTx: () => {},
+    createOption: async (
+        provider: any,
+        asset: string,
+        isCallType: boolean,
+        expiry: string,
+        strike: number
+    ) => {},
 });
 
 export default OrderContext;

@@ -29,6 +29,13 @@ export interface OrderContextValues {
         quantity: number | undefined
     ) => Promise<void>;
     loadPendingTx: () => void;
+    createOption: (
+        provider: any,
+        asset: string,
+        isCallType: boolean,
+        expiry: string,
+        strike: number
+    ) => Promise<void>;
 }
 
 export interface OrderItem {

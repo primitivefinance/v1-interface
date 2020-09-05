@@ -5,7 +5,6 @@ import useOrders from "../../../../hooks/useOrders";
 import useOptions from "../../../../hooks/useOptions";
 import usePositions from "../../../../hooks/usePositions";
 
-import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 
 import { useWeb3React } from "@web3-react/core";
@@ -39,22 +38,21 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     const { options, getOptions } = useOptions();
     const { positions, getPositions } = usePositions();
     const { onAddItem } = useOrders();
-    const web3React = useWeb3React();
+    const { library } = useWeb3React();
 
     useEffect(() => {
-        if (web3React.library) {
+        if (library) {
             getOptions(asset.toLowerCase());
+        }
+    }, [library, asset, getOptions]);
+
+    useEffect(() => {
+        if (library) {
             if (options.calls.length > 1) {
                 getPositions(asset.toLowerCase(), options);
             }
         }
-    }, [web3React.library]);
-
-    useEffect(() => {
-        if (web3React.library) {
-            getPositions(asset.toLowerCase(), options);
-        }
-    }, [options]);
+    }, [library, asset, getPositions, options]);
 
     const type = callActive ? "calls" : "puts";
 
@@ -74,9 +72,9 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
             <LitContainer>
                 <TableBody>
                     {positions[type].map((position, i) => {
-                        const { name, symbol, address, balance } = position;
+                        const { name, address, balance } = position;
                         const option: OrderItem = options[type][i];
-                        const { price, id, expiry } = option;
+                        const { price, expiry } = option;
                         return (
                             <TableRow key={address}>
                                 <TableCell>{name}</TableCell>

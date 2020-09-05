@@ -1,50 +1,21 @@
-import React, { useCallback, useReducer, useEffect } from "react";
-import { parseEther, formatEther } from "ethers/lib/utils";
-import {
-    Token,
-    Fetcher,
-    Trade,
-    TokenAmount,
-    TradeType,
-    Route,
-} from "@uniswap/sdk";
+import React, { useCallback, useReducer } from "react";
+import { formatEther } from "ethers/lib/utils";
 
 import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
 
 import ERC20 from "@primitivefi/contracts/artifacts/TestERC20.json";
 
-import useOptions from "../../hooks/useOptions";
-
 import PositionsContext from "./context";
 import positionsReducer, { initialState, setPositions } from "./reducer";
-import {
-    PositionsData,
-    EmptyPositionsAttributes,
-    PositionsAttributes,
-} from "./types";
+import { EmptyPositionsAttributes, PositionsAttributes } from "./types";
 import { ethers } from "ethers";
 
 const Positions: React.FC = (props) => {
     const [state, dispatch] = useReducer(positionsReducer, initialState);
 
     // Web3 injection
-    const web3React = useWeb3React();
-    const injected = new InjectedConnector({
-        supportedChainIds: [1, 3, 4, 5, 42],
-    });
-    const provider = web3React.library;
-
-    // Connect to web3 automatically using injected
-    useEffect(() => {
-        (async () => {
-            try {
-                await web3React.activate(injected);
-            } catch (err) {
-                console.log(err);
-            }
-        })();
-    }, []);
+    const { library } = useWeb3React();
+    const provider = library;
 
     const handlePositions = useCallback(
         async (assetName: string, options) => {
@@ -112,7 +83,7 @@ const Positions: React.FC = (props) => {
 
             dispatch(setPositions(positionsObject));
         },
-        [dispatch, web3React.library]
+        [dispatch, provider]
     );
 
     return (

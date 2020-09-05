@@ -17,7 +17,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
     useEffect(() => {
         getPrices(name.toLowerCase());
-    }, []);
+    }, [name, getPrices]);
 
     return (
         <StyledHeader>

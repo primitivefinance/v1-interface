@@ -13,6 +13,7 @@ import TopBar from "./components/TopBar";
 
 import Market from "./views/Market";
 import Portfolio from "./views/Portfolio";
+import Create from "./views/Create";
 
 import theme from "./theme";
 
@@ -36,6 +37,9 @@ const App: React.FC = () => {
                     </Switch>
                     <Switch>
                         <Route exact path="/portfolio" component={Portfolio} />
+                    </Switch>
+                    <Switch>
+                        <Route exact path="/create" component={Create} />
                     </Switch>
                 </Router>
             </Web3ReactProvider>

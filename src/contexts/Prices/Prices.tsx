@@ -1,11 +1,8 @@
-import React, { useCallback, useReducer, useEffect } from "react";
+import React, { useCallback, useReducer } from "react";
 
 import PricesContext from "./context";
 import pricesReducer, { initialState, setPrices } from "./reducer";
 import { PricesData } from "./types";
-
-const ethPriceApi =
-    "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true";
 
 const Prices: React.FC = (props) => {
     const [state, dispatch] = useReducer(pricesReducer, initialState);

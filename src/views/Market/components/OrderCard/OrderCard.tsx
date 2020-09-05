@@ -29,11 +29,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         loadPendingTx,
     } = useOrders();
     const { buyOrMint } = orderType;
-    const web3React = useWeb3React();
+    const { library } = useWeb3React();
     useEffect(() => {}, [item]);
     useEffect(() => {
-        loadPendingTx();
-    }, []);
+        (async () => {
+            loadPendingTx();
+        })();
+    }, [loadPendingTx]);
 
     const { asset, year, month, day, type, strike } = destructureOptionSymbol(
         item.id
@@ -68,8 +70,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <>
                                     <h4>
                                         Buying {asset}{" "}
-                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
-                                        {month}/{day}/{year}
+                                        {type === "C" ? "Call" : "Put"} $
+                                        {strike} {month}/{day}/{year}
                                     </h4>
                                     <h4>Price: ${item.price.toFixed(2)}</h4>
                                     <StyledLabel>Quantity: </StyledLabel>
@@ -82,7 +84,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     <Button
                                         onClick={() => {
                                             buyOptions(
-                                                web3React.library,
+                                                library,
                                                 item?.address,
                                                 quantity
                                             );
@@ -100,7 +102,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                             <>
                                 <h4>
                                     Minting {asset}{" "}
-                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {type === "C" ? "Call" : "Put"} ${strike}{" "}
                                     {month}/{day}/{year}
                                 </h4>
                                 <h4>Price: ${item.price.toFixed(2)}</h4>
@@ -114,7 +116,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <Button
                                     onClick={() => {
                                         mintOptions(
-                                            web3React.library,
+                                            library,
                                             item?.address,
                                             quantity
                                         );
@@ -146,8 +148,8 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <>
                                     <h4>
                                         Exercising {asset}{" "}
-                                        {type == "C" ? "Call" : "Put"} ${strike}{" "}
-                                        {month}/{day}/{year}
+                                        {type === "C" ? "Call" : "Put"} $
+                                        {strike} {month}/{day}/{year}
                                     </h4>
                                     <h4>Price: ${item.price.toFixed(2)}</h4>
                                     <StyledLabel>Quantity: </StyledLabel>
@@ -160,7 +162,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     <Button
                                         onClick={() => {
                                             exerciseOptions(
-                                                web3React.library,
+                                                library,
                                                 item?.address,
                                                 quantity
                                             );
@@ -178,7 +180,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                             <>
                                 <h4>
                                     Closing {asset}{" "}
-                                    {type == "C" ? "Call" : "Put"} ${strike}{" "}
+                                    {type === "C" ? "Call" : "Put"} ${strike}{" "}
                                     {month}/{day}/{year}
                                 </h4>
                                 <h4>Price: ${item.price.toFixed(2)}</h4>
@@ -192,7 +194,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 <Button
                                     onClick={() => {
                                         closeOptions(
-                                            web3React.library,
+                                            library,
                                             item?.address,
                                             quantity
                                         );
