@@ -8,6 +8,11 @@ export interface OrderContextValues {
         optionAddress: string,
         quantity: number | undefined
     ) => Promise<void>;
+    sellOptions: (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => Promise<void>;
     mintOptions: (
         provider: any,
         optionAddress: string,

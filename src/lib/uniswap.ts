@@ -24,7 +24,7 @@ const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
     }
 };
 
-const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
+const buy = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     /* 
         function swapTokensForExactTokens(
           uint amountOut,
@@ -83,30 +83,64 @@ const swap = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
     return tx;
 };
 
-/* const getPairData = async (optionAddress) => {
-    let premium = 0;
+const sell = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
+    /* 
+        function swapTokensForExactTokens(
+          uint amountOut,
+          uint amountInMax,
+          address[] calldata path,
+          address to,
+          uint deadline
+        ) external returns (uint[] memory amounts);
 
-    // Check to make sure we are connected to a web3 provider.
-    const signer = await provider.getSigner();
-    const chain = await signer.getChainId();
-    const stablecoinAddress = "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2";
+    */
 
+    await checkAllowance(signer, optionAddress, UNI_ROUTER_ADDRESS);
+    let router = new ethers.Contract(
+        UNI_ROUTER_ADDRESS,
+        UniswapV2Router02Artifact.abi,
+        signer
+    );
+    let chain = await signer.getChainId();
     const OPTION = new Token(chain, optionAddress, 18);
     const STABLECOIN = new Token(chain, stablecoinAddress, 18);
+    const pair = await Fetcher.fetchPairData(OPTION, STABLECOIN);
+    const route = new Route([pair], OPTION, STABLECOIN);
+    const amountIn = parseEther(minQuantity).toString();
+    const trade = new Trade(
+        route,
+        new TokenAmount(OPTION, amountIn),
+        TradeType.EXACT_INPUT
+    );
 
-    const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION);
-    const route = new Route([pair], STABLECOIN, OPTION);
-    const midPrice = Number(route.midPrice.toSignificant(6));
+    const slippage = new Percent("100", "10000");
+    const amountOutMin = trade.minimumAmountOut(slippage).raw.toString();
+    const path = [OPTION.address, STABLECOIN.address];
+    const to = await signer.getAddress();
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
-    const unit = parseEther("1").toString();
-    const tokenAmount = new TokenAmount(OPTION, unit);
-    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT);
+    let tx;
+    try {
+        console.log("Submitting trade: ", {
+            amountIn,
+            amountOutMin,
+            path,
+            to,
+            deadline,
+        });
+        tx = await router.swapExactTokensForTokens(
+            amountIn,
+            amountOutMin,
+            path,
+            to,
+            deadline
+        );
+    } catch (err) {
+        console.log("Swap exact tokens for tokens error:", err);
+    }
 
-    const executionPrice = Number(trade.executionPrice.toSignificant(6));
-
-    premium = executionPrice > midPrice ? executionPrice : midPrice;
-    return { premium };
-}; */
+    return tx;
+};
 
 const addLiquidity = async (
     signer,
@@ -179,4 +213,4 @@ const addLiquidity = async (
     return tx;
 };
 
-export { swap, addLiquidity };
+export { buy, sell, addLiquidity };
