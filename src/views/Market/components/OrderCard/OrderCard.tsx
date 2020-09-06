@@ -22,9 +22,9 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
     const {
         item,
         buyOptions,
+        sellOptions,
         mintOptions,
         exerciseOptions,
-        closeOptions,
         orderType,
         loadPendingTx,
     } = useOrders();
@@ -135,19 +135,19 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                     <>
                         <Button
                             onClick={onToggle}
-                            text={"Exercise"}
+                            text={"Sell"}
                             variant={!buyCard ? "transparent" : "filled"}
                         />
                         <Button
                             onClick={onToggle}
-                            text={"Close"}
+                            text={"Exercise"}
                             variant={!buyCard ? "filled" : "transparent"}
                         />
                         {buyCard ? (
                             item.id ? (
                                 <>
                                     <h4>
-                                        Exercising {asset}{" "}
+                                        Sell {asset}{" "}
                                         {type === "C" ? "Call" : "Put"} $
                                         {strike} {month}/{day}/{year}
                                     </h4>
@@ -161,13 +161,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                     />
                                     <Button
                                         onClick={() => {
-                                            exerciseOptions(
+                                            sellOptions(
                                                 library,
                                                 item?.address,
                                                 quantity
                                             );
                                         }}
-                                        text="Exercise"
+                                        text="Sell"
                                     />
                                     <StyledAvailable>
                                         $250,000 Buying Power
@@ -179,7 +179,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                         ) : item.id ? (
                             <>
                                 <h4>
-                                    Closing {asset}{" "}
+                                    Exercise {asset}{" "}
                                     {type === "C" ? "Call" : "Put"} ${strike}{" "}
                                     {month}/{day}/{year}
                                 </h4>
@@ -193,13 +193,13 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                 />
                                 <Button
                                     onClick={() => {
-                                        closeOptions(
+                                        exerciseOptions(
                                             library,
                                             item?.address,
                                             quantity
                                         );
                                     }}
-                                    text="Close"
+                                    text="Exercise"
                                 />
                                 <StyledAvailable>
                                     $250,000 Buying Power

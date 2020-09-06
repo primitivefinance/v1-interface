@@ -10,7 +10,7 @@ import { OrderItem, OrderType } from "./types";
 import { useWeb3React } from "@web3-react/core";
 
 import UniswapPairs from "./uniswap_pairs.json";
-import { swap } from "../../lib/uniswap";
+import { buy, sell } from "../../lib/uniswap";
 import { mint, exercise, redeem, close, create } from "../../lib/primitive";
 require("dotenv").config();
 
@@ -43,13 +43,6 @@ const Order: React.FC = (props) => {
         [dispatch]
     );
 
-    /* const handleRemoveItem = useCallback(
-        (item: OrderItem, orderType: OrderType) => {
-            dispatch(changeItem(item, orderType));
-        },
-        [dispatch]
-    ); */
-
     const handleBuyOptions = async (
         provider,
         optionAddress: string,
@@ -57,7 +50,18 @@ const Order: React.FC = (props) => {
     ) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
-        let tx = await swap(signer, quantity, optionAddress, stablecoinAddress);
+        let tx = await buy(signer, quantity, optionAddress, stablecoinAddress);
+        notifyInstance.hash(tx.hash);
+    };
+
+    const handleSellOptions = async (
+        provider,
+        optionAddress: string,
+        quantity: any
+    ) => {
+        let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
+        let signer = await provider.getSigner();
+        let tx = await sell(signer, quantity, optionAddress, stablecoinAddress);
         notifyInstance.hash(tx.hash);
     };
 
@@ -134,6 +138,7 @@ const Order: React.FC = (props) => {
                 onAddItem: handleAddItem,
                 onChangeItem: handleChangeItem,
                 buyOptions: handleBuyOptions,
+                sellOptions: handleSellOptions,
                 mintOptions: handleMintOptions,
                 exerciseOptions: handleExerciseOptions,
                 redeemOptions: handleRedeemOptions,
