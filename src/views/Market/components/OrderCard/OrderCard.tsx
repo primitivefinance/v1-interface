@@ -27,7 +27,6 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         exerciseOptions,
         orderType,
         loadPendingTx,
-        mintTestTokens,
     } = useOrders();
     const { buyOrMint } = orderType;
     const { library } = useWeb3React();
@@ -50,18 +49,9 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         setBuyCard(!buyCard);
     };
 
-    const handleMintTestTokens = async () => {
-        await mintTestTokens(
-            library,
-            "0xBa8980CA505E7f48a177BBfA3AB90c9F01699110",
-            100
-        );
-    };
-
     return (
         <Card>
             <CardTitle>Your Order</CardTitle>
-            <Button onClick={handleMintTestTokens} text={"Get Test Tokens"} />
             <CardContent>
                 {buyOrMint ? (
                     <>
