@@ -11,7 +11,14 @@ import { useWeb3React } from "@web3-react/core";
 
 import UniswapPairs from "./uniswap_pairs.json";
 import { buy, sell } from "../../lib/uniswap";
-import { mint, exercise, redeem, close, create } from "../../lib/primitive";
+import {
+    mint,
+    exercise,
+    redeem,
+    close,
+    create,
+    mintTestToken,
+} from "../../lib/primitive";
 require("dotenv").config();
 
 const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
@@ -118,6 +125,16 @@ const Order: React.FC = (props) => {
         notifyInstance.hash(tx.hash);
     };
 
+    const handleMintTestTokens = async (
+        provider,
+        optionAddress: string,
+        quantity: any
+    ) => {
+        let signer = await provider.getSigner();
+        let tx = await mintTestToken(signer, optionAddress, quantity);
+        notifyInstance.hash(tx.hash);
+    };
+
     const loadPendingTx = useCallback(async () => {
         const pendingTx = localStorage.getItem("pendingTx");
         if (pendingTx && provider) {
@@ -145,6 +162,7 @@ const Order: React.FC = (props) => {
                 closeOptions: handleCloseOptions,
                 loadPendingTx: loadPendingTx,
                 createOption: handleCreateOption,
+                mintTestTokens: handleMintTestTokens,
             }}
         >
             {props.children}
