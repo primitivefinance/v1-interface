@@ -11,6 +11,7 @@ import MarketHeader from "./components/MarketHeader";
 import OptionsTable from "./components/OptionsTable";
 import PositionsTable from "./components/PositionsTable";
 import OrderCard from "./components/OrderCard";
+import TestnetCard from "./components/TestnetCard";
 import PositionsHeader from "./components/PositionsHeader";
 
 import { useWeb3React } from "@web3-react/core";
@@ -28,7 +29,7 @@ const Market: React.FC = () => {
     const [callPutActive, setCallPutActive] = useState(true);
 
     // Web3
-    const { activate } = useWeb3React();
+    const { activate, chainId } = useWeb3React();
     // Connect to web3 automatically using injected
     useEffect(() => {
         (async () => {
@@ -72,6 +73,7 @@ const Market: React.FC = () => {
                             </StyledMain>
                             <StyledSideBar>
                                 <OrderCard />
+                                {chainId === 4 ? <TestnetCard /> : <> </>}
                             </StyledSideBar>
                         </StyledMarket>
                     </PositionsProvider>
