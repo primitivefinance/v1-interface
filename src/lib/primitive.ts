@@ -1,4 +1,5 @@
 import ERC20 from "@primitivefi/contracts/artifacts/ERC20.json";
+import TestERC20 from "@primitivefi/contracts/artifacts/TestERC20.json";
 import Option from "@primitivefi/contracts/artifacts/Option.json";
 import Trader from "@primitivefi/contracts/artifacts/Trader.json";
 import Registry from "@primitivefi/contracts/artifacts/Registry.json";
@@ -11,6 +12,33 @@ import { parseEther } from "ethers/lib/utils";
 import Assets from "../contexts/Options/assets.json";
 
 const MIN_ALLOWANCE = parseEther("10000000");
+
+const mintTestToken = async (signer, optionAddress, quantity) => {
+    const option = new ethers.Contract(optionAddress, Option.abi, signer);
+    const underlyingAddress = await option.getUnderlyingTokenAddress();
+    const strikeAddress = await option.getStrikeTokenAddress();
+    const underlyingToken = new ethers.Contract(
+        underlyingAddress,
+        TestERC20.abi,
+        signer
+    );
+    const strikeToken = new ethers.Contract(
+        strikeAddress,
+        TestERC20.abi,
+        signer
+    );
+    const account = await signer.getAddress();
+    const mintQuantity = parseEther(quantity.toString()).toString();
+    let tx;
+    try {
+        tx = await underlyingToken.mint(account, mintQuantity);
+        await strikeToken.mint(account, mintQuantity);
+    } catch (err) {
+        console.log("Error when minting test token: ", err);
+    }
+
+    return tx;
+};
 
 const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
     let token = new ethers.Contract(tokenAddress, ERC20.abi, signer);
@@ -193,4 +221,4 @@ const create = async (signer, underlying, isCallType, expiry, strike) => {
     return tx;
 };
 
-export { mint, exercise, redeem, close, create };
+export { mint, exercise, redeem, close, create, mintTestToken };

@@ -46,6 +46,11 @@ const OrderContext = createContext<OrderContextValues>({
         expiry: string,
         strike: number
     ) => {},
+    mintTestTokens: async (
+        provider: any,
+        optionAddress: string,
+        quantity: number | undefined
+    ) => {},
 });
 
 export default OrderContext;

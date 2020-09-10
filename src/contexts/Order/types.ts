@@ -41,6 +41,11 @@ export interface OrderContextValues {
         expiry: string,
         strike: number
     ) => Promise<void>;
+    mintTestTokens: (
+        provider: any,
+        optionAddress: string,
+        quantity: number
+    ) => Promise<void>;
 }
 
 export interface OrderItem {

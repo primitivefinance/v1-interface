@@ -1,7 +1,3 @@
-import ERC20 from "@primitivefi/contracts/artifacts/ERC20.json";
-import { ethers } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-
 const destructureOptionSymbol = (symbol) => {
     // symbol = ASSET yyyy mm dd TYPE STRIKE
     // 0-5 asset
@@ -21,18 +17,4 @@ const destructureOptionSymbol = (symbol) => {
     return { asset, year, month, day, type, strike };
 };
 
-const mintTestToken = async (signer, tokenAddress, quantity) => {
-    const token = new ethers.Contract(tokenAddress, ERC20.abi, signer);
-    const account = await signer.getAccount();
-    const mintQuantity = parseEther(quantity).toString();
-    let tx;
-    try {
-        tx = await token.mint(account, mintQuantity);
-    } catch (err) {
-        console.log("Error when minting test token: ", err);
-    }
-
-    return tx;
-};
-
-export { destructureOptionSymbol, mintTestToken };
+export { destructureOptionSymbol };
