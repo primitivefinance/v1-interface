@@ -25,8 +25,7 @@ const NotifyKey = process.env.REACT_APP_NOTIFY_KEY;
 
 const Order: React.FC = (props) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const web3React = useWeb3React();
-    const provider = web3React.library;
+    const { library, chainId } = useWeb3React();
 
     let notifyInstance;
     if (NotifyKey) {
@@ -35,6 +34,20 @@ const Order: React.FC = (props) => {
             networkId: 4,
         });
     }
+
+    const networkIdToUrl = {
+        "1": "https://etherscan.io/tx",
+        "4": "https://rinkeby.etherscan.io/tx",
+    };
+
+    const addEtherscan = (transaction) => {
+        return {
+            onclick: () =>
+                window.open(
+                    `${networkIdToUrl[chainId || 1]}/${transaction.hash}`
+                ),
+        };
+    };
 
     const handleAddItem = useCallback(
         (item: OrderItem, orderType: OrderType) => {
@@ -58,7 +71,8 @@ const Order: React.FC = (props) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
         let tx = await buy(signer, quantity, optionAddress, stablecoinAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleSellOptions = async (
@@ -69,7 +83,8 @@ const Order: React.FC = (props) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
         let tx = await sell(signer, quantity, optionAddress, stablecoinAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleMintOptions = async (
@@ -79,7 +94,8 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await mint(signer, quantity, optionAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
         localStorage.setItem("pendingTx", tx.hash);
     };
 
@@ -90,7 +106,8 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await exercise(signer, quantity, optionAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleRedeemOptions = async (
@@ -100,7 +117,8 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await redeem(signer, quantity, optionAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleCloseOptions = async (
@@ -110,7 +128,8 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await close(signer, quantity, optionAddress);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleCreateOption = async (
@@ -122,7 +141,8 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await create(signer, asset, isCallType, expiry, strike);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const handleMintTestTokens = async (
@@ -132,20 +152,21 @@ const Order: React.FC = (props) => {
     ) => {
         let signer = await provider.getSigner();
         let tx = await mintTestToken(signer, optionAddress, quantity);
-        notifyInstance.hash(tx.hash);
+        const { emitter } = notifyInstance.hash(tx.hash);
+        emitter.on("all", addEtherscan);
     };
 
     const loadPendingTx = useCallback(async () => {
         const pendingTx = localStorage.getItem("pendingTx");
-        if (pendingTx && provider) {
-            let receipt = await provider.getTransactionReceipt(pendingTx);
+        if (pendingTx && library) {
+            let receipt = await library.getTransactionReceipt(pendingTx);
             if (receipt && receipt.confirmations) {
                 return;
             } else {
                 notifyInstance.hash(pendingTx);
             }
         }
-    }, [provider, notifyInstance]);
+    }, [library, notifyInstance]);
 
     return (
         <OrderContext.Provider

@@ -68,11 +68,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                             } = option;
                             return (
                                 <TableRow key={address}>
-                                    <TableCell>${strike}</TableCell>
+                                    <TableCell>${strike.toFixed(2)}</TableCell>
                                     <TableCell>
                                         ${breakEven.toFixed(2)}
                                     </TableCell>
-                                    <TableCell>${price.toFixed(5)}</TableCell>
+                                    <TableCell>${price.toFixed(2)}</TableCell>
                                     <TableCell>
                                         {address.substring(0, 6)}
                                     </TableCell>

@@ -28,15 +28,23 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
                     <StyledSymbol>{symbol}</StyledSymbol>
                 </StyledTitle>
                 <StyledPrice>
-                    $
-                    {prices[name.toLowerCase()]
-                        ? prices[name.toLowerCase()]
-                        : 0}
+                    {prices[name.toLowerCase()] ? (
+                        `$${prices[name.toLowerCase()]}`
+                    ) : (
+                        <StyledLoadingBlock />
+                    )}
                 </StyledPrice>
             </LitContainer>
         </StyledHeader>
     );
 };
+
+const StyledLoadingBlock = styled.div`
+    background-color: ${(props) => props.theme.color.grey[400]};
+    width: 60px;
+    height: 24px;
+    border-radius: 12px;
+`;
 
 const StyledHeader = styled.div`
     background-color: ${(props) => props.theme.color.grey[800]};

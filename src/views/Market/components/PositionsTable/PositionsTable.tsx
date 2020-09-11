@@ -80,7 +80,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                                 <TableRow key={address}>
                                     <TableCell>{name}</TableCell>
                                     <TableCell>{balance.toFixed(2)}</TableCell>
-                                    <TableCell>${price.toFixed(5)}</TableCell>
+                                    <TableCell>${price.toFixed(2)}</TableCell>
                                     <TableCell>
                                         <Timer expiry={expiry} />
                                     </TableCell>
