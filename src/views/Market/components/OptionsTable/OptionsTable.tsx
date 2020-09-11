@@ -57,31 +57,60 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 </LitContainer>
             </StyledTableHead>
             <LitContainer>
-                <TableBody>
-                    {options[type].map((option, i) => {
-                        const { breakEven, price, strike, address } = option;
-                        return (
-                            <TableRow key={address}>
-                                <TableCell>${strike}</TableCell>
-                                <TableCell>${breakEven.toFixed(2)}</TableCell>
-                                <TableCell>${price.toFixed(5)}</TableCell>
-                                <TableCell>{address.substring(0, 6)}</TableCell>
-                                <StyledButtonCell>
-                                    <IconButton
-                                        onClick={() => {
-                                            onAddItem(option, {
-                                                buyOrMint: true,
-                                            });
-                                        }}
-                                        variant="outlined"
-                                    >
-                                        <AddIcon />
-                                    </IconButton>
-                                </StyledButtonCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
+                {options[type].length > 1 ? (
+                    <TableBody>
+                        {options[type].map((option, i) => {
+                            const {
+                                breakEven,
+                                price,
+                                strike,
+                                address,
+                            } = option;
+                            return (
+                                <TableRow key={address}>
+                                    <TableCell>${strike}</TableCell>
+                                    <TableCell>
+                                        ${breakEven.toFixed(2)}
+                                    </TableCell>
+                                    <TableCell>${price.toFixed(5)}</TableCell>
+                                    <TableCell>
+                                        {address.substring(0, 6)}
+                                    </TableCell>
+                                    <StyledButtonCell>
+                                        <IconButton
+                                            onClick={() => {
+                                                onAddItem(option, {
+                                                    buyOrMint: true,
+                                                });
+                                            }}
+                                            variant="outlined"
+                                        >
+                                            <AddIcon />
+                                        </IconButton>
+                                    </StyledButtonCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                ) : (
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <StyledButtonCell></StyledButtonCell>
+                        </TableRow>
+                    </TableBody>
+                )}
             </LitContainer>
         </Table>
     );
@@ -90,6 +119,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 const StyledTableHead = styled.div`
     background-color: ${(props) => props.theme.color.grey[800]};
     border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+`;
+
+const StyledLoadingBlock = styled.div`
+    background-color: ${(props) => props.theme.color.grey[600]};
+    width: 60px;
+    height: 24px;
+    border-radius: 12px;
 `;
 
 const StyledButtonCell = styled.div`

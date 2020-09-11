@@ -70,39 +70,66 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                 </LitContainer>
             </StyledTableHead>
             <LitContainer>
-                <TableBody>
-                    {positions[type].map((position, i) => {
-                        const { name, address, balance } = position;
-                        const option: OrderItem = options[type][i];
-                        const { price, expiry } = option;
-                        return (
-                            <TableRow key={address}>
-                                <TableCell>{name}</TableCell>
-                                <TableCell>{balance.toFixed(2)}</TableCell>
-                                <TableCell>${price.toFixed(5)}</TableCell>
-                                <TableCell>
-                                    <Timer expiry={expiry} />
-                                </TableCell>
-                                <StyledButtonCell>
-                                    <IconButton
-                                        onClick={() => {
-                                            onAddItem(option, {
-                                                buyOrMint: false,
-                                            });
-                                        }}
-                                        variant="outlined"
-                                    >
-                                        <RemoveIcon />
-                                    </IconButton>
-                                </StyledButtonCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
+                {positions[type].length > 1 ? (
+                    <TableBody>
+                        {positions[type].map((position, i) => {
+                            const { name, address, balance } = position;
+                            const option: OrderItem = options[type][i];
+                            const { price, expiry } = option;
+                            return (
+                                <TableRow key={address}>
+                                    <TableCell>{name}</TableCell>
+                                    <TableCell>{balance.toFixed(2)}</TableCell>
+                                    <TableCell>${price.toFixed(5)}</TableCell>
+                                    <TableCell>
+                                        <Timer expiry={expiry} />
+                                    </TableCell>
+                                    <StyledButtonCell>
+                                        <IconButton
+                                            onClick={() => {
+                                                onAddItem(option, {
+                                                    buyOrMint: false,
+                                                });
+                                            }}
+                                            variant="outlined"
+                                        >
+                                            <RemoveIcon />
+                                        </IconButton>
+                                    </StyledButtonCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                ) : (
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <TableCell>
+                                <StyledLoadingBlock />
+                            </TableCell>
+                            <StyledButtonCell></StyledButtonCell>
+                        </TableRow>
+                    </TableBody>
+                )}
             </LitContainer>
         </Table>
     );
 };
+
+const StyledLoadingBlock = styled.div`
+    background-color: ${(props) => props.theme.color.grey[600]};
+    width: 60px;
+    height: 24px;
+    border-radius: 12px;
+`;
 
 const StyledTableHead = styled.div`
     background-color: ${(props) => props.theme.color.grey[800]};
