@@ -6,8 +6,6 @@ import CardContent from "../../../../components/CardContent";
 import CardTitle from "../../../../components/CardTitle";
 import Button from "../../../../components/Button";
 
-import CircularProgress from "@material-ui/core/CircularProgress";
-
 import useOrders from "../../../../hooks/useOrders";
 import { useWeb3React } from "@web3-react/core";
 
@@ -20,7 +18,6 @@ interface OrderCardProps {}
 
 const OrderCard: React.FC<OrderCardProps> = (props) => {
     const [buyCard, setBuyCard] = useState(true);
-    const [isPendingTx, setIsPendingTx] = useState(false);
     const [quantity, setQuantity] = useState();
     const {
         item,
@@ -56,12 +53,7 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
         <Card>
             <CardTitle>Your Order</CardTitle>
             <CardContent>
-                {isPendingTx ? (
-                    <>
-                        <h4>Awaiting transaction...</h4>
-                        <CircularProgress />
-                    </>
-                ) : buyOrMint ? (
+                {buyOrMint ? (
                     <>
                         <Button
                             onClick={onToggle}
@@ -96,7 +88,6 @@ const OrderCard: React.FC<OrderCardProps> = (props) => {
                                                 item?.address,
                                                 quantity
                                             );
-                                            setIsPendingTx(!isPendingTx);
                                         }}
                                         text="Buy"
                                     />

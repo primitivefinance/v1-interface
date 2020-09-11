@@ -78,6 +78,7 @@ const buy = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
         );
     } catch (err) {
         console.log("Swap tokens for exact tokens error:", err);
+        return tx;
     }
 
     return tx;

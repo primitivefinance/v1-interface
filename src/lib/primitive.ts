@@ -215,6 +215,7 @@ const create = async (signer, underlying, isCallType, expiry, strike) => {
         );
     } catch (err) {
         console.log("Error on creating: ", err);
+        return err;
     }
 
     console.log("Deployed option tx: ", tx, { registryAddress });

@@ -32,6 +32,7 @@ const Order: React.FC = (props) => {
         notifyInstance = Notify({
             dappId: NotifyKey,
             networkId: 4,
+            darkMode: true,
         });
     }
 
@@ -40,8 +41,14 @@ const Order: React.FC = (props) => {
         "4": "https://rinkeby.etherscan.io/tx",
     };
 
+    const getBalance = async (account) => {
+        let balance = await library.getBalance(account);
+        return balance;
+    };
+
     const addEtherscan = (transaction) => {
         return {
+            message: "",
             onclick: () =>
                 window.open(
                     `${networkIdToUrl[chainId || 1]}/${transaction.hash}`
@@ -70,8 +77,18 @@ const Order: React.FC = (props) => {
     ) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await buy(signer, quantity, optionAddress, stablecoinAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -82,8 +99,18 @@ const Order: React.FC = (props) => {
     ) => {
         let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress;
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await sell(signer, quantity, optionAddress, stablecoinAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -93,10 +120,19 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await mint(signer, quantity, optionAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
-        localStorage.setItem("pendingTx", tx.hash);
     };
 
     const handleExerciseOptions = async (
@@ -105,8 +141,18 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await exercise(signer, quantity, optionAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -116,8 +162,18 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await redeem(signer, quantity, optionAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -127,8 +183,18 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await close(signer, quantity, optionAddress);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -140,8 +206,18 @@ const Order: React.FC = (props) => {
         strike
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await create(signer, asset, isCallType, expiry, strike);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
@@ -151,8 +227,18 @@ const Order: React.FC = (props) => {
         quantity: any
     ) => {
         let signer = await provider.getSigner();
+        let account = await signer.getAddress();
+        const balance = (await getBalance(account)).toString();
+        const gasPrice = provider.getGasPrice;
+
+        const { emitter } = notifyInstance.transaction({
+            balance,
+            gasPrice,
+        });
         let tx = await mintTestToken(signer, optionAddress, quantity);
-        const { emitter } = notifyInstance.hash(tx.hash);
+        if (tx) {
+            notifyInstance.hash(tx.hash);
+        }
         emitter.on("all", addEtherscan);
     };
 
