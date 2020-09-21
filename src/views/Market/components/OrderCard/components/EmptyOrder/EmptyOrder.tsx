@@ -1,21 +1,30 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react'
 
-import AddIcon from "@material-ui/icons/Add";
+import AddIcon from '@material-ui/icons/Add'
+import styled from 'styled-components'
 
-const EmptyContent: React.FC = () => {
-    return (
-        <StyledEmptyContent>
+import Card from 'components/Card'
+import CardContent from 'components/CardContent'
+import CardTitle from 'components/CardTitle'
+
+import Available from '../Available'
+
+const EmptyOrder: React.FC = () => (
+  <Card>
+    <CardTitle>Your order</CardTitle>
+    <CardContent>
+      <StyledEmptyContent>
             <StyledEmptyIcon>
                 <AddIcon />
             </StyledEmptyIcon>
             <StyledEmptyMessage>
                 Click the + icon next to the options to add to your order.
             </StyledEmptyMessage>
-            <StyledAvailable>$250,000 Buying Power</StyledAvailable>
+            <Available>$250,000 Buying Power</Available>
         </StyledEmptyContent>
-    );
-};
+    </CardContent>
+  </Card>
+)
 
 const StyledEmptyContent = styled.div`
     align-items: center;
@@ -41,18 +50,4 @@ const StyledEmptyMessage = styled.div`
     text-align: center;
 `;
 
-export const StyledAvailable = styled.div`
-    align-items: center;
-    border-top: 1px solid ${(props) => props.theme.color.grey[600]};
-    color: ${(props) => props.theme.color.grey[400]};
-    display: flex;
-    height: 56px;
-    justify-content: center;
-    margin-bottom: -${(props) => props.theme.spacing[4]}px;
-    margin-left: -${(props) => props.theme.spacing[4]}px;
-    margin-right: -${(props) => props.theme.spacing[4]}px;
-    margin-top: ${(props) => props.theme.spacing[4]}px;
-    width: calc(100% + ${(props) => props.theme.spacing[4] * 2}px);
-`;
-
-export default EmptyContent;
+export default EmptyOrder

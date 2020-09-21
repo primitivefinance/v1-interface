@@ -64,14 +64,14 @@ const TopBar: React.FC = () => {
                 </StyledNav>
                 <StyledFlex>
                     <StyledFlex />
-                    <IconButton onClick={() => {}} variant="transparent">
+                    <IconButton onClick={() => {}} variant="tertiary">
                         <NotificationsIcon />
                     </IconButton>
                     <IconButton
                         onClick={async () => {
                             connect(web3React, injected);
                         }}
-                        variant="transparent"
+                        variant="tertiary"
                     >
                         <AccountCircleIcon />
                     </IconButton>

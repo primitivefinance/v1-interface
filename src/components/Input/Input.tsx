@@ -1,17 +1,81 @@
-import React from "react";
-import styled from "styled-components";
+import React, { Fragment } from 'react'
+import styled from 'styled-components'
 
-export type InputattedSelections = {
-    selections: string;
-};
+import Spacer from '../Spacer'
 
 export interface InputProps {
-    selections: string[];
+  endAdornment?: React.ReactNode,
+  onChange?: (e: React.FormEvent<HTMLInputElement>) => void,
+  placeholder?: string,
+  size?: 'sm' | 'md' | 'lg',
+  startAdornment?: React.ReactNode,
+  value?: string,
 }
 
-const Input: React.FC = (props) => {
-    return <StyledInput type="number"></StyledInput>;
-};
-const StyledInput = styled.input``;
+const Input: React.FC<InputProps> = ({
+  endAdornment,
+  onChange,
+  placeholder,
+  size,
+  startAdornment,
+  value,
+}) => {
 
-export default Input;
+  let height = 56
+  if (size === 'sm') {
+    height = 44
+  } else if (size === 'lg') {
+    height = 72
+  }
+
+  return (
+    <StyledInputWrapper height={height}>
+      {!!startAdornment && (
+          <Fragment>
+            {startAdornment}
+            <Spacer size="sm" />
+          </Fragment>
+      )}
+      <StyledInput
+          height={height}
+          onChange={onChange}
+          placeholder={placeholder}
+          value={value}
+      />
+      {!!endAdornment && (
+        <Fragment>
+          <Spacer size="sm" />
+          {endAdornment}
+        </Fragment>
+      )}
+    </StyledInputWrapper>
+  )
+}
+
+interface StyledInputProps {
+  height: number
+}
+
+const StyledInputWrapper = styled.div<StyledInputProps>`
+  align-items: center;
+  background: ${props => props.theme.color.black};
+  border-radius: ${props => props.theme.borderRadius}px;
+  display: flex;
+  height: ${props => props.height}
+  padding: 0 ${props => props.theme.spacing[3]}px;
+`
+
+const StyledInput = styled.input<StyledInputProps>`
+  background: transparent;
+  border: 0;
+  color: ${props => props.theme.color.white};
+  font-size: 18px;
+  flex: 1;
+  height: ${props => props.height}px;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  text-indent: ${props => props.theme.spacing[3]}px;
+`
+
+export default Input
