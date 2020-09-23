@@ -27,7 +27,11 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
 
     return (
         <StyledContainer>
-            <Button onClick={handleMintTestTokens} text={"Get Test Tokens"} />
+            <Button
+                onClick={handleMintTestTokens}
+                text={"Get Test Tokens"}
+                variant="secondary"
+            />
         </StyledContainer>
     );
 };

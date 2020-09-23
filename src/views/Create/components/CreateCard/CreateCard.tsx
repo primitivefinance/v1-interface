@@ -72,12 +72,12 @@ const CreateCard: React.FC<CreateCardProps> = (props) => {
                         <Button
                             onClick={onToggle}
                             text={"Call"}
-                            variant={!isCallType ? "transparent" : "filled"}
+                            variant={!isCallType ? "tertiary" : "default"}
                         />
                         <Button
                             onClick={onToggle}
                             text={"Put"}
-                            variant={!isCallType ? "filled" : "transparent"}
+                            variant={!isCallType ? "default" : "tertiary"}
                         />
                     </StyledLabel>
                     <StyledLabel>

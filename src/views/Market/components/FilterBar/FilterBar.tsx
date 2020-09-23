@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import LitContainer from "../../../../components/LitContainer";
-import ToggleButton from "../../../../components/ToggleButton";
+import LitContainer from 'components/LitContainer';
+import Toggle from 'components/Toggle';
+import ToggleButton from 'components/ToggleButton';
+
 
 export interface FilterBarProps {
     active: boolean;
@@ -11,16 +13,30 @@ export interface FilterBarProps {
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
     const { active, setCallActive } = props;
+
+    const handleToggleClick = useCallback(() => {
+        setCallActive(!active)
+    }, [
+        active,
+        setCallActive
+    ])
+
     return (
         <StyledFilterBar>
             <LitContainer>
                 <StyledFilterBarInner>
-                    <ToggleButton
-                        active={active}
-                        button1Text="Calls"
-                        button2Text="Puts"
-                        onToggle={() => setCallActive(!active)}
-                    />
+                    <Toggle>
+                        <ToggleButton
+                            active={active}
+                            onClick={handleToggleClick}
+                            text="Calls"
+                        />
+                        <ToggleButton
+                            active={!active}
+                            onClick={handleToggleClick}
+                            text="Puts"
+                        />
+                    </Toggle>
                 </StyledFilterBarInner>
             </LitContainer>
         </StyledFilterBar>

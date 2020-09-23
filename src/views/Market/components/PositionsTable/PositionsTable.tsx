@@ -91,7 +91,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                                                     buyOrMint: false,
                                                 });
                                             }}
-                                            variant="outlined"
+                                            variant="secondary"
                                         >
                                             <RemoveIcon />
                                         </IconButton>

@@ -10,7 +10,7 @@ const CardContent: React.FC = (props) => {
 }
 
 const StyledCardContent = styled.div`
-    padding: ${props => props.theme.spacing[4]}px;
+    margin: ${props => props.theme.spacing[4]}px;
 `
 
 export default CardContent

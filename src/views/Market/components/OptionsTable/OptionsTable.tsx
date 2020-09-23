@@ -83,7 +83,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                                                     buyOrMint: true,
                                                 });
                                             }}
-                                            variant="outlined"
+                                            variant="secondary"
                                         >
                                             <AddIcon />
                                         </IconButton>

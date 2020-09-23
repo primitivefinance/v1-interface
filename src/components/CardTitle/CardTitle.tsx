@@ -14,9 +14,7 @@ const StyledCardTitle = styled.div`
     color: ${props => props.theme.color.grey[400]};
     display: flex;
     font-weight: 700;
-    height: 56px;
-    padding-left: ${props => props.theme.spacing[4]}px;
-    padding-right: ${props => props.theme.spacing[4]}px;
+    margin: ${props => props.theme.spacing[4]}px;
 `
 
 export default CardTitle
