@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Countdown, { CountdownRenderProps } from "react-countdown";
 import { useWeb3React } from "@web3-react/core";
-import numeral from "numeral";
 
 import Button from "../../../components/Button";
 import Card from "../../../components/Card";
@@ -13,16 +12,8 @@ import Loader from "../../../components/Loader";
 
 import { Market } from "../../../contexts/Markets";
 import useMarkets from "../../../hooks/useMarkets";
-/* 
-
-
-
-import useYam from "../../../hooks/useYam";
-
-
 
 import { bnToDec } from "../../../utils";
-import { getEarned, getPoolStartTime } from "../../../yamUtils"; */
 
 const MarketCards: React.FC = () => {
     const [markets] = useMarkets();
@@ -68,16 +59,9 @@ interface MarketCardProps {
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     const [startTime, setStartTime] = useState(0);
-    const [harvestable, setHarvestable] = useState(0);
 
     const { contract } = market;
     const { account } = useWeb3React();
-    /* const yam = useYam();
-
-    const getStartTime = useCallback(async () => {
-        const startTime = await getPoolStartTime(market.contract);
-        setStartTime(startTime);
-    }, [market, setStartTime]); */
 
     const renderer = (countdownProps: CountdownRenderProps) => {
         const { hours, minutes, seconds } = countdownProps;
@@ -91,47 +75,18 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
         );
     };
 
-    /* useEffect(() => {
-        if (market && market.id === "ycrv_yam_uni_lp") {
-            getStartTime();
-        }
-    }, [market, getStartTime]);
-
-    useEffect(() => {
-        async function fetchEarned() {
-            const earned = await getEarned(yam, contract, account);
-            setHarvestable(bnToDec(earned));
-        }
-        if (yam && account) {
-            fetchEarned();
-        }
-    }, [yam, contract, account, setHarvestable]); */
-
     const poolActive = startTime * 1000 - Date.now() <= 0;
     return (
         <StyledCardWrapper>
-            {market.id === "ycrv_yam_uni_lp" && <StyledCardAccent />}
             <Card>
                 <CardContent>
                     <StyledContent>
                         <CardIcon>{market.icon}</CardIcon>
                         <StyledTitle>{market.name}</StyledTitle>
                         <StyledDetails>
-                            <StyledDetail>
-                                Deposit {market.depositToken.toUpperCase()}
-                            </StyledDetail>
-                            <StyledDetail>
-                                Earn {market.earnToken.toUpperCase()}
-                            </StyledDetail>
+                            <StyledDetail>Trade</StyledDetail>
                         </StyledDetails>
                         <Spacer />
-                        <StyledHarvestable>
-                            {harvestable
-                                ? `${numeral(harvestable).format(
-                                      "0.00a"
-                                  )} YAMs ready to harvest.`
-                                : undefined}
-                        </StyledHarvestable>
                         <Button
                             disabled={!poolActive}
                             text={poolActive ? "Select" : undefined}

@@ -1,10 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-
 import { Link } from "react-router-dom";
-
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import Button from "../Button";
 
 export interface GoBackProps {
     text?: string;

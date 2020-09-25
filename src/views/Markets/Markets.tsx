@@ -1,17 +1,15 @@
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { useWeb3React } from "@web3-react/core";
+import { InjectedConnector } from "@web3-react/injected-connector";
 
 import Button from "../../components/Button";
 import Page from "../../components/Page";
 import PageHeader from "../../components/PageHeader";
-import { InjectedConnector } from "@web3-react/injected-connector";
-
-import greek from "../../assets/img/greek.svg";
-
+import MarketCards from "./components/MarketCards";
 import Market from "../Market";
 
-import MarketCards from "./components/MarketCards";
+import greek from "../../assets/img/greek.svg";
 
 const Markets: React.FC = () => {
     const { path } = useRouteMatch();

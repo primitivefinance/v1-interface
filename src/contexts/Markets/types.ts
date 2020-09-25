@@ -1,4 +1,3 @@
-/* import { Contract } from "web3-eth-contract"; */
 import { Contract } from "ethers";
 
 export interface Market {

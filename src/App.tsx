@@ -11,7 +11,6 @@ import { Web3ReactProvider } from "@web3-react/core";
 
 import TopBar from "./components/TopBar";
 
-import Market from "./views/Market";
 import Markets from "./views/Markets";
 import Portfolio from "./views/Portfolio";
 import Create from "./views/Create";
