@@ -58,7 +58,7 @@ const Market: React.FC = () => {
                     <PositionsProvider>
                         <StyledMarket>
                             <StyledMain>
-                                <MarketHeader name="Ethereum" symbol="ETH" />
+                                <MarketHeader marketId={marketId} />
                                 <FilterBar
                                     active={callPutActive}
                                     setCallActive={handleFilter}
@@ -74,7 +74,6 @@ const Market: React.FC = () => {
                                     asset="Ethereum"
                                     callActive={callPutActive}
                                 />
-                                {marketId}
                             </StyledMain>
                             <StyledSideBar>
                                 <OrderCard />

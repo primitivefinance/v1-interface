@@ -13,26 +13,6 @@ import Assets from "../contexts/Options/assets.json";
 
 const MIN_ALLOWANCE = parseEther("10000000");
 
-export const getContracts = async (option) => {
-    const pools = Object.keys(option.contracts)
-        .filter((c) => c.indexOf("_pool") !== -1)
-        .reduce((acc, cur) => {
-            const newAcc = { ...acc };
-            newAcc[cur] = option.contracts[cur];
-            return newAcc;
-        }, {});
-    return pools;
-};
-
-export const getContract = async (address): Promise<Contract> => {
-    const contract: Contract = new ethers.Contract(
-        address,
-        Option.abi,
-        await ethers.getDefaultProvider()
-    );
-    return contract;
-};
-
 const mintTestToken = async (signer, optionAddress, quantity) => {
     const option = new ethers.Contract(optionAddress, Option.abi, signer);
     const underlyingAddress = await option.getUnderlyingTokenAddress();
@@ -242,4 +222,23 @@ const create = async (signer, underlying, isCallType, expiry, strike) => {
     return tx;
 };
 
-export { mint, exercise, redeem, close, create, mintTestToken };
+const getOptionMarkets = async (options) => {
+    const markets = Object.keys(options.contracts)
+        .filter((contract) => contract.indexOf("_market") !== -1)
+        .reduce((accumulator, current) => {
+            const newAccumulator = { ...accumulator };
+            newAccumulator[current] = options.contracts[current];
+            return newAccumulator;
+        }, {});
+    return markets;
+};
+
+export {
+    mint,
+    exercise,
+    redeem,
+    close,
+    create,
+    mintTestToken,
+    getOptionMarkets,
+};

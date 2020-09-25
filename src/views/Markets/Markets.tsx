@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
@@ -17,6 +18,11 @@ const Markets: React.FC = () => {
     const injected = new InjectedConnector({
         supportedChainIds: [1, 3, 4, 5, 42],
     });
+
+    const handleConnect = () => {
+        activate(injected);
+    };
+
     return (
         <Switch>
             <Page>
@@ -35,25 +41,20 @@ const Markets: React.FC = () => {
                         </Route>
                     </>
                 ) : (
-                    <div
-                        style={{
-                            alignItems: "center",
-                            display: "flex",
-                            flex: 1,
-                            justifyContent: "center",
-                        }}
-                    >
-                        <Button
-                            onClick={() => {
-                                activate(injected);
-                            }}
-                            text="Unlock Wallet"
-                        />
-                    </div>
+                    <StyledButtonContainer>
+                        <Button onClick={handleConnect} text="Unlock Wallet" />
+                    </StyledButtonContainer>
                 )}
             </Page>
         </Switch>
     );
 };
+
+const StyledButtonContainer = styled.div`
+    align-items: "center";
+    display: "flex";
+    flex: 1;
+    justify-content: "center";
+`;
 
 export default Markets;

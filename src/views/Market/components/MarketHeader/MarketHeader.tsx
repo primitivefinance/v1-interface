@@ -7,12 +7,26 @@ import LitContainer from "../../../../components/LitContainer";
 import usePrices from "../../../../hooks/usePrices";
 
 export interface MarketHeaderProps {
-    name: string;
-    symbol: string;
+    marketId: string;
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
-    const { name, symbol } = props;
+    const { marketId } = props;
+
+    const getMarketDetails = () => {
+        if (marketId === "weth") {
+            const name = "ethereum";
+            const symbol = "ETH";
+            return { name, symbol };
+        } else {
+            const name = "ethereum";
+            const symbol = "ETH";
+            return { name, symbol };
+        }
+    };
+
+    const { name, symbol } = getMarketDetails();
+
     const { prices, getPrices } = usePrices();
 
     useEffect(() => {

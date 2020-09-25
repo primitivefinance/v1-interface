@@ -1,12 +1,5 @@
-import { Contract } from "ethers";
-
 export interface Market {
-    contract: Contract;
     name: string;
-    depositToken: string;
-    depositTokenAddress: string;
-    earnToken: string;
-    earnTokenAddress: string;
     icon: React.ReactNode;
     id: string;
     sort: number;
@@ -14,5 +7,4 @@ export interface Market {
 
 export interface MarketsContext {
     markets: Market[];
-    unharvested: number;
 }

@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import Countdown, { CountdownRenderProps } from "react-countdown";
-import { useWeb3React } from "@web3-react/core";
 
 import Button from "../../../components/Button";
 import Card from "../../../components/Card";
@@ -13,11 +11,8 @@ import Loader from "../../../components/Loader";
 import { Market } from "../../../contexts/Markets";
 import useMarkets from "../../../hooks/useMarkets";
 
-import { bnToDec } from "../../../utils";
-
 const MarketCards: React.FC = () => {
     const [markets] = useMarkets();
-    const { account } = useWeb3React();
     const rows = markets.reduce<Market[][]>(
         (marketRows, market) => {
             const newMarketRows = [...marketRows];
@@ -58,24 +53,7 @@ interface MarketCardProps {
 }
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
-    const [startTime, setStartTime] = useState(0);
-
-    const { contract } = market;
-    const { account } = useWeb3React();
-
-    const renderer = (countdownProps: CountdownRenderProps) => {
-        const { hours, minutes, seconds } = countdownProps;
-        const paddedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-        const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-        const paddedHours = hours < 10 ? `0${hours}` : hours;
-        return (
-            <span style={{ width: "100%" }}>
-                {paddedHours}:{paddedMinutes}:{paddedSeconds}
-            </span>
-        );
-    };
-
-    const poolActive = startTime * 1000 - Date.now() <= 0;
+    const poolActive = true;
     return (
         <StyledCardWrapper>
             <Card>
@@ -91,45 +69,13 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
                             disabled={!poolActive}
                             text={poolActive ? "Select" : undefined}
                             to={`/markets/${market.id}`}
-                        >
-                            {!poolActive && (
-                                <Countdown
-                                    date={new Date(startTime * 1000)}
-                                    renderer={renderer}
-                                />
-                            )}
-                        </Button>
+                        />
                     </StyledContent>
                 </CardContent>
             </Card>
         </StyledCardWrapper>
     );
 };
-
-const StyledCardAccent = styled.div`
-    background: linear-gradient(
-        45deg,
-        rgba(255, 0, 0, 1) 0%,
-        rgba(255, 154, 0, 1) 10%,
-        rgba(208, 222, 33, 1) 20%,
-        rgba(79, 220, 74, 1) 30%,
-        rgba(63, 218, 216, 1) 40%,
-        rgba(47, 201, 226, 1) 50%,
-        rgba(28, 127, 238, 1) 60%,
-        rgba(95, 21, 242, 1) 70%,
-        rgba(186, 12, 248, 1) 80%,
-        rgba(251, 7, 217, 1) 90%,
-        rgba(255, 0, 0, 1) 100%
-    );
-    border-radius: 12px;
-    filter: blur(4px);
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    bottom: -2px;
-    left: -2px;
-    z-index: -1;
-`;
 
 const StyledCards = styled.div`
     width: 900px;
@@ -188,13 +134,6 @@ const StyledDetails = styled.div`
 
 const StyledDetail = styled.div`
     color: ${(props) => props.theme.color.grey[500]};
-`;
-
-const StyledHarvestable = styled.div`
-    color: ${(props) => props.theme.color.secondary.main};
-    font-size: 16px;
-    height: 48px;
-    text-align: center;
 `;
 
 export default MarketCards;
