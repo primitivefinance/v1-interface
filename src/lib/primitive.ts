@@ -5,7 +5,7 @@ import Trader from "@primitivefi/contracts/artifacts/Trader.json";
 import Registry from "@primitivefi/contracts/artifacts/Registry.json";
 import TraderRinkeby from "@primitivefi/contracts/deployments/rinkeby/Trader.json";
 import RegistryRinkeby from "@primitivefi/contracts/deployments/rinkeby/Registry.json";
-import { Contract, ethers } from "ethers";
+import { ethers } from "ethers";
 
 import { parseEther } from "ethers/lib/utils";
 

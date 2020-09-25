@@ -30,9 +30,15 @@ const Markets: React.FC = () => {
                     <>
                         <Route exact path={path}>
                             <PageHeader
-                                icon={<img src={greek} height="96" />}
-                                subtitle="Oracle-less options"
-                                title="Select an option market"
+                                icon={
+                                    <img
+                                        src={greek}
+                                        height="96"
+                                        alt={"markets page icon"}
+                                    />
+                                }
+                                subtitle="Oracle-less options."
+                                title="Select an option market."
                             />
                             <MarketCards />
                         </Route>

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import useOptions from "../../hooks/useOptions";
 import Context from "./context";
 import { Market } from "./types";
 
@@ -24,8 +23,6 @@ const SORT_FOR_POOL: { [key: string]: number } = {
 
 const Markets: React.FC = ({ children }) => {
     const [markets, setMarkets] = useState<Market[]>([]);
-
-    const options = useOptions();
 
     const fetchMarkets = useCallback(async () => {
         const marketsArr: Market[] = [];
@@ -51,13 +48,11 @@ const Markets: React.FC = ({ children }) => {
         }
         marketsArr.sort((a, b) => (a.sort < b.sort ? 1 : -1));
         setMarkets(marketsArr);
-    }, [options, setMarkets]);
+    }, [setMarkets]);
 
     useEffect(() => {
-        if (options) {
-            fetchMarkets();
-        }
-    }, [options, fetchMarkets]);
+        fetchMarkets();
+    }, [fetchMarkets]);
 
     return (
         <Context.Provider
