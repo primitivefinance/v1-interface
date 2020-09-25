@@ -3,9 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 const Available: React.FC = ({ children }) => {
-  return (
-    <StyledAvailable>{children}</StyledAvailable>
-  )
+  return <StyledAvailable>{children}</StyledAvailable>
 }
 
 const StyledAvailable = styled.div`

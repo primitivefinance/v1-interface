@@ -3,15 +3,15 @@ import styled, { ThemeContext } from 'styled-components'
 import { Link } from 'react-router-dom'
 
 export interface ButtonProps {
-  children?: React.ReactNode,
-  disabled?: boolean,
-  full?: boolean,
-  href?: string,
-  onClick?: () => void,
-  round?: boolean,
-  size?: 'sm' | 'md' | 'lg',
-  text?: string,
-  to?: string,
+  children?: React.ReactNode
+  disabled?: boolean
+  full?: boolean
+  href?: string
+  onClick?: () => void
+  round?: boolean
+  size?: 'sm' | 'md' | 'lg'
+  text?: string
+  to?: string
   variant?: 'default' | 'secondary' | 'tertiary'
 }
 
@@ -27,11 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   to,
   variant,
 }) => {
-  const {
-    color,
-    buttonSize,
-    spacing,
-  } = useContext(ThemeContext)
+  const { color, buttonSize, spacing } = useContext(ThemeContext)
 
   let buttonPadding: number
   let fontSize: number
@@ -80,7 +76,11 @@ const Button: React.FC<ButtonProps> = ({
     if (to) {
       return <StyledLink to={to}>{text}</StyledLink>
     } else if (href) {
-      return <StyledExternalLink href={href} target="__blank">{text}</StyledExternalLink>
+      return (
+        <StyledExternalLink href={href} target="__blank">
+          {text}
+        </StyledExternalLink>
+      )
     } else {
       return text
     }
@@ -109,46 +109,47 @@ const Button: React.FC<ButtonProps> = ({
 }
 
 interface StyledButtonProps {
-  background: string,
-  border: string,
-  color: string,
-  disabled?: boolean,
-  fontSize: number,
-  full?: boolean,
-  padding: number,
-  round?: boolean,
-  size: number,
-  hoverBackgroundColor: string,
-  hoverBorderColor: string,
+  background: string
+  border: string
+  color: string
+  disabled?: boolean
+  fontSize: number
+  full?: boolean
+  padding: number
+  round?: boolean
+  size: number
+  hoverBackgroundColor: string
+  hoverBorderColor: string
   hoverColor: string
 }
 
 const StyledButton = styled.button<StyledButtonProps>`
   align-items: center;
-  background: ${props => props.background};
-  border: ${props => props.border ? props.border : '0'};
-  border-radius: ${props => props.round ? props.theme.buttonSize : props.theme.borderRadius}px;
+  background: ${(props) => props.background};
+  border: ${(props) => (props.border ? props.border : '0')};
+  border-radius: ${(props) =>
+    props.round ? props.theme.buttonSize : props.theme.borderRadius}px;
   box-sizing: border-box;
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   cursor: pointer;
   display: flex;
-  font-size: ${props => props.fontSize}px;
+  font-size: ${(props) => props.fontSize}px;
   font-weight: 700;
-  height: ${props => props.size}px;
+  height: ${(props) => props.size}px;
   justify-content: center;
   margin: 0;
-  min-width: ${props => props.size}px;
-  opacity: ${props => props.disabled ? 0.5 : 1};
+  min-width: ${(props) => props.size}px;
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
   outline: none;
-  padding-left: ${props => props.round ? 0 : props.padding}px;
-  padding-right: ${props => props.round ? 0 : props.padding}px;
-  pointer-events: ${props => !props.disabled ? undefined : 'none'};
+  padding-left: ${(props) => (props.round ? 0 : props.padding)}px;
+  padding-right: ${(props) => (props.round ? 0 : props.padding)}px;
+  pointer-events: ${(props) => (!props.disabled ? undefined : 'none')};
   white-space: nowrap;
-  width: ${props => props.full ? '100%' : undefined};
+  width: ${(props) => (props.full ? '100%' : undefined)};
   &:hover {
-    background: ${props => props.hoverBackgroundColor};
-    border-color: ${props => props.hoverBorderColor};
-    color: ${props => props.hoverColor};
+    background: ${(props) => props.hoverBackgroundColor};
+    border-color: ${(props) => props.hoverBorderColor};
+    color: ${(props) => props.hoverColor};
   }
 `
 
@@ -159,8 +160,8 @@ const StyledExternalLink = styled.a`
   flex: 1;
   height: 100%;
   justify-content: center;
-  margin: 0 ${props => -props.theme.spacing[4]}px;
-  padding: 0 ${props => props.theme.spacing[4]}px;
+  margin: 0 ${(props) => -props.theme.spacing[4]}px;
+  padding: 0 ${(props) => props.theme.spacing[4]}px;
   text-decoration: none;
 `
 
@@ -171,8 +172,8 @@ const StyledLink = styled(Link)`
   flex: 1;
   height: 100%;
   justify-content: center;
-  margin: 0 ${props => -props.theme.spacing[4]}px;
-  padding: 0 ${props => props.theme.spacing[4]}px;
+  margin: 0 ${(props) => -props.theme.spacing[4]}px;
+  padding: 0 ${(props) => props.theme.spacing[4]}px;
   text-decoration: none;
 `
 

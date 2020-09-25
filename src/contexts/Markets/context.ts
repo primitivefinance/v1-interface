@@ -1,8 +1,8 @@
-import { createContext } from "react";
-import { MarketsContext } from "./types";
+import { createContext } from 'react'
+import { MarketsContext } from './types'
 
 const context = createContext<MarketsContext>({
-    markets: [],
-});
+  markets: [],
+})
 
-export default context;
+export default context

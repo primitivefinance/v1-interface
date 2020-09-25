@@ -19,43 +19,30 @@ const BuyOrMint: React.FC = () => {
 
   const handleToggle = useCallback(() => {
     setBuyCard(!buyCard)
-  }, [
-    buyCard,
-    setBuyCard,
-  ])
+  }, [buyCard, setBuyCard])
 
-  const { asset, year, month, day, type, strike } = destructureOptionSymbol(item.id)
+  const { asset, year, month, day, type, strike } = destructureOptionSymbol(
+    item.id
+  )
 
   const title = useMemo(() => {
     if (buyCard) {
-      return `Buying ${asset} ${type === "C" ? "Call" : "Put"} $${strike} ${month}/${day}/${year}`
+      return `Buying ${asset} ${
+        type === 'C' ? 'Call' : 'Put'
+      } $${strike} ${month}/${day}/${year}`
     }
-    return `Minting ${asset} ${type === "C" ? "Call" : "Put"} $${strike} ${month}/${day}/${year}`
-  }, [
-    asset,
-    buyCard,
-    day,
-    month,
-    strike,
-    type,
-    year,
-  ])
+    return `Minting ${asset} ${
+      type === 'C' ? 'Call' : 'Put'
+    } $${strike} ${month}/${day}/${year}`
+  }, [asset, buyCard, day, month, strike, type, year])
 
   return (
     <Card>
       <CardTitle>{title}</CardTitle>
       <CardContent>
         <Toggle>
-          <ToggleButton
-            active={buyCard}
-            onClick={handleToggle}
-            text="Buy"
-          />
-          <ToggleButton
-            active={!buyCard}
-            onClick={handleToggle}
-            text="Mint"
-          />
+          <ToggleButton active={buyCard} onClick={handleToggle} text="Buy" />
+          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint" />
         </Toggle>
         {buyCard ? <Buy /> : <Mint />}
       </CardContent>

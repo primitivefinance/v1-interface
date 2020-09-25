@@ -19,21 +19,19 @@ const Exercise: React.FC = () => {
 
   const handleExerciseClick = useCallback(() => {
     exerciseOptions(library, item?.address, Number(quantity))
-  }, [
-    exerciseOptions,
-    item,
-    library,
-    quantity,
-  ])
+  }, [exerciseOptions, item, library, quantity])
 
-  const handleQuantityChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!e.currentTarget.value) {
-      setQuantity('')
-    }
-    if (Number(e.currentTarget.value)) {
-      setQuantity(e.currentTarget.value)
-    }
-  }, [setQuantity])
+  const handleQuantityChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.value) {
+        setQuantity('')
+      }
+      if (Number(e.currentTarget.value)) {
+        setQuantity(e.currentTarget.value)
+      }
+    },
+    [setQuantity]
+  )
 
   return (
     <>
@@ -57,9 +55,7 @@ const Exercise: React.FC = () => {
         onClick={handleExerciseClick}
         text="Review order"
       />
-      <Available>
-        $250,000 Buying Power
-      </Available>
+      <Available>$250,000 Buying Power</Available>
     </>
   )
 }

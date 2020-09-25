@@ -1,22 +1,22 @@
-import React from "react";
-import styled, { keyframes } from "styled-components";
+import React from 'react'
+import styled, { keyframes } from 'styled-components'
 
-import CardIcon from "../CardIcon";
+import CardIcon from '../CardIcon'
 
 interface LoaderProps {
-    text?: string;
+  text?: string
 }
 
 const Loader: React.FC<LoaderProps> = ({ text }) => {
-    return (
-        <StyledLoader>
-            <CardIcon>
-                <StyledLoading>...</StyledLoading>
-            </CardIcon>
-            {!!text && <StyledText>{text}</StyledText>}
-        </StyledLoader>
-    );
-};
+  return (
+    <StyledLoader>
+      <CardIcon>
+        <StyledLoading>...</StyledLoading>
+      </CardIcon>
+      {!!text && <StyledText>{text}</StyledText>}
+    </StyledLoader>
+  )
+}
 
 const spin = keyframes`
   0% {
@@ -25,23 +25,23 @@ const spin = keyframes`
   100% {
     transform: rotate(360deg);
   }
-`;
+`
 
 const StyledLoader = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-`;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
 
 const StyledLoading = styled.div`
-    font-size: 32px;
-    position: relative;
-    animation: 1s ${spin} infinite;
-`;
+  font-size: 32px;
+  position: relative;
+  animation: 1s ${spin} infinite;
+`
 
 const StyledText = styled.div`
-    color: ${(props) => props.theme.color.grey[400]};
-`;
+  color: ${(props) => props.theme.color.grey[400]};
+`
 
-export default Loader;
+export default Loader

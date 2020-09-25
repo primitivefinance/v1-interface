@@ -1,10 +1,10 @@
-import { createContext } from "react";
+import { createContext } from 'react'
 
-import { OptionsContextValues, EmptyAttributes } from "./types";
+import { OptionsContextValues, EmptyAttributes } from './types'
 
 const OptionsContext = createContext<OptionsContextValues>({
-    options: { calls: [EmptyAttributes], puts: [EmptyAttributes] },
-    getOptions: (assetName: string) => {},
-});
+  options: { calls: [EmptyAttributes], puts: [EmptyAttributes] },
+  getOptions: (assetName: string) => {},
+})
 
-export default OptionsContext;
+export default OptionsContext

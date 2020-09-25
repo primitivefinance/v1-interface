@@ -1,9 +1,9 @@
-import { useContext } from "react";
-import { Context as MarketsContext } from "../contexts/Markets";
+import { useContext } from 'react'
+import { Context as MarketsContext } from '../contexts/Markets'
 
 const useMarkets = () => {
-    const { markets } = useContext(MarketsContext);
-    return [markets];
-};
+  const { markets } = useContext(MarketsContext)
+  return [markets]
+}
 
-export default useMarkets;
+export default useMarkets

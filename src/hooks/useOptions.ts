@@ -1,9 +1,9 @@
-import { useContext } from "react";
+import { useContext } from 'react'
 
-import { OptionsContext } from "../contexts/Options";
+import { OptionsContext } from '../contexts/Options'
 
 const useOptions = () => {
-    return useContext(OptionsContext);
-};
+  return useContext(OptionsContext)
+}
 
-export default useOptions;
+export default useOptions

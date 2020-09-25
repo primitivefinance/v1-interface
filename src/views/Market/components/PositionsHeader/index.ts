@@ -1,1 +1,1 @@
-export { default } from "./PositionsHeader";
+export { default } from './PositionsHeader'

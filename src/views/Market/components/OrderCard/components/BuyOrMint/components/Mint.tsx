@@ -19,21 +19,19 @@ const Mint: React.FC = () => {
 
   const handleMintClick = useCallback(() => {
     mintOptions(library, item?.address, Number(quantity))
-  }, [
-    mintOptions,
-    item,
-    library,
-    quantity,
-  ])
+  }, [mintOptions, item, library, quantity])
 
-  const handleQuantityChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!e.currentTarget.value) {
-      setQuantity('')
-    }
-    if (Number(e.currentTarget.value)) {
-      setQuantity(e.currentTarget.value)
-    }
-  }, [setQuantity])
+  const handleQuantityChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.value) {
+        setQuantity('')
+      }
+      if (Number(e.currentTarget.value)) {
+        setQuantity(e.currentTarget.value)
+      }
+    },
+    [setQuantity]
+  )
 
   return (
     <>
@@ -57,9 +55,7 @@ const Mint: React.FC = () => {
         onClick={handleMintClick}
         text="Review order"
       />
-      <Available>
-        $250,000 Buying Power
-      </Available>
+      <Available>$250,000 Buying Power</Available>
     </>
   )
 }

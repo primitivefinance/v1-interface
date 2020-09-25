@@ -19,21 +19,19 @@ const Buy: React.FC = () => {
 
   const handleBuyClick = useCallback(() => {
     buyOptions(library, item?.address, Number(quantity))
-  }, [
-    buyOptions,
-    item,
-    library,
-    quantity,
-  ])
+  }, [buyOptions, item, library, quantity])
 
-  const handleQuantityChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!e.currentTarget.value) {
-      setQuantity('')
-    }
-    if (Number(e.currentTarget.value)) {
-      setQuantity(e.currentTarget.value)
-    }
-  }, [setQuantity])
+  const handleQuantityChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.value) {
+        setQuantity('')
+      }
+      if (Number(e.currentTarget.value)) {
+        setQuantity(e.currentTarget.value)
+      }
+    },
+    [setQuantity]
+  )
 
   return (
     <>
@@ -57,9 +55,7 @@ const Buy: React.FC = () => {
         onClick={handleBuyClick}
         text="Review order"
       />
-      <Available>
-        $250,000 Buying Power
-      </Available>
+      <Available>$250,000 Buying Power</Available>
     </>
   )
 }

@@ -7,24 +7,20 @@ interface ToggleButtonProps extends ButtonProps {
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({
-    active,
-    ...buttonProps
+  active,
+  ...buttonProps
 }) => {
   return (
-      <Button
-        {...buttonProps}
-        full
-        variant={active ? "default" : 'tertiary' }
-      />
+    <Button {...buttonProps} full variant={active ? 'default' : 'tertiary'} />
   )
 }
 
 interface StyledToggleButtonProps {
-  active?: boolean,
-  background: string,
-  boxShadow: string,
-  fontSize: number,
-  round?: boolean,
+  active?: boolean
+  background: string
+  boxShadow: string
+  fontSize: number
+  round?: boolean
   size: number
 }
 
