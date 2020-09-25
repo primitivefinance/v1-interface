@@ -12,8 +12,11 @@ import { Web3ReactProvider } from "@web3-react/core";
 import TopBar from "./components/TopBar";
 
 import Market from "./views/Market";
+import Markets from "./views/Markets";
 import Portfolio from "./views/Portfolio";
 import Create from "./views/Create";
+
+import MarketsProvider from "./contexts/Markets";
 
 import theme from "./theme";
 
@@ -25,23 +28,25 @@ const App: React.FC = () => {
     return (
         <ThemeProvider theme={theme}>
             <Web3ReactProvider getLibrary={getLibrary}>
-                <Router basename="/">
-                    <TopBar />
-                    <Switch>
-                        <Route exact path="/">
-                            <Redirect to="/markets" />
-                        </Route>
-                    </Switch>
-                    <Switch>
-                        <Route exact path="/markets" component={Market} />
-                    </Switch>
-                    <Switch>
-                        <Route exact path="/portfolio" component={Portfolio} />
-                    </Switch>
-                    <Switch>
-                        <Route exact path="/create" component={Create} />
-                    </Switch>
-                </Router>
+                <MarketsProvider>
+                    <Router basename="/">
+                        <TopBar />
+                        <Switch>
+                            <Route exact path="/">
+                                <Redirect to="/markets" />
+                            </Route>
+                        </Switch>
+                        <Switch>
+                            <Route path="/markets" component={Markets} />
+                        </Switch>
+                        <Switch>
+                            <Route path="/portfolio" component={Portfolio} />
+                        </Switch>
+                        <Switch>
+                            <Route exact path="/create" component={Create} />
+                        </Switch>
+                    </Router>
+                </MarketsProvider>
             </Web3ReactProvider>
         </ThemeProvider>
     );

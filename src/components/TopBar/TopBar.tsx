@@ -50,7 +50,11 @@ const TopBar: React.FC = () => {
                         Portfolio
                     </StyledNavItem>
                     <StyledNavItem
-                        active={location.pathname === "/markets" ? true : false}
+                        active={
+                            location.pathname.indexOf("/markets") !== -1
+                                ? true
+                                : false
+                        }
                         to="/markets"
                     >
                         Markets

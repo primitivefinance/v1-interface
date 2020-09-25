@@ -5,13 +5,33 @@ import Trader from "@primitivefi/contracts/artifacts/Trader.json";
 import Registry from "@primitivefi/contracts/artifacts/Registry.json";
 import TraderRinkeby from "@primitivefi/contracts/deployments/rinkeby/Trader.json";
 import RegistryRinkeby from "@primitivefi/contracts/deployments/rinkeby/Registry.json";
-import { ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 
 import { parseEther } from "ethers/lib/utils";
 
 import Assets from "../contexts/Options/assets.json";
 
 const MIN_ALLOWANCE = parseEther("10000000");
+
+export const getContracts = async (option) => {
+    const pools = Object.keys(option.contracts)
+        .filter((c) => c.indexOf("_pool") !== -1)
+        .reduce((acc, cur) => {
+            const newAcc = { ...acc };
+            newAcc[cur] = option.contracts[cur];
+            return newAcc;
+        }, {});
+    return pools;
+};
+
+export const getContract = async (address): Promise<Contract> => {
+    const contract: Contract = new ethers.Contract(
+        address,
+        Option.abi,
+        await ethers.getDefaultProvider()
+    );
+    return contract;
+};
 
 const mintTestToken = async (signer, optionAddress, quantity) => {
     const option = new ethers.Contract(optionAddress, Option.abi, signer);

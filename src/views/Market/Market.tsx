@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 
 import OrderProvider from "../../contexts/Order";
 import PricesProvider from "../../contexts/Prices";
@@ -27,6 +28,9 @@ const mockOptions = [
 
 const Market: React.FC = () => {
     const [callPutActive, setCallPutActive] = useState(true);
+
+    // Market Id
+    const { marketId } = useParams();
 
     // Web3
     const { activate, chainId } = useWeb3React();
@@ -70,6 +74,7 @@ const Market: React.FC = () => {
                                     asset="Ethereum"
                                     callActive={callPutActive}
                                 />
+                                {marketId}
                             </StyledMain>
                             <StyledSideBar>
                                 <OrderCard />

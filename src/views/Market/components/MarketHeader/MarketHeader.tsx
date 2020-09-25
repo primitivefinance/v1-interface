@@ -22,7 +22,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     return (
         <StyledHeader>
             <LitContainer>
-                <GoBack />
+                <GoBack to="/markets" />
                 <StyledTitle>
                     <StyledName>{name}</StyledName>
                     <StyledSymbol>{symbol}</StyledSymbol>
