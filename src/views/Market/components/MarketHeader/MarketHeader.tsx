@@ -33,13 +33,17 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     getPrices(name.toLowerCase())
   }, [name, getPrices])
 
+  const source = 'coingecko'
+
   return (
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
         <StyledTitle>
-          <StyledName>{name}</StyledName>
-          <StyledSymbol>{symbol}</StyledSymbol>
+          <StyledName>
+            {name.charAt(0).toUpperCase() + name.slice(1)}
+          </StyledName>
+          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
         </StyledTitle>
         <StyledPrice>
           {prices[name.toLowerCase()] ? (
@@ -48,6 +52,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
             <StyledLoadingBlock />
           )}
         </StyledPrice>
+        <StyledSource>{source}</StyledSource>
       </LitContainer>
     </StyledHeader>
   )
@@ -84,9 +89,16 @@ const StyledSymbol = styled.span`
   text-transform: uppercase;
 `
 
+const StyledSource = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  font-size: 12px;
+`
+
 const StyledPrice = styled.span`
   font-size: 24px;
   font-weight: 700;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
 `
 
 export default MarketHeader
