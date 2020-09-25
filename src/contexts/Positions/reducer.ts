@@ -1,46 +1,46 @@
 import {
-    PositionsData,
-    PositionsState,
-    EmptyPositionsAttributes,
-} from "./types";
+  PositionsData,
+  PositionsState,
+  EmptyPositionsAttributes,
+} from './types'
 
-export const SET_POSITIONS = "SET_POSITIONS";
+export const SET_POSITIONS = 'SET_POSITIONS'
 
 export interface SetPositionsAction {
-    type: typeof SET_POSITIONS;
-    positions: PositionsData;
+  type: typeof SET_POSITIONS
+  positions: PositionsData
 }
 
-export type PositionsActions = SetPositionsAction;
+export type PositionsActions = SetPositionsAction
 export const initialState: PositionsState = {
-    positions: {
-        calls: [EmptyPositionsAttributes],
-        puts: [EmptyPositionsAttributes],
-    },
-};
+  positions: {
+    calls: [EmptyPositionsAttributes],
+    puts: [EmptyPositionsAttributes],
+  },
+}
 
 export const setPositions = (
-    positionsData: PositionsData
+  positionsData: PositionsData
 ): SetPositionsAction => {
-    return {
-        type: SET_POSITIONS,
-        positions: positionsData,
-    };
-};
+  return {
+    type: SET_POSITIONS,
+    positions: positionsData,
+  }
+}
 
 const reducer = (state: PositionsState, action: PositionsActions) => {
-    switch (action.type) {
-        case SET_POSITIONS:
-            return {
-                ...state,
-                positions: {
-                    ...state.positions,
-                    ...action.positions,
-                },
-            };
-        default:
-            return state;
-    }
-};
+  switch (action.type) {
+    case SET_POSITIONS:
+      return {
+        ...state,
+        positions: {
+          ...state.positions,
+          ...action.positions,
+        },
+      }
+    default:
+      return state
+  }
+}
 
-export default reducer;
+export default reducer

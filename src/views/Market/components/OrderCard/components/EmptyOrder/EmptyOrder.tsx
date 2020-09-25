@@ -14,40 +14,40 @@ const EmptyOrder: React.FC = () => (
     <CardTitle>Your order</CardTitle>
     <CardContent>
       <StyledEmptyContent>
-            <StyledEmptyIcon>
-                <AddIcon />
-            </StyledEmptyIcon>
-            <StyledEmptyMessage>
-                Click the + icon next to the options to add to your order.
-            </StyledEmptyMessage>
-            <Available>$250,000 Buying Power</Available>
-        </StyledEmptyContent>
+        <StyledEmptyIcon>
+          <AddIcon />
+        </StyledEmptyIcon>
+        <StyledEmptyMessage>
+          Click the + icon next to the options to add to your order.
+        </StyledEmptyMessage>
+        <Available>$250,000 Buying Power</Available>
+      </StyledEmptyContent>
     </CardContent>
   </Card>
 )
 
 const StyledEmptyContent = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-`;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
 
 const StyledEmptyIcon = styled.div`
-    align-items: center;
-    border: 1px dashed ${(props) => props.theme.color.grey[600]};
-    border-radius: 32px;
-    color: ${(props) => props.theme.color.grey[600]};
-    display: flex;
-    height: 44px;
-    justify-content: center;
-    width: 44px;
-`;
+  align-items: center;
+  border: 1px dashed ${(props) => props.theme.color.grey[600]};
+  border-radius: 32px;
+  color: ${(props) => props.theme.color.grey[600]};
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+`
 
 const StyledEmptyMessage = styled.div`
-    color: ${(props) => props.theme.color.grey[400]};
-    margin-top: ${(props) => props.theme.spacing[3]}px;
-    text-align: center;
-`;
+  color: ${(props) => props.theme.color.grey[400]};
+  margin-top: ${(props) => props.theme.spacing[3]}px;
+  text-align: center;
+`
 
 export default EmptyOrder

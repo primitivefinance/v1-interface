@@ -1,78 +1,92 @@
-import React, { useEffect } from "react";
-import styled from "styled-components";
+import React, { useEffect } from 'react'
+import styled from 'styled-components'
 
-import GoBack from "../../../../components/GoBack";
-import LitContainer from "../../../../components/LitContainer";
+import GoBack from '../../../../components/GoBack'
+import LitContainer from '../../../../components/LitContainer'
 
-import usePrices from "../../../../hooks/usePrices";
+import usePrices from '../../../../hooks/usePrices'
 
 export interface MarketHeaderProps {
-    name: string;
-    symbol: string;
+  marketId: string
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
-    const { name, symbol } = props;
-    const { prices, getPrices } = usePrices();
+  const { marketId } = props
 
-    useEffect(() => {
-        getPrices(name.toLowerCase());
-    }, [name, getPrices]);
+  const getMarketDetails = () => {
+    if (marketId === 'weth') {
+      const name = 'ethereum'
+      const symbol = 'ETH'
+      return { name, symbol }
+    } else {
+      const name = 'ethereum'
+      const symbol = 'ETH'
+      return { name, symbol }
+    }
+  }
 
-    return (
-        <StyledHeader>
-            <LitContainer>
-                <GoBack />
-                <StyledTitle>
-                    <StyledName>{name}</StyledName>
-                    <StyledSymbol>{symbol}</StyledSymbol>
-                </StyledTitle>
-                <StyledPrice>
-                    {prices[name.toLowerCase()] ? (
-                        `$${prices[name.toLowerCase()]}`
-                    ) : (
-                        <StyledLoadingBlock />
-                    )}
-                </StyledPrice>
-            </LitContainer>
-        </StyledHeader>
-    );
-};
+  const { name, symbol } = getMarketDetails()
+
+  const { prices, getPrices } = usePrices()
+
+  useEffect(() => {
+    getPrices(name.toLowerCase())
+  }, [name, getPrices])
+
+  return (
+    <StyledHeader>
+      <LitContainer>
+        <GoBack to="/markets" />
+        <StyledTitle>
+          <StyledName>{name}</StyledName>
+          <StyledSymbol>{symbol}</StyledSymbol>
+        </StyledTitle>
+        <StyledPrice>
+          {prices[name.toLowerCase()] ? (
+            `$${prices[name.toLowerCase()]}`
+          ) : (
+            <StyledLoadingBlock />
+          )}
+        </StyledPrice>
+      </LitContainer>
+    </StyledHeader>
+  )
+}
 
 const StyledLoadingBlock = styled.div`
-    background-color: ${(props) => props.theme.color.grey[400]};
-    width: 60px;
-    height: 24px;
-    border-radius: 12px;
-`;
+  background-color: ${(props) => props.theme.color.grey[400]};
+  width: 60px;
+  height: 24px;
+  border-radius: 12px;
+`
 
 const StyledHeader = styled.div`
-    background-color: ${(props) => props.theme.color.grey[800]};
-    padding-bottom: ${(props) => props.theme.spacing[4]}px;
-    padding-top: ${(props) => props.theme.spacing[4]}px;
-`;
+  background-color: ${(props) => props.theme.color.grey[800]};
+  padding-bottom: ${(props) => props.theme.spacing[4]}px;
+  padding-top: ${(props) => props.theme.spacing[4]}px;
+`
 
 const StyledTitle = styled.div`
-    align-items: baseline;
-    display: flex;
-    margin-top: ${(props) => props.theme.spacing[2]}px;
-`;
+  align-items: baseline;
+  display: flex;
+  margin-top: ${(props) => props.theme.spacing[2]}px;
+`
 
 const StyledName = styled.span`
-    font-size: 24px;
-    font-weight: 700;
-    margin-right: ${(props) => props.theme.spacing[2]}px;
-`;
+  font-size: 24px;
+  font-weight: 700;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+`
 
 const StyledSymbol = styled.span`
-    color: ${(props) => props.theme.color.grey[400]};
-    letter-spacing: 1px;
-    text-transform: uppercase;
-`;
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  text-transform: uppercase;
+`
 
 const StyledPrice = styled.span`
-    font-size: 24px;
-    font-weight: 700;
-`;
+  font-size: 24px;
+  font-weight: 700;
+`
 
-export default MarketHeader;
+export default MarketHeader

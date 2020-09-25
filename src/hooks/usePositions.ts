@@ -1,9 +1,9 @@
-import { useContext } from "react";
+import { useContext } from 'react'
 
-import { PositionsContext } from "../contexts/Positions";
+import { PositionsContext } from '../contexts/Positions'
 
 const usePositions = () => {
-    return useContext(PositionsContext);
-};
+  return useContext(PositionsContext)
+}
 
-export default usePositions;
+export default usePositions

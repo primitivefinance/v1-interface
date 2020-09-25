@@ -7,28 +7,27 @@ import EmptyOrder from './components/EmptyOrder'
 import SellOrExercise from './components/SellOrExercise'
 
 const OrderCard: React.FC = () => {
+  const { item, orderType, loadPendingTx } = useOrders()
 
-    const { item, orderType, loadPendingTx } = useOrders()
+  const { buyOrMint } = orderType
 
-    const { buyOrMint } = orderType
+  useEffect(() => {}, [item])
 
-    useEffect(() => {}, [item])
+  useEffect(() => {
+    ;(async () => {
+      loadPendingTx()
+    })()
+  }, [loadPendingTx])
 
-    useEffect(() => {
-        (async () => {
-            loadPendingTx()
-        })()
-    }, [loadPendingTx])
+  if (!item.id) {
+    return <EmptyOrder />
+  }
 
-    if (!item.id) {
-        return <EmptyOrder />
-    }
+  if (buyOrMint) {
+    return <BuyOrMint />
+  }
 
-    if (buyOrMint) {
-        return <BuyOrMint />
-    }
-
-    return <SellOrExercise />
+  return <SellOrExercise />
 }
 
 export default OrderCard

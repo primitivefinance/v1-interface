@@ -20,10 +20,10 @@ const Toggle: React.FC = ({ children }) => {
 
 const StyledSwtich = styled.div`
   align-items: center;
-  background: ${props => props.theme.color.black};
-  border-radius: ${props => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.color.black};
+  border-radius: ${(props) => props.theme.borderRadius}px;
   display: flex;
-  padding: ${props => props.theme.spacing[2]}px;
+  padding: ${(props) => props.theme.spacing[2]}px;
 `
 
 export default Toggle
