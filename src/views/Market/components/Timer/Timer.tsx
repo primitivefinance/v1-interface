@@ -23,6 +23,7 @@ const calculateRemainingTime = (expiry) => {
 
 const formatDigits = (number) => {
   let formattedNumber = ('0' + number).slice(-2)
+  console.log(formattedNumber)
   if (formattedNumber === '0' || formattedNumber === '') {
     return '00'
   }
@@ -70,7 +71,7 @@ const Timer: React.FC<TimerProps> = (props) => {
 }
 
 const StyledTimer = styled.div`
-  font-size: 14px;
+  font-size: 12px;
 `
 
 export default Timer

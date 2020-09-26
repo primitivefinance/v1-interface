@@ -69,7 +69,7 @@ const RemainderBlock = styled.div<RemainderBlockProps>`
 
 const RemainderContainer = styled.div`
   background-color: ${(props) => props.theme.color.grey[600]};
-  width: 100%;
+  width: 85%;
   height: 12px;
   border-radius: 8px;
 `

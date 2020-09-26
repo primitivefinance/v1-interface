@@ -115,6 +115,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                         })
                       }}
                       variant="secondary"
+                      size="sm"
                     >
                       {'Close'}
                     </Button>
