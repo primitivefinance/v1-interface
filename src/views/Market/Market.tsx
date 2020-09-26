@@ -15,6 +15,7 @@ import OrderCard from './components/OrderCard'
 import TestnetCard from './components/TestnetCard'
 import PositionsHeader from './components/PositionsHeader'
 import Spacer from 'components/Spacer'
+import Button from 'components/Button'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -34,53 +35,78 @@ const Market: React.FC = () => {
   const { marketId } = useParams()
 
   // Web3
-  const { activate, chainId } = useWeb3React()
+  const { activate, chainId, active } = useWeb3React()
+  const injected = new InjectedConnector({
+    supportedChainIds: [1, 3, 4, 5, 42],
+  })
   // Connect to web3 automatically using injected
   useEffect(() => {
-    ;(async () => {
-      try {
-        const injected = new InjectedConnector({
-          supportedChainIds: [1, 3, 4, 5, 42],
-        })
-        await activate(injected)
-      } catch (err) {
-        console.log(err)
-      }
-    })()
-  }, [activate])
+    if (active) {
+      ;(async () => {
+        try {
+          const injected = new InjectedConnector({
+            supportedChainIds: [1, 3, 4, 5, 42],
+          })
+          await activate(injected)
+        } catch (err) {
+          console.log(err)
+        }
+      })()
+    }
+  }, [active, activate, chainId])
 
   const handleFilter = () => {
     setCallPutActive(!callPutActive)
   }
+
+  const handleUnlock = () => {
+    activate(injected)
+  }
+
   return (
     <PricesProvider>
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
             <StyledMarket>
-              <StyledMain>
-                <MarketHeader marketId={marketId} />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilter}
-                />
-                <OptionsTable
-                  options={mockOptions}
-                  asset="Ethereum"
-                  callActive={callPutActive}
-                />
-                <PositionsHeader name="Ethereum" symbol="ETH" />
-                <PositionsTable
-                  positions={mockOptions}
-                  asset="Ethereum"
-                  callActive={callPutActive}
-                />
-              </StyledMain>
-              <StyledSideBar>
-                <OrderCard />
-                <Spacer />
-                {chainId === 4 ? <TestnetCard /> : <> </>}
-              </StyledSideBar>
+              {active ? (
+                chainId === 4 ? (
+                  <>
+                    <StyledMain>
+                      <MarketHeader marketId={marketId} />
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={handleFilter}
+                      />
+                      <OptionsTable
+                        options={mockOptions}
+                        asset="Ethereum"
+                        callActive={callPutActive}
+                      />
+                      <PositionsHeader name="Ethereum" symbol="ETH" />
+                      <PositionsTable
+                        positions={mockOptions}
+                        asset="Ethereum"
+                        callActive={callPutActive}
+                      />
+                    </StyledMain>
+                    <StyledSideBar>
+                      <OrderCard />
+                      <Spacer />
+                      {chainId === 4 ? <TestnetCard /> : <> </>}
+                    </StyledSideBar>{' '}
+                  </>
+                ) : (
+                  <WaitingRoom>
+                    {' '}
+                    Please connect to the Rinkeby test network.{' '}
+                  </WaitingRoom>
+                )
+              ) : (
+                <WaitingRoom>
+                  <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                </WaitingRoom>
+              )}
             </StyledMarket>
           </PositionsProvider>
         </OptionsProvider>
@@ -90,6 +116,13 @@ const Market: React.FC = () => {
 }
 
 const StyledMain = styled.div``
+
+const WaitingRoom = styled.div`
+  display: flex;
+  min-height: calc(100vh - 72px);
+  justify-content: center;
+  align-items: center;
+`
 
 const StyledMarket = styled.div`
   display: flex;
