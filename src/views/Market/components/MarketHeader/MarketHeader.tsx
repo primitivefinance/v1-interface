@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import GoBack from '../../../../components/GoBack'
@@ -11,6 +11,7 @@ export interface MarketHeaderProps {
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
+  const [blink, setBlink] = useState(true)
   const { marketId } = props
 
   const getMarketDetails = () => {
@@ -27,27 +28,45 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
   const { name, symbol } = getMarketDetails()
 
-  const { prices, getPrices } = usePrices()
+  const { prices, assets, getPrices } = usePrices()
 
   useEffect(() => {
-    getPrices(name.toLowerCase())
-  }, [name, getPrices])
+    getPrices(name)
+    let refreshInterval = setInterval(() => {
+      getPrices(name)
+      setBlink(!blink)
+    }, 5000)
+    return () => clearInterval(refreshInterval)
+  }, [name, getPrices, blink])
+
+  const source = 'coingecko'
 
   return (
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
         <StyledTitle>
-          <StyledName>{name}</StyledName>
-          <StyledSymbol>{symbol}</StyledSymbol>
+          <StyledName>
+            {name.charAt(0).toUpperCase() + name.slice(1)}
+          </StyledName>
+          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
         </StyledTitle>
-        <StyledPrice>
-          {prices[name.toLowerCase()] ? (
-            `$${prices[name.toLowerCase()]}`
+        <StyledPrice blink={true}>
+          {prices[name] ? (
+            `$${(+prices[name]).toFixed(2)}`
           ) : (
             <StyledLoadingBlock />
           )}
         </StyledPrice>
+        <StyledPrice blink={true} size="sm">
+          {assets[name] ? (
+            `${+assets[name]['usd_24h_change'] > 0 ? '+' : '-'}` +
+            `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
+          ) : (
+            <StyledLoadingBlock />
+          )}
+        </StyledPrice>
+        <StyledSource>{source}</StyledSource>
       </LitContainer>
     </StyledHeader>
   )
@@ -84,9 +103,26 @@ const StyledSymbol = styled.span`
   text-transform: uppercase;
 `
 
-const StyledPrice = styled.span`
-  font-size: 24px;
+const StyledSource = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  font-size: 12px;
+`
+
+interface StyledPriceProps {
+  size?: 'sm' | 'md' | 'lg'
+  blink?: boolean
+}
+
+const StyledPrice = styled.span<StyledPriceProps>`
+  font-size: ${(props) =>
+    props.size === 'lg' ? 36 : props.size === 'sm' ? 16 : 24}px;
   font-weight: 700;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+  color: ${(props) =>
+    props.size === 'sm'
+      ? props.theme.color.grey[400]
+      : props.theme.color.white};
 `
 
 export default MarketHeader

@@ -8,6 +8,7 @@ const theme = {
     black,
     grey,
     white,
+    green,
     primary: {
       light: red[200],
       main: red[500],
@@ -23,7 +24,8 @@ const theme = {
     3: 16,
     4: 24,
     5: 32,
-    6: 48,
+    6: 40,
+    7: 48,
   },
 }
 

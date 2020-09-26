@@ -1,8 +1,8 @@
 import React, { useCallback, useReducer } from 'react'
 
 import PricesContext from './context'
-import pricesReducer, { initialState, setPrices } from './reducer'
-import { PricesData } from './types'
+import pricesReducer, { initialState, setPrices, setAssets } from './reducer'
+import { AssetsData, PricesData } from './types'
 
 const Prices: React.FC = (props) => {
   const [state, dispatch] = useReducer(pricesReducer, initialState)
@@ -10,6 +10,7 @@ const Prices: React.FC = (props) => {
   const handlePrices = useCallback(
     async (asset) => {
       let pricesData: PricesData = {}
+      let assetsData: AssetsData = {}
       const priceAPI = `https://api.coingecko.com/api/v3/simple/price?ids=${asset}&vs_currencies=usd&include_24hr_change=true`
       fetch(priceAPI)
         .then((res) => res.json())
@@ -17,10 +18,15 @@ const Prices: React.FC = (props) => {
           (result) => {
             let key = Object.keys(result)[0]
             let price = result[key].usd
+            let asset = result[key]
             Object.assign(pricesData, {
               [key]: price,
             })
+            Object.assign(assetsData, {
+              [key]: asset,
+            })
             dispatch(setPrices(pricesData))
+            dispatch(setAssets(assetsData))
           },
           // Note: it's important to handle errors here
           // instead of a catch() block so that we don't swallow
@@ -41,6 +47,7 @@ const Prices: React.FC = (props) => {
       value={{
         prices: state.prices,
         getPrices: handlePrices,
+        assets: state.assets,
       }}
     >
       {props.children}
