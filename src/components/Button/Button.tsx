@@ -12,7 +12,7 @@ export interface ButtonProps {
   size?: 'sm' | 'md' | 'lg'
   text?: string
   to?: string
-  variant?: 'default' | 'secondary' | 'tertiary'
+  variant?: 'default' | 'secondary' | 'tertiary' | 'transparent'
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -63,6 +63,12 @@ const Button: React.FC<ButtonProps> = ({
       buttonColor = color.grey[400]
       hoverBackgroundColor = color.grey[600]
       break
+    case 'transparent':
+      background = 'transparent'
+      border = `transparent`
+      buttonColor = color.grey[400]
+      hoverBackgroundColor = 'transparent'
+      break
     case 'default':
     default:
       background = color.white
@@ -102,8 +108,8 @@ const Button: React.FC<ButtonProps> = ({
       round={round}
       size={buttonSize}
     >
-      {children}
       {ButtonChild}
+      {children}
     </StyledButton>
   )
 }

@@ -8,6 +8,8 @@ import Spacer from 'components/Spacer'
 import IconButton from 'components/IconButton'
 
 import HelpIcon from '@material-ui/icons/Help'
+import LaunchIcon from '@material-ui/icons/Launch'
+import Tooltip from '@material-ui/core/Tooltip'
 
 import useOrders from '../../../../hooks/useOrders'
 import { useWeb3React } from '@web3-react/core'
@@ -37,10 +39,16 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
       <StyledContainer>
         <CardContent>
           <StyledTitle>
-            Earn NFT Rewards{' '}
-            <IconButton variant="tertiary" size="sm">
-              <HelpIcon onMouseEnter={() => console.log('hover')} />
-            </IconButton>
+            Earn NFT Rewards
+            <Button
+              href="https://blog.primitive.finance"
+              variant="transparent"
+              text="Learn more"
+              size="sm"
+            >
+              <Spacer size="sm" />
+              <LaunchIcon fontSize="small" />
+            </Button>
           </StyledTitle>
           Click the select button next to the options to add to your order.
           <Spacer />
