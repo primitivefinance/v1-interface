@@ -18,6 +18,7 @@ import Table from 'components/Table'
 import TableBody from 'components/TableBody'
 import TableCell from 'components/TableCell'
 import TableRow from 'components/TableRow'
+import FilledBar from '../FilledBar'
 
 export type FormattedOption = {
   breakEven: number
@@ -62,7 +63,8 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
     'Expires',
     'Qty',
     'Price',
-    'Time Remaining',
+    'Remaining',
+    'Manage',
   ]
 
   return (
@@ -103,6 +105,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                   <TableCell>${price.toFixed(2)}</TableCell>
                   <TableCell>
                     <Timer expiry={expiry} />
+                    <FilledBar expiry={expiry} />
                   </TableCell>
                   <StyledButtonCell>
                     <Button

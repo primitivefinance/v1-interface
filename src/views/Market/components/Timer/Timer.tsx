@@ -69,6 +69,8 @@ const Timer: React.FC<TimerProps> = (props) => {
   )
 }
 
-const StyledTimer = styled.div``
+const StyledTimer = styled.div`
+  font-size: 14px;
+`
 
 export default Timer

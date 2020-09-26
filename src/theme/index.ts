@@ -1,4 +1,4 @@
-import { black, grey, white, green, red } from './colors'
+import { black, grey, white, green, red, yellow, percentage } from './colors'
 
 const theme = {
   barHeight: 72,
@@ -11,6 +11,8 @@ const theme = {
     white,
     green,
     red,
+    yellow,
+    percentage,
     primary: {
       light: red[200],
       main: red[500],
