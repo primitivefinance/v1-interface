@@ -36,7 +36,7 @@ const SellOrExercise: React.FC = () => {
     } $${strike} ${month}/${day}/${year}`
   }, [asset, sellCard, day, month, strike, type, year])
   return (
-    <Card>
+    <Card border>
       <CardTitle>{title}</CardTitle>
       <CardContent>
         <Toggle>

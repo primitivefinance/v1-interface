@@ -37,7 +37,7 @@ const BuyOrMint: React.FC = () => {
   }, [asset, buyCard, day, month, strike, type, year])
 
   return (
-    <Card>
+    <Card border>
       <CardTitle>{title}</CardTitle>
       <CardContent>
         <Toggle>
