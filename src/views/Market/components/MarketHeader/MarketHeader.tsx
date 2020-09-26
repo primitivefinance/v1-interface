@@ -28,16 +28,16 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
   const { name, symbol } = getMarketDetails()
 
-  const { prices, getPrices } = usePrices()
+  const { prices, assets, getPrices } = usePrices()
 
   useEffect(() => {
-    getPrices(name.toLowerCase())
+    getPrices(name)
     let refreshInterval = setInterval(() => {
-      getPrices(name.toLowerCase())
+      getPrices(name)
       setBlink((b) => !b)
     }, 5000)
     return () => clearInterval(refreshInterval)
-  }, [name, getPrices, prices])
+  }, [name, getPrices])
 
   const source = 'coingecko'
 
@@ -52,15 +52,21 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
           <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
         </StyledTitle>
         <StyledPrice blink={true}>
-          {prices[name.toLowerCase()] ? (
-            `$${(+prices[name.toLowerCase()]).toFixed(2)}`
+          {prices[name] ? (
+            `$${(+prices[name]).toFixed(2)}`
           ) : (
             <StyledLoadingBlock />
           )}
         </StyledPrice>
-        <StyledSource>
-          {source} {blink ? 'true' : 'false'}
-        </StyledSource>
+        <StyledPrice blink={true} size="sm">
+          {assets[name] ? (
+            `${+assets[name]['usd_24h_change'] > 0 ? '+' : '-'}` +
+            `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
+          ) : (
+            <StyledLoadingBlock />
+          )}
+        </StyledPrice>
+        <StyledSource>{source}</StyledSource>
       </LitContainer>
     </StyledHeader>
   )
@@ -104,15 +110,19 @@ const StyledSource = styled.span`
 `
 
 interface StyledPriceProps {
+  size?: 'sm' | 'md' | 'lg'
   blink?: boolean
 }
 
 const StyledPrice = styled.span<StyledPriceProps>`
-  font-size: 24px;
+  font-size: ${(props) =>
+    props.size === 'lg' ? 36 : props.size == 'sm' ? 16 : 24}px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
   color: ${(props) =>
-    props.blink ? props.theme.color.green : props.theme.color.grey[400]};
+    props.size === 'sm'
+      ? props.theme.color.grey[400]
+      : props.theme.color.white};
 `
 
 export default MarketHeader
