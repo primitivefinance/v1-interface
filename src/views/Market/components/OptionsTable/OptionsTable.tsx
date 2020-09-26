@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
@@ -10,6 +10,7 @@ import { useWeb3React } from '@web3-react/core'
 import { formatAddress } from '../../../../utils'
 
 import Button from 'components/Button'
+import EmptyTable from '../EmptyTable'
 import LitContainer from '../../../../components/LitContainer'
 import Table from '../../../../components/Table'
 import TableBody from '../../../../components/TableBody'
@@ -108,33 +109,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 }
 
-interface EmptyTableProps {
-  columns: Array<any>
-}
-
-const EmptyTable: React.FC<EmptyTableProps> = (props) => {
-  return (
-    <TableBody>
-      <TableRow>
-        {props.columns.map((column, index) => {
-          if (index == props.columns.length - 1) {
-            return (
-              <StyledButtonCell>
-                <StyledLoadingBlock />
-              </StyledButtonCell>
-            )
-          }
-          return (
-            <TableCell>
-              <StyledLoadingBlock />
-            </TableCell>
-          )
-        })}
-      </TableRow>
-    </TableBody>
-  )
-}
-
 const StyledARef = styled.a`
   text-decoration: none;
   color: ${(props) => props.theme.color.white};
@@ -143,22 +117,6 @@ const StyledARef = styled.a`
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
-`
-
-const changeColorWhileLoading = (color) => keyframes`
-  0%   {background-color: ${color.grey[400]};}
-  25%  {background-color: ${color.grey[500]};}
-  50%  {background-color: ${color.grey[400]};}
-  100% {background-color: ${color.grey[500]};}
-`
-
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[600]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
-  animation: ${(props) => changeColorWhileLoading(props.theme.color)} 2s linear
-    infinite;
 `
 
 const StyledButtonCell = styled.div`

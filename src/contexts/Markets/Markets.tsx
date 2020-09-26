@@ -15,6 +15,7 @@ const ICON_FOR_POOL: { [key: string]: React.ReactNode } = {
       height="64"
       src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/1280px-Ethereum-icon-purple.svg.png"
       style={{ filter: 'brightness(2) grayscale(1)' }}
+      alt={'ether icon'}
     />
   ),
   soon_market: '',

@@ -11,6 +11,7 @@ import { OrderItem } from '../../../../contexts/Order/types'
 import { destructureOptionSymbol } from 'lib/utils'
 
 import Timer from '../Timer'
+import EmptyTable from '../EmptyTable'
 import Button from 'components/Button'
 import LitContainer from 'components/LitContainer'
 import Table from 'components/Table'
@@ -55,18 +56,26 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
 
+  const headers = [
+    'Asset',
+    'Strike',
+    'Expires',
+    'Qty',
+    'Price',
+    'Time Remaining',
+  ]
+
   return (
     <Table>
       <StyledTableHead>
         <LitContainer>
           <TableRow isHead>
-            <TableCell>Asset</TableCell>
-            <TableCell>Strike</TableCell>
-            <TableCell>Expires</TableCell>
-            <TableCell>Qty</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Time Remaining</TableCell>
-            <StyledButtonCell />
+            {headers.map((header, index) => {
+              if (index === headers.length - 1) {
+                return <StyledButtonCell>{header}</StyledButtonCell>
+              }
+              return <TableCell>{header}</TableCell>
+            })}
           </TableRow>
         </LitContainer>
       </StyledTableHead>
@@ -112,35 +121,16 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
             })}
           </TableBody>
         ) : (
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <StyledButtonCell></StyledButtonCell>
-            </TableRow>
-          </TableBody>
+          <>
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+          </>
         )}
       </LitContainer>
     </Table>
   )
 }
-
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[600]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
-`
 
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};

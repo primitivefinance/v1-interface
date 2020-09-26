@@ -52,7 +52,7 @@ const Timer: React.FC<TimerProps> = (props) => {
       <>
         {interval === 'days'
           ? timeLeft[interval] + 'd'
-          : interval == 'hours'
+          : interval === 'hours'
           ? formatDigits(timeLeft[interval]) + 'hr'
           : interval !== 'seconds'
           ? formatDigits(timeLeft[interval]) + 'm'
