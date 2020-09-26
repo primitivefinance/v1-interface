@@ -14,6 +14,7 @@ import PositionsTable from './components/PositionsTable'
 import OrderCard from './components/OrderCard'
 import TestnetCard from './components/TestnetCard'
 import PositionsHeader from './components/PositionsHeader'
+import Spacer from 'components/Spacer'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -77,6 +78,7 @@ const Market: React.FC = () => {
               </StyledMain>
               <StyledSideBar>
                 <OrderCard />
+                <Spacer />
                 {chainId === 4 ? <TestnetCard /> : <> </>}
               </StyledSideBar>
             </StyledMarket>
