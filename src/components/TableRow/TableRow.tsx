@@ -19,7 +19,7 @@ const StyledTableRow = styled.div<StyleProps>`
     ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[800])};
   color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
   display: flex;
-  height: ${(props) => props.theme.barHeight}px;
+  height: ${(props) => props.theme.rowHeight}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
   padding-left: ${(props) => props.theme.spacing[4]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
