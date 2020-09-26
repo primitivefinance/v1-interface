@@ -5,6 +5,9 @@ const theme = {
   rowHeight: 64,
   borderRadius: 4,
   buttonSize: 44,
+  breakpoints: {
+    mobile: 400,
+  },
   color: {
     black,
     grey,

@@ -10,8 +10,6 @@ import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
 
-import Available from '../../Available'
-
 const Buy: React.FC = () => {
   const { buyOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
@@ -33,6 +31,14 @@ const Buy: React.FC = () => {
     [setQuantity]
   )
 
+  const buyingPower = 250000
+
+  const handleSetMax = () => {
+    let max =
+      Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
+    setQuantity(max.toString())
+  }
+
   return (
     <>
       <Spacer />
@@ -47,15 +53,27 @@ const Buy: React.FC = () => {
         placeholder="0.00"
         onChange={handleQuantityChange}
         value={`${quantity}`}
+        endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Buying Power" />
+        <span>${buyingPower.toFixed(2)}</span>
+      </Box>
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Total Debit" />
+        <span>
+          {+quantity ? '-' : ''}${(+item.price * +quantity).toFixed(2)}
+        </span>
+      </Box>
       <Spacer />
       <Button
         disabled={!quantity}
         full
         onClick={handleBuyClick}
-        text="Review order"
+        text="Continue to Review"
       />
-      <Available>$250,000 Buying Power</Available>
     </>
   )
 }

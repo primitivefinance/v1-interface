@@ -47,7 +47,7 @@ const buy = async (signer, minQuantity, optionAddress, stablecoinAddress) => {
   const STABLECOIN = new Token(chain, stablecoinAddress, 18)
   const pair = await Fetcher.fetchPairData(OPTION, STABLECOIN)
   const route = new Route([pair], STABLECOIN, OPTION)
-  const amountOut = parseEther(minQuantity).toString()
+  const amountOut = parseEther(minQuantity.toString()).toString()
   const trade = new Trade(
     route,
     new TokenAmount(OPTION, amountOut),

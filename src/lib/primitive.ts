@@ -82,7 +82,7 @@ const mint = async (signer, quantity, optionAddress) => {
   const { traderAddress, trader } = await getTrader(signer)
   const option = new ethers.Contract(optionAddress, Option.abi, signer)
   const underlyingAddress = await option.getUnderlyingTokenAddress()
-  const mintQuantity = parseEther(quantity).toString()
+  const mintQuantity = parseEther(quantity.toString()).toString()
 
   await checkAllowance(signer, underlyingAddress, traderAddress)
 
@@ -102,7 +102,7 @@ const exercise = async (signer, quantity, optionAddress) => {
   const { traderAddress, trader } = await getTrader(signer)
   const option = new ethers.Contract(optionAddress, Option.abi, signer)
   const strikeAddress = await option.getStrikeTokenAddress()
-  const exerciseQuantity = parseEther(quantity).toString()
+  const exerciseQuantity = parseEther(quantity.toString()).toString()
 
   await checkAllowance(signer, strikeAddress, traderAddress)
   await checkAllowance(signer, optionAddress, traderAddress)
@@ -122,7 +122,7 @@ const redeem = async (signer, quantity, optionAddress) => {
   const { traderAddress, trader } = await getTrader(signer)
   const option = new ethers.Contract(optionAddress, Option.abi, signer)
   const redeemAddress = await option.redeemToken()
-  const redeemQuantity = parseEther(quantity).toString()
+  const redeemQuantity = parseEther(quantity.toString()).toString()
 
   await checkAllowance(signer, redeemAddress, traderAddress)
 
@@ -141,7 +141,7 @@ const close = async (signer, quantity, optionAddress) => {
   const { traderAddress, trader } = await getTrader(signer)
   const option = new ethers.Contract(optionAddress, Option.abi, signer)
   const redeemAddress = await option.redeemToken()
-  const closeQuantity = parseEther(quantity).toString()
+  const closeQuantity = parseEther(quantity.toString()).toString()
 
   await checkAllowance(signer, redeemAddress, traderAddress)
   await checkAllowance(signer, optionAddress, traderAddress)

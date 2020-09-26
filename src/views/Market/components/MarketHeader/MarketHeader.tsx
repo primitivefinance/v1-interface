@@ -41,33 +41,21 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
       setBlink(true)
     }, 1000)
     return () => clearInterval(refreshInterval)
-  }, [
-    blink,
-    getPrices,
-    setBlink,
-    name,
-  ])
+  }, [blink, getPrices, setBlink, name])
 
   useEffect(() => {
     if (price !== prevPrice.current) {
       setBlink(true)
     }
     prevPrice.current = price
-  }, [
-    blink,
-    price,
-    setBlink,
-  ])
+  }, [blink, price, setBlink])
 
   useEffect(() => {
     let resetBlinkTimeout = setTimeout(() => {
       setBlink(false)
     }, 500)
     return () => clearTimeout(resetBlinkTimeout)
-  }, [
-    blink,
-    setBlink,
-  ])
+  }, [blink, setBlink])
 
   const source = 'coingecko'
 
@@ -91,7 +79,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
           </StyledPrice>
           <StyledPrice blink={blink} size="sm">
             {assets[name] ? (
-              `${+assets[name]['usd_24h_change'] > 0 ? '+' : '-'}` +
               `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
             ) : (
               <StyledLoadingBlock />
@@ -152,7 +139,7 @@ const StyledPrice = styled.span<StyledPriceProps>`
     props.size === 'lg' ? 36 : props.size === 'sm' ? 16 : 24}px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
-  text-shadow: ${props => props.blink ? '0px 0px 12px #00ff89' : undefined};
+  text-shadow: ${(props) => (props.blink ? '0px 0px 12px #00ff89' : undefined)};
 `
 
 /*

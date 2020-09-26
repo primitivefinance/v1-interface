@@ -45,6 +45,7 @@ const Input: React.FC<InputProps> = ({
         <Fragment>
           <Spacer size="sm" />
           {endAdornment}
+          <Spacer size="sm" />
         </Fragment>
       )}
     </StyledInputWrapper>
