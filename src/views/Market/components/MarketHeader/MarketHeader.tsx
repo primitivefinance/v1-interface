@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import GoBack from '../../../../components/GoBack'
-import LitContainer from '../../../../components/LitContainer'
+import Box from 'components/Box'
+import GoBack from 'components/GoBack'
+import LitContainer from 'components/LitContainer'
+import Spacer from 'components/Spacer'
 
 import usePrices from '../../../../hooks/usePrices'
 
@@ -11,7 +13,8 @@ export interface MarketHeaderProps {
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
-  const [blink, setBlink] = useState(true)
+  const prevPrice = useRef<number | null>(null)
+  const [blink, setBlink] = useState(false)
   const { marketId } = props
 
   const getMarketDetails = () => {
@@ -29,15 +32,42 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const { name, symbol } = getMarketDetails()
 
   const { prices, assets, getPrices } = usePrices()
+  const price = prices[name]
 
   useEffect(() => {
     getPrices(name)
     let refreshInterval = setInterval(() => {
-      getPrices(name)
-      setBlink(!blink)
-    }, 5000)
+      // getPrices(name)
+      setBlink(true)
+    }, 1000)
     return () => clearInterval(refreshInterval)
-  }, [name, getPrices, blink])
+  }, [
+    blink,
+    getPrices,
+    setBlink,
+    name,
+  ])
+
+  useEffect(() => {
+    if (price !== prevPrice.current) {
+      setBlink(true)
+    }
+    prevPrice.current = price
+  }, [
+    blink,
+    price,
+    setBlink,
+  ])
+
+  useEffect(() => {
+    let resetBlinkTimeout = setTimeout(() => {
+      setBlink(false)
+    }, 500)
+    return () => clearTimeout(resetBlinkTimeout)
+  }, [
+    blink,
+    setBlink,
+  ])
 
   const source = 'coingecko'
 
@@ -51,22 +81,25 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
           </StyledName>
           <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
         </StyledTitle>
-        <StyledPrice blink={true}>
-          {prices[name] ? (
-            `$${(+prices[name]).toFixed(2)}`
-          ) : (
-            <StyledLoadingBlock />
-          )}
-        </StyledPrice>
-        <StyledPrice blink={true} size="sm">
-          {assets[name] ? (
-            `${+assets[name]['usd_24h_change'] > 0 ? '+' : '-'}` +
-            `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
-          ) : (
-            <StyledLoadingBlock />
-          )}
-        </StyledPrice>
-        <StyledSource>{source}</StyledSource>
+        <Box alignItems="baseline" row>
+          <StyledPrice blink={blink}>
+            {prices[name] ? (
+              `$${(+prices[name]).toFixed(2)}`
+            ) : (
+              <StyledLoadingBlock />
+            )}
+          </StyledPrice>
+          <StyledPrice blink={blink} size="sm">
+            {assets[name] ? (
+              `${+assets[name]['usd_24h_change'] > 0 ? '+' : '-'}` +
+              `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
+            ) : (
+              <StyledLoadingBlock />
+            )}
+          </StyledPrice>
+          <Spacer size="sm" />
+          <StyledSource>via {source}</StyledSource>
+        </Box>
       </LitContainer>
     </StyledHeader>
   )
@@ -119,10 +152,14 @@ const StyledPrice = styled.span<StyledPriceProps>`
     props.size === 'lg' ? 36 : props.size === 'sm' ? 16 : 24}px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+  text-shadow: ${props => props.blink ? '0px 0px 12px #00ff89' : undefined};
+`
+
+/*
   color: ${(props) =>
     props.size === 'sm'
       ? props.theme.color.grey[400]
       : props.theme.color.white};
-`
+*/
 
 export default MarketHeader

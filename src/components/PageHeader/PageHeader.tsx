@@ -40,7 +40,7 @@ const StyledIcon = styled.div`
 `
 
 const StyledTitle = styled.h1`
-  color: ${(props) => props.theme.color.grey[600]};
+  color: ${(props) => props.theme.color.white};
   font-size: 36px;
   font-weight: 700;
   margin: 0;

@@ -9,8 +9,14 @@ const NAME_FOR_POOL: { [key: string]: string } = {
   future_market: 'Soon...',
 }
 
-const ICON_FOR_POOL: { [key: string]: string } = {
-  eth_market: 'ETH',
+const ICON_FOR_POOL: { [key: string]: React.ReactNode } = {
+  eth_market: (
+    <img
+      height="64"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/1280px-Ethereum-icon-purple.svg.png"
+      style={{ filter: 'brightness(2) grayscale(1)' }}
+    />
+  ),
   soon_market: '',
   future_market: '',
 }

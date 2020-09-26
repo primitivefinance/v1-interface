@@ -53,7 +53,7 @@ interface MarketCardProps {
 }
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
-  const poolActive = true
+  const poolActive = market.name !== 'Soon...'
   return (
     <StyledCardWrapper>
       <Card>
@@ -62,12 +62,13 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             <CardIcon>{market.icon}</CardIcon>
             <StyledTitle>{market.name}</StyledTitle>
             <StyledDetails>
-              <StyledDetail>Trade</StyledDetail>
+              <StyledDetail>TKN / TKN</StyledDetail>
             </StyledDetails>
             <Spacer />
             <Button
               disabled={!poolActive}
-              text={poolActive ? 'Select' : undefined}
+              full
+              text="Select"
               to={`/markets/${market.id}`}
             />
           </StyledContent>
@@ -109,7 +110,7 @@ const StyledCardWrapper = styled.div`
 `
 
 const StyledTitle = styled.h4`
-  color: ${(props) => props.theme.color.grey[600]};
+  color: ${(props) => props.theme.color.white};
   font-size: 24px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px 0 0;
@@ -133,7 +134,7 @@ const StyledDetails = styled.div`
 `
 
 const StyledDetail = styled.div`
-  color: ${(props) => props.theme.color.grey[500]};
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 export default MarketCards

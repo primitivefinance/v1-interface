@@ -26,25 +26,24 @@ const Markets: React.FC = () => {
   return (
     <Switch>
       <Page>
-        {!!account ? (
-          <>
-            <Route exact path={path}>
-              <PageHeader
-                icon={<img src={greek} height="96" alt={'markets page icon'} />}
-                subtitle="Oracle-less options."
-                title="Select an option market."
+        <Route exact path={path}>
+          <PageHeader
+            icon={(
+              <img
+                src={greek}
+                style={{ filter: 'invert(1)' }}
+                height="72"
+                alt={'markets page icon'}
               />
-              <MarketCards />
-            </Route>
-            <Route path={`${path}/:marketId`}>
-              <Market />
-            </Route>
-          </>
-        ) : (
-          <StyledButtonContainer>
-            <Button onClick={handleConnect} text="Unlock Wallet" />
-          </StyledButtonContainer>
-        )}
+            )}
+            subtitle="Oracle-less options."
+            title="Select an option market."
+          />
+          <MarketCards />
+        </Route>
+        <Route path={`${path}/:marketId`}>
+          <Market />
+        </Route>
       </Page>
     </Switch>
   )
