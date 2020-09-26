@@ -10,6 +10,7 @@ import LaunchIcon from '@material-ui/icons/Launch'
 import { useWeb3React } from '@web3-react/core'
 import { formatAddress } from '../../../../utils'
 
+import Button from 'components/Button'
 import IconButton from '../../../../components/IconButton'
 import LitContainer from '../../../../components/LitContainer'
 import Table from '../../../../components/Table'
@@ -59,7 +60,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableCell>Break Even</TableCell>
             <TableCell>Price</TableCell>
             <TableCell>Contract</TableCell>
-            <StyledButtonCell />
+            <StyledButtonCell>Choose</StyledButtonCell>
           </TableRow>
         </LitContainer>
       </StyledTableHead>
@@ -80,16 +81,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     </StyledARef>
                   </TableCell>
                   <StyledButtonCell>
-                    <IconButton
+                    <Button
                       onClick={() => {
                         onAddItem(option, {
                           buyOrMint: true,
                         })
                       }}
                       variant="secondary"
+                      size="sm"
                     >
-                      <AddIcon />
-                    </IconButton>
+                      {'Select'}
+                    </Button>
                   </StyledButtonCell>
                 </TableRow>
               )
@@ -139,6 +141,7 @@ const StyledLoadingBlock = styled.div`
 const StyledButtonCell = styled.div`
   width: ${(props) => props.theme.buttonSize}px;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+  flex: 0.5;
 `
 
 export default OptionsTable
