@@ -5,8 +5,6 @@ import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
 import usePositions from '../../../../hooks/usePositions'
 
-import RemoveIcon from '@material-ui/icons/Remove'
-
 import { useWeb3React } from '@web3-react/core'
 
 import { OrderItem } from '../../../../contexts/Order/types'
