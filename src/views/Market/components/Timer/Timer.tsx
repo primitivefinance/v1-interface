@@ -23,7 +23,6 @@ const calculateRemainingTime = (expiry) => {
 
 const formatDigits = (number) => {
   let formattedNumber = ('0' + number).slice(-2)
-  console.log(formattedNumber)
   if (formattedNumber === '0' || formattedNumber === '') {
     return '00'
   }
