@@ -34,10 +34,10 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     getPrices(name)
     let refreshInterval = setInterval(() => {
       getPrices(name)
-      setBlink((b) => !b)
+      setBlink(!blink)
     }, 5000)
     return () => clearInterval(refreshInterval)
-  }, [name, getPrices])
+  }, [name, getPrices, blink])
 
   const source = 'coingecko'
 
@@ -116,7 +116,7 @@ interface StyledPriceProps {
 
 const StyledPrice = styled.span<StyledPriceProps>`
   font-size: ${(props) =>
-    props.size === 'lg' ? 36 : props.size == 'sm' ? 16 : 24}px;
+    props.size === 'lg' ? 36 : props.size === 'sm' ? 16 : 24}px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
   color: ${(props) =>
