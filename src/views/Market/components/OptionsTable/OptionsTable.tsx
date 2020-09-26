@@ -90,7 +90,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       variant="secondary"
                       size="sm"
                     >
-                      {'Select'}
+                      {'Open'}
                     </Button>
                   </StyledButtonCell>
                 </TableRow>
