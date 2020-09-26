@@ -8,6 +8,7 @@ import usePositions from '../../../../hooks/usePositions'
 import { useWeb3React } from '@web3-react/core'
 
 import { OrderItem } from '../../../../contexts/Order/types'
+import { destructureOptionSymbol } from 'lib/utils'
 
 import Timer from '../Timer'
 import Button from 'components/Button'
@@ -59,10 +60,12 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
       <StyledTableHead>
         <LitContainer>
           <TableRow isHead>
-            <TableCell>Name</TableCell>
+            <TableCell>Asset</TableCell>
+            <TableCell>Strike</TableCell>
+            <TableCell>Expires</TableCell>
             <TableCell>Qty</TableCell>
             <TableCell>Price</TableCell>
-            <TableCell>Expires</TableCell>
+            <TableCell>Time Remaining</TableCell>
             <StyledButtonCell />
           </TableRow>
         </LitContainer>
@@ -74,9 +77,19 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
               const { name, address, balance } = position
               const option: OrderItem = options[type][i]
               const { price, expiry } = option
+              const {
+                asset,
+                year,
+                month,
+                day,
+                strike,
+              } = destructureOptionSymbol(name)
+
               return (
                 <TableRow key={address}>
-                  <TableCell>{name}</TableCell>
+                  <TableCell>{asset === 'Ether' ? 'Weth' : asset}</TableCell>
+                  <TableCell>{`$${(+strike).toFixed(2)}`}</TableCell>
+                  <TableCell>{`${month}/${day}/${year}`}</TableCell>
                   <TableCell>{balance.toFixed(2)}</TableCell>
                   <TableCell>${price.toFixed(2)}</TableCell>
                   <TableCell>

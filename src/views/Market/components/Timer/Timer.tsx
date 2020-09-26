@@ -22,10 +22,10 @@ const calculateRemainingTime = (expiry) => {
 }
 
 const formatDigits = (number) => {
-  if (number === 0) {
+  let formattedNumber = ('0' + number).slice(-2)
+  if (formattedNumber === '0' || formattedNumber === '') {
     return '00'
   }
-  let formattedNumber = ('0' + number).slice(-2)
   return formattedNumber
 }
 
@@ -51,16 +51,20 @@ const Timer: React.FC<TimerProps> = (props) => {
     timerComponents.push(
       <>
         {interval === 'days'
-          ? timeLeft[interval]
+          ? timeLeft[interval] + 'd'
+          : interval == 'hours'
+          ? formatDigits(timeLeft[interval]) + 'hr'
+          : interval !== 'seconds'
+          ? formatDigits(timeLeft[interval]) + 'm'
           : formatDigits(timeLeft[interval])}
-        {interval === 'seconds' ? '' : ':'}
+        {interval === 'seconds' ? 's' : ':'}
       </>
     )
   })
 
   return (
     <StyledTimer>
-      {timerComponents.length ? timerComponents : <span>Expiring</span>}
+      {timerComponents.length ? timerComponents : <span>Expired</span>}
     </StyledTimer>
   )
 }
