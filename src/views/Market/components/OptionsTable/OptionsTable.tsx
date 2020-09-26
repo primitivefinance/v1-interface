@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
@@ -145,11 +145,20 @@ const StyledTableHead = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
 `
 
+const changeColorWhileLoading = (color) => keyframes`
+  0%   {background-color: ${color.grey[400]};}
+  25%  {background-color: ${color.grey[500]};}
+  50%  {background-color: ${color.grey[400]};}
+  100% {background-color: ${color.grey[500]};}
+`
+
 const StyledLoadingBlock = styled.div`
   background-color: ${(props) => props.theme.color.grey[600]};
   width: 60px;
   height: 24px;
   border-radius: 12px;
+  animation: ${(props) => changeColorWhileLoading(props.theme.color)} 2s linear
+    infinite;
 `
 
 const StyledButtonCell = styled.div`

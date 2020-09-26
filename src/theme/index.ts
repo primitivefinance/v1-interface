@@ -10,6 +10,7 @@ const theme = {
     grey,
     white,
     green,
+    red,
     primary: {
       light: red[200],
       main: red[500],

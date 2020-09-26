@@ -2,6 +2,7 @@ export const black = '#000000'
 export const white = '#FFFFFF'
 export const grey = {
   400: '#AFAFAF',
+  500: '#474747',
   600: '#303030',
   700: '#292929',
   800: '#131313',
