@@ -33,6 +33,12 @@ const Sell: React.FC = () => {
 
   const buyingPower = 250000
 
+  const handleSetMax = () => {
+    let max =
+      Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
+    setQuantity(max.toString())
+  }
+
   return (
     <>
       <Spacer />
@@ -47,6 +53,7 @@ const Sell: React.FC = () => {
         placeholder="0.00"
         onChange={handleQuantityChange}
         value={`${quantity}`}
+        endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
       <Spacer />
       <Box row justifyContent="space-between">

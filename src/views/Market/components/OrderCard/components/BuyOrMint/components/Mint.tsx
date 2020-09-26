@@ -10,8 +10,6 @@ import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
 
-import Available from '../../Available'
-
 const Mint: React.FC = () => {
   const { mintOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
@@ -33,6 +31,14 @@ const Mint: React.FC = () => {
     [setQuantity]
   )
 
+  let purchasePower = 100000
+
+  const handleSetMax = () => {
+    let max =
+      Math.round((purchasePower / +item.price + Number.EPSILON) * 100) / 100
+    setQuantity(max.toString())
+  }
+
   return (
     <>
       <Spacer />
@@ -47,7 +53,15 @@ const Mint: React.FC = () => {
         placeholder="0.00"
         onChange={handleQuantityChange}
         value={`${quantity}`}
+        endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Total Credit" />
+        <span>
+          {+quantity ? '+' : ''}${(+item.price * +quantity).toFixed(2)}
+        </span>
+      </Box>
       <Spacer />
       <Button
         disabled={!quantity}
@@ -55,7 +69,6 @@ const Mint: React.FC = () => {
         onClick={handleMintClick}
         text="Continue to Review"
       />
-      <Available>$250,000 Buying Power</Available>
     </>
   )
 }

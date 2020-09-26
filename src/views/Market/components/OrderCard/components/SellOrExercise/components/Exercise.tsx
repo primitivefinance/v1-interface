@@ -10,8 +10,6 @@ import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
 
-import Available from '../../Available'
-
 const Exercise: React.FC = () => {
   const { exerciseOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
@@ -33,6 +31,14 @@ const Exercise: React.FC = () => {
     [setQuantity]
   )
 
+  let purchasePower = 100000
+
+  const handleSetMax = () => {
+    let max =
+      Math.round((purchasePower / +item.price + Number.EPSILON) * 100) / 100
+    setQuantity(max.toString())
+  }
+
   return (
     <>
       <Spacer />
@@ -47,7 +53,22 @@ const Exercise: React.FC = () => {
         placeholder="0.00"
         onChange={handleQuantityChange}
         value={`${quantity}`}
+        endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Total Cost" />
+        <span>
+          {+quantity ? '-' : ''}${(+item.strike * +quantity).toFixed(2)}
+        </span>
+      </Box>
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Recieve" />
+        <span>
+          {`${(+quantity).toFixed(2)} ${item.id.slice(0, 3).toUpperCase()}`}
+        </span>
+      </Box>
       <Spacer />
       <Button
         disabled={!quantity}
@@ -55,7 +76,6 @@ const Exercise: React.FC = () => {
         onClick={handleExerciseClick}
         text="Continue to Review"
       />
-      <Available>$250,000 Buying Power</Available>
     </>
   )
 }
