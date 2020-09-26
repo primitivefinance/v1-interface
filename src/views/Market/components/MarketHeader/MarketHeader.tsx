@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import GoBack from '../../../../components/GoBack'
@@ -11,6 +11,7 @@ export interface MarketHeaderProps {
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
+  const [blink, setBlink] = useState(true)
   const { marketId } = props
 
   const getMarketDetails = () => {
@@ -31,7 +32,12 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
   useEffect(() => {
     getPrices(name.toLowerCase())
-  }, [name, getPrices])
+    let refreshInterval = setInterval(() => {
+      getPrices(name.toLowerCase())
+      setBlink((b) => !b)
+    }, 5000)
+    return () => clearInterval(refreshInterval)
+  }, [name, getPrices, prices])
 
   const source = 'coingecko'
 
@@ -45,14 +51,16 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
           </StyledName>
           <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
         </StyledTitle>
-        <StyledPrice>
+        <StyledPrice blink={true}>
           {prices[name.toLowerCase()] ? (
-            `$${prices[name.toLowerCase()]}`
+            `$${(+prices[name.toLowerCase()]).toFixed(2)}`
           ) : (
             <StyledLoadingBlock />
           )}
         </StyledPrice>
-        <StyledSource>{source}</StyledSource>
+        <StyledSource>
+          {source} {blink ? 'true' : 'false'}
+        </StyledSource>
       </LitContainer>
     </StyledHeader>
   )
@@ -95,10 +103,16 @@ const StyledSource = styled.span`
   font-size: 12px;
 `
 
-const StyledPrice = styled.span`
+interface StyledPriceProps {
+  blink?: boolean
+}
+
+const StyledPrice = styled.span<StyledPriceProps>`
   font-size: 24px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+  color: ${(props) =>
+    props.blink ? props.theme.color.green : props.theme.color.grey[400]};
 `
 
 export default MarketHeader
