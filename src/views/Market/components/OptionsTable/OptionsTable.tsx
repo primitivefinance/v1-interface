@@ -5,6 +5,7 @@ import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
 
 import AddIcon from '@material-ui/icons/Add'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 import { useWeb3React } from '@web3-react/core'
 import { formatAddress } from '../../../../utils'
@@ -15,6 +16,7 @@ import Table from '../../../../components/Table'
 import TableBody from '../../../../components/TableBody'
 import TableCell from '../../../../components/TableCell'
 import TableRow from '../../../../components/TableRow'
+import Spacer from 'components/Spacer'
 
 export type FormattedOption = {
   breakEven: number
@@ -73,7 +75,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   <TableCell>${price.toFixed(2)}</TableCell>
                   <TableCell>
                     <StyledARef href={`${baseUrl}/${address}`}>
-                      {formatAddress(address)}
+                      {formatAddress(address)}{' '}
+                      <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
                   <StyledButtonCell>
