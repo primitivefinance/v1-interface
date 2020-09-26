@@ -18,7 +18,7 @@ const EmptyOrder: React.FC = () => (
           <AddIcon />
         </StyledEmptyIcon>
         <StyledEmptyMessage>
-          Click the + icon next to the options to add to your order.
+          Click the select button next to the options to add to your order.
         </StyledEmptyMessage>
         <Available>$250,000 Buying Power</Available>
       </StyledEmptyContent>

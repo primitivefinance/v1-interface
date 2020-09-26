@@ -3,6 +3,7 @@ export const white = '#FFFFFF'
 export const grey = {
   400: '#AFAFAF',
   600: '#303030',
+  700: '#292929',
   800: '#131313',
 }
 

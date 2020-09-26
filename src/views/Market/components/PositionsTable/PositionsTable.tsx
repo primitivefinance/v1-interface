@@ -5,19 +5,17 @@ import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
 import usePositions from '../../../../hooks/usePositions'
 
-import RemoveIcon from '@material-ui/icons/Remove'
-
 import { useWeb3React } from '@web3-react/core'
 
 import { OrderItem } from '../../../../contexts/Order/types'
 
 import Timer from '../Timer'
-import IconButton from '../../../../components/IconButton'
-import LitContainer from '../../../../components/LitContainer'
-import Table from '../../../../components/Table'
-import TableBody from '../../../../components/TableBody'
-import TableCell from '../../../../components/TableCell'
-import TableRow from '../../../../components/TableRow'
+import Button from 'components/Button'
+import LitContainer from 'components/LitContainer'
+import Table from 'components/Table'
+import TableBody from 'components/TableBody'
+import TableCell from 'components/TableCell'
+import TableRow from 'components/TableRow'
 
 export type FormattedOption = {
   breakEven: number
@@ -85,7 +83,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                     <Timer expiry={expiry} />
                   </TableCell>
                   <StyledButtonCell>
-                    <IconButton
+                    <Button
                       onClick={() => {
                         onAddItem(option, {
                           buyOrMint: false,
@@ -93,8 +91,8 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                       }}
                       variant="secondary"
                     >
-                      <RemoveIcon />
-                    </IconButton>
+                      {'Close'}
+                    </Button>
                   </StyledButtonCell>
                 </TableRow>
               )
@@ -139,6 +137,7 @@ const StyledTableHead = styled.div`
 const StyledButtonCell = styled.div`
   width: ${(props) => props.theme.buttonSize}px;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+  flex: 0.5;
 `
 
 export default PositionsTable

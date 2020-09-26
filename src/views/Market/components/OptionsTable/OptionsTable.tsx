@@ -4,11 +4,12 @@ import styled from 'styled-components'
 import useOrders from '../../../../hooks/useOrders'
 import useOptions from '../../../../hooks/useOptions'
 
-import AddIcon from '@material-ui/icons/Add'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 import { useWeb3React } from '@web3-react/core'
+import { formatAddress } from '../../../../utils'
 
-import IconButton from '../../../../components/IconButton'
+import Button from 'components/Button'
 import LitContainer from '../../../../components/LitContainer'
 import Table from '../../../../components/Table'
 import TableBody from '../../../../components/TableBody'
@@ -29,11 +30,14 @@ export interface OptionsTableProps {
   callActive: boolean
 }
 
+const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
+const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
+
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { callActive, asset } = props
   const { options, getOptions } = useOptions()
   const { onAddItem } = useOrders()
-  const { library } = useWeb3React()
+  const { library, chainId } = useWeb3React()
 
   useEffect(() => {
     if (library) {
@@ -42,6 +46,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   }, [library, asset, getOptions])
 
   const type = callActive ? 'calls' : 'puts'
+  const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   return (
     <Table>
@@ -51,8 +56,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableCell>Strike Price</TableCell>
             <TableCell>Break Even</TableCell>
             <TableCell>Price</TableCell>
-            <TableCell>Address</TableCell>
-            <StyledButtonCell />
+            <TableCell>Contract</TableCell>
+            <StyledButtonCell>Choose</StyledButtonCell>
           </TableRow>
         </LitContainer>
       </StyledTableHead>
@@ -66,18 +71,24 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   <TableCell>${strike.toFixed(2)}</TableCell>
                   <TableCell>${breakEven.toFixed(2)}</TableCell>
                   <TableCell>${price.toFixed(2)}</TableCell>
-                  <TableCell>{address.substring(0, 6)}</TableCell>
+                  <TableCell>
+                    <StyledARef href={`${baseUrl}/${address}`}>
+                      {formatAddress(address)}{' '}
+                      <LaunchIcon style={{ fontSize: '14px' }} />
+                    </StyledARef>
+                  </TableCell>
                   <StyledButtonCell>
-                    <IconButton
+                    <Button
                       onClick={() => {
                         onAddItem(option, {
                           buyOrMint: true,
                         })
                       }}
                       variant="secondary"
+                      size="sm"
                     >
-                      <AddIcon />
-                    </IconButton>
+                      {'Open'}
+                    </Button>
                   </StyledButtonCell>
                 </TableRow>
               )
@@ -107,6 +118,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 }
 
+const StyledARef = styled.a`
+  text-decoration: none;
+  color: ${(props) => props.theme.color.white};
+`
+
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
@@ -122,6 +138,7 @@ const StyledLoadingBlock = styled.div`
 const StyledButtonCell = styled.div`
   width: ${(props) => props.theme.buttonSize}px;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+  flex: 0.5;
 `
 
 export default OptionsTable
