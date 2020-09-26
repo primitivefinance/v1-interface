@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
+import styled from 'styled-components'
 
 import Card from 'components/Card'
 import CardContent from 'components/CardContent'
-import CardTitle from 'components/CardTitle'
 import Toggle from 'components/Toggle'
 import ToggleButton from 'components/ToggleButton'
 
@@ -21,33 +21,42 @@ const BuyOrMint: React.FC = () => {
     setBuyCard(!buyCard)
   }, [buyCard, setBuyCard])
 
-  const { asset, year, month, day, type, strike } = destructureOptionSymbol(
+  const { asset, month, day, type, strike } = destructureOptionSymbol(
     item.id
   )
 
   const title = useMemo(() => {
     if (buyCard) {
-      return `Buying ${asset} ${
+      return `Open Long ${asset} ${
         type === 'C' ? 'Call' : 'Put'
-      } $${strike} ${month}/${day}/${year}`
+      } $${strike} ${month}/${day}`
     }
-    return `Minting ${asset} ${
+    return `Open Short ${asset} ${
       type === 'C' ? 'Call' : 'Put'
-    } $${strike} ${month}/${day}/${year}`
-  }, [asset, buyCard, day, month, strike, type, year])
+    } $${strike} ${month}/${day}`
+  }, [asset, buyCard, day, month, strike, type])
 
   return (
     <Card border>
-      <CardTitle>{title}</CardTitle>
       <CardContent>
+      <StyledTitle>{title}</StyledTitle>
         <Toggle>
           <ToggleButton active={buyCard} onClick={handleToggle} text="Buy" />
-          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint" />
+          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint + Sell" />
         </Toggle>
         {buyCard ? <Buy /> : <Mint />}
       </CardContent>
     </Card>
   )
 }
+
+const StyledTitle = styled.h4`
+  align-items: center;
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  font-size: 18px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+`
 
 export default BuyOrMint

@@ -10,9 +10,7 @@ import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
 
-import Available from '../../Available'
-
-const Exercise: React.FC = () => {
+const Sell: React.FC = () => {
   const { sellOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
@@ -33,6 +31,8 @@ const Exercise: React.FC = () => {
     [setQuantity]
   )
 
+  const buyingPower = 250000
+
   return (
     <>
       <Spacer />
@@ -49,15 +49,24 @@ const Exercise: React.FC = () => {
         value={`${quantity}`}
       />
       <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Buying Power" />
+        <span>${buyingPower.toFixed(2)}</span>
+      </Box>
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Total Credit" />
+        <span>{+quantity > 0 ? '+' : ''} ${(+(item.price) * +quantity).toFixed(2)}</span>
+      </Box>
+      <Spacer />
       <Button
         disabled={!quantity}
         full
         onClick={handleSellClick}
         text="Review order"
       />
-      <Available>$250,000 Buying Power</Available>
     </>
   )
 }
 
-export default Exercise
+export default Sell
