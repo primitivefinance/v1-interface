@@ -7,6 +7,7 @@ import useOptions from '../../../../hooks/useOptions'
 import AddIcon from '@material-ui/icons/Add'
 
 import { useWeb3React } from '@web3-react/core'
+import { formatAddress } from '../../../../utils'
 
 import IconButton from '../../../../components/IconButton'
 import LitContainer from '../../../../components/LitContainer'
@@ -29,11 +30,14 @@ export interface OptionsTableProps {
   callActive: boolean
 }
 
+const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
+const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
+
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { callActive, asset } = props
   const { options, getOptions } = useOptions()
   const { onAddItem } = useOrders()
-  const { library } = useWeb3React()
+  const { library, chainId } = useWeb3React()
 
   useEffect(() => {
     if (library) {
@@ -42,6 +46,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   }, [library, asset, getOptions])
 
   const type = callActive ? 'calls' : 'puts'
+  const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   return (
     <Table>
@@ -51,7 +56,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableCell>Strike Price</TableCell>
             <TableCell>Break Even</TableCell>
             <TableCell>Price</TableCell>
-            <TableCell>Address</TableCell>
+            <TableCell>Contract</TableCell>
             <StyledButtonCell />
           </TableRow>
         </LitContainer>
@@ -66,7 +71,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   <TableCell>${strike.toFixed(2)}</TableCell>
                   <TableCell>${breakEven.toFixed(2)}</TableCell>
                   <TableCell>${price.toFixed(2)}</TableCell>
-                  <TableCell>{address.substring(0, 6)}</TableCell>
+                  <TableCell>
+                    <StyledARef href={`${baseUrl}/${address}`}>
+                      {formatAddress(address)}
+                    </StyledARef>
+                  </TableCell>
                   <StyledButtonCell>
                     <IconButton
                       onClick={() => {
@@ -106,6 +115,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     </Table>
   )
 }
+
+const StyledARef = styled.a`
+  text-decoration: none;
+  color: ${(props) => props.theme.color.white};
+`
 
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};
