@@ -10,6 +10,7 @@ import { useWeb3React } from '@web3-react/core'
 import { formatAddress } from '../../../../utils'
 
 import Button from 'components/Button'
+import EmptyTable from '../EmptyTable'
 import LitContainer from '../../../../components/LitContainer'
 import Table from '../../../../components/Table'
 import TableBody from '../../../../components/TableBody'
@@ -47,17 +48,19 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
+  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', 'Choose']
 
   return (
     <Table>
       <StyledTableHead>
         <LitContainer>
           <TableRow isHead>
-            <TableCell>Strike Price</TableCell>
-            <TableCell>Break Even</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Contract</TableCell>
-            <StyledButtonCell>Choose</StyledButtonCell>
+            {headers.map((header, index) => {
+              if (index === headers.length - 1) {
+                return <StyledButtonCell>{header}</StyledButtonCell>
+              }
+              return <TableCell>{header}</TableCell>
+            })}
           </TableRow>
         </LitContainer>
       </StyledTableHead>
@@ -95,23 +98,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             })}
           </TableBody>
         ) : (
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <StyledButtonCell></StyledButtonCell>
-            </TableRow>
-          </TableBody>
+          <>
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+          </>
         )}
       </LitContainer>
     </Table>
@@ -126,13 +117,6 @@ const StyledARef = styled.a`
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
-`
-
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[600]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
 `
 
 const StyledButtonCell = styled.div`

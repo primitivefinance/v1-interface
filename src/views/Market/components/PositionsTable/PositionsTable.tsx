@@ -8,14 +8,17 @@ import usePositions from '../../../../hooks/usePositions'
 import { useWeb3React } from '@web3-react/core'
 
 import { OrderItem } from '../../../../contexts/Order/types'
+import { destructureOptionSymbol } from 'lib/utils'
 
 import Timer from '../Timer'
+import EmptyTable from '../EmptyTable'
 import Button from 'components/Button'
 import LitContainer from 'components/LitContainer'
 import Table from 'components/Table'
 import TableBody from 'components/TableBody'
 import TableCell from 'components/TableCell'
 import TableRow from 'components/TableRow'
+import FilledBar from '../FilledBar'
 
 export type FormattedOption = {
   breakEven: number
@@ -54,16 +57,27 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
 
+  const headers = [
+    'Asset',
+    'Strike',
+    'Expires',
+    'Qty',
+    'Price',
+    'Remaining',
+    'Manage',
+  ]
+
   return (
     <Table>
       <StyledTableHead>
         <LitContainer>
           <TableRow isHead>
-            <TableCell>Name</TableCell>
-            <TableCell>Qty</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Expires</TableCell>
-            <StyledButtonCell />
+            {headers.map((header, index) => {
+              if (index === headers.length - 1) {
+                return <StyledButtonCell>{header}</StyledButtonCell>
+              }
+              return <TableCell>{header}</TableCell>
+            })}
           </TableRow>
         </LitContainer>
       </StyledTableHead>
@@ -74,13 +88,24 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
               const { name, address, balance } = position
               const option: OrderItem = options[type][i]
               const { price, expiry } = option
+              const {
+                asset,
+                year,
+                month,
+                day,
+                strike,
+              } = destructureOptionSymbol(name)
+
               return (
                 <TableRow key={address}>
-                  <TableCell>{name}</TableCell>
+                  <TableCell>{asset === 'Ether' ? 'Weth' : asset}</TableCell>
+                  <TableCell>{`$${(+strike).toFixed(2)}`}</TableCell>
+                  <TableCell>{`${month}/${day}/${year}`}</TableCell>
                   <TableCell>{balance.toFixed(2)}</TableCell>
                   <TableCell>${price.toFixed(2)}</TableCell>
                   <TableCell>
                     <Timer expiry={expiry} />
+                    <FilledBar expiry={expiry} />
                   </TableCell>
                   <StyledButtonCell>
                     <Button
@@ -90,6 +115,7 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
                         })
                       }}
                       variant="secondary"
+                      size="sm"
                     >
                       {'Close'}
                     </Button>
@@ -99,35 +125,16 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
             })}
           </TableBody>
         ) : (
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <TableCell>
-                <StyledLoadingBlock />
-              </TableCell>
-              <StyledButtonCell></StyledButtonCell>
-            </TableRow>
-          </TableBody>
+          <>
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+            <EmptyTable columns={headers} />
+          </>
         )}
       </LitContainer>
     </Table>
   )
 }
-
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[600]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
-`
 
 const StyledTableHead = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};

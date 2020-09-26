@@ -133,10 +133,12 @@ const StyledButton = styled.button<StyledButtonProps>`
   color: ${(props) => props.color};
   cursor: pointer;
   display: flex;
+  font-family: Nunito Sans;
   font-size: ${(props) => props.fontSize}px;
   font-weight: 700;
   height: ${(props) => props.size}px;
   justify-content: center;
+  letter-spacing: 0.5px;
   margin: 0;
   min-width: ${(props) => props.size}px;
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
