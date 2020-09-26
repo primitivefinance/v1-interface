@@ -33,6 +33,12 @@ const Buy: React.FC = () => {
 
   const buyingPower = 250000
 
+  const handleSetMax = () => {
+    let max =
+      Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
+    setQuantity(max.toString())
+  }
+
   return (
     <>
       <Spacer />
@@ -47,6 +53,7 @@ const Buy: React.FC = () => {
         placeholder="0.00"
         onChange={handleQuantityChange}
         value={`${quantity}`}
+        endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
       <Spacer />
       <Box row justifyContent="space-between">
@@ -56,14 +63,16 @@ const Buy: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Total Debit" />
-        <span>{+quantity ? '-' : ''}${(+(item.price) * +quantity).toFixed(2)}</span>
+        <span>
+          {+quantity ? '-' : ''}${(+item.price * +quantity).toFixed(2)}
+        </span>
       </Box>
       <Spacer />
       <Button
         disabled={!quantity}
         full
         onClick={handleBuyClick}
-        text="Review order"
+        text="Continue to Review"
       />
     </>
   )

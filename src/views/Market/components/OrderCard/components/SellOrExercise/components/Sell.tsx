@@ -56,14 +56,16 @@ const Sell: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Total Credit" />
-        <span>{+quantity > 0 ? '+' : ''} ${(+(item.price) * +quantity).toFixed(2)}</span>
+        <span>
+          {+quantity > 0 ? '+' : ''} ${(+item.price * +quantity).toFixed(2)}
+        </span>
       </Box>
       <Spacer />
       <Button
         disabled={!quantity}
         full
         onClick={handleSellClick}
-        text="Review order"
+        text="Continue to Review"
       />
     </>
   )

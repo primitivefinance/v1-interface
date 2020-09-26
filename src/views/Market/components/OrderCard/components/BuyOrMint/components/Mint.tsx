@@ -53,7 +53,7 @@ const Mint: React.FC = () => {
         disabled={!quantity}
         full
         onClick={handleMintClick}
-        text="Review order"
+        text="Continue to Review"
       />
       <Available>$250,000 Buying Power</Available>
     </>
