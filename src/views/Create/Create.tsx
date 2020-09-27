@@ -11,7 +11,7 @@ import PositionsProvider from '../../contexts/Positions'
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
 
-import CreateCard from './components/CreateCard'
+//import CreateCard from './components/CreateCard'
 
 const Create: React.FC = () => {
   // Web3
@@ -25,13 +25,16 @@ const Create: React.FC = () => {
     if (active) {
       ;(async () => {
         try {
+          const injected = new InjectedConnector({
+            supportedChainIds: [1, 3, 4, 5, 42],
+          })
           await activate(injected)
         } catch (err) {
           console.log(err)
         }
       })()
     }
-  }, [active, activate, chainId, injected])
+  }, [active, activate, chainId])
 
   const handleUnlock = () => {
     activate(injected)
@@ -46,7 +49,14 @@ const Create: React.FC = () => {
               <StyledMain>
                 {active ? (
                   chainId === 4 ? (
-                    <CreateCard />
+                    <>
+                      <WaitingRoom>
+                        {' '}
+                        Primitive is permissionless; anyone can create new
+                        Oracle-less options from the protocol's factory. The
+                        interface for this is being built.{' '}
+                      </WaitingRoom>
+                    </>
                   ) : (
                     <WaitingRoom>
                       {' '}
@@ -83,6 +93,10 @@ const WaitingRoom = styled.div`
   display: flex;
   justify-content: center;
   min-height: calc(100vh - 72px);
+  width: calc(
+    (100vw - ${(props) => props.theme.contentWidth}px) / 4 +
+      ${(props) => props.theme.contentWidth * (1 / 3)}px
+  );
 `
 
 export default Create

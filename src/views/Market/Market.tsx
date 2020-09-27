@@ -44,6 +44,9 @@ const Market: React.FC = () => {
   useEffect(() => {
     if (active) {
       ;(async () => {
+        const injected = new InjectedConnector({
+          supportedChainIds: [1, 3, 4, 5, 42],
+        })
         try {
           await activate(injected)
         } catch (err) {
@@ -51,7 +54,7 @@ const Market: React.FC = () => {
         }
       })()
     }
-  }, [active, activate, chainId, injected])
+  }, [active, activate, chainId])
 
   const handleFilter = () => {
     setCallPutActive(!callPutActive)
