@@ -40,7 +40,7 @@ const TopBar: React.FC = () => {
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
         <StyledFlex>
-          <StyledNavItem to="/">
+          <StyledNavItem active to="/">
             <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
           </StyledNavItem>
           <StyledNavItem active to="/">
@@ -108,7 +108,7 @@ const StyledNav = styled.div`
 `
 
 interface StyledNavItemProps {
-  active?: boolean
+  active: boolean
 }
 
 const StyledNavItem = styled(Link)<StyledNavItemProps>`

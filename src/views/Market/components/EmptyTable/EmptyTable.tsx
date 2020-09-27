@@ -16,13 +16,13 @@ const EmptyTable: React.FC<EmptyTableProps> = (props) => {
         {props.columns.map((column, index) => {
           if (index === props.columns.length - 1) {
             return (
-              <StyledButtonCell>
+              <StyledButtonCell key={index}>
                 <StyledLoadingBlock />
               </StyledButtonCell>
             )
           }
           return (
-            <TableCell>
+            <TableCell key={index}>
               <StyledLoadingBlock />
             </TableCell>
           )

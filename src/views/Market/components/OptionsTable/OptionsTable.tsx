@@ -57,9 +57,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           <TableRow isHead>
             {headers.map((header, index) => {
               if (index === headers.length - 1) {
-                return <StyledButtonCell>{header}</StyledButtonCell>
+                return (
+                  <StyledButtonCell key={header}>{header}</StyledButtonCell>
+                )
               }
-              return <TableCell>{header}</TableCell>
+              return <TableCell key={header}>{header}</TableCell>
             })}
           </TableRow>
         </LitContainer>
@@ -71,16 +73,16 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               const { breakEven, price, strike, address } = option
               return (
                 <TableRow key={address}>
-                  <TableCell>${strike.toFixed(2)}</TableCell>
-                  <TableCell>${breakEven.toFixed(2)}</TableCell>
-                  <TableCell>${price.toFixed(2)}</TableCell>
-                  <TableCell>
+                  <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
+                  <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
+                  <TableCell key={price}>${price.toFixed(2)}</TableCell>
+                  <TableCell key={address}>
                     <StyledARef href={`${baseUrl}/${address}`}>
                       {formatAddress(address)}{' '}
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
-                  <StyledButtonCell>
+                  <StyledButtonCell key={'Open'}>
                     <Button
                       onClick={() => {
                         onAddItem(option, {
