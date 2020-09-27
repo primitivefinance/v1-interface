@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import Card from '../../../../components/Card'
-import CardContent from '../../../../components/CardContent'
-import CardTitle from '../../../../components/CardTitle'
-import Button from '../../../../components/Button'
+import Card from 'components/Card'
+import CardContent from 'components/CardContent'
+import CardTitle from 'components/CardTitle'
+import Button from 'components/Button'
+import Input from 'components/Input'
+import Spacer from 'components/Spacer'
 
 import { useWeb3React } from '@web3-react/core'
 import useOrder from '../../../../hooks/useOrders'
@@ -47,8 +49,7 @@ const CreateCard: React.FC<CreateCardProps> = (props) => {
     }
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = () => {
     console.log('Submitting: ', { asset, expiry, strike, isCallType })
     createOption(library, asset, isCallType, expiry, strike)
   }
@@ -66,119 +67,84 @@ const CreateCard: React.FC<CreateCardProps> = (props) => {
     <Card>
       <CardTitle>Create Option</CardTitle>
       <CardContent>
-        <StyledForm onSubmit={handleSubmit}>
-          <StyledLabel>
-            Type
-            <Button
-              onClick={onToggle}
-              text={'Call'}
-              variant={!isCallType ? 'tertiary' : 'default'}
-            />
-            <Button
-              onClick={onToggle}
-              text={'Put'}
-              variant={!isCallType ? 'default' : 'tertiary'}
-            />
-          </StyledLabel>
-          <StyledLabel>
-            Underlying Asset
-            <StyledSelect
-              autoFocus
-              value={asset}
-              onChange={handleChange}
-              name="asset"
-            >
-              {assets.map((selection, i) => {
-                return (
-                  <StyledOption key={i} value={Assets[selection][chainId]}>
-                    {selection}
-                  </StyledOption>
-                )
-              })}
-            </StyledSelect>
-          </StyledLabel>
-          <Spacing />
-          <StyledLabel>
-            Expiry
-            <StyledSelect value={expiry} onChange={handleChange} name="expiry">
-              {expiries.map((selection, i) => {
-                return (
-                  <StyledOption key={i} value={selection}>
-                    {getSimpleDate(selection)}
-                  </StyledOption>
-                )
-              })}
-            </StyledSelect>
-          </StyledLabel>
-          <Spacing />
-          <StyledLabel>
-            Strike Price
-            <StyledInput
-              type="number"
-              placeholder="0.00"
-              onChange={handleChange}
-              name="strike"
-            ></StyledInput>
-          </StyledLabel>
-          <Spacing />
-          <StyledInput type="submit" value="Create Option"></StyledInput>
-        </StyledForm>
+        <StyledFilter>
+          <StyledLabel>Type</StyledLabel>
+          <Spacer />
+          <Button
+            onClick={onToggle}
+            text={'Call'}
+            variant={!isCallType ? 'tertiary' : 'default'}
+          />
+          <Button
+            onClick={onToggle}
+            text={'Put'}
+            variant={!isCallType ? 'default' : 'tertiary'}
+          />
+        </StyledFilter>
+        <Spacer />
+        <StyledLabel>
+          Underlying Asset
+          <StyledSelect
+            autoFocus
+            value={asset}
+            onChange={handleChange}
+            name="asset"
+          >
+            {assets.map((selection, i) => {
+              return (
+                <StyledOption key={i} value={Assets[selection][chainId]}>
+                  {selection}
+                </StyledOption>
+              )
+            })}
+          </StyledSelect>
+        </StyledLabel>
+        <Spacer />
+        <StyledLabel>
+          Expiry
+          <StyledSelect value={expiry} onChange={handleChange} name="expiry">
+            {expiries.map((selection, i) => {
+              return (
+                <StyledOption key={i} value={selection}>
+                  {getSimpleDate(selection)}
+                </StyledOption>
+              )
+            })}
+          </StyledSelect>
+        </StyledLabel>
+        <Spacer />
+        <StyledLabel>
+          Strike Price
+          <Input placeholder="0.00" onChange={handleChange}></Input>
+        </StyledLabel>
+        <Spacer />
+        <Button disabled onClick={handleSubmit} text="Create Option" />
       </CardContent>
     </Card>
   )
 }
 
-const Spacing = styled.div`
-  min-width: 1em;
-  min-height: 1em;
-`
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-`
 const StyledSelect = styled.select`
+  align-items: center;
   display: flex;
-  justify-content: space-evenly;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  box-sizing: border-box;
-
+  border-radius: ${(props) => props.theme.borderRadius}px;
   border: none;
-  border-bottom: 0.5px solid #bdbdbd;
-
-  font-size: 1em;
-  padding-left: 0.25em;
-  padding-top: 0.25em;
-  min-width: 10em;
-
-  :focus {
-    border-color: #5eaefe;
-    outline: none;
-  }
+  background: ${(props) => props.theme.color.black};
+  color: ${(props) => props.theme.color.grey[400]};
+  padding: ${(props) => props.theme.spacing[3]}px;
+  width: calc(
+    (100vw - ${(props) => props.theme.contentWidth}px) / 4 +
+      ${(props) => props.theme.contentWidth * (1 / 8)}px
+  );
+  margin-right: ${(props) => props.theme.spacing[7]}px;
 `
 const StyledOption = styled.option``
-const StyledInput = styled.input`
+
+const StyledFilter = styled.div`
   display: flex;
-  justify-content: space-evenly;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  box-sizing: border-box;
-
-  border: none;
-  border-bottom: 0.5px solid #bdbdbd;
-
-  font-size: 1em;
-  padding-left: 0.25em;
-  padding-top: 0.25em;
-  min-width: 10em;
-
-  :focus {
-    border-color: #5eaefe;
-    outline: none;
-  }
+  flex: 1;
+  flex-direction: row;
+  width: 100%;
 `
 const StyledLabel = styled.label``
 

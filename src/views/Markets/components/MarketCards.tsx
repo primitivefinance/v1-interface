@@ -62,7 +62,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             <CardIcon>{market.icon}</CardIcon>
             <StyledTitle>{market.name}</StyledTitle>
             <StyledDetails>
-              <StyledDetail>TKN / TKN</StyledDetail>
+              <StyledDetail>{market.id.toUpperCase()} / USD</StyledDetail>
             </StyledDetails>
             <Spacer />
             <Button

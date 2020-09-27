@@ -42,6 +42,10 @@ const Markets: React.FC = ({ children }) => {
         tokenKey = 'weth'
       }
 
+      if (tokenKey === 'soon' || tokenKey === 'future') {
+        tokenKey = 'tbd'
+      }
+
       try {
         marketsArr.push({
           name: NAME_FOR_POOL[marketKey],

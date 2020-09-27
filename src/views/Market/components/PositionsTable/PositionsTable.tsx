@@ -74,9 +74,11 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
           <TableRow isHead>
             {headers.map((header, index) => {
               if (index === headers.length - 1) {
-                return <StyledButtonCell>{header}</StyledButtonCell>
+                return (
+                  <StyledButtonCell key={header}>{header}</StyledButtonCell>
+                )
               }
-              return <TableCell>{header}</TableCell>
+              return <TableCell key={header}>{header}</TableCell>
             })}
           </TableRow>
         </LitContainer>
@@ -98,16 +100,20 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
 
               return (
                 <TableRow key={address}>
-                  <TableCell>{asset === 'Ether' ? 'Weth' : asset}</TableCell>
-                  <TableCell>{`$${(+strike).toFixed(2)}`}</TableCell>
-                  <TableCell>{`${month}/${day}/${year}`}</TableCell>
-                  <TableCell>{balance.toFixed(2)}</TableCell>
-                  <TableCell>${price.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Timer expiry={expiry} />
+                  <TableCell key={asset}>
+                    {asset === 'Ether' ? 'Weth' : asset}
+                  </TableCell>
+                  <TableCell key={strike}>{`$${(+strike).toFixed(
+                    2
+                  )}`}</TableCell>
+                  <TableCell key={month}>{`${month}/${day}/${year}`}</TableCell>
+                  <TableCell key={balance}>{balance.toFixed(2)}</TableCell>
+                  <TableCell key={price}>${price.toFixed(2)}</TableCell>
+                  <TableCell key={expiry}>
+                    <Timer key={expiry} expiry={expiry} />
                     <FilledBar expiry={expiry} />
                   </TableCell>
-                  <StyledButtonCell>
+                  <StyledButtonCell key={'Close'}>
                     <Button
                       onClick={() => {
                         onAddItem(option, {

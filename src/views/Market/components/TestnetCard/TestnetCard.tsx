@@ -5,11 +5,7 @@ import Button from 'components/Button'
 import Card from 'components/Card'
 import CardContent from 'components/CardContent'
 import Spacer from 'components/Spacer'
-import IconButton from 'components/IconButton'
-
-import HelpIcon from '@material-ui/icons/Help'
 import LaunchIcon from '@material-ui/icons/Launch'
-import Tooltip from '@material-ui/core/Tooltip'
 
 import useOrders from '../../../../hooks/useOrders'
 import { useWeb3React } from '@web3-react/core'

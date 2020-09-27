@@ -7,6 +7,8 @@ import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
 import PositionsProvider from '../../contexts/Positions'
 
+import Page from 'components/Page'
+
 import FilterBar from './components/FilterBar'
 import MarketHeader from './components/MarketHeader'
 import OptionsTable from './components/OptionsTable'
@@ -15,6 +17,7 @@ import OrderCard from './components/OrderCard'
 import TestnetCard from './components/TestnetCard'
 import PositionsHeader from './components/PositionsHeader'
 import Spacer from 'components/Spacer'
+import Button from 'components/Button'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -34,54 +37,82 @@ const Market: React.FC = () => {
   const { marketId } = useParams()
 
   // Web3
-  const { activate, chainId } = useWeb3React()
+  const { activate, chainId, active } = useWeb3React()
+  const injected = new InjectedConnector({
+    supportedChainIds: [1, 3, 4, 5, 42],
+  })
+
   // Connect to web3 automatically using injected
   useEffect(() => {
-    ;(async () => {
-      try {
+    if (active) {
+      ;(async () => {
         const injected = new InjectedConnector({
           supportedChainIds: [1, 3, 4, 5, 42],
         })
-        await activate(injected)
-      } catch (err) {
-        console.log(err)
-      }
-    })()
-  }, [activate])
+        try {
+          await activate(injected)
+        } catch (err) {
+          console.log(err)
+        }
+      })()
+    }
+  }, [active, activate, chainId])
 
   const handleFilter = () => {
     setCallPutActive(!callPutActive)
   }
+
+  const handleUnlock = () => {
+    activate(injected)
+  }
+
   return (
     <PricesProvider>
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <StyledMarket>
-              <StyledMain>
-                <MarketHeader marketId={marketId} />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilter}
-                />
-                <OptionsTable
-                  options={mockOptions}
-                  asset="Ethereum"
-                  callActive={callPutActive}
-                />
-                <PositionsHeader name="Ethereum" symbol="ETH" />
-                <PositionsTable
-                  positions={mockOptions}
-                  asset="Ethereum"
-                  callActive={callPutActive}
-                />
-              </StyledMain>
-              <StyledSideBar>
-                <OrderCard />
-                <Spacer />
-                {chainId === 4 ? <TestnetCard /> : <> </>}
-              </StyledSideBar>
-            </StyledMarket>
+            <Page>
+              <StyledMarket>
+                {active ? (
+                  chainId === 4 ? (
+                    <>
+                      <StyledMain>
+                        <MarketHeader marketId={marketId} />
+                        <FilterBar
+                          active={callPutActive}
+                          setCallActive={handleFilter}
+                        />
+                        <OptionsTable
+                          options={mockOptions}
+                          asset="Ethereum"
+                          callActive={callPutActive}
+                        />
+                        <PositionsHeader name="Ethereum" symbol="ETH" />
+                        <PositionsTable
+                          positions={mockOptions}
+                          asset="Ethereum"
+                          callActive={callPutActive}
+                        />
+                      </StyledMain>
+                      <StyledSideBar>
+                        <OrderCard />
+                        <Spacer />
+                        {chainId === 4 ? <TestnetCard /> : <> </>}
+                      </StyledSideBar>{' '}
+                    </>
+                  ) : (
+                    <WaitingRoom>
+                      {' '}
+                      Please connect to the Rinkeby test network.{' '}
+                    </WaitingRoom>
+                  )
+                ) : (
+                  <WaitingRoom>
+                    <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                  </WaitingRoom>
+                )}
+              </StyledMarket>
+            </Page>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>
@@ -91,14 +122,24 @@ const Market: React.FC = () => {
 
 const StyledMain = styled.div``
 
+const WaitingRoom = styled.div`
+  align-items: center;
+  display: flex;
+  font-size: 36px;
+  justify-content: center;
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  width: 100%;
+`
+
 const StyledMarket = styled.div`
   display: flex;
+  width: 100%;
 `
 
 const StyledSideBar = styled.div`
   border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   box-sizing: border-box;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
   width: 400px;
 `

@@ -9,6 +9,8 @@ import Container from '../Container'
 import IconButton from '../IconButton'
 import Logo from '../Logo'
 
+import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
+
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
 
@@ -38,7 +40,12 @@ const TopBar: React.FC = () => {
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
         <StyledFlex>
-          <Logo />
+          <StyledNavItem active to="/">
+            <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
+          </StyledNavItem>
+          <StyledNavItem active to="/">
+            <Logo />
+          </StyledNavItem>
         </StyledFlex>
         <StyledNav>
           <StyledNavItem
@@ -101,7 +108,7 @@ const StyledNav = styled.div`
 `
 
 interface StyledNavItemProps {
-  active?: boolean
+  active: boolean
 }
 
 const StyledNavItem = styled(Link)<StyledNavItemProps>`
@@ -113,6 +120,11 @@ const StyledNavItem = styled(Link)<StyledNavItemProps>`
   &:hover {
     color: ${(props) => props.theme.color.white};
   }
+`
+
+const StyledLogo = styled.img`
+  width: ${(props) => props.theme.spacing[5]}px;
+  height: ${(props) => props.theme.spacing[5]}px;
 `
 
 export default TopBar

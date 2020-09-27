@@ -4,7 +4,8 @@ import { ThemeProvider } from 'styled-components'
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import { Web3ReactProvider } from '@web3-react/core'
 
-import TopBar from './components/TopBar'
+import TopBar from 'components/TopBar'
+import Footer from 'components/Footer'
 
 import Markets from './views/Markets'
 import Portfolio from './views/Portfolio'
@@ -39,6 +40,7 @@ const App: React.FC = () => {
             <Switch>
               <Route exact path="/create" component={Create} />
             </Switch>
+            <Footer />
           </Router>
         </MarketsProvider>
       </Web3ReactProvider>
