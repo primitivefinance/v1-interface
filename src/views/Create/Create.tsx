@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
+import Button from 'components/Button'
+
 import OrderProvider from '../../contexts/Order'
 import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
@@ -13,20 +15,27 @@ import CreateCard from './components/CreateCard'
 
 const Create: React.FC = () => {
   // Web3
-  const { activate } = useWeb3React()
+  const { activate, active, chainId } = useWeb3React()
+  const injected = new InjectedConnector({
+    supportedChainIds: [1, 3, 4, 5, 42],
+  })
+
   // Connect to web3 automatically using injected
   useEffect(() => {
-    ;(async () => {
-      try {
-        const injected = new InjectedConnector({
-          supportedChainIds: [1, 3, 4, 5, 42],
-        })
-        await activate(injected)
-      } catch (err) {
-        console.log(err)
-      }
-    })()
-  }, [activate])
+    if (active) {
+      ;(async () => {
+        try {
+          await activate(injected)
+        } catch (err) {
+          console.log(err)
+        }
+      })()
+    }
+  }, [active, activate, chainId, injected])
+
+  const handleUnlock = () => {
+    activate(injected)
+  }
 
   return (
     <PricesProvider>
@@ -35,7 +44,20 @@ const Create: React.FC = () => {
           <PositionsProvider>
             <StyledCreate>
               <StyledMain>
-                <CreateCard />
+                {active ? (
+                  chainId === 4 ? (
+                    <CreateCard />
+                  ) : (
+                    <WaitingRoom>
+                      {' '}
+                      Please connect to the Rinkeby test network.{' '}
+                    </WaitingRoom>
+                  )
+                ) : (
+                  <WaitingRoom>
+                    <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                  </WaitingRoom>
+                )}
               </StyledMain>
             </StyledCreate>
           </PositionsProvider>
@@ -50,9 +72,16 @@ const StyledMain = styled.div`
 `
 
 const StyledCreate = styled.div`
+  align-items: center;
   display: flex;
   justify-content: center;
+  min-height: calc(100vh - 72px);
+`
+
+const WaitingRoom = styled.div`
   align-items: center;
+  display: flex;
+  justify-content: center;
   min-height: calc(100vh - 72px);
 `
 

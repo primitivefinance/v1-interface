@@ -39,21 +39,19 @@ const Market: React.FC = () => {
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42],
   })
+
   // Connect to web3 automatically using injected
   useEffect(() => {
     if (active) {
       ;(async () => {
         try {
-          const injected = new InjectedConnector({
-            supportedChainIds: [1, 3, 4, 5, 42],
-          })
           await activate(injected)
         } catch (err) {
           console.log(err)
         }
       })()
     }
-  }, [active, activate, chainId])
+  }, [active, activate, chainId, injected])
 
   const handleFilter = () => {
     setCallPutActive(!callPutActive)
@@ -118,10 +116,11 @@ const Market: React.FC = () => {
 const StyledMain = styled.div``
 
 const WaitingRoom = styled.div`
-  display: flex;
-  min-height: calc(100vh - 72px);
-  justify-content: center;
   align-items: center;
+  display: flex;
+  font-size: 36px;
+  justify-content: center;
+  min-height: calc(100vh - 72px);
 `
 
 const StyledMarket = styled.div`
