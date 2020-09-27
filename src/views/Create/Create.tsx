@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import Button from 'components/Button'
+import Page from 'components/Page'
 
 import OrderProvider from '../../contexts/Order'
 import PricesProvider from '../../contexts/Prices'
@@ -45,31 +46,33 @@ const Create: React.FC = () => {
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <StyledCreate>
-              <StyledMain>
-                {active ? (
-                  chainId === 4 ? (
-                    <>
+            <Page>
+              <StyledCreate>
+                <StyledMain>
+                  {active ? (
+                    chainId === 4 ? (
+                      <>
+                        <WaitingRoom>
+                          {' '}
+                          Primitive is permissionless; anyone can create new
+                          Oracle-less options from the protocol's factory. The
+                          interface for this is being built.{' '}
+                        </WaitingRoom>
+                      </>
+                    ) : (
                       <WaitingRoom>
                         {' '}
-                        Primitive is permissionless; anyone can create new
-                        Oracle-less options from the protocol's factory. The
-                        interface for this is being built.{' '}
+                        Please connect to the Rinkeby test network.{' '}
                       </WaitingRoom>
-                    </>
+                    )
                   ) : (
                     <WaitingRoom>
-                      {' '}
-                      Please connect to the Rinkeby test network.{' '}
+                      <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
                     </WaitingRoom>
-                  )
-                ) : (
-                  <WaitingRoom>
-                    <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
-                  </WaitingRoom>
-                )}
-              </StyledMain>
-            </StyledCreate>
+                  )}
+                </StyledMain>
+              </StyledCreate>
+            </Page>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>
@@ -85,14 +88,14 @@ const StyledCreate = styled.div`
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
 `
 
 const WaitingRoom = styled.div`
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   width: calc(
     (100vw - ${(props) => props.theme.contentWidth}px) / 4 +
       ${(props) => props.theme.contentWidth * (1 / 3)}px

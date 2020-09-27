@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import Page from 'components/Page'
+
 import OrderProvider from '../../contexts/Order'
 import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
@@ -12,9 +14,11 @@ const Portfolio: React.FC = () => {
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <StyledPortfolio>
-              <StyledMain>Soon</StyledMain>
-            </StyledPortfolio>
+            <Page>
+              <StyledPortfolio>
+                <StyledMain>Soon</StyledMain>
+              </StyledPortfolio>
+            </Page>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>
@@ -30,7 +34,7 @@ const StyledPortfolio = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
 `
 
 export default Portfolio

@@ -7,6 +7,8 @@ import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
 import PositionsProvider from '../../contexts/Positions'
 
+import Page from 'components/Page'
+
 import FilterBar from './components/FilterBar'
 import MarketHeader from './components/MarketHeader'
 import OptionsTable from './components/OptionsTable'
@@ -69,46 +71,48 @@ const Market: React.FC = () => {
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <StyledMarket>
-              {active ? (
-                chainId === 4 ? (
-                  <>
-                    <StyledMain>
-                      <MarketHeader marketId={marketId} />
-                      <FilterBar
-                        active={callPutActive}
-                        setCallActive={handleFilter}
-                      />
-                      <OptionsTable
-                        options={mockOptions}
-                        asset="Ethereum"
-                        callActive={callPutActive}
-                      />
-                      <PositionsHeader name="Ethereum" symbol="ETH" />
-                      <PositionsTable
-                        positions={mockOptions}
-                        asset="Ethereum"
-                        callActive={callPutActive}
-                      />
-                    </StyledMain>
-                    <StyledSideBar>
-                      <OrderCard />
-                      <Spacer />
-                      {chainId === 4 ? <TestnetCard /> : <> </>}
-                    </StyledSideBar>{' '}
-                  </>
+            <Page>
+              <StyledMarket>
+                {active ? (
+                  chainId === 4 ? (
+                    <>
+                      <StyledMain>
+                        <MarketHeader marketId={marketId} />
+                        <FilterBar
+                          active={callPutActive}
+                          setCallActive={handleFilter}
+                        />
+                        <OptionsTable
+                          options={mockOptions}
+                          asset="Ethereum"
+                          callActive={callPutActive}
+                        />
+                        <PositionsHeader name="Ethereum" symbol="ETH" />
+                        <PositionsTable
+                          positions={mockOptions}
+                          asset="Ethereum"
+                          callActive={callPutActive}
+                        />
+                      </StyledMain>
+                      <StyledSideBar>
+                        <OrderCard />
+                        <Spacer />
+                        {chainId === 4 ? <TestnetCard /> : <> </>}
+                      </StyledSideBar>{' '}
+                    </>
+                  ) : (
+                    <WaitingRoom>
+                      {' '}
+                      Please connect to the Rinkeby test network.{' '}
+                    </WaitingRoom>
+                  )
                 ) : (
                   <WaitingRoom>
-                    {' '}
-                    Please connect to the Rinkeby test network.{' '}
+                    <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
                   </WaitingRoom>
-                )
-              ) : (
-                <WaitingRoom>
-                  <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
-                </WaitingRoom>
-              )}
-            </StyledMarket>
+                )}
+              </StyledMarket>
+            </Page>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>
@@ -123,17 +127,19 @@ const WaitingRoom = styled.div`
   display: flex;
   font-size: 36px;
   justify-content: center;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  width: 100%;
 `
 
 const StyledMarket = styled.div`
   display: flex;
+  width: 100%;
 `
 
 const StyledSideBar = styled.div`
   border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   box-sizing: border-box;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
   width: 400px;
 `

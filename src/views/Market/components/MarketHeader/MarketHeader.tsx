@@ -37,9 +37,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   useEffect(() => {
     getPrices(name)
     let refreshInterval = setInterval(() => {
-      // getPrices(name)
-      setBlink(true)
-    }, 1000)
+      getPrices(name)
+    }, 10000)
     return () => clearInterval(refreshInterval)
   }, [blink, getPrices, setBlink, name])
 
@@ -139,7 +138,7 @@ const StyledPrice = styled.span<StyledPriceProps>`
     props.size === 'lg' ? 36 : props.size === 'sm' ? 16 : 24}px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
-  text-shadow: ${(props) => (props.blink ? '0px 0px 12px #00ff89' : undefined)};
+  color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
 `
 
 /*
