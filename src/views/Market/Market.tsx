@@ -7,8 +7,6 @@ import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
 import PositionsProvider from '../../contexts/Positions'
 
-import Page from 'components/Page'
-
 import FilterBar from './components/FilterBar'
 import MarketHeader from './components/MarketHeader'
 import OptionsTable from './components/OptionsTable'
@@ -71,48 +69,46 @@ const Market: React.FC = () => {
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <Page>
-              <StyledMarket>
-                {active ? (
-                  chainId === 4 ? (
-                    <>
-                      <StyledMain>
-                        <MarketHeader marketId={marketId} />
-                        <FilterBar
-                          active={callPutActive}
-                          setCallActive={handleFilter}
-                        />
-                        <OptionsTable
-                          options={mockOptions}
-                          asset="Ethereum"
-                          callActive={callPutActive}
-                        />
-                        <PositionsHeader name="Ethereum" symbol="ETH" />
-                        <PositionsTable
-                          positions={mockOptions}
-                          asset="Ethereum"
-                          callActive={callPutActive}
-                        />
-                      </StyledMain>
-                      <StyledSideBar>
-                        <OrderCard />
-                        <Spacer />
-                        {chainId === 4 ? <TestnetCard /> : <> </>}
-                      </StyledSideBar>{' '}
-                    </>
-                  ) : (
-                    <WaitingRoom>
-                      {' '}
-                      Please connect to the Rinkeby test network.{' '}
-                    </WaitingRoom>
-                  )
+            <StyledMarket>
+              {active ? (
+                chainId === 4 ? (
+                  <>
+                    <StyledMain>
+                      <MarketHeader marketId={marketId} />
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={handleFilter}
+                      />
+                      <OptionsTable
+                        options={mockOptions}
+                        asset="Ethereum"
+                        callActive={callPutActive}
+                      />
+                      <PositionsHeader name="Ethereum" symbol="ETH" />
+                      <PositionsTable
+                        positions={mockOptions}
+                        asset="Ethereum"
+                        callActive={callPutActive}
+                      />
+                    </StyledMain>
+                    <StyledSideBar>
+                      <OrderCard />
+                      <Spacer />
+                      {chainId === 4 ? <TestnetCard /> : <> </>}
+                    </StyledSideBar>{' '}
+                  </>
                 ) : (
                   <WaitingRoom>
-                    <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                    {' '}
+                    Please connect to the Rinkeby test network.{' '}
                   </WaitingRoom>
-                )}
-              </StyledMarket>
-            </Page>
+                )
+              ) : (
+                <WaitingRoom>
+                  <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                </WaitingRoom>
+              )}
+            </StyledMarket>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>
