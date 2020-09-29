@@ -6,5 +6,9 @@
   "repository": "https://github.com/primitivefinance/primitive-interface.git",
   "author": "Primitive",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "devDependencies": {
+    "eslint-import-resolver-alias": "^1.1.2"
+  },
+  "dependencies": {}
 }
