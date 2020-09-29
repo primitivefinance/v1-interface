@@ -17,9 +17,13 @@ const Home: React.FC = () => {
         />
         <Container size="lg">
           <Box row justifyContent="center">
-            <Button text="App" />
+            <Button text="App" href="https://app.primitive.finance" />
             <Spacer />
-            <Button text="Documentation" variant="secondary" />
+            <Button
+              text="Documentation"
+              variant="secondary"
+              href="https://docs.primitive.finance"
+            />
           </Box>
         </Container>
       </StyledHero>
