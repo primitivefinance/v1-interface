@@ -2,10 +2,12 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'gatsby'
 
+import Banner from '../../views/Home/assets/primitive-banner-black.png'
+
 const Logo: React.FC = () => {
   return (
     <StyledLogo to="/">
-      <StyledText>PRIMITIVE</StyledText>
+      <img src={Banner} height="96px" alt="primitive banner" />
     </StyledLogo>
   )
 }
