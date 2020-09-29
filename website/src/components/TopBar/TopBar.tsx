@@ -17,7 +17,7 @@ const TopBar: React.FC = () => {
             text="Docs"
             variant="transparent"
           />
-          <Spacer />
+          <Spacer size="sm" />
           <Button href="https://app.primitive.finance" size="md" text="App" />
         </Box>
       </Box>
