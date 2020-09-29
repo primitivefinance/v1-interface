@@ -11,6 +11,12 @@ const TopBar: React.FC = () => {
         <Logo />
         <Box flex={1} />
         <Box alignItems="center" row>
+          <Button
+            href="https://docs.primitive.finance"
+            size="md"
+            text="Docs"
+            variant="transparent"
+          />
           <Spacer />
           <Button href="https://app.primitive.finance" size="md" text="App" />
         </Box>

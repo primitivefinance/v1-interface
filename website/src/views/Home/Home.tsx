@@ -44,7 +44,10 @@ const Home: React.FC = () => {
         <StyledSectionSubtitle>No oracles.</StyledSectionSubtitle>
         <Spacer size="md" />
         <StyledSectionSubtitle>No whitelist.</StyledSectionSubtitle>
-        <Spacer size="lg" />
+        <Spacer size="md" />
+        <IconContainer>
+          <Button text="Sign up for the Beta" />
+        </IconContainer>
         <Spacer size="lg" />
       </Container>
     </Page>

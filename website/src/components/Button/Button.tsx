@@ -80,8 +80,9 @@ const Button: React.FC<ButtonProps> = ({
     case 'transparent':
       background = 'transparent'
       border = `transparent`
-      buttonColor = colors.grey[400]
+      buttonColor = colors.black
       hoverBackgroundColor = 'transparent'
+      hoverColor = colors.grey[400]
       break
     case 'default':
     default:
