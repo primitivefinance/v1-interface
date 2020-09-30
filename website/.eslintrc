@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["src", "./src"],
+          ["pages", "./src/pages"],
+          ["component", "./src/component"],
+          ["hooks", "./src/hooks"],
+          ["views", "./src/views"]
+        ],
+        "extensions": [".js", ".jsx", ".tsx", ".ts"]
+      }
+    }
+  }
+}
