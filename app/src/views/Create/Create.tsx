@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import Button from 'components/Button'
 import Page from 'components/Page'
+import Spacer from 'components/Spacer'
 
 import OrderProvider from '../../contexts/Order'
 import PricesProvider from '../../contexts/Prices'
@@ -67,7 +68,23 @@ const Create: React.FC = () => {
                     )
                   ) : (
                     <WaitingRoom>
-                      <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                      <Spacer size="lg" />
+                      <Button
+                        text="Connect Wallet"
+                        onClick={handleUnlock}
+                      />{' '}
+                      <Spacer size="lg" />
+                      <StyledText>
+                        This interface requires a connection from the browser to
+                        Ethereum.
+                      </StyledText>
+                      <Button
+                        size="sm"
+                        text="Learn More"
+                        variant="transparent"
+                        href="https://ethereum.org/en/wallets/"
+                      />{' '}
+                      <Spacer />
                     </WaitingRoom>
                   )}
                 </StyledMain>
@@ -84,6 +101,10 @@ const StyledMain = styled.div`
   font-size: 36px;
 `
 
+const StyledText = styled.div`
+  font-size: 18px;
+`
+
 const StyledCreate = styled.div`
   align-items: center;
   display: flex;
@@ -94,12 +115,11 @@ const StyledCreate = styled.div`
 const WaitingRoom = styled.div`
   align-items: center;
   display: flex;
+  flex-direction: column;
+  font-size: 36px;
   justify-content: center;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  width: calc(
-    (100vw - ${(props) => props.theme.contentWidth}px) / 4 +
-      ${(props) => props.theme.contentWidth * (1 / 3)}px
-  );
+  width: 100%;
 `
 
 export default Create
