@@ -54,10 +54,11 @@ const Create: React.FC = () => {
                     chainId === 4 ? (
                       <>
                         <WaitingRoom>
-                          {' '}
-                          Primitive is permissionless; anyone can create new
-                          Oracle-less options from the protocol's factory. The
-                          interface for this is being built.{' '}
+                          <StyledText>
+                            Primitive is permissionless; anyone can create new
+                            Oracle-less options from the protocol's factory. The
+                            interface is being built.
+                          </StyledText>
                         </WaitingRoom>
                       </>
                     ) : (

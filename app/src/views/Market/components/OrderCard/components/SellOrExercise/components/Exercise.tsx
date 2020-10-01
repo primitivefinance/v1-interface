@@ -21,6 +21,9 @@ const Exercise: React.FC = () => {
   const tokenAddress = item.address
   const tokenBalance = useTokenBalance(tokenAddress)
 
+  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const stablecoinBalance = useTokenBalance(stablecoinAddress)
+
   const handleExerciseClick = useCallback(() => {
     exerciseOptions(library, item?.address, Number(quantity))
   }, [exerciseOptions, item, library, quantity])
@@ -66,6 +69,11 @@ const Exercise: React.FC = () => {
           {formatBalance(tokenBalance)}{' '}
           <span style={{ fontSize: '11px' }}>Options</span>
         </span>
+      </Box>
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Buying Power" />
+        <span>${formatBalance(stablecoinBalance)} </span>
       </Box>
       <Spacer />
       <Box row justifyContent="space-between">
