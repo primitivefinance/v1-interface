@@ -2,20 +2,17 @@ import React from 'react'
 import styled from 'styled-components'
 
 const Subtitle: React.FC = ({ children }) => {
-  return <StyledSubtitle>{children}</StyledSubtitle>
+  return <StyledSectionSubtitle>{children}</StyledSectionSubtitle>
 }
 
-const StyledSubtitle = styled.h1`
+const StyledSectionSubtitle = styled.div`
   color: ${props => props.theme.textColor};
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 700;
+  opacity: 0.75;
   margin: 0;
-  opacity: 0.66;
   padding: 0;
   text-align: center;
-  @media (max-width: 768px) {
-    text-align: left;
-  }
 `
 
 export default Subtitle

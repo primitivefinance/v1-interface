@@ -85,7 +85,7 @@ const StyledIcon = styled.span.attrs({
 `
 
 const StyledSectionInformation = styled.div`
-  color: ${props => props.theme.colors.black};
+  color: ${props => props.theme.textColor};
   font-size: 14px;
   font-weight: 500;
   opacity: 0.5;
