@@ -1,0 +1,14 @@
+{
+    "ethereum": {
+        "1": "test1",
+        "4": "0xc45c339313533a6c9B05184CD8B5486BC53F75Fb"
+    },
+    "yfi": {
+        "1": "test1",
+        "4": "test4"
+    },
+    "dai": {
+        "1": "testdai",
+        "4": "0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2"
+    }
+}
