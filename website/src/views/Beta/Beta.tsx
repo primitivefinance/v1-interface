@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Container, Box } from 'react-neu'
 
 import Button from 'components/Button'
 import Page from 'components/Page'
 import PageHeader from 'components/PageHeader'
+import { Container, Box } from 'react-neu'
 
 const Beta: React.FC = () => {
   return (
