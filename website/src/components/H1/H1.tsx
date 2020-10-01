@@ -12,9 +12,6 @@ const StyledSectionTitle = styled.div`
   margin: 0;
   padding: 0;
   text-align: center;
-  @media (max-width: 768px) {
-    text-align: left;
-  }
 `
 
 export default H1
