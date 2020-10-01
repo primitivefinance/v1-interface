@@ -26,7 +26,7 @@ const NotifyKey = process.env.REACT_APP_NOTIFY_KEY
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { library, chainId } = useWeb3React()
+  const { library } = useWeb3React()
 
   let notifyInstance
   if (NotifyKey) {
@@ -37,18 +37,18 @@ const Order: React.FC = (props) => {
     })
   }
 
-  const networkIdToUrl = {
+  /* const networkIdToUrl = {
     '1': 'https://etherscan.io/tx',
     '4': 'https://rinkeby.etherscan.io/tx',
-  }
+  } */
 
-  const addEtherscan = (transaction) => {
+  /* const addEtherscan = (transaction) => {
     return {
       message: '',
       onclick: () =>
         window.open(`${networkIdToUrl[chainId || 1]}/${transaction.hash}`),
     }
-  }
+  } */
 
   const handleAddItem = useCallback(
     (item: OrderItem, orderType: OrderType) => {
