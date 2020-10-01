@@ -72,7 +72,7 @@ const Button: React.FC<ButtonProps> = ({
     case 'default':
     default:
       background = color.white
-      buttonColor = color.black
+      buttonColor = color.grey[600]
       border = ''
       hoverBackgroundColor = color.white
       hoverColor = color.black
