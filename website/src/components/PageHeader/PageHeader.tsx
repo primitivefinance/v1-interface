@@ -2,9 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { Container, Spacer } from 'react-neu'
 
-import H1 from 'components/H1'
-import Subtitle from 'components/Subtitle'
-
 interface PageHeaderProps {
   icon: React.ReactNode
   subtitle?: string
@@ -16,9 +13,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ icon, subtitle, title }) => {
     <Container>
       <StyledPageHeader>
         <StyledIcon>{icon}</StyledIcon>
-        <H1>{title}</H1>
+        <StyledTitle>{title}</StyledTitle>
         <Spacer />
-        <Subtitle>{subtitle}</Subtitle>
+        <StyledSubtitle>{subtitle}</StyledSubtitle>
       </StyledPageHeader>
     </Container>
   )
@@ -34,6 +31,31 @@ const StyledIcon = styled.span.attrs({
   min-width: 96px;
   @media (max-width: 768px) {
     font-size: 64px;
+    text-align: left;
+  }
+`
+
+const StyledTitle = styled.h1`
+  color: ${props => props.theme.textColor};
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  @media (max-width: 768px) {
+    text-align: left;
+  }
+`
+
+const StyledSubtitle = styled.h1`
+  color: ${props => props.theme.textColor};
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.66;
+  padding: 0;
+  text-align: center;
+  @media (max-width: 768px) {
     text-align: left;
   }
 `
