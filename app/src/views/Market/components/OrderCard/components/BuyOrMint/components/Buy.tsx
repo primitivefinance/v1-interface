@@ -77,7 +77,7 @@ const Buy: React.FC = () => {
       <Button
         disabled={!quantity}
         full
-        onClick={handleBuyClick}
+        onClick={() => buyOptions(library, item?.address, Number(quantity))}
         text="Continue to Review"
       />
     </>
