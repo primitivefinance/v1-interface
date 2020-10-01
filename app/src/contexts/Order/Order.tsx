@@ -6,6 +6,7 @@ import OrderContext from './context'
 import reducer, { addItem, initialState, changeItem } from './reducer'
 
 import { OrderItem, OrderType } from './types'
+import { Web3Provider } from '@ethersproject/providers'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -69,9 +70,9 @@ const Order: React.FC = (props) => {
   )
 
   const handleBuyOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
@@ -91,9 +92,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleSellOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
@@ -113,9 +114,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleMintOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
     let account = await signer.getAddress()
@@ -134,9 +135,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleExerciseOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
     let account = await signer.getAddress()
@@ -155,9 +156,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleRedeemOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
     let account = await signer.getAddress()
@@ -176,9 +177,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleCloseOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
     let account = await signer.getAddress()
@@ -197,7 +198,7 @@ const Order: React.FC = (props) => {
   }
 
   const handleCreateOption = async (
-    provider,
+    provider: Web3Provider,
     asset,
     isCallType,
     expiry,
@@ -220,9 +221,9 @@ const Order: React.FC = (props) => {
   }
 
   const handleMintTestTokens = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
     let account = await signer.getAddress()
