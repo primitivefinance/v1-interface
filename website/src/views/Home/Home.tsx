@@ -24,7 +24,6 @@ const Home: React.FC = () => {
         </Container>
       </StyledHero>
       <Container size="lg">
-        <StyledSectionInformation>Learn more below.</StyledSectionInformation>
         <Spacer size="lg" />
         <Separator />
         <Spacer size="lg" />
@@ -84,16 +83,6 @@ const StyledSectionSubtitle = styled.div`
   font-size: 24px;
   font-weight: 700;
   opacity: 0.75;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-`
-
-const StyledSectionInformation = styled.div`
-  color: ${props => props.theme.colors.black};
-  font-size: 14px;
-  font-weight: 500;
-  opacity: 0.5;
   margin: 0;
   padding: 0;
   text-align: center;
