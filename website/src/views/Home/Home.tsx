@@ -47,7 +47,10 @@ const Home: React.FC = () => {
         <StyledSubtitle>No whitelist.</StyledSubtitle>
         <Spacer size="lg" />
         <IconContainer>
-          <Button to="beta" text="Join the Open Beta" />
+          <Button
+            href="https://primitive.finance/beta"
+            text="Join the Open Beta"
+          />
         </IconContainer>
         <Spacer size="lg" />
       </Container>
@@ -109,7 +112,7 @@ const StyledSubtitle = styled.h1`
   }
 `
 
-const StyledSectionInformation = styled.div`
+const StyledSectionInformation = styled.h1`
   color: ${props => props.theme.textColor};
   font-size: 14px;
   font-weight: 500;
