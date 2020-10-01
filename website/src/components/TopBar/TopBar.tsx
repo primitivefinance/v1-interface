@@ -12,6 +12,11 @@ const TopBar: React.FC = () => {
         <Box flex={1} />
         <Box alignItems="center" row>
           <Button
+            text="Discord"
+            variant="transparent"
+            href="https://discord.gg/JBM6APT"
+          />
+          <Button
             href="https://docs.primitive.finance"
             size="md"
             text="Docs"

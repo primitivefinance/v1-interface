@@ -19,17 +19,12 @@ const Home: React.FC = () => {
         />
         <Container size="lg">
           <Box row justifyContent="center">
-            <Button text="App" href="https://app.primitive.finance" />
-            <Spacer />
-            <Button
-              text="Join the Discord"
-              variant="secondary"
-              href="https://discord.gg/JBM6APT"
-            />
+            <Button text="Start Trading" href="https://app.primitive.finance" />
           </Box>
         </Container>
       </StyledHero>
       <Container size="lg">
+        <StyledSectionInformation>Learn more below.</StyledSectionInformation>
         <Spacer size="lg" />
         <Separator />
         <Spacer size="lg" />
@@ -37,16 +32,20 @@ const Home: React.FC = () => {
           <img src={Leaf} height="124px" alt="vines" />
         </IconContainer>
         <Spacer size="md" />
-        <StyledSectionTitle>Physically settled options.</StyledSectionTitle>
+        <StyledSectionTitle>
+          A protocol built on Ethereum for decentralized options.
+        </StyledSectionTitle>
         <Spacer size="md" />
         <StyledSectionSubtitle>No admin keys.</StyledSectionSubtitle>
         <Spacer size="md" />
         <StyledSectionSubtitle>No oracles.</StyledSectionSubtitle>
         <Spacer size="md" />
-        <StyledSectionSubtitle>No whitelist.</StyledSectionSubtitle>
+        <StyledSectionSubtitle>No signup.</StyledSectionSubtitle>
         <Spacer size="md" />
+        <StyledSectionSubtitle>No whitelist.</StyledSectionSubtitle>
+        <Spacer size="lg" />
         <IconContainer>
-          <Button text="Sign up for the Beta" />
+          <Button text="Join the Open Beta" />
         </IconContainer>
         <Spacer size="lg" />
       </Container>
@@ -81,8 +80,18 @@ const StyledSectionTitle = styled.div`
 const StyledSectionSubtitle = styled.div`
   color: ${props => props.theme.colors.black};
   font-size: 24px;
-  font-weight: 700;
-  opacity: 0.75;
+  font-weight: 500;
+  opacity: 0.66;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+`
+
+const StyledSectionInformation = styled.div`
+  color: ${props => props.theme.colors.black};
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.5;
   margin: 0;
   padding: 0;
   text-align: center;

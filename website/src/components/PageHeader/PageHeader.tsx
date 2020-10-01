@@ -59,7 +59,7 @@ const StyledTitle = styled.h1`
 const StyledSubtitle = styled.h1`
   color: ${props => props.theme.textColor};
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 500;
   margin: 0;
   opacity: 0.66;
   padding: 0;
