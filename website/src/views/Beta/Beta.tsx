@@ -3,54 +3,28 @@ import styled from 'styled-components'
 
 import Button from 'components/Button'
 import H1 from 'components/H1'
+import Subtitle from 'components/Subtitle'
 import Page from 'components/Page'
 import PageHeader from 'components/PageHeader'
-import Subtitle from 'components/Subtitle'
 import { Container, Box, Spacer, Separator } from 'react-neu'
 
-import Leaf from './assets/greek-leaf.png'
-
-const Home: React.FC = () => {
+const Beta: React.FC = () => {
   return (
     <Page>
       <StyledHero>
         <PageHeader
           icon={''}
-          title="Options for a permissionless future."
-          subtitle="Decentralized, open, and easy."
+          title="The Open Beta is an 8-week event starting in October."
+          subtitle="Trading on the supported networks makes you eligible for non-monetary NFT rewards. 
+          The available rewards and event guide will be posted on the Primitive discord
+          first, then updated on this page."
         />
         <Container size="lg">
           <Box row justifyContent="center">
-            <Button text="Start Trading" href="https://app.primitive.finance" />
+            <Button text="Join the Discord" href="https://discord.gg/JBM6APT" />
           </Box>
         </Container>
       </StyledHero>
-      <Container size="lg">
-        <StyledSectionInformation>Learn more below.</StyledSectionInformation>
-        <Spacer size="lg" />
-        <Separator />
-        <Spacer size="lg" />
-        <IconContainer>
-          <StyledIcon>
-            <img src={Leaf} height="124px" alt="vines" />
-          </StyledIcon>
-        </IconContainer>
-        <Spacer size="md" />
-        <H1>A protocol built on Ethereum for decentralized options.</H1>
-        <Spacer size="md" />
-        <Subtitle>No admin keys.</Subtitle>
-        <Spacer size="md" />
-        <Subtitle>No oracles.</Subtitle>
-        <Spacer size="md" />
-        <Subtitle>No signup.</Subtitle>
-        <Spacer size="md" />
-        <Subtitle>No whitelist.</Subtitle>
-        <Spacer size="lg" />
-        <IconContainer>
-          <Button to="beta" text="Join the Open Beta" />
-        </IconContainer>
-        <Spacer size="lg" />
-      </Container>
     </Page>
   )
 }
@@ -94,4 +68,4 @@ const StyledSectionInformation = styled.div`
   text-align: center;
 `
 
-export default Home
+export default Beta
