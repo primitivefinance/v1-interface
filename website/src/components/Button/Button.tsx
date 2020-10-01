@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import { Link } from 'gatsby'
 import { ThemeContext } from 'react-neu'
 
 export interface ButtonProps {
@@ -89,8 +89,8 @@ const Button: React.FC<ButtonProps> = ({
       background = colors.white
       buttonColor = colors.black
       border = ''
-      hoverBackgroundColor = colors.white
-      hoverColor = colors.black
+      hoverBackgroundColor = colors.black
+      hoverColor = colors.white
   }
 
   const ButtonChild = useMemo(() => {

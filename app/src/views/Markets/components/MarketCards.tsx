@@ -68,7 +68,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             <Button
               disabled={!poolActive}
               full
-              text="Select"
+              text="Continue"
               to={`/markets/${market.id}`}
             />
           </StyledContent>

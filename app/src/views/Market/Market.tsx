@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 
+import Spacer from 'components/Spacer'
+import Button from 'components/Button'
+
 import OrderProvider from '../../contexts/Order'
 import PricesProvider from '../../contexts/Prices'
 import OptionsProvider from '../../contexts/Options'
@@ -14,8 +17,6 @@ import PositionsTable from './components/PositionsTable'
 import OrderCard from './components/OrderCard'
 import TestnetCard from './components/TestnetCard'
 import PositionsHeader from './components/PositionsHeader'
-import Spacer from 'components/Spacer'
-import Button from 'components/Button'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -105,7 +106,20 @@ const Market: React.FC = () => {
                 )
               ) : (
                 <WaitingRoom>
-                  <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                  <Spacer size="lg" />
+                  <Button text="Connect Wallet" onClick={handleUnlock} />{' '}
+                  <Spacer size="lg" />
+                  <StyledText>
+                    This interface requires a connection from the browser to
+                    Ethereum.
+                  </StyledText>
+                  <Button
+                    size="sm"
+                    text="Learn More"
+                    variant="transparent"
+                    href="https://ethereum.org/en/wallets/"
+                  />{' '}
+                  <Spacer />
                 </WaitingRoom>
               )}
             </StyledMarket>
@@ -118,9 +132,14 @@ const Market: React.FC = () => {
 
 const StyledMain = styled.div``
 
+const StyledText = styled.div`
+  font-size: 18px;
+`
+
 const WaitingRoom = styled.div`
   align-items: center;
   display: flex;
+  flex-direction: column;
   font-size: 36px;
   justify-content: center;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);

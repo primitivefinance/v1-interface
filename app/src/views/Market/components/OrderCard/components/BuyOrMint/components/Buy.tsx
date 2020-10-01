@@ -9,11 +9,17 @@ import Label from 'components/Label'
 import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
+import useTokenBalance from 'hooks/useTokenBalance'
+
+import formatBalance from '../../../../../../../utils/formatBalance'
 
 const Buy: React.FC = () => {
   const { buyOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
+
+  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const tokenBalance = useTokenBalance(stablecoinAddress)
 
   const handleBuyClick = useCallback(() => {
     buyOptions(library, item?.address, Number(quantity))
@@ -58,7 +64,7 @@ const Buy: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Buying Power" />
-        <span>${buyingPower.toFixed(2)}</span>
+        <span>${formatBalance(tokenBalance)}</span>
       </Box>
       <Spacer />
       <Box row justifyContent="space-between">

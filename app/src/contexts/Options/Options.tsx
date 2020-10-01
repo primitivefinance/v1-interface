@@ -1,13 +1,17 @@
 import React, { useCallback, useReducer } from 'react'
+import ethers from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import {
-  Token,
   Fetcher,
-  Trade,
+  Pair,
+  Token,
   TokenAmount,
+  Trade,
   TradeType,
   Route,
 } from '@uniswap/sdk'
+
+import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -60,7 +64,25 @@ const Options: React.FC = (props) => {
     const OPTION = new Token(chain, optionAddress, 18)
     const STABLECOIN = new Token(chain, stablecoinAddress, 18)
 
-    const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
+    // Fetcher currently calls default provider, which leads to post errors.
+    //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
+
+    const tokenA = STABLECOIN
+    const tokenB = OPTION
+    const address = Pair.getAddress(tokenA, tokenB)
+    const [reserves0, reserves1] = await new ethers.Contract(
+      address,
+      IUniswapV2Pair.abi,
+      provider
+    ).getReserves()
+    const balances = tokenA.sortsBefore(tokenB)
+      ? [reserves0, reserves1]
+      : [reserves1, reserves0]
+    const pair = new Pair(
+      new TokenAmount(tokenA, balances[0]),
+      new TokenAmount(tokenB, balances[1])
+    )
+
     const route = new Route([pair], STABLECOIN, OPTION)
     const midPrice = Number(route.midPrice.toSignificant(6))
 
@@ -117,6 +139,7 @@ const Options: React.FC = (props) => {
         // Get the option price data from uniswap pair.
         const { premium } = await getPairData(provider, address)
         price = premium
+        /* price = 1 */
 
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
         // If a call, set the strike to the quote. If a put, set the strike to the base.
