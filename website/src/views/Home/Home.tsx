@@ -1,12 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Container, Box, Spacer, Separator } from 'react-neu'
 
 import Button from 'components/Button'
 import H1 from 'components/H1'
 import Page from 'components/Page'
 import PageHeader from 'components/PageHeader'
 import Subtitle from 'components/Subtitle'
-import { Container, Box, Spacer, Separator } from 'react-neu'
 
 import Leaf from './assets/greek-leaf.png'
 

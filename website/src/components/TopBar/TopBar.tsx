@@ -1,6 +1,6 @@
 import React from 'react'
-
 import { Box, Container, Spacer } from 'react-neu'
+
 import Button from 'components/Button'
 import Logo from 'components/Logo'
 
