@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Container, Box, Spacer, Separator } from 'react-neu'
 
 import Button from 'components/Button'
 import Page from 'components/Page'
 import PageHeader from 'components/PageHeader'
+import { Container, Box, Spacer, Separator } from 'react-neu'
 
 import Leaf from './assets/greek-leaf.png'
 
@@ -18,7 +18,7 @@ const Home: React.FC = () => {
           subtitle="Decentralized, open, and easy."
         />
         <Container size="lg">
-          <Box row justifyContent="center">
+          <Box row justifyContent="center" flex="1">
             <Button text="Start Trading" href="https://app.primitive.finance" />
           </Box>
         </Container>
@@ -46,12 +46,11 @@ const Home: React.FC = () => {
         <Spacer size="md" />
         <StyledSubtitle>No whitelist.</StyledSubtitle>
         <Spacer size="lg" />
-        <IconContainer>
-          <Button
-            href="https://primitive.finance/beta"
-            text="Join the Open Beta"
-          />
-        </IconContainer>
+        <Container size="lg">
+          <Box row justifyContent="center" flex="1">
+            <Button to="/beta" text="Join the Open Beta" />
+          </Box>
+        </Container>
         <Spacer size="lg" />
       </Container>
     </Page>
