@@ -35,6 +35,15 @@ const StyledIcon = styled.span.attrs({
   }
 `
 
+const StyledPageHeader = styled.div`
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: ${props => props.theme.spacing[6]}px;
+  margin: 0 auto;
+`
+
 const StyledTitle = styled.h1`
   color: ${props => props.theme.textColor};
   font-size: 36px;
@@ -58,15 +67,6 @@ const StyledSubtitle = styled.h1`
   @media (max-width: 768px) {
     text-align: left;
   }
-`
-
-const StyledPageHeader = styled.div`
-  align-items: center;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: ${props => props.theme.spacing[6]}px;
-  margin: 0 auto;
 `
 
 export default PageHeader

@@ -29,22 +29,20 @@ const Home: React.FC = () => {
         <Separator />
         <Spacer size="lg" />
         <IconContainer>
-          <StyledIcon>
-            <img src={Leaf} height="124px" alt="vines" />
-          </StyledIcon>
+          <img src={Leaf} height="124px" alt="vines" />
         </IconContainer>
         <Spacer size="md" />
-        <StyledTitle>
+        <StyledSectionTitle>
           A protocol built on Ethereum for decentralized options.
-        </StyledTitle>
+        </StyledSectionTitle>
         <Spacer size="md" />
-        <StyledSubtitle>No admin keys.</StyledSubtitle>
+        <StyledSectionSubtitle>No admin keys.</StyledSectionSubtitle>
         <Spacer size="md" />
-        <StyledSubtitle>No oracles.</StyledSubtitle>
+        <StyledSectionSubtitle>No oracles.</StyledSectionSubtitle>
         <Spacer size="md" />
-        <StyledSubtitle>No signup.</StyledSubtitle>
+        <StyledSectionSubtitle>No signup.</StyledSectionSubtitle>
         <Spacer size="md" />
-        <StyledSubtitle>No whitelist.</StyledSubtitle>
+        <StyledSectionSubtitle>No whitelist.</StyledSectionSubtitle>
         <Spacer size="lg" />
         <Container size="lg">
           <Box row justifyContent="center" flex="1">
@@ -72,47 +70,27 @@ const IconContainer = styled.div`
   justify-content: center;
 `
 
-const StyledIcon = styled.span.attrs({
-  role: 'img',
-})`
-  font-size: 96px;
-  min-height: 96px;
-  line-height: 96px;
-  text-align: center;
-  min-width: 96px;
-  @media (max-width: 768px) {
-    font-size: 64px;
-    text-align: left;
-  }
-`
-
-const StyledTitle = styled.h1`
-  color: ${props => props.theme.textColor};
+const StyledSectionTitle = styled.div`
+  color: ${props => props.theme.colors.black};
   font-size: 36px;
   font-weight: 700;
   margin: 0;
   padding: 0;
   text-align: center;
-  @media (max-width: 768px) {
-    text-align: left;
-  }
 `
 
-const StyledSubtitle = styled.h1`
-  color: ${props => props.theme.textColor};
-  font-size: 18px;
-  font-weight: 400;
+const StyledSectionSubtitle = styled.div`
+  color: ${props => props.theme.colors.black};
+  font-size: 24px;
+  font-weight: 700;
+  opacity: 0.75;
   margin: 0;
-  opacity: 0.66;
   padding: 0;
   text-align: center;
-  @media (max-width: 768px) {
-    text-align: left;
-  }
 `
 
-const StyledSectionInformation = styled.h1`
-  color: ${props => props.theme.textColor};
+const StyledSectionInformation = styled.div`
+  color: ${props => props.theme.colors.black};
   font-size: 14px;
   font-weight: 500;
   opacity: 0.5;
