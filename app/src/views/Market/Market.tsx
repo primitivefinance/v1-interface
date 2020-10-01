@@ -105,7 +105,7 @@ const Market: React.FC = () => {
                 )
               ) : (
                 <WaitingRoom>
-                  <Button text="Unlock wallet" onClick={handleUnlock} />{' '}
+                  <Button text="Connect Wallet" onClick={handleUnlock} />{' '}
                 </WaitingRoom>
               )}
             </StyledMarket>
