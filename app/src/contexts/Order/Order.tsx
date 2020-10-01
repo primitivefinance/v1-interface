@@ -73,7 +73,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -87,7 +87,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -100,7 +100,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await mint(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -113,7 +113,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await exercise(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -126,7 +126,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await redeem(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -139,7 +139,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await close(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -154,7 +154,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await create(signer, asset, isCallType, expiry, strike)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
@@ -167,7 +167,7 @@ const Order: React.FC = (props) => {
     let signer = await provider.getSigner()
 
     let tx = await mintTestToken(signer, optionAddress, quantity)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
   }
