@@ -37,7 +37,7 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
           <StyledTitle>
             Earn NFT Rewards
             <Button
-              href="https://blog.primitive.finance"
+              href="https://primitive.finance/beta"
               variant="transparent"
               text="Learn more"
               size="sm"
@@ -46,7 +46,7 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
               <LaunchIcon fontSize="small" />
             </Button>
           </StyledTitle>
-          Click the select button next to the options to add to your order.
+          Click the open button next to the options to trade.
           <Spacer />
           <StyledTitle>1.</StyledTitle>
           <Button
@@ -58,7 +58,7 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
           <StyledTitle>2.</StyledTitle>
           <Button
             onClick={handleMintTestTokens}
-            text={'Give Feedback'}
+            text={'Make a Trade'}
             variant="default"
             disabled
           />
@@ -66,7 +66,7 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
           <StyledTitle>3.</StyledTitle>
           <Button
             onClick={handleMintTestTokens}
-            text={'Claim NFT'}
+            text={'Claim NFT Reward'}
             variant="default"
             disabled
           />

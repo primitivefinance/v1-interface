@@ -10,15 +10,15 @@ import { useWeb3React } from '@web3-react/core'
 import { OrderItem } from '../../../../contexts/Order/types'
 import { destructureOptionSymbol } from 'lib/utils'
 
-import Timer from '../Timer'
-import EmptyTable from '../EmptyTable'
 import Button from 'components/Button'
+import EmptyTable from '../EmptyTable'
+import FilledBar from '../FilledBar'
 import LitContainer from 'components/LitContainer'
 import Table from 'components/Table'
 import TableBody from 'components/TableBody'
 import TableCell from 'components/TableCell'
 import TableRow from 'components/TableRow'
-import FilledBar from '../FilledBar'
+import Timer from '../Timer'
 
 export type FormattedOption = {
   breakEven: number

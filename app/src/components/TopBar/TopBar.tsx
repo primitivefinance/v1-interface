@@ -5,9 +5,9 @@ import styled from 'styled-components'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import NotificationsIcon from '@material-ui/icons/Notifications'
 
-import Container from '../Container'
-import IconButton from '../IconButton'
-import Logo from '../Logo'
+import Container from 'components/Container'
+import IconButton from 'components/IconButton'
+import Logo from 'components/Logo'
 
 import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
 
@@ -91,6 +91,7 @@ const StyledTopBar = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
+  flex-direction: column;
   height: 72px;
 `
 

@@ -7,8 +7,6 @@ import Card from 'components/Card'
 import CardContent from 'components/CardContent'
 import CardTitle from 'components/CardTitle'
 
-import Available from '../Available'
-
 const EmptyOrder: React.FC = () => (
   <Card>
     <CardTitle>Your order</CardTitle>
@@ -18,9 +16,8 @@ const EmptyOrder: React.FC = () => (
           <AddIcon />
         </StyledEmptyIcon>
         <StyledEmptyMessage>
-          Click the select button next to the options to add to your order.
+          Click the open button next to the options to trade.
         </StyledEmptyMessage>
-        <Available>$250,000 Buying Power</Available>
       </StyledEmptyContent>
     </CardContent>
   </Card>

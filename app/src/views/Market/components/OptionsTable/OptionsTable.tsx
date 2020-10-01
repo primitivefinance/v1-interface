@@ -11,11 +11,11 @@ import { formatAddress } from '../../../../utils'
 
 import Button from 'components/Button'
 import EmptyTable from '../EmptyTable'
-import LitContainer from '../../../../components/LitContainer'
-import Table from '../../../../components/Table'
-import TableBody from '../../../../components/TableBody'
-import TableCell from '../../../../components/TableCell'
-import TableRow from '../../../../components/TableRow'
+import LitContainer from 'components/LitContainer'
+import Table from 'components/Table'
+import TableBody from 'components/TableBody'
+import TableCell from 'components/TableCell'
+import TableRow from 'components/TableRow'
 
 export type FormattedOption = {
   breakEven: number

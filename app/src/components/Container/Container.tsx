@@ -26,9 +26,9 @@ interface StyleProps {
 const StyledContainer = styled.div<StyleProps>`
   align-items: ${(props) => props.alignItems};
   display: ${(props) => props.display};
-  flexdirection: ${(props) => props.flexDirection};
+  flex-direction: ${(props) => props.flexDirection};
   height: ${(props) => (props.height ? props.height + 'px' : undefined)};
-  justifycontent: ${(props) => props.justifyContent};
+  justify-content: ${(props) => props.justifyContent};
   margin: 0 auto;
   max-width: 1200px;
   width: 100%;

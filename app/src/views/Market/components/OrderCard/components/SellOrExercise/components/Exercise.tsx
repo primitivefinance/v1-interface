@@ -9,11 +9,20 @@ import Label from 'components/Label'
 import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
+import useTokenBalance from 'hooks/useTokenBalance'
+
+import formatBalance from '../../../../../../../utils/formatBalance'
 
 const Exercise: React.FC = () => {
   const { exerciseOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
+
+  const tokenAddress = item.address
+  const tokenBalance = useTokenBalance(tokenAddress)
+
+  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const stablecoinBalance = useTokenBalance(stablecoinAddress)
 
   const handleExerciseClick = useCallback(() => {
     exerciseOptions(library, item?.address, Number(quantity))
@@ -31,11 +40,9 @@ const Exercise: React.FC = () => {
     [setQuantity]
   )
 
-  let purchasePower = 100000
-
   const handleSetMax = () => {
     let max =
-      Math.round((purchasePower / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
 
@@ -55,6 +62,19 @@ const Exercise: React.FC = () => {
         value={`${quantity}`}
         endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Exercising Power" />
+        <span>
+          {formatBalance(tokenBalance)}{' '}
+          <span style={{ fontSize: '11px' }}>Options</span>
+        </span>
+      </Box>
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Buying Power" />
+        <span>${formatBalance(stablecoinBalance)} </span>
+      </Box>
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Total Cost" />

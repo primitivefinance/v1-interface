@@ -119,8 +119,8 @@ const Markets: React.FC = () => {
         <Route exact path={path}>
           <PageHeader
             icon={days[day]}
-            subtitle="Oracle-less options."
-            title="Select an option market."
+            title="Choose an option market."
+            subtitle="View available options and trade."
           />
           <MarketCards />
         </Route>

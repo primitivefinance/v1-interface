@@ -21,9 +21,7 @@ const BuyOrMint: React.FC = () => {
     setBuyCard(!buyCard)
   }, [buyCard, setBuyCard])
 
-  const { asset, month, day, type, strike } = destructureOptionSymbol(
-    item.id
-  )
+  const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
 
   const title = useMemo(() => {
     if (buyCard) {
@@ -39,10 +37,10 @@ const BuyOrMint: React.FC = () => {
   return (
     <Card border>
       <CardContent>
-      <StyledTitle>{title}</StyledTitle>
+        <StyledTitle>{title}</StyledTitle>
         <Toggle>
           <ToggleButton active={buyCard} onClick={handleToggle} text="Buy" />
-          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint + Sell" />
+          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint" />
         </Toggle>
         {buyCard ? <Buy /> : <Mint />}
       </CardContent>

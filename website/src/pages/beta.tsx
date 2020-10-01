@@ -1,8 +1,9 @@
 import React from 'react'
+import { Link } from 'gatsby'
 import { createTheme, ThemeProvider } from 'react-neu'
 
 import TopBar from 'components/TopBar'
-import Home from 'views/Home'
+import Beta from 'views/Beta'
 
 export default function Index() {
   const { dark, light } = createTheme({
@@ -12,7 +13,7 @@ export default function Index() {
   return (
     <ThemeProvider darkTheme={dark} lightTheme={light}>
       <TopBar />
-      <Home />
+      <Beta />
     </ThemeProvider>
   )
 }

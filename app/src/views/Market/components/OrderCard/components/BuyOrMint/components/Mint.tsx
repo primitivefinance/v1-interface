@@ -9,11 +9,17 @@ import Label from 'components/Label'
 import Spacer from 'components/Spacer'
 
 import useOrders from 'hooks/useOrders'
+import useTokenBalance from 'hooks/useTokenBalance'
+
+import formatBalance from '../../../../../../../utils/formatBalance'
 
 const Mint: React.FC = () => {
   const { mintOptions, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
+
+  const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb' // Fix - should not be hardcode
+  const tokenBalance = useTokenBalance(testEthAddress)
 
   const handleMintClick = useCallback(() => {
     mintOptions(library, item?.address, Number(quantity))
@@ -31,11 +37,9 @@ const Mint: React.FC = () => {
     [setQuantity]
   )
 
-  let purchasePower = 100000
-
   const handleSetMax = () => {
     let max =
-      Math.round((purchasePower / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
 
@@ -55,6 +59,11 @@ const Mint: React.FC = () => {
         value={`${quantity}`}
         endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+      <Spacer />
+      <Box row justifyContent="space-between">
+        <Label text="Minting Power" />
+        <span>{formatBalance(tokenBalance)} ETH</span>
+      </Box>
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Total Credit" />
