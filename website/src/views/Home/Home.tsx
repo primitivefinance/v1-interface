@@ -3,10 +3,8 @@ import styled from 'styled-components'
 import { Container, Box, Spacer, Separator } from 'react-neu'
 
 import Button from 'components/Button'
-import H1 from 'components/H1'
 import Page from 'components/Page'
 import PageHeader from 'components/PageHeader'
-import Subtitle from 'components/Subtitle'
 
 import Leaf from './assets/greek-leaf.png'
 
@@ -36,15 +34,17 @@ const Home: React.FC = () => {
           </StyledIcon>
         </IconContainer>
         <Spacer size="md" />
-        <H1>A protocol built on Ethereum for decentralized options.</H1>
+        <StyledTitle>
+          A protocol built on Ethereum for decentralized options.
+        </StyledTitle>
         <Spacer size="md" />
-        <Subtitle>No admin keys.</Subtitle>
+        <StyledSubtitle>No admin keys.</StyledSubtitle>
         <Spacer size="md" />
-        <Subtitle>No oracles.</Subtitle>
+        <StyledSubtitle>No oracles.</StyledSubtitle>
         <Spacer size="md" />
-        <Subtitle>No signup.</Subtitle>
+        <StyledSubtitle>No signup.</StyledSubtitle>
         <Spacer size="md" />
-        <Subtitle>No whitelist.</Subtitle>
+        <StyledSubtitle>No whitelist.</StyledSubtitle>
         <Spacer size="lg" />
         <IconContainer>
           <Button to="beta" text="Join the Open Beta" />
@@ -80,6 +80,31 @@ const StyledIcon = styled.span.attrs({
   min-width: 96px;
   @media (max-width: 768px) {
     font-size: 64px;
+    text-align: left;
+  }
+`
+
+const StyledTitle = styled.h1`
+  color: ${props => props.theme.textColor};
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  @media (max-width: 768px) {
+    text-align: left;
+  }
+`
+
+const StyledSubtitle = styled.h1`
+  color: ${props => props.theme.textColor};
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.66;
+  padding: 0;
+  text-align: center;
+  @media (max-width: 768px) {
     text-align: left;
   }
 `
