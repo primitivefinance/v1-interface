@@ -71,16 +71,11 @@ const Order: React.FC = (props) => {
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleSellOptions = async (
@@ -90,16 +85,11 @@ const Order: React.FC = (props) => {
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleMintOptions = async (
@@ -108,16 +98,11 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await mint(signer, quantity, optionAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleExerciseOptions = async (
@@ -126,16 +111,11 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await exercise(signer, quantity, optionAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleRedeemOptions = async (
@@ -144,16 +124,11 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await redeem(signer, quantity, optionAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleCloseOptions = async (
@@ -162,16 +137,11 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await close(signer, quantity, optionAddress)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleCreateOption = async (
@@ -182,16 +152,11 @@ const Order: React.FC = (props) => {
     strike
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await create(signer, asset, isCallType, expiry, strike)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleMintTestTokens = async (
@@ -200,16 +165,11 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     let signer = await provider.getSigner()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      gasPrice,
-    })
     let tx = await mintTestToken(signer, optionAddress, quantity)
     if (tx) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const loadPendingTx = useCallback(async () => {
