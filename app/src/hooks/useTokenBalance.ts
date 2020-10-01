@@ -21,7 +21,7 @@ const useTokenBalance = (tokenAddress: string) => {
       let refreshInterval = setInterval(fetchBalance, 10000)
       return () => clearInterval(refreshInterval)
     }
-  }, [account, library, setBalance, tokenAddress])
+  }, [account, library, setBalance, tokenAddress, fetchBalance])
 
   return balance
 }

@@ -1,15 +1,7 @@
 import React, { useCallback, useReducer } from 'react'
 import ethers from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import {
-  Fetcher,
-  Pair,
-  Token,
-  TokenAmount,
-  Trade,
-  TradeType,
-  Route,
-} from '@uniswap/sdk'
+import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 
