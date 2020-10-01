@@ -1,48 +1,50 @@
+import { Web3Provider } from '@ethersproject/providers'
+
 export interface OrderContextValues {
   item: OrderItem
   orderType: OrderType
   onAddItem: (item: OrderItem, orderType: OrderType) => void
   onChangeItem: (item: OrderItem, orderType: OrderType) => void
   buyOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   sellOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   mintOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   exerciseOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   redeemOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   closeOptions: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => Promise<void>
   loadPendingTx: () => void
   createOption: (
-    provider: any,
+    provider: Web3Provider,
     asset: string,
     isCallType: boolean,
     expiry: string,
     strike: number
   ) => Promise<void>
   mintTestTokens: (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
     quantity: number
   ) => Promise<void>

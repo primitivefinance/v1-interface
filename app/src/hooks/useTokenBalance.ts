@@ -11,7 +11,6 @@ const useTokenBalance = (tokenAddress: string) => {
 
   const fetchBalance = useCallback(async () => {
     const balance = await getBalance(library, tokenAddress, account)
-    console.log('Balance', balance.toString(), formatEther(balance).toString())
     setBalance(formatEther(balance).toString())
   }, [account, library, tokenAddress])
 

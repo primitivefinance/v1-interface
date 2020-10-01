@@ -6,6 +6,7 @@ import OrderContext from './context'
 import reducer, { addItem, initialState, changeItem } from './reducer'
 
 import { OrderItem, OrderType } from './types'
+import { Web3Provider } from '@ethersproject/providers'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -25,7 +26,7 @@ const NotifyKey = process.env.REACT_APP_NOTIFY_KEY
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { library, chainId } = useWeb3React()
+  const { library } = useWeb3React()
 
   let notifyInstance
   if (NotifyKey) {
@@ -36,23 +37,18 @@ const Order: React.FC = (props) => {
     })
   }
 
-  const networkIdToUrl = {
+  /* const networkIdToUrl = {
     '1': 'https://etherscan.io/tx',
     '4': 'https://rinkeby.etherscan.io/tx',
-  }
+  } */
 
-  const getBalance = async (account) => {
-    let balance = await library.getBalance(account)
-    return balance
-  }
-
-  const addEtherscan = (transaction) => {
+  /* const addEtherscan = (transaction) => {
     return {
       message: '',
       onclick: () =>
         window.open(`${networkIdToUrl[chainId || 1]}/${transaction.hash}`),
     }
-  }
+  } */
 
   const handleAddItem = useCallback(
     (item: OrderItem, orderType: OrderType) => {
@@ -69,175 +65,111 @@ const Order: React.FC = (props) => {
   )
 
   const handleBuyOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleSellOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleMintOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await mint(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleExerciseOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await exercise(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleRedeemOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await redeem(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleCloseOptions = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await close(signer, quantity, optionAddress)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleCreateOption = async (
-    provider,
+    provider: Web3Provider,
     asset,
     isCallType,
     expiry,
     strike
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await create(signer, asset, isCallType, expiry, strike)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const handleMintTestTokens = async (
-    provider,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: any
+    quantity: number
   ) => {
     let signer = await provider.getSigner()
-    let account = await signer.getAddress()
-    const balance = (await getBalance(account)).toString()
-    const gasPrice = provider.getGasPrice
 
-    const { emitter } = notifyInstance.transaction({
-      balance,
-      gasPrice,
-    })
     let tx = await mintTestToken(signer, optionAddress, quantity)
-    if (tx) {
+    if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
-    emitter.on('all', addEtherscan)
   }
 
   const loadPendingTx = useCallback(async () => {

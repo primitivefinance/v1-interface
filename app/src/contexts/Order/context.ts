@@ -2,6 +2,7 @@ import { createContext } from 'react'
 
 import { OrderContextValues, OrderItem, OrderType } from './types'
 import { EmptyAttributes } from '../Options/types'
+import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({
   item: EmptyAttributes,
@@ -9,47 +10,47 @@ const OrderContext = createContext<OrderContextValues>({
   onAddItem: (item: OrderItem, orderType: OrderType) => {},
   onChangeItem: (item: OrderItem, orderType: OrderType) => {},
   buyOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   sellOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   mintOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   exerciseOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   redeemOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   closeOptions: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
   loadPendingTx: () => {},
   createOption: async (
-    provider: any,
+    provider: Web3Provider,
     asset: string,
     isCallType: boolean,
     expiry: string,
     strike: number
   ) => {},
   mintTestTokens: async (
-    provider: any,
+    provider: Web3Provider,
     optionAddress: string,
-    quantity: number | undefined
+    quantity: number
   ) => {},
 })
 
