@@ -17,7 +17,7 @@ const Portfolio: React.FC = () => {
             <Page>
               <StyledPortfolio>
                 <StyledMain>Soon</StyledMain>
-              </StyledPortfolio>
+               </StyledPortfolio>
             </Page>
           </PositionsProvider>
         </OptionsProvider>
