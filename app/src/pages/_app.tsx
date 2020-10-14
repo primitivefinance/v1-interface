@@ -5,9 +5,10 @@ import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider } from '@web3-react/core'
 
-import TopBar from '../components/TopBar'
-import Page from '../components/Page'
-import Web3Manager from '../components/Web3Manager'
+import TopBar from '@/components/TopBar'
+import Footer from '@/components/Footer'
+import Page from '@/components/Page'
+import Web3Manager from '@/components/Web3Manager'
 import theme from '../theme'
 
 const GlobalStyle = createGlobalStyle`
@@ -16,6 +17,9 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
     width: 100%;
     line-height: 1.5;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
   }
   body {
     background-color: #040404;
@@ -40,12 +44,8 @@ const getLibrary = (provider: any): Web3Provider => {
   return library
 }
 
-
-
 export default function App ({ Component, pageProps }) {
-
     const [isLoading, setIsLoading] = useState(false)
-
     useEffect(() => {
       Router.events.on('routeChangeStart', () => {
         setIsLoading(true)
@@ -56,7 +56,6 @@ export default function App ({ Component, pageProps }) {
       Router.events.on('routeChangeError', () => {
         setIsLoading(false)
       })
-    
     }, [isLoading, setIsLoading])
   
     return (
@@ -66,10 +65,11 @@ export default function App ({ Component, pageProps }) {
           <Web3ReactProvider getLibrary={getLibrary}>
             <Web3Manager>
               <>
-                <TopBar/>
+                <TopBar />
                 <Page>
                   <Component {...pageProps} />
                 </Page>
+                <Footer />
               </>
             </Web3Manager>
           </Web3ReactProvider>
