@@ -22,7 +22,7 @@ import {
 } from '../../lib/primitive'
 require('dotenv').config()
 
-const NotifyKey = process.env.REACT_APP_NOTIFY_KEY
+const NotifyKey = process.env.NOTIFY_KEY
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)

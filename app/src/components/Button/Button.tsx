@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 export interface ButtonProps {
   children?: React.ReactNode
@@ -80,7 +80,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const ButtonChild = useMemo(() => {
     if (to) {
-      return <StyledLink to={to}>{text}</StyledLink>
+      return <StyledLink href={to}>{text}</StyledLink>
     } else if (href) {
       return (
         <StyledExternalLink href={href} target="__blank">
