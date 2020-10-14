@@ -9,6 +9,7 @@
       "@/utils/*": ["./src/utils/*"]
     },
     "target": "es5",
+    "types": [],
     "lib": [
       "dom",
       "dom.iterable",
@@ -19,6 +20,7 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
