@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import PageHeader from '../../components/PageHeader'
-import MarketCards from '../../components/MarketCards'
+import PageHeader from '@/components/PageHeader'
+import MarketCards from '@/components/MarketCards'
 
 const days: { [key: number]: React.ReactNode } = {
   1: (

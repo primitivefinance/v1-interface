@@ -9,13 +9,13 @@ import LaunchIcon from '@material-ui/icons/Launch'
 import { useWeb3React } from '@web3-react/core'
 import { formatAddress } from '../../../utils'
 
-import Button from 'components/Button'
+import Button from '../../Button'
 import EmptyTable from '../EmptyTable'
-import LitContainer from 'components/LitContainer'
-import Table from 'components/Table'
-import TableBody from 'components/TableBody'
-import TableCell from 'components/TableCell'
-import TableRow from 'components/TableRow'
+import LitContainer from '../../LitContainer'
+import Table from '../../Table'
+import TableBody from '../../TableBody'
+import TableCell from '../../TableCell'
+import TableRow from '../../TableRow'
 
 export type FormattedOption = {
   breakEven: number

@@ -2576,6 +2576,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-images@^0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@types/react-images/-/react-images-0.5.3.tgz#328d34bb05936f855ad636c97a49abd6aae3f991"
+  integrity sha512-sVXMlktxgleh8xrZJc+abvH62ggzYVByoM0056OHPDZzLPqAYX7v7Ph3kgE7EAV/qM/POylCIqgjkqriybMBZw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-native@*":
   version "0.63.25"
   resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.63.25.tgz#a08bbe17a75cce993f52655a8fe75f30bf77e965"

@@ -10,8 +10,7 @@ import Spacer from '../Spacer'
 import CardIcon from '../CardIcon'
 import Loader from '../Loader'
 
-import { Market } from '../../contexts/Markets'
-import { MARKETS } from '../../constants'
+import { MARKETS, Market } from '../../constants'
 
 const MarketCards: React.FC = () => {
   const markets = MARKETS
@@ -48,15 +47,15 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
         <CardContent>
           <StyledContent>
             <CardIcon>
-              {market.icon ? (
+              {(market.icon !== '') ? (
               <img
                 height="64"
                 src={market.icon}
                 style={{ filter: 'brightness(2) grayscale(1)' }}
-                alt={'ether icon'}
+                alt={'icon'}
               />  
               ) : (
-                null
+                <></>
               )}
             </CardIcon>
             <StyledTitle>{market.name}</StyledTitle>

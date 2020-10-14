@@ -6,11 +6,9 @@ import styled from 'styled-components'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import NotificationsIcon from '@material-ui/icons/Notifications'
 
-import Container from 'components/Container'
-import IconButton from 'components/IconButton'
-import Logo from 'components/Logo'
-
-import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
+import Container from '@/components/Container'
+import IconButton from '@/components/IconButton'
+import Logo from '@/components/Logo'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -43,7 +41,7 @@ const TopBar: React.FC = () => {
         <StyledFlex>
           <Link href='/'>
             <StyledNavItem active>
-              <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
+              <StyledLogo src='/primitive-logo.svg' alt="Primitive Logo" />
             </StyledNavItem>
           </Link>
           <Link href='/'>

@@ -1,9 +1,9 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 
-import TableBody from 'components/TableBody'
-import TableRow from 'components/TableRow'
-import TableCell from 'components/TableCell'
+import TableBody from '../../TableBody'
+import TableRow from '../../TableRow'
+import TableCell from '../../TableCell'
 
 export interface EmptyTableProps {
   columns: Array<any>

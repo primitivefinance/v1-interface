@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import Box from 'components/Box'
-import GoBack from 'components/GoBack'
-import LitContainer from 'components/LitContainer'
-import Spacer from 'components/Spacer'
+import Box from '../../Box'
+import GoBack from '../../GoBack'
+import LitContainer from '../../LitContainer'
+import Spacer from '../../Spacer'
 
 import usePrices from '../../../hooks/usePrices'
 

@@ -3,13 +3,13 @@ import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
 
-import Spacer from 'components/Spacer'
-import Button from 'components/Button'
+import Spacer from '@/components/Spacer'
+import Button from '@/components/Button'
 
-import OrderProvider from '../../contexts/Order'
-import PricesProvider from '../../contexts/Prices'
-import OptionsProvider from '../../contexts/Options'
-import PositionsProvider from '../../contexts/Positions'
+import OrderProvider from '@/contexts/Order'
+import PricesProvider from '@/contexts/Prices'
+import OptionsProvider from '@/contexts/Options'
+import PositionsProvider from '@/contexts/Positions'
 
 import { FilterBar, MarketHeader, OptionsTable, PositionsTable, OrderCard, TestnetCard, PositionsHeader } from '../../components/Market'
 import { useWeb3React } from '@web3-react/core'

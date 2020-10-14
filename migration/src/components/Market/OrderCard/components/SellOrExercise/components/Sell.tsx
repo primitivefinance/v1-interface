@@ -2,16 +2,16 @@ import React, { useCallback, useState } from 'react'
 
 import { useWeb3React } from '@web3-react/core'
 
-import Box from 'components/Box'
-import Button from 'components/Button'
-import Input from 'components/Input'
-import Label from 'components/Label'
-import Spacer from 'components/Spacer'
+import Box from '@/components/Box'
+import Button from '@/components/Button'
+import Input from '@/components/Input'
+import Label from '@/components/Label'
+import Spacer from '@/components/Spacer'
 
-import useOrders from 'hooks/useOrders'
-import useTokenBalance from 'hooks/useTokenBalance'
+import useOrders from '@/hooks/useOrders'
+import useTokenBalance from '@/hooks/useTokenBalance'
 
-import formatBalance from '../../../../../../utils/formatBalance'
+import formatBalance from '@/utils/formatBalance'
 
 const Sell: React.FC = () => {
   const { sellOptions, item } = useOrders()

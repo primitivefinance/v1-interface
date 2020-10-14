@@ -1,23 +1,23 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import useOrders from '../../../hooks/useOrders'
-import useOptions from '../../../hooks/useOptions'
-import usePositions from '../../../hooks/usePositions'
+import useOrders from '@/hooks/useOrders'
+import useOptions from '@/hooks/useOptions'
+import usePositions from '@/hooks/usePositions'
 
 import { useWeb3React } from '@web3-react/core'
 
-import { OrderItem } from '../../../contexts/Order/types'
-import { destructureOptionSymbol } from 'lib/utils'
+import { OrderItem } from '@/contexts/Order/types'
+import { destructureOptionSymbol } from '@/lib/utils'
 
-import Button from 'components/Button'
+import Button from '@/components/Button'
 import EmptyTable from '../EmptyTable'
 import FilledBar from '../FilledBar'
-import LitContainer from 'components/LitContainer'
-import Table from 'components/Table'
-import TableBody from 'components/TableBody'
-import TableCell from 'components/TableCell'
-import TableRow from 'components/TableRow'
+import LitContainer from '@/components/LitContainer'
+import Table from '@/components/Table'
+import TableBody from '@/components/TableBody'
+import TableCell from '@/components/TableCell'
+import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
 
 export type FormattedOption = {

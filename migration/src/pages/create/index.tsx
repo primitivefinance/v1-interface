@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import Button from 'components/Button'
-import Page from 'components/Page'
-import Spacer from 'components/Spacer'
+import Button from '@/components/Button'
+import Page from '@/components/Page'
+import Spacer from '@/components/Spacer'
 
-import OrderProvider from '../../contexts/Order'
-import PricesProvider from '../../contexts/Prices'
-import OptionsProvider from '../../contexts/Options'
-import PositionsProvider from '../../contexts/Positions'
+import OrderProvider from '@/contexts/Order'
+import PricesProvider from '@/contexts/Prices'
+import OptionsProvider from '@/contexts/Options'
+import PositionsProvider from '@/contexts/Positions'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'

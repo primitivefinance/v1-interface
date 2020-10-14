@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import Button from 'components/Button'
-import Card from 'components/Card'
-import CardContent from 'components/CardContent'
-import Spacer from 'components/Spacer'
+import Button from '@/components/Button'
+import Card from '@/components/Card'
+import CardContent from '@/components/CardContent'
+import Spacer from '@/components/Spacer'
 import LaunchIcon from '@material-ui/icons/Launch'
 
-import useOrders from '../../../hooks/useOrders'
+import useOrders from '@/hooks/useOrders'
 import { useWeb3React } from '@web3-react/core'
 
 interface TestnetCardProps {}

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import LitContainer from '../../../components/LitContainer'
+import LitContainer from '@/components/LitContainer'
 
-import usePrices from '../../../hooks/usePrices'
+import usePrices from '@/hooks/usePrices'
 
 export interface PositionsHeaderProps {
   name: string

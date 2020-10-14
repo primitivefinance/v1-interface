@@ -19,9 +19,9 @@ export interface Token {
 }
 
 export interface Market {
-  name: string
-  icon: React.ReactNode
-  id: string
+  name: string,
+  icon: string,
+  id: string,
   sort: number
 }
 
@@ -40,7 +40,7 @@ export const WALLETS: { [key: string]: Wallet } = {
 
 export const MARKETS: Market[] = [
   {
-    name: 'Weth',
+    name: 'WETH',
     icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/1280px-Ethereum-icon-purple.svg.png',
     id: 'weth',
     sort: 2

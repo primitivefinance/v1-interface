@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import Card from 'components/Card'
-import CardContent from 'components/CardContent'
-import Toggle from 'components/Toggle'
-import ToggleButton from 'components/ToggleButton'
+import Card from '@/components/Card'
+import CardContent from '@/components/CardContent'
+import Toggle from '@/components/Toggle'
+import ToggleButton from '@/components/ToggleButton'
 
-import useOrders from 'hooks/useOrders'
+import useOrders from '@/hooks/useOrders'
 
-import { destructureOptionSymbol } from 'lib/utils'
+import { destructureOptionSymbol } from '@/lib/utils'
 
 import Exercise from './components/Exercise'
 import Sell from './components/Sell'

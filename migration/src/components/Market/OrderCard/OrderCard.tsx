@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import useOrders from 'hooks/useOrders'
+import useOrders from '@/hooks/useOrders'
 
 import BuyOrMint from './components/BuyOrMint'
 import EmptyOrder from './components/EmptyOrder'

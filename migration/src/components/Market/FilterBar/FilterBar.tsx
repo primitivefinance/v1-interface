@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
-import LitContainer from 'components/LitContainer'
-import Toggle from 'components/Toggle'
-import ToggleButton from 'components/ToggleButton'
-import Spacer from 'components/Spacer'
+import LitContainer from '../../LitContainer'
+import Toggle from '../../Toggle'
+import ToggleButton from '../../ToggleButton'
+import Spacer from '../../Spacer'
 
 export interface FilterBarProps {
   active: boolean

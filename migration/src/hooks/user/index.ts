@@ -4,6 +4,12 @@ import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
 import { LocalStorageKeys } from '../../constants'
 
+declare global {
+  interface Window {
+      ethereum: any
+  }
+}
+
 export function useDarkMode() {
   return useLocalStorage<boolean>(LocalStorageKeys.DarkMode, false)
 }
@@ -33,6 +39,8 @@ export function useEagerConnect() {
 
   return tried
 }
+
+
 export function useInactiveListener(suppress = false) {
   const { active, error, activate } = useWeb3React() 
 

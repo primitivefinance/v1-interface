@@ -3,9 +3,9 @@ import React from 'react'
 import AddIcon from '@material-ui/icons/Add'
 import styled from 'styled-components'
 
-import Card from 'components/Card'
-import CardContent from 'components/CardContent'
-import CardTitle from 'components/CardTitle'
+import Card from '@/components/Card'
+import CardContent from '@/components/CardContent'
+import CardTitle from '@/components/CardTitle'
 
 const EmptyOrder: React.FC = () => (
   <Card>

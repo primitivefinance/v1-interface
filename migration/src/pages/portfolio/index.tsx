@@ -1,12 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import Page from 'components/Page'
+import Page from '@/components/Page'
 
-import OrderProvider from '../../contexts/Order'
-import PricesProvider from '../../contexts/Prices'
-import OptionsProvider from '../../contexts/Options'
-import PositionsProvider from '../../contexts/Positions'
+import OrderProvider from '@/contexts/Order'
+import PricesProvider from '@/contexts/Prices'
+import OptionsProvider from '@/contexts/Options'
+import PositionsProvider from '@/contexts/Positions'
 
 const Portfolio: React.FC = () => {
   return (
