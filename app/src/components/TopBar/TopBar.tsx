@@ -1,15 +1,14 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 import styled from 'styled-components'
 
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import NotificationsIcon from '@material-ui/icons/Notifications'
 
-import Container from 'components/Container'
-import IconButton from 'components/IconButton'
-import Logo from 'components/Logo'
-
-import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
+import Container from '@/components/Container'
+import IconButton from '@/components/IconButton'
+import Logo from '@/components/Logo'
 
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -31,7 +30,7 @@ export const disconnect = async (web3React) => {
 }
 
 const TopBar: React.FC = () => {
-  const location = useLocation()
+  const location = useRouter()
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42],
   })
@@ -40,32 +39,39 @@ const TopBar: React.FC = () => {
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
         <StyledFlex>
-          <StyledNavItem active to="/">
-            <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
-          </StyledNavItem>
-          <StyledNavItem active to="/">
-            <Logo />
-          </StyledNavItem>
+          <Link href='/'>
+            <StyledNavItem active>
+              <StyledLogo src='/primitive-logo.svg' alt="Primitive Logo" />
+            </StyledNavItem>
+          </Link>
+          <Link href='/'>
+            <StyledNavItem active>
+              <Logo />
+            </StyledNavItem>
+          </Link>
         </StyledFlex>
         <StyledNav>
-          <StyledNavItem
-            active={location.pathname === '/portfolio' ? true : false}
-            to="/portfolio"
-          >
-            Portfolio
-          </StyledNavItem>
-          <StyledNavItem
-            active={location.pathname.indexOf('/markets') !== -1 ? true : false}
-            to="/markets"
-          >
-            Markets
-          </StyledNavItem>
-          <StyledNavItem
-            active={location.pathname === '/create' ? true : false}
-            to="/create"
-          >
-            Create
-          </StyledNavItem>
+          <Link href="/portfolio">
+            <StyledNavItem
+              active={location.pathname === '/portfolio' ? true : false}
+            >
+              Portfolio
+            </StyledNavItem>
+          </Link>
+          <Link href='/markets'>
+            <StyledNavItem
+              active={location.pathname.indexOf('/markets') !== -1 ? true : false}
+            >
+              Markets
+            </StyledNavItem>
+          </Link>
+          <Link href='/create'>
+            <StyledNavItem
+              active={location.pathname === '/create' ? true : false}
+            >
+              Create
+            </StyledNavItem>
+          </Link>
         </StyledNav>
         <StyledFlex>
           <StyledFlex />
@@ -112,7 +118,7 @@ interface StyledNavItemProps {
   active: boolean
 }
 
-const StyledNavItem = styled(Link)<StyledNavItemProps>`
+const StyledNavItem = styled.h3<StyledNavItemProps>`
   color: ${(props) =>
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;

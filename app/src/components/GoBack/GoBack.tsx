@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 
 export interface GoBackProps {
@@ -12,7 +12,7 @@ const GoBack: React.FC<GoBackProps> = (props) => {
   return (
     <StyledGoBack>
       <ChevronLeftIcon />
-      <StyledLink to={props.to ? props.to : '/markets'}>
+      <StyledLink href={props.to ? props.to : '/markets'}>
         <span>{props.text ? props.text : 'Back'}</span>
       </StyledLink>
     </StyledGoBack>
