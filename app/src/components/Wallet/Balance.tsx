@@ -12,7 +12,7 @@ export const Balance: React.FC<BalanceProps> = ({ amount }) => {
   return (
     <StyledBalance>
       <StyledText>
-        {amount.toSignificant(4, { groupSeparator: ',' })} ETH
+        Ξ {amount.toSignificant(4, { groupSeparator: ',' })}
       </StyledText>
     </StyledBalance>
   )
@@ -20,8 +20,7 @@ export const Balance: React.FC<BalanceProps> = ({ amount }) => {
 
 const StyledBalance = styled.div`
   color: white;
-  width: 5em;
-  min-width: 5em;
+  width: 3.5em;
 `
 
-const StyledText = styled.h5``
+const StyledText = styled.h4``

@@ -9,14 +9,14 @@ export const Network: React.FC<NetworkProps> = ({ id }) => {
   if (id === 3) {
     return (
       <StyledRopsten>
-        <h5>Ropsten</h5>
+        <h4>Ropsten</h4>
       </StyledRopsten>
     )
   }
   if (id === 4) {
     return (
       <StyledRink>
-        <h5>Rinkeby</h5>
+        <h4>Rinkeby</h4>
       </StyledRink>
     )
   }
