@@ -16,8 +16,8 @@ const Portfolio: React.FC = () => {
           <PositionsProvider>
             <Page>
               <StyledPortfolio>
-                <StyledMain>Soon</StyledMain>
-               </StyledPortfolio>
+                <StyledMain>Upcoming Feature...</StyledMain>
+              </StyledPortfolio>
             </Page>
           </PositionsProvider>
         </OptionsProvider>

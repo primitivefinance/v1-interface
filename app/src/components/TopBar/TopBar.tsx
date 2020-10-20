@@ -9,42 +9,20 @@ import NotificationsIcon from '@material-ui/icons/Notifications'
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
 import Logo from '@/components/Logo'
-
-import { useWeb3React } from '@web3-react/core'
-import { InjectedConnector } from '@web3-react/injected-connector'
-
-export const connect = async (web3React, injected) => {
-  try {
-    await web3React.activate(injected)
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export const disconnect = async (web3React) => {
-  try {
-    await web3React.deactivate()
-  } catch (err) {
-    console.log(err)
-  }
-}
+import { Wallet } from '@/components/Wallet'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
-  const injected = new InjectedConnector({
-    supportedChainIds: [1, 3, 4, 5, 42],
-  })
-  const web3React = useWeb3React()
   return (
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
         <StyledFlex>
-          <Link href='/'>
+          <Link href="/">
             <StyledNavItem active>
-              <StyledLogo src='/primitive-logo.svg' alt="Primitive Logo" />
+              <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
             </StyledNavItem>
           </Link>
-          <Link href='/'>
+          <Link href="/">
             <StyledNavItem active>
               <Logo />
             </StyledNavItem>
@@ -58,14 +36,16 @@ const TopBar: React.FC = () => {
               Portfolio
             </StyledNavItem>
           </Link>
-          <Link href='/markets'>
+          <Link href="/markets">
             <StyledNavItem
-              active={location.pathname.indexOf('/markets') !== -1 ? true : false}
+              active={
+                location.pathname.indexOf('/markets') !== -1 ? true : false
+              }
             >
               Markets
             </StyledNavItem>
           </Link>
-          <Link href='/create'>
+          <Link href="/create">
             <StyledNavItem
               active={location.pathname === '/create' ? true : false}
             >
@@ -75,17 +55,7 @@ const TopBar: React.FC = () => {
         </StyledNav>
         <StyledFlex>
           <StyledFlex />
-          <IconButton onClick={() => {}} variant="tertiary">
-            <NotificationsIcon />
-          </IconButton>
-          <IconButton
-            onClick={async () => {
-              connect(web3React, injected)
-            }}
-            variant="tertiary"
-          >
-            <AccountCircleIcon />
-          </IconButton>
+          <Wallet />
         </StyledFlex>
       </Container>
     </StyledTopBar>
@@ -98,7 +68,11 @@ const StyledTopBar = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 72px;
+  height: 70px;
+  top: -0.1em;
+  padding-top: 0.5em;
+  position: fixed;
+  width: 100%;
 `
 
 const StyledFlex = styled.div`

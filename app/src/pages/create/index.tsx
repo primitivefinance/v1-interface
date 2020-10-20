@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Button from '@/components/Button'
 import Page from '@/components/Page'
 import Spacer from '@/components/Spacer'
+import ChainRequired from '@/components/ChainRequired'
 
 import OrderProvider from '@/contexts/Order'
 import PricesProvider from '@/contexts/Prices'
@@ -50,44 +51,17 @@ const Create: React.FC = () => {
             <Page>
               <StyledCreate>
                 <StyledMain>
-                  {active ? (
-                    chainId === 4 ? (
-                      <>
-                        <WaitingRoom>
-                          <StyledText>
-                            Primitive is permissionless; anyone can create new
-                            Oracle-less options from the protocol's factory. The
-                            interface is being built.
-                          </StyledText>
-                        </WaitingRoom>
-                      </>
-                    ) : (
-                      <WaitingRoom>
-                        {' '}
-                        Please connect to the Rinkeby test network.{' '}
-                      </WaitingRoom>
-                    )
-                  ) : (
-                    <WaitingRoom>
-                      <Spacer size="lg" />
-                      <Button
-                        text="Connect Wallet"
-                        onClick={handleUnlock}
-                      />{' '}
-                      <Spacer size="lg" />
-                      <StyledText>
-                        This interface requires a connection from the browser to
-                        Ethereum.
-                      </StyledText>
-                      <Button
-                        size="sm"
-                        text="Learn More"
-                        variant="transparent"
-                        href="https://ethereum.org/en/wallets/"
-                      />{' '}
-                      <Spacer />
-                    </WaitingRoom>
-                  )}
+                  <ChainRequired
+                    active={active}
+                    chainId={chainId}
+                    chainsRequired={[4]}
+                  >
+                    <StyledText>
+                      Primitive is permissionless; anyone can create new
+                      Oracle-less options from the protocol's factory. The
+                      interface is being built.
+                    </StyledText>
+                  </ChainRequired>
                 </StyledMain>
               </StyledCreate>
             </Page>
@@ -122,6 +96,7 @@ const WaitingRoom = styled.div`
   justify-content: center;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   width: 100%;
+  color: white;
 `
 
 export default Create

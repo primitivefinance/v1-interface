@@ -36,7 +36,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
   useEffect(() => {
     getPrices(name)
-    let refreshInterval = setInterval(() => {
+    const refreshInterval = setInterval(() => {
       getPrices(name)
     }, 10000)
     return () => clearInterval(refreshInterval)
@@ -50,7 +50,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   }, [blink, price, setBlink])
 
   useEffect(() => {
-    let resetBlinkTimeout = setTimeout(() => {
+    const resetBlinkTimeout = setTimeout(() => {
       setBlink(false)
     }, 500)
     return () => clearTimeout(resetBlinkTimeout)
@@ -62,13 +62,13 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
-        <StyledTitle>
-          <StyledName>
-            {name.charAt(0).toUpperCase() + name.slice(1)}
-          </StyledName>
-          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-        </StyledTitle>
-        <Box alignItems="baseline" row>
+        <Box>
+          <StyledTitle>
+            <StyledName>
+              {name.charAt(0).toUpperCase() + name.slice(1)}
+            </StyledName>
+            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+          </StyledTitle>
           <StyledPrice blink={blink}>
             {prices[name] ? (
               `$${(+prices[name]).toFixed(2)}`
@@ -99,6 +99,7 @@ const StyledLoadingBlock = styled.div`
 `
 
 const StyledHeader = styled.div`
+  max-width: 30em;
   background-color: ${(props) => props.theme.color.grey[800]};
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   padding-top: ${(props) => props.theme.spacing[4]}px;

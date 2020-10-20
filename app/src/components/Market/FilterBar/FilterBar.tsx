@@ -35,9 +35,11 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
+          {/**
           <StyledSelect>
             <StyledOption>November 2</StyledOption>
           </StyledSelect>
+           */}
         </StyledFilterBarInner>
       </LitContainer>
     </StyledFilterBar>

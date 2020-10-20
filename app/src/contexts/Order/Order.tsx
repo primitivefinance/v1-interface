@@ -20,7 +20,6 @@ import {
   create,
   mintTestToken,
 } from '../../lib/primitive'
-require('dotenv').config()
 
 const NotifyKey = process.env.NOTIFY_KEY
 
@@ -33,7 +32,6 @@ const Order: React.FC = (props) => {
     notifyInstance = Notify({
       dappId: NotifyKey,
       networkId: 4,
-      darkMode: true,
     })
   }
 
@@ -69,10 +67,10 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
-    let signer = await provider.getSigner()
+    const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
+    const signer = await provider.getSigner()
 
-    let tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
+    const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -83,10 +81,10 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
-    let signer = await provider.getSigner()
+    const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
+    const signer = await provider.getSigner()
 
-    let tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
+    const tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -97,9 +95,9 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await mint(signer, quantity, optionAddress)
+    const tx = await mint(signer, quantity, optionAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -110,9 +108,9 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await exercise(signer, quantity, optionAddress)
+    const tx = await exercise(signer, quantity, optionAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -123,9 +121,9 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await redeem(signer, quantity, optionAddress)
+    const tx = await redeem(signer, quantity, optionAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -136,9 +134,9 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await close(signer, quantity, optionAddress)
+    const tx = await close(signer, quantity, optionAddress)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -151,9 +149,9 @@ const Order: React.FC = (props) => {
     expiry,
     strike
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await create(signer, asset, isCallType, expiry, strike)
+    const tx = await create(signer, asset, isCallType, expiry, strike)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -164,9 +162,9 @@ const Order: React.FC = (props) => {
     optionAddress: string,
     quantity: number
   ) => {
-    let signer = await provider.getSigner()
+    const signer = await provider.getSigner()
 
-    let tx = await mintTestToken(signer, optionAddress, quantity)
+    const tx = await mintTestToken(signer, optionAddress, quantity)
     if (tx.hash) {
       notifyInstance.hash(tx.hash)
     }
@@ -175,7 +173,7 @@ const Order: React.FC = (props) => {
   const loadPendingTx = useCallback(async () => {
     const pendingTx = localStorage.getItem('pendingTx')
     if (pendingTx && library) {
-      let receipt = await library.getTransactionReceipt(pendingTx)
+      const receipt = await library.getTransactionReceipt(pendingTx)
       if (receipt && receipt.confirmations) {
         return
       } else {

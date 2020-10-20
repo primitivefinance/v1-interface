@@ -12,14 +12,15 @@ const Footer: React.FC = () => (
 )
 
 const StyledFooter = styled.footer`
-  align-items: flex-end;
+  align-items: center;
+  bottom: 0;
   display: flex;
   justify-content: center;
 `
 const StyledFooterInner = styled.div`
   align-items: center;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   height: ${(props) => props.theme.topBarSize}px;
   max-width: ${(props) => props.theme.siteWidth}px;
   width: 100%;

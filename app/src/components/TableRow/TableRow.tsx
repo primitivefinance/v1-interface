@@ -3,10 +3,15 @@ import styled from 'styled-components'
 
 export interface TableRowProps {
   isHead?: boolean
+  onClick?: any
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
-  return <StyledTableRow isHead={props.isHead}>{props.children}</StyledTableRow>
+  return (
+    <StyledTableRow onClick={props.onClick} isHead={props.isHead}>
+      {props.children}
+    </StyledTableRow>
+  )
 }
 
 interface StyleProps {
