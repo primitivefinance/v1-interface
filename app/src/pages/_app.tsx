@@ -62,7 +62,7 @@ const getLibrary = (provider: any): Web3Provider => {
 }
 
 export default function App({ Component, pageProps }) {
-  const { error } = useWeb3React()
+  const { error, active } = useWeb3React()
   return (
     <>
       <GlobalStyle />
@@ -71,7 +71,7 @@ export default function App({ Component, pageProps }) {
           <>
             <Provider>
               <Layout>
-                {error ? (
+                {active ? (
                   <WaitingRoom>
                     <Spacer size="lg" />
                     <StyledText>

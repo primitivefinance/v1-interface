@@ -1,6 +1,6 @@
 export { default as EmptyTable } from './EmptyTable'
 export { default as FilledBar } from './FilledBar'
-export { default as FilterBar} from './FilterBar'
+export { default as FilterBar } from './FilterBar'
 export { default as MarketHeader } from './MarketHeader'
 export { default as OptionsTable } from './OptionsTable'
 export { default as OrderCard } from './OrderCard'

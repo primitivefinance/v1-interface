@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { Web3Provider } from '@ethersproject/providers'
@@ -11,10 +11,6 @@ declare global {
   interface Window {
     ethereum: any
   }
-}
-
-export function useDarkMode() {
-  return useLocalStorage<boolean>(LocalStorageKeys.DarkMode, false)
 }
 
 // https://github.com/Uniswap/uniswap-interface/blob/master/src/hooks/index.ts

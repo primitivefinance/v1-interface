@@ -1,8 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import Page from '@/components/Page'
-
 import OrderProvider from '@/contexts/Order'
 import PricesProvider from '@/contexts/Prices'
 import OptionsProvider from '@/contexts/Options'
@@ -14,11 +12,9 @@ const Portfolio: React.FC = () => {
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
-            <Page>
-              <StyledPortfolio>
-                <StyledMain>Upcoming Feature...</StyledMain>
-              </StyledPortfolio>
-            </Page>
+            <StyledPortfolio>
+              <StyledMain>Upcoming Feature...</StyledMain>
+            </StyledPortfolio>
           </PositionsProvider>
         </OptionsProvider>
       </OrderProvider>

@@ -9,6 +9,7 @@ export interface ButtonProps {
   isLoading?: boolean
   href?: string
   onClick?: () => void
+  leftIcon?: string
   round?: boolean
   size?: 'sm' | 'md' | 'lg'
   text?: string

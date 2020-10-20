@@ -27,19 +27,11 @@ import { useEagerConnect } from '@/hooks/user'
 
 import { WALLETS, QueryParameters } from '../../constants'
 
-import { Option } from './Option'
-import { Account } from './Account'
-import { Pending } from './Pending'
+import { Network } from './Network'
 import { AddressButton } from './AddressButton'
 import { Balance } from './Balance'
 
 export const Wallet = () => {
-  // Modal
-  const [open, setOpen] = useState(null)
-
-  const nodeRef = useClickAway(() => {
-    setOpen(null)
-  })
   const {
     active,
     chainId,
@@ -52,11 +44,6 @@ export const Wallet = () => {
   } = useWeb3React()
 
   const triedToEagerConnect = useEagerConnect()
-
-  const handleClick = (e: any) => {
-    setOpen(open ? null : true)
-  }
-  const isOpen = Boolean(open)
 
   const { data } = useETHBalance(account, false)
   const balance = data
@@ -107,15 +94,15 @@ export const Wallet = () => {
     return (
       <>
         {error instanceof UnsupportedChainIdError ? (
-          <h5>Please connect to the appropriate Ethereum network.</h5>
+          <h5>Unsupported Chain</h5>
         ) : (
-          <h5>Error connecting. Try refreshing the page.</h5>
+          <h5>Error Connecting</h5>
         )}
       </>
     )
   }
   if (!triedToEagerConnect) {
-    return <h5>Error connecting. Try refreshing the page.</h5>
+    return <h5>Error Connecting</h5>
   }
   if (typeof account !== 'string') {
     return (
@@ -168,16 +155,16 @@ export const Wallet = () => {
   }
 
   return (
-    <StyledBox row>
-      <Suspense fallback={<Button variant="secondary" isLoading></Button>}>
+    <StyledBox row alignItems="center" justifyContent="flex-end">
+      <Network id={chainId} />
+      <Spacer size="md" />
+      <Suspense fallback={null}>
         <Balance amount={balance} />
       </Suspense>
       <Spacer size="sm" />
       <AddressButton
-        onClick={handleClick}
-        address={ENSName || account.slice(0, 5)}
+        address={ENSName || account.slice(0, 10)}
         method={connector}
-        selected
       />
     </StyledBox>
   )

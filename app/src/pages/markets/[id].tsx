@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
+import { useWeb3React } from '@web3-react/core'
 
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
@@ -11,7 +12,6 @@ import OrderProvider from '@/contexts/Order'
 import PricesProvider from '@/contexts/Prices'
 import OptionsProvider from '@/contexts/Options'
 import PositionsProvider from '@/contexts/Positions'
-import ChainRequired from '@/components/ChainRequired'
 import {
   FilterBar,
   MarketHeader,
@@ -21,8 +21,6 @@ import {
   TestnetCard,
   PositionsHeader,
 } from '../../components/Market'
-import { useWeb3React } from '@web3-react/core'
-import { InjectedConnector } from '@web3-react/injected-connector'
 
 const mockOptions = [
   { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
@@ -64,43 +62,40 @@ const Market = ({ market }) => {
     setCallPutActive(!callPutActive)
   }
 
+  if (chainId !== 4 && active) {
+    return <h4>Switch to Rinkeby</h4>
+  }
   return (
     <PricesProvider>
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
             <StyledMarket>
-              <ChainRequired
-                active={active}
-                chainId={chainId}
-                chainsRequired={[4]}
-              >
-                <>
-                  <StyledMain>
-                    <MarketHeader marketId={marketId} />
-                    <FilterBar
-                      active={callPutActive}
-                      setCallActive={handleFilter}
-                    />
-                    <OptionsTable
-                      options={mockOptions}
-                      asset="Ethereum"
-                      callActive={callPutActive}
-                    />
-                    <PositionsHeader name="Ethereum" symbol="ETH" />
-                    <PositionsTable
-                      positions={mockOptions}
-                      asset="Ethereum"
-                      callActive={callPutActive}
-                    />
-                  </StyledMain>
-                  <StyledSideBar>
-                    <OrderCard />
-                    <Spacer />
-                    {chainId === 4 ? <TestnetCard /> : <> </>}
-                  </StyledSideBar>{' '}
-                </>
-              </ChainRequired>
+              <>
+                <StyledMain>
+                  <MarketHeader marketId={marketId} />
+                  <FilterBar
+                    active={callPutActive}
+                    setCallActive={handleFilter}
+                  />
+                  <OptionsTable
+                    options={mockOptions}
+                    asset="Ethereum"
+                    callActive={callPutActive}
+                  />
+                  <PositionsHeader name="Ethereum" symbol="ETH" />
+                  <PositionsTable
+                    positions={mockOptions}
+                    asset="Ethereum"
+                    callActive={callPutActive}
+                  />
+                </StyledMain>
+                <StyledSideBar>
+                  <OrderCard />
+                  <Spacer />
+                  {chainId === 4 ? <TestnetCard /> : <> </>}
+                </StyledSideBar>{' '}
+              </>
             </StyledMarket>
           </PositionsProvider>
         </OptionsProvider>

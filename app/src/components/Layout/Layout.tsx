@@ -14,7 +14,7 @@ const Layout: React.FC<PageProps> = (props) => {
   return (
     <>
       <TopBar />
-      <Spacer size="sm" />
+      <div style={{ minHeight: '5em' }} />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>

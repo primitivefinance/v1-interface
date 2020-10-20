@@ -8,15 +8,23 @@ import NotificationsIcon from '@material-ui/icons/Notifications'
 
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
+import Spacer from '@/components/Spacer'
 import Logo from '@/components/Logo'
+import Settings from '@/components/Settings'
 import { Wallet } from '@/components/Wallet'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
   return (
     <StyledTopBar>
-      <Container alignItems="center" display="flex" height={72}>
-        <StyledFlex>
+      <Container
+        alignItems="center"
+        justifyContent="flex-start"
+        display="flex"
+        flexDirection="row"
+        height={65}
+      >
+        <StyledNav>
           <Link href="/">
             <StyledNavItem active>
               <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
@@ -27,8 +35,6 @@ const TopBar: React.FC = () => {
               <Logo />
             </StyledNavItem>
           </Link>
-        </StyledFlex>
-        <StyledNav>
           <Link href="/portfolio">
             <StyledNavItem
               active={location.pathname === '/portfolio' ? true : false}
@@ -53,9 +59,12 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledNav>
+        <div style={{ width: '30rem' }} />
         <StyledFlex>
-          <StyledFlex />
           <Wallet />
+          <Spacer size="md" />
+          <Settings />
+          <Spacer size="md" />
         </StyledFlex>
       </Container>
     </StyledTopBar>
@@ -64,13 +73,12 @@ const TopBar: React.FC = () => {
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 70px;
-  top: -0.1em;
-  padding-top: 0.5em;
+  height: 65px;
+  top: 0em;
+  padding-top: 0.3em;
   position: fixed;
   width: 100%;
 `
@@ -86,6 +94,7 @@ const StyledNav = styled.div`
   flex: 1;
   font-weight: 700;
   justify-content: center;
+  align-items: center;
 `
 
 interface StyledNavItemProps {
@@ -104,6 +113,7 @@ const StyledNavItem = styled.h3<StyledNavItemProps>`
 `
 
 const StyledLogo = styled.img`
+  padding-top: 0.3em;
   width: ${(props) => props.theme.spacing[5]}px;
   height: ${(props) => props.theme.spacing[5]}px;
 `
