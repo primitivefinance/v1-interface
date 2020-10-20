@@ -34,7 +34,7 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
             >
               <StyledAddressButton>
                 <Box row alignItems="center" justifyContent="space-between">
-                  <h4>{address}...</h4>
+                  <h4>{address}</h4>
                   <Spacer size="sm" />
                   <CallMadeIcon />
                 </Box>

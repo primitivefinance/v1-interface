@@ -163,7 +163,7 @@ export const Wallet = () => {
       </Suspense>
       <Spacer size="sm" />
       <AddressButton
-        address={ENSName || account.slice(0, 10)}
+        address={ENSName || account.slice(0, 10) + '...'}
         method={connector}
       />
     </StyledBox>
