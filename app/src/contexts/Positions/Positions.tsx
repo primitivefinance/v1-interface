@@ -23,15 +23,15 @@ const Positions: React.FC = (props) => {
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      let positionsObject = {
+      const positionsObject = {
         calls: [EmptyPositionsAttributes],
         puts: [EmptyPositionsAttributes],
       }
 
-      let calls: PositionsAttributes[] = []
-      let puts: PositionsAttributes[] = []
-      let optionCallsLength: number = options.calls.length
-      let optionPutsLength: number = options.puts.length
+      const calls: PositionsAttributes[] = []
+      const puts: PositionsAttributes[] = []
+      const optionCallsLength: number = options.calls.length
+      const optionPutsLength: number = options.puts.length
 
       for (let i = 0; i < optionCallsLength; i++) {
         // for each call, populate the positions object.
@@ -42,7 +42,7 @@ const Positions: React.FC = (props) => {
 
         name = options.calls[i].id
         address = options.calls[i].address
-        let option = new ethers.Contract(address, ERC20.abi, signer)
+        const option = new ethers.Contract(address, ERC20.abi, signer)
         symbol = await option.symbol()
         balance = Number(formatEther(await option.balanceOf(account)))
 
@@ -64,7 +64,7 @@ const Positions: React.FC = (props) => {
         name = options.puts[i].id
         address = options.puts[i].address
 
-        let option = new ethers.Contract(address, ERC20.abi, signer)
+        const option = new ethers.Contract(address, ERC20.abi, signer)
         symbol = await option.symbol()
         balance = Number(formatEther(await option.balanceOf(account)))
 

@@ -1,6 +1,6 @@
 // Serialized implementation of LocalStorage hook from https://github.com/NoahZinsmeister/hypertext/blob/master/context.tsx
 
-import { useState, Dispatch, SetStateAction, useEffect} from 'react'
+import { useState, Dispatch, SetStateAction, useEffect } from 'react'
 import { LocalStorageKeys } from '../../constants'
 
 export function useLocalStorage<T, S = T>(
@@ -8,7 +8,13 @@ export function useLocalStorage<T, S = T>(
   defaultValue: T,
   overrideLookup = false,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { serialize, deserialize }: { serialize: (toSerialize: T) => S; deserialize: (toDeserialize: S) => T } = {
+  {
+    serialize,
+    deserialize,
+  }: {
+    serialize: (toSerialize: T) => S
+    deserialize: (toDeserialize: S) => T
+  } = {
     serialize: (toSerialize): S => (toSerialize as unknown) as S,
     deserialize: (toDeserialize): T => (toDeserialize as unknown) as T,
   }
@@ -19,7 +25,9 @@ export function useLocalStorage<T, S = T>(
     } else {
       try {
         const item = window.localStorage.getItem(key)
-        return item === null ? defaultValue : deserialize(JSON.parse(item)) ?? defaultValue
+        return item === null
+          ? defaultValue
+          : deserialize(JSON.parse(item)) ?? defaultValue
       } catch {
         return defaultValue
       }

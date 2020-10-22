@@ -8,10 +8,6 @@ export interface Wallet {
   icon: string
 }
 
-export interface Transaction {
-  chainId: number
-  hash: string
-}
 // Uniswap Token Interface
 export interface Token {
   name: string
