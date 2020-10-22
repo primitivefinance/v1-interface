@@ -39,12 +39,12 @@ const TopBar: React.FC = () => {
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
         <StyledFlex>
-          <Link href='/'>
+          <Link href="/">
             <StyledNavItem active>
-              <StyledLogo src='/primitive-logo.svg' alt="Primitive Logo" />
+              <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
             </StyledNavItem>
           </Link>
-          <Link href='/'>
+          <Link href="/">
             <StyledNavItem active>
               <Logo />
             </StyledNavItem>
@@ -58,18 +58,32 @@ const TopBar: React.FC = () => {
               Portfolio
             </StyledNavItem>
           </Link>
-          <Link href='/markets'>
+          <Link href="/markets">
             <StyledNavItem
-              active={location.pathname.indexOf('/markets') !== -1 ? true : false}
+              active={
+                location.pathname.indexOf('/markets') !== -1 ? true : false
+              }
             >
               Markets
             </StyledNavItem>
           </Link>
-          <Link href='/create'>
+          <Link href="/create">
             <StyledNavItem
               active={location.pathname === '/create' ? true : false}
             >
               Create
+            </StyledNavItem>
+          </Link>
+          <Link href="/faq">
+            <StyledNavItem active={location.pathname === '/faq' ? true : false}>
+              FAQ
+            </StyledNavItem>
+          </Link>
+          <Link href="/risks">
+            <StyledNavItem
+              active={location.pathname === '/risks' ? true : false}
+            >
+              Risks
             </StyledNavItem>
           </Link>
         </StyledNav>
