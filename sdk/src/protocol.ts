@@ -15,6 +15,7 @@ export class Protocol {
    * Gets an on-chain option's parameters using an option address and returns an option class using the data.
    */
   public static async getOption(
+    chainId: number,
     address: string,
     provider: ethers.providers.Provider
   ): Promise<Option> {
@@ -56,6 +57,7 @@ export class Protocol {
 
     return new Option(
       optionParameters,
+      chainId,
       address,
       18,
       'Primitive V1 Option',

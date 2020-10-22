@@ -5,14 +5,17 @@ import { Asset } from './asset'
  */
 export class Token extends Asset {
   public readonly address: string
+  public readonly chainId: number
 
   public constructor(
+    chainId: number,
     address: string,
     decimals: number,
     name?: string,
     symbol?: string
   ) {
     super(decimals, name, symbol)
+    this.chainId = chainId
     this.address = address
   }
 }
