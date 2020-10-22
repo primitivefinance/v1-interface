@@ -97,4 +97,11 @@ export class Option extends Token {
     }
     return isCall
   }
+
+  public getTimeToExpiry(): number {
+    const expiry: number = this.optionParameters.expiry
+    const now: number = new Date().valueOf()
+    let timeLeft: number = expiry - now
+    return timeLeft
+  }
 }

@@ -1,20 +1,6 @@
 import { Direction, STABLECOIN_ADDRESS } from './constants'
 import { Trade } from './entities'
-
-export interface TradeSettings {
-  slippage: string
-  timeLimit: number
-  receiver: string
-  deadline: number
-  stablecoin?: string
-}
-
-export interface SinglePositionParameters {
-  contractName: string
-  methodName: string
-  args: (string | string[])[]
-  value: string
-}
+import { TradeSettings, SinglePositionParameters } from './trader'
 
 /**
  * Represents the UniswapConnector contract.
