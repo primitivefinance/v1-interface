@@ -8,6 +8,9 @@ export interface OptionParameters {
   expiry: number
 }
 
+/**
+ * Represents a Primitive V1 Option.
+ */
 export class Option extends Token {
   public readonly optionParameters: OptionParameters
   public constructor(

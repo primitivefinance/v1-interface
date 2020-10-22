@@ -11,3 +11,5 @@ export enum Operation {
   CLOSE,
   UNWIND,
 }
+
+export const STABLECOIN_ADDRESS = ''
