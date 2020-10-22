@@ -6,7 +6,7 @@ import GoBack from '../../GoBack'
 import LitContainer from '../../LitContainer'
 import Spacer from '../../Spacer'
 
-import usePrices from '../../../hooks/usePrices'
+import usePrices from '@/hooks/usePrices'
 
 export interface MarketHeaderProps {
   marketId: string

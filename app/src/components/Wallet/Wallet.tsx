@@ -161,9 +161,10 @@ export const Wallet = () => {
       <Suspense fallback={null}>
         <Balance amount={balance} />
       </Suspense>
-      <Spacer size="md" />
+      {balance ? <Spacer size="md" /> : <Spacer size="sm" />}
       <AddressButton
-        address={ENSName || account.slice(0, 10) + '...'}
+        network={chainId}
+        address={ENSName || account}
         method={connector}
       />
     </StyledBox>

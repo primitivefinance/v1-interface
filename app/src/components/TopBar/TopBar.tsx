@@ -35,13 +35,6 @@ const TopBar: React.FC = () => {
               <Logo />
             </StyledNavItem>
           </Link>
-          <Link href="/portfolio">
-            <StyledNavItem
-              active={location.pathname === '/portfolio' ? true : false}
-            >
-              Portfolio
-            </StyledNavItem>
-          </Link>
           <Link href="/markets">
             <StyledNavItem
               active={
@@ -56,6 +49,13 @@ const TopBar: React.FC = () => {
               active={location.pathname === '/create' ? true : false}
             >
               Create
+            </StyledNavItem>
+          </Link>
+          <Link href="/portfolio">
+            <StyledNavItem
+              active={location.pathname === '/portfolio' ? true : false}
+            >
+              Portfolio
             </StyledNavItem>
           </Link>
         </StyledNav>
@@ -107,6 +107,7 @@ const StyledNavItem = styled.h3<StyledNavItemProps>`
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-decoration: none;
+  cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.color.white};
   }

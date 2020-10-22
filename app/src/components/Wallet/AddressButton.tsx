@@ -15,11 +15,13 @@ import Spacer from '@/components/Spacer'
 export interface AddressButtonProps {
   address: string
   method: any
+  network: number
 }
 
 export const AddressButton: React.FC<AddressButtonProps> = ({
   address,
   method,
+  network,
 }) => {
   return (
     <>
@@ -34,7 +36,7 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
             >
               <StyledAddressButton>
                 <Box row alignItems="center" justifyContent="space-between">
-                  <h4>{address}</h4>
+                  <h4>{address.slice(0, 10)}</h4>
                   <Spacer size="sm" />
                   <CallMadeIcon />
                 </Box>

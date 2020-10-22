@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
+import Spacer from '@/components/Spacer'
 
 import { useClickAway } from '../../hooks/utils/useClickAway'
 
@@ -25,10 +26,18 @@ export const Settings = () => {
           <SettingsIcon style={{ color: 'black' }} />
         </IconButton>
         <StyledModal ref={nodeRef}>
-          <Box alignItems="flex-start" justifyContent="space-between" column>
-            <h5>Preferred Stablecoin</h5>
-            <h5>Other Settings</h5>
-            <h5>Even More User Settings</h5>
+          <Box alignItems="center" justifyContent="center" row>
+            <Box alignItems="flex-start" justifyContent="space-between" column>
+              <h5>Preferred Stablecoin</h5>
+              <h5>Other Settings</h5>
+              <h5>Even More User Settings</h5>
+            </Box>
+            <Spacer size="sm" />
+            <Box alignItems="flex-start" justifyContent="space-between" column>
+              <h5>Preferred Stablecoin</h5>
+              <h5>Other Settings</h5>
+              <h5>Even More User Settings</h5>
+            </Box>
           </Box>
         </StyledModal>
       </>
@@ -49,6 +58,7 @@ const StyledModal = styled.div`
   border-radius: 0.3em;
   z-index: 0;
   position: fixed;
+  z-index: 9999 !important;
   background: ${(props) => props.theme.color.grey[600]};
   color: white;
 `
