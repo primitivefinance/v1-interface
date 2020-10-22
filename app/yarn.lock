@@ -2212,7 +2212,7 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.0.1.tgz#2f327f77d16b43f14674086b2b634bda38cb0838"
   integrity sha512-uSrD7hZ0ViuHGqHZbeHawZBi/uy7aBiNramXAt2dFFuSuoU4u9insS3V3zdVfOnYSPreUo636xSOuQIFN4//HA==
 
-"@primitivefi/contracts@0.3.1":
+"@primitivefi/contracts@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.3.1.tgz#8664da6f1ebc6c166ac1f16f60a6ea858c7588f0"
   integrity sha512-9V556P/SAqG+FdAa8Kd2PcCF2yfKHQ6OHnPpKese5ig5K4paDC5uuMYx3PYwDo8qHZ73cNc4LbqCu+G9N6y0iw==
