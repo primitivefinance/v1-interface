@@ -1,15 +1,20 @@
-import React, {useEffect, useState, Component } from 'react'
-import Router from 'next/router'
+import React, { useEffect, useState, Component } from 'react'
 
-import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
-import { Web3ReactProvider } from '@web3-react/core'
+import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 
-import TopBar from '@/components/TopBar'
-import Footer from '@/components/Footer'
-import Page from '@/components/Page'
-import Web3Manager from '@/components/Web3Manager'
+import Layout from '@/components/Layout'
+import Loader from '@/components/Loader'
+import Spacer from '@/components/Spacer'
+import Button from '@/components/Button'
 import theme from '../theme'
+
+import { default as TransactionProvider } from '@/contexts/Transactions/Transactions'
+import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
+
+import { QueryParameters } from '../constants'
+import { useQueryParameters } from '@/hooks/utils'
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -37,6 +42,20 @@ const GlobalStyle = createGlobalStyle`
     color: white;
   }
 `
+const StyledText = styled.div`
+  font-size: 18px;
+  color: white;
+`
+const WaitingRoom = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 36px;
+  justify-content: center;
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  width: 100%;
+`
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -44,36 +63,48 @@ const getLibrary = (provider: any): Web3Provider => {
   return library
 }
 
-export default function App ({ Component, pageProps }) {
-    const [isLoading, setIsLoading] = useState(false)
-    useEffect(() => {
-      Router.events.on('routeChangeStart', () => {
-        setIsLoading(true)
-      })
-      Router.events.on('routeChangeComplete', () => {
-        setIsLoading(false)
-      })
-      Router.events.on('routeChangeError', () => {
-        setIsLoading(false)
-      })
-    }, [isLoading, setIsLoading])
-  
-    return (
-      <>
-        <GlobalStyle/>
+const Updater = () => {
+  return (
+    <>
+      <TransactionUpdater />
+    </>
+  )
+}
+
+export default function App({ Component, pageProps }) {
+  const { error, active } = useWeb3React()
+  return (
+    <>
+      <GlobalStyle />
+      <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
-          <Web3ReactProvider getLibrary={getLibrary}>
-            <Web3Manager>
-              <>
-                <TopBar />
-                <Page>
+          <>
+            <TransactionProvider>
+              <Updater />
+              <Layout>
+                {active ? (
+                  <WaitingRoom>
+                    <Spacer size="lg" />
+                    <StyledText>
+                      This interface requires a connection from the browser to
+                      Ethereum.
+                    </StyledText>
+                    <Button
+                      size="sm"
+                      text="Learn More"
+                      variant="transparent"
+                      href="https://ethereum.org/en/wallets/"
+                    />{' '}
+                    <Spacer />
+                  </WaitingRoom>
+                ) : (
                   <Component {...pageProps} />
-                </Page>
-                <Footer />
-              </>
-            </Web3Manager>
-          </Web3ReactProvider>
+                )}
+              </Layout>
+            </TransactionProvider>
+          </>
         </ThemeProvider>
-      </>
-    )
-  }
+      </Web3ReactProvider>
+    </>
+  )
+}

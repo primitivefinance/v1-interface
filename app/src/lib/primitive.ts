@@ -37,9 +37,9 @@ const mintTestToken = async (signer, optionAddress, quantity) => {
 }
 
 const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
-  let token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-  let owner = await signer.getAddress()
-  let allowance = await token.allowance(owner, spenderAddress)
+  const token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
+  const owner = await signer.getAddress()
+  const allowance = await token.allowance(owner, spenderAddress)
   if (allowance < MIN_ALLOWANCE) {
     await token.approve(spenderAddress, MIN_ALLOWANCE)
   }

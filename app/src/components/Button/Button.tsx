@@ -6,12 +6,14 @@ export interface ButtonProps {
   children?: React.ReactNode
   disabled?: boolean
   full?: boolean
+  isLoading?: boolean
   href?: string
   onClick?: () => void
+  leftIcon?: string
   round?: boolean
   size?: 'sm' | 'md' | 'lg'
   text?: string
-  to?: string
+  to?: boolean // use if Button is wrapped in Next.js Link component
   variant?: 'default' | 'secondary' | 'tertiary' | 'transparent'
 }
 
@@ -19,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   disabled,
   full,
+  isLoading,
   href,
   onClick,
   round,
@@ -50,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
   let border = ''
   let buttonColor: string
   let hoverBackgroundColor = 'transparent'
-  let hoverBorderColor = color.white
+  const hoverBorderColor = color.white
   let hoverColor = color.white
   switch (variant) {
     case 'secondary':
@@ -79,19 +82,41 @@ const Button: React.FC<ButtonProps> = ({
   }
 
   const ButtonChild = useMemo(() => {
-    if (to) {
-      return <StyledLink href={to}>{text}</StyledLink>
-    } else if (href) {
+    if (href) {
       return (
         <StyledExternalLink href={href} target="__blank">
           {text}
         </StyledExternalLink>
       )
+    }
+    if (isLoading) {
+      return <p>LOADING</p>
     } else {
       return text
     }
-  }, [href, text, to])
+  }, [href, text, to, isLoading])
 
+  if (to) {
+    return (
+      <StyledButton
+        background={background}
+        border={border}
+        color={buttonColor}
+        disabled={disabled}
+        fontSize={fontSize}
+        full={full}
+        hoverBackgroundColor={hoverBackgroundColor}
+        hoverBorderColor={hoverBorderColor}
+        hoverColor={hoverColor}
+        onClick={onClick}
+        padding={buttonPadding}
+        round={round}
+        size={buttonSize}
+      >
+        {text}
+      </StyledButton>
+    )
+  }
   return (
     <StyledButton
       background={background}
@@ -184,5 +209,7 @@ const StyledLink = styled(Link)`
   padding: 0 ${(props) => props.theme.spacing[4]}px;
   text-decoration: none;
 `
-
+const StyledText = styled.p`
+  text-decoration: none;
+`
 export default Button

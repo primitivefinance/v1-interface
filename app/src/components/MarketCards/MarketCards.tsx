@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-
 import Link from 'next/link'
 
 import Button from '../Button'
@@ -16,16 +15,15 @@ const MarketCards: React.FC = () => {
   const markets = MARKETS
   return (
     <StyledCards>
-      {!!markets[0] ? (
+      {markets[0] ? (
         <StyledRow>
-          {markets.map((market, i) => (
+          {markets.map((m, i) => (
             <React.Fragment key={i}>
-              <MarketCard market={market} />
+              <MarketCard market={m} />
               {(i === 0 || i === 1) && <StyledSpacer />}
             </React.Fragment>
           ))}
         </StyledRow>
-        
       ) : (
         <StyledLoadingWrapper>
           <Loader text="Loading markets" />
@@ -35,25 +33,26 @@ const MarketCards: React.FC = () => {
   )
 }
 
-interface MarketCardProps {
+export interface MarketCardProps {
   market: Market
 }
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const poolActive = market.name !== 'Soon...'
+
   return (
     <StyledCardWrapper>
       <Card>
         <CardContent>
           <StyledContent>
             <CardIcon>
-              {(market.icon !== '') ? (
-              <img
-                height="64"
-                src={market.icon}
-                style={{ filter: 'brightness(2) grayscale(1)' }}
-                alt={'icon'}
-              />  
+              {market.icon !== '' ? (
+                <img
+                  height="64"
+                  src={market.icon}
+                  style={{ filter: 'brightness(2) grayscale(1)' }}
+                  alt={'icon'}
+                />
               ) : (
                 <></>
               )}
@@ -63,12 +62,8 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
               <StyledDetail>{market.id.toUpperCase()} / USD</StyledDetail>
             </StyledDetails>
             <Spacer />
-            <Link href={`/markets/${market.id}`}>
-              <Button
-                disabled={!poolActive}
-                full
-                text="Continue"
-              />
+            <Link href={`/markets/${encodeURIComponent(market.id)}`}>
+              <Button to disabled={!poolActive} full text="Continue" />
             </Link>
           </StyledContent>
         </CardContent>

@@ -91,29 +91,29 @@ const Options: React.FC = (props) => {
   const handleOptions = useCallback(
     async (assetName) => {
       // Asset address and quantity of options
-      let assetAddress = AssetAddresses[assetName][chainId]
-      let optionsLength = Object.keys(OptionDeployments).length
+      const assetAddress = AssetAddresses[assetName][chainId]
+      const optionsLength = Object.keys(OptionDeployments).length
 
       // Objects and arrays to populate
-      let optionsObject = {
+      const optionsObject = {
         calls: [EmptyAttributes],
         puts: [EmptyAttributes],
       }
-      let calls: OptionsAttributes[] = []
-      let puts: OptionsAttributes[] = []
+      const calls: OptionsAttributes[] = []
+      const puts: OptionsAttributes[] = []
 
       // For each option in the option deployments file...
       for (let i = 0; i < optionsLength; i++) {
         // Get the parameters for the option object in the option_deployments json file.
-        let key = Object.keys(OptionDeployments)[i]
-        let id = key
-        let parameters = OptionDeployments[key].optionParameters
-        let address = OptionDeployments[key].address
-        let underlyingToken = parameters[0]
-        let strikeToken = parameters[1]
-        let base = parameters[2]
-        let quote = parameters[3]
-        let expiry = parameters[4]
+        const key = Object.keys(OptionDeployments)[i]
+        const id = key
+        const parameters = OptionDeployments[key].optionParameters
+        const address = OptionDeployments[key].address
+        const underlyingToken = parameters[0]
+        const strikeToken = parameters[1]
+        const base = parameters[2]
+        const quote = parameters[3]
+        const expiry = parameters[4]
 
         // If the selected asset is not one of the assets in the option, skip it.
         if (assetAddress !== underlyingToken && assetAddress !== strikeToken) {
@@ -122,10 +122,10 @@ const Options: React.FC = (props) => {
 
         // Initialize the values we need to grab.
         let breakEven = 0
-        let change = 0
+        const change = 0
         let price = 0
         let strike = 0
-        let volume = 0
+        const volume = 0
         let isCall
 
         // Get the option price data from uniswap pair.

@@ -6,21 +6,17 @@ import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import Spacer from '@/components/Spacer'
 import LaunchIcon from '@material-ui/icons/Launch'
-
+import useTransactions from '@/hooks/transactions'
 import useOrders from '@/hooks/useOrders'
 import { useWeb3React } from '@web3-react/core'
 
 interface TestnetCardProps {}
 
 const TestnetCard: React.FC<TestnetCardProps> = () => {
-  const { item, loadPendingTx, mintTestTokens } = useOrders()
+  const { item, mintTestTokens } = useOrders()
+  const { transactions } = useTransactions()
   const { library } = useWeb3React()
   useEffect(() => {}, [item])
-  useEffect(() => {
-    ;(async () => {
-      loadPendingTx()
-    })()
-  }, [loadPendingTx])
 
   const handleMintTestTokens = async () => {
     await mintTestTokens(

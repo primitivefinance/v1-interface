@@ -35,7 +35,6 @@ export interface OrderContextValues {
     optionAddress: string,
     quantity: number
   ) => Promise<void>
-  loadPendingTx: () => void
   createOption: (
     provider: Web3Provider,
     asset: string,

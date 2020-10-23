@@ -8,37 +8,23 @@ import NotificationsIcon from '@material-ui/icons/Notifications'
 
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
+import Spacer from '@/components/Spacer'
 import Logo from '@/components/Logo'
-
-import { useWeb3React } from '@web3-react/core'
-import { InjectedConnector } from '@web3-react/injected-connector'
-
-export const connect = async (web3React, injected) => {
-  try {
-    await web3React.activate(injected)
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export const disconnect = async (web3React) => {
-  try {
-    await web3React.deactivate()
-  } catch (err) {
-    console.log(err)
-  }
-}
+import Settings from '@/components/Settings'
+import { Wallet } from '@/components/Wallet'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
-  const injected = new InjectedConnector({
-    supportedChainIds: [1, 3, 4, 5, 42],
-  })
-  const web3React = useWeb3React()
   return (
     <StyledTopBar>
-      <Container alignItems="center" display="flex" height={72}>
-        <StyledFlex>
+      <Container
+        alignItems="center"
+        justifyContent="flex-start"
+        display="flex"
+        flexDirection="row"
+        height={65}
+      >
+        <StyledNav>
           <Link href="/">
             <StyledNavItem active>
               <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
@@ -47,15 +33,6 @@ const TopBar: React.FC = () => {
           <Link href="/">
             <StyledNavItem active>
               <Logo />
-            </StyledNavItem>
-          </Link>
-        </StyledFlex>
-        <StyledNav>
-          <Link href="/portfolio">
-            <StyledNavItem
-              active={location.pathname === '/portfolio' ? true : false}
-            >
-              Portfolio
             </StyledNavItem>
           </Link>
           <Link href="/markets">
@@ -74,6 +51,13 @@ const TopBar: React.FC = () => {
               Create
             </StyledNavItem>
           </Link>
+          <Link href="/portfolio">
+            <StyledNavItem
+              active={location.pathname === '/portfolio' ? true : false}
+            >
+              Portfolio
+            </StyledNavItem>
+          </Link>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ
@@ -87,19 +71,12 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledNav>
+        <div style={{ width: '30rem' }} />
         <StyledFlex>
-          <StyledFlex />
-          <IconButton onClick={() => {}} variant="tertiary">
-            <NotificationsIcon />
-          </IconButton>
-          <IconButton
-            onClick={async () => {
-              connect(web3React, injected)
-            }}
-            variant="tertiary"
-          >
-            <AccountCircleIcon />
-          </IconButton>
+          <Wallet />
+          <Spacer size="md" />
+          <Settings />
+          <Spacer size="md" />
         </StyledFlex>
       </Container>
     </StyledTopBar>
@@ -108,11 +85,14 @@ const TopBar: React.FC = () => {
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 72px;
+  height: 65px;
+  top: 0em;
+  padding-top: 0.3em;
+  position: fixed;
+  width: 100%;
 `
 
 const StyledFlex = styled.div`
@@ -126,6 +106,7 @@ const StyledNav = styled.div`
   flex: 1;
   font-weight: 700;
   justify-content: center;
+  align-items: center;
 `
 
 interface StyledNavItemProps {
@@ -138,12 +119,14 @@ const StyledNavItem = styled.h3<StyledNavItemProps>`
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-decoration: none;
+  cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.color.white};
   }
 `
 
 const StyledLogo = styled.img`
+  padding-top: 0.3em;
   width: ${(props) => props.theme.spacing[5]}px;
   height: ${(props) => props.theme.spacing[5]}px;
 `
