@@ -17,12 +17,13 @@ export class Option extends Token {
   public readonly optionParameters: OptionParameters
   public constructor(
     optionParameters: OptionParameters,
+    chainId: number,
     address: string,
     decimals: number,
     name?: string,
     symbol?: string
   ) {
-    super(address, decimals, name, symbol)
+    super(chainId, address, decimals, name, symbol)
     this.optionParameters = optionParameters
   }
 
@@ -95,5 +96,12 @@ export class Option extends Token {
       return null
     }
     return isCall
+  }
+
+  public getTimeToExpiry(): number {
+    const expiry: number = this.optionParameters.expiry
+    const now: number = new Date().valueOf()
+    let timeLeft: number = expiry - now
+    return timeLeft
   }
 }

@@ -58,6 +58,18 @@ const TopBar: React.FC = () => {
               Portfolio
             </StyledNavItem>
           </Link>
+          <Link href="/faq">
+            <StyledNavItem active={location.pathname === '/faq' ? true : false}>
+              FAQ
+            </StyledNavItem>
+          </Link>
+          <Link href="/risks">
+            <StyledNavItem
+              active={location.pathname === '/risks' ? true : false}
+            >
+              Risks
+            </StyledNavItem>
+          </Link>
         </StyledNav>
         <div style={{ width: '30rem' }} />
         <StyledFlex>
