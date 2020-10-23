@@ -3,6 +3,8 @@ import styled from 'styled-components'
 
 import CallMadeIcon from '@material-ui/icons/CallMade'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import LaunchIcon from '@material-ui/icons/Launch'
+
 import { WALLETS } from '../../constants'
 
 import Box from '@/components/Box'

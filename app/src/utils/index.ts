@@ -10,8 +10,6 @@ export const decToBn = (dec: number, decimals = 18) => {
   return new BigNumber(dec).multipliedBy(new BigNumber(10).pow(decimals))
 }
 
-export { getPrice } from './getPrice'
-
 export const CHAIN_ID_NAMES: { [key: number]: string } = {
   1: 'Mainnet',
   3: 'Ropsten',

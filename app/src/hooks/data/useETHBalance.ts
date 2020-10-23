@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { Token, TokenAmount, Pair, JSBI, ChainId } from '@uniswap/sdk'
 import { useKeepSWRDataLiveAsBlocksArrive } from '../utils/index'
-import { useWeb3React } from '@web3-react/core'
+import { useActiveWeb3React } from '@/hooks/user'
 import useSWR, { responseInterface } from 'swr'
 
 import { ADDRESS_ZERO } from '../../constants'
@@ -26,7 +26,7 @@ export function useETHBalance(
   address?: string | null,
   suspense = false
 ): responseInterface<TokenAmount, any> {
-  const { chainId, library } = useWeb3React()
+  const { chainId, library } = useActiveWeb3React()
   const shouldFetch =
     typeof chainId === 'number' && typeof address === 'string' && !!library
 

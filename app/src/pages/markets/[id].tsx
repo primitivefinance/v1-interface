@@ -28,23 +28,30 @@ const mockOptions = [
   { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
 ]
 
-const StyledMain = styled.div``
+const StyledMain = styled.div`
+  background: black;
+`
 
 const StyledText = styled.div`
   font-size: 18px;
 `
 
 const StyledMarket = styled.div`
+  justify-content: center;
   display: flex;
   width: 100%;
 `
 
 const StyledSideBar = styled.div`
   border-left: 1px solid ${(props) => props.theme.color.grey[600]};
+  background: ${(props) => props.theme.color.black};
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
   width: 400px;
+`
+const StyledBox = styled(Box)`
+  max-width: 50em;
 `
 
 const Market = ({ market }) => {
@@ -61,7 +68,7 @@ const Market = ({ market }) => {
   }
 
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <h4>Switch to Rinkeby</h4>
+    return <h4 style={{ color: 'white' }}>Switch to Rinkeby or Mainnet</h4>
   }
   return (
     <OrderProvider>
@@ -69,8 +76,13 @@ const Market = ({ market }) => {
         <StyledMarket>
           <>
             <StyledMain>
-              <MarketHeader marketId={marketId} />
-              <FilterBar active={callPutActive} setCallActive={handleFilter} />
+              <StyledBox row alignItems="center">
+                <MarketHeader marketId={marketId} />
+                <FilterBar
+                  active={callPutActive}
+                  setCallActive={handleFilter}
+                />
+              </StyledBox>
               <OptionsTable
                 options={mockOptions}
                 asset="Ethereum"

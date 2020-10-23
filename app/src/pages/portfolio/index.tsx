@@ -2,23 +2,17 @@ import React from 'react'
 import styled from 'styled-components'
 
 import OrderProvider from '@/contexts/Order'
-import PricesProvider from '@/contexts/Prices'
 import OptionsProvider from '@/contexts/Options'
-import PositionsProvider from '@/contexts/Positions'
 
 const Portfolio: React.FC = () => {
   return (
-    <PricesProvider>
-      <OrderProvider>
-        <OptionsProvider>
-          <PositionsProvider>
-            <StyledPortfolio>
-              <StyledMain>Upcoming Feature...</StyledMain>
-            </StyledPortfolio>
-          </PositionsProvider>
-        </OptionsProvider>
-      </OrderProvider>
-    </PricesProvider>
+    <OrderProvider>
+      <OptionsProvider>
+        <StyledPortfolio>
+          <StyledMain>Upcoming Feature...</StyledMain>
+        </StyledPortfolio>
+      </OptionsProvider>
+    </OrderProvider>
   )
 }
 
