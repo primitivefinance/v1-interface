@@ -67,7 +67,15 @@ export default function Updater() {
             console.error(`failed to check transaction hash: ${hash}`, error)
           })
       })
-  }, [chainId, library, transactions, lastBlockNumber])
+  }, [
+    chainId,
+    library,
+    transactions,
+    lastBlockNumber,
+    txs,
+    finalizeTransaction,
+    checkTransaction,
+  ])
 
   return null
 }

@@ -60,7 +60,7 @@ const Market = ({ market }) => {
     setCallPutActive(!callPutActive)
   }
 
-  if (chainId !== 4 && active) {
+  if (!(chainId === 4 || chainId === 1) && active) {
     return <h4>Switch to Rinkeby</h4>
   }
   return (
@@ -73,12 +73,6 @@ const Market = ({ market }) => {
               <FilterBar active={callPutActive} setCallActive={handleFilter} />
               <OptionsTable
                 options={mockOptions}
-                asset="Ethereum"
-                callActive={callPutActive}
-              />
-              <PositionsHeader name="Ethereum" symbol="ETH" />
-              <PositionsTable
-                positions={mockOptions}
                 asset="Ethereum"
                 callActive={callPutActive}
               />

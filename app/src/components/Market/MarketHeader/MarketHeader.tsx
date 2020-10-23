@@ -5,7 +5,7 @@ import Box from '../../Box'
 import GoBack from '../../GoBack'
 import LitContainer from '../../LitContainer'
 import Spacer from '../../Spacer'
-
+import useSWR from 'swr'
 import { getPrice } from '@/utils/getPrice'
 export interface MarketHeaderProps {
   marketId: string
@@ -14,7 +14,6 @@ export interface MarketHeaderProps {
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
-  const [price, setPrice] = useState(null)
   const { marketId } = props
 
   const getMarketDetails = () => {
@@ -30,21 +29,23 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   }
 
   const { name, symbol } = getMarketDetails()
+  const { data, mutate } = useSWR(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${name}&vs_currencies=usd&include_24hr_change=true`
+  )
 
   useEffect(() => {
-    getPrice(name).then((p) => setPrice(p))
     const refreshInterval = setInterval(() => {
-      getPrice(name).then((p) => setPrice(p))
-    }, 10000)
+      mutate()
+    }, 1000)
     return () => clearInterval(refreshInterval)
-  }, [blink, price, setPrice, setBlink, name])
+  }, [blink, setBlink, name])
 
   useEffect(() => {
-    if (price !== prevPrice.current) {
+    if (data !== prevPrice.current) {
       setBlink(true)
     }
-    prevPrice.current = price
-  }, [blink, price, setBlink])
+    prevPrice.current = data
+  }, [blink, data, setBlink])
 
   useEffect(() => {
     const resetBlinkTimeout = setTimeout(() => {
@@ -67,15 +68,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
           </StyledTitle>
           <StyledPrice blink={blink}>
-            {price[name] ? (
-              `$${(+price[name].usd).toFixed(2)}`
-            ) : (
-              <StyledLoadingBlock />
-            )}
+            {data ? `$${(+data[name].usd).toFixed(2)}` : <StyledLoadingBlock />}
           </StyledPrice>
           <StyledPrice blink={blink} size="sm">
-            {price[name] ? (
-              `${(+price[name].usd_24h_change).toFixed(2)}% Today`
+            {data ? (
+              `${(+data[name].usd_24h_change).toFixed(2)}% Today`
             ) : (
               <StyledLoadingBlock />
             )}
@@ -87,13 +84,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     </StyledHeader>
   )
 }
-
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[400]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
-`
 
 const StyledHeader = styled.div`
   max-width: 30em;

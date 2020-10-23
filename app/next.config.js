@@ -1,5 +1,4 @@
-/* eslint @typescript-eslint/no-var-requires: "off" */
-
+/* eslint-disable */ 
 const withImages = require('next-images')
 module.exports = withImages({
   webpack: (config, { isServer }) => {

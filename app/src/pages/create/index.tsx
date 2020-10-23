@@ -5,29 +5,25 @@ import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
 
 import OrderProvider from '@/contexts/Order'
-import PricesProvider from '@/contexts/Prices'
+import PricesProvider from '@/contexts/Prices-dep'
 import OptionsProvider from '@/contexts/Options'
-import PositionsProvider from '@/contexts/Positions'
+import PositionsProvider from '@/contexts/Positions-dep'
 
 const Create: React.FC = () => {
   return (
-    <PricesProvider>
-      <OrderProvider>
-        <OptionsProvider>
-          <PositionsProvider>
-            <StyledCreate>
-              <StyledMain>
-                <StyledText>
-                  Primitive is permissionless; anyone can create new Oracle-less
-                  options from the {`protocol's`} factory. The interface is
-                  being built.
-                </StyledText>
-              </StyledMain>
-            </StyledCreate>
-          </PositionsProvider>
-        </OptionsProvider>
-      </OrderProvider>
-    </PricesProvider>
+    <OrderProvider>
+      <OptionsProvider>
+        <StyledCreate>
+          <StyledMain>
+            <StyledText>
+              Primitive is permissionless; anyone can create new Oracle-less
+              options from the {`protocol's`} factory. The interface is being
+              built.
+            </StyledText>
+          </StyledMain>
+        </StyledCreate>
+      </OptionsProvider>
+    </OrderProvider>
   )
 }
 
