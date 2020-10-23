@@ -10,7 +10,9 @@ import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 import theme from '../theme'
 
-import Provider from '@/contexts/User'
+import { default as TransactionProvider } from '@/contexts/Transactions/Transactions'
+import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
+
 import { QueryParameters } from '../constants'
 import { useQueryParameters } from '@/hooks/utils'
 
@@ -61,6 +63,14 @@ const getLibrary = (provider: any): Web3Provider => {
   return library
 }
 
+const Updater = () => {
+  return (
+    <>
+      <TransactionUpdater />
+    </>
+  )
+}
+
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
   return (
@@ -69,7 +79,8 @@ export default function App({ Component, pageProps }) {
       <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
           <>
-            <Provider>
+            <TransactionProvider>
+              <Updater />
               <Layout>
                 {active ? (
                   <WaitingRoom>
@@ -90,7 +101,7 @@ export default function App({ Component, pageProps }) {
                   <Component {...pageProps} />
                 )}
               </Layout>
-            </Provider>
+            </TransactionProvider>
           </>
         </ThemeProvider>
       </Web3ReactProvider>

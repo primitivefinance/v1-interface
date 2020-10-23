@@ -25,18 +25,18 @@ export class Trader {
     trade: Trade,
     tradeSettings: TradeSettings
   ): SinglePositionParameters {
-    let contractName: string = 'Trader'
+    let contractName = 'Trader'
     let methodName: string
     let args: (string | string[])[]
     let value: string
 
-    let option: string = trade.option.address
-    let amountIn: string = trade.inputAmount.quantity.toString()
-    let to: string = tradeSettings.receiver
+    const option: string = trade.option.address
+    const amountIn: string = trade.inputAmount.quantity.toString()
+    const to: string = tradeSettings.receiver
 
-    let parameters = trade.option.optionParameters
-    let isWethCall = parameters.base.asset.symbol === 'ETHER'
-    let isWethPut = parameters.quote.asset.symbol === 'ETHER'
+    const parameters = trade.option.optionParameters
+    const isWethCall = parameters.base.asset.symbol === 'ETHER'
+    const isWethPut = parameters.quote.asset.symbol === 'ETHER'
 
     switch (trade.operation) {
       case Operation.MINT:

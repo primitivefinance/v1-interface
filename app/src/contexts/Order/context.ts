@@ -39,7 +39,6 @@ const OrderContext = createContext<OrderContextValues>({
     optionAddress: string,
     quantity: number
   ) => {},
-  loadPendingTx: () => {},
   createOption: async (
     provider: Web3Provider,
     asset: string,

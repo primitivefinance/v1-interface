@@ -9,6 +9,7 @@ function getBlockNumber(library: Web3Provider): () => Promise<number> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useBlockNumber(): responseInterface<number, any> {
   const { library } = useWeb3React()
   const shouldFetch = !!library

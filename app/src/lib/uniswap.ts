@@ -31,23 +31,23 @@ export class Uniswap {
     let args: (string | string[])[]
     let value: string
 
-    let amountIn: string = trade
+    const amountIn: string = trade
       .maximumAmountIn(tradeSettings.slippage)
       .quantity.toString()
-    let amountOut: string = trade
+    const amountOut: string = trade
       .minimumAmountOut(tradeSettings.slippage)
       .quantity.toString()
     let path: string[] = [
       tradeSettings.stablecoin || STABLECOIN_ADDRESS,
       trade.option.address,
     ]
-    let deadline =
+    const deadline =
       tradeSettings.timeLimit > 0
         ? (
             Math.floor(new Date().getTime() / 1000) + tradeSettings.timeLimit
           ).toString()
         : tradeSettings.deadline.toString()
-    let to: string = tradeSettings.receiver
+    const to: string = tradeSettings.receiver
 
     switch (trade.direction) {
       case Direction.LONG:

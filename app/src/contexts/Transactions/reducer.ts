@@ -99,10 +99,13 @@ const reducer = (state: TransactionState = initialState, action: any) => {
       const check = action.tx
       if (!check.lastCheckedBlockNumber) {
         check.lastCheckedBlockNumber = action.blockNumber
-      }
-      return {
-        state: state[action.chainId][action.tx.hash].lastCheckedBlockNumber =
+      } else
+        check.lastCheckedBlockNumber = Math.max(
           action.blockNumber,
+          check.lastCheckedBlockNumber
+        )
+      return {
+        state: state[action.chainId][action.tx.hash] = check,
       }
     default:
       return state

@@ -1,5 +1,4 @@
 import React, { useCallback, useReducer } from 'react'
-import Notify from 'bnc-notify'
 
 import OrderContext from './context'
 
@@ -11,7 +10,16 @@ import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 
 import UniswapPairs from './uniswap_pairs.json'
-import { buy, sell } from '../../lib/uniswap'
+import {
+  Uniswap,
+  TradeSettings,
+  SinglePositionParameters,
+} from '../../lib/uniswap'
+import { Option } from '../../lib/entities/option'
+import { Trade } from '../../lib/entities'
+
+import useTransactions from '@/hooks/transactions/index'
+
 import {
   mint,
   exercise,
@@ -21,19 +29,17 @@ import {
   mintTestToken,
 } from '../../lib/primitive'
 
-const NotifyKey = process.env.NOTIFY_KEY
+import {
+  DEFAULT_SLIPPAGE,
+  DEFAULT_DEADLINE,
+  DEFAULT_TIMELIMIT,
+} from '../../constants/index'
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { library } = useWeb3React()
-
-  let notifyInstance
-  if (NotifyKey) {
-    notifyInstance = Notify({
-      dappId: NotifyKey,
-      networkId: 4,
-    })
-  }
+  const { library, chainId, account } = useWeb3React()
+  const { addTransaction } = useTransactions()
+  const now = () => new Date().getTime()
 
   /* const networkIdToUrl = {
     '1': 'https://etherscan.io/tx',
@@ -68,11 +74,23 @@ const Order: React.FC = (props) => {
     quantity: number
   ) => {
     const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
+    const pairAddress = UniswapPairs[state.item.id].pairAddress
     const signer = await provider.getSigner()
+
+    const params: TradeSettings = {
+      slippage: DEFAULT_SLIPPAGE,
+      timeLimit: DEFAULT_TIMELIMIT,
+      receiver: pairAddress,
+      deadline: DEFAULT_DEADLINE,
+    }
 
     const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -86,7 +104,11 @@ const Order: React.FC = (props) => {
 
     const tx = await sell(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -99,7 +121,11 @@ const Order: React.FC = (props) => {
 
     const tx = await mint(signer, quantity, optionAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -112,7 +138,11 @@ const Order: React.FC = (props) => {
 
     const tx = await exercise(signer, quantity, optionAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -125,7 +155,11 @@ const Order: React.FC = (props) => {
 
     const tx = await redeem(signer, quantity, optionAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -138,7 +172,11 @@ const Order: React.FC = (props) => {
 
     const tx = await close(signer, quantity, optionAddress)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -153,7 +191,11 @@ const Order: React.FC = (props) => {
 
     const tx = await create(signer, asset, isCallType, expiry, strike)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
 
@@ -166,21 +208,13 @@ const Order: React.FC = (props) => {
 
     const tx = await mintTestToken(signer, optionAddress, quantity)
     if (tx.hash) {
-      notifyInstance.hash(tx.hash)
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
     }
   }
-
-  const loadPendingTx = useCallback(async () => {
-    const pendingTx = localStorage.getItem('pendingTx')
-    if (pendingTx && library) {
-      const receipt = await library.getTransactionReceipt(pendingTx)
-      if (receipt && receipt.confirmations) {
-        return
-      } else {
-        notifyInstance.hash(pendingTx)
-      }
-    }
-  }, [library, notifyInstance])
 
   return (
     <OrderContext.Provider
@@ -195,7 +229,6 @@ const Order: React.FC = (props) => {
         exerciseOptions: handleExerciseOptions,
         redeemOptions: handleRedeemOptions,
         closeOptions: handleCloseOptions,
-        loadPendingTx: loadPendingTx,
         createOption: handleCreateOption,
         mintTestTokens: handleMintTestTokens,
       }}

@@ -6,8 +6,7 @@ import GoBack from '../../GoBack'
 import LitContainer from '../../LitContainer'
 import Spacer from '../../Spacer'
 
-import usePrices from '@/hooks/usePrices'
-
+import { getPrice } from '@/utils/getPrice'
 export interface MarketHeaderProps {
   marketId: string
 }
@@ -15,6 +14,7 @@ export interface MarketHeaderProps {
 const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
+  const [price, setPrice] = useState(null)
   const { marketId } = props
 
   const getMarketDetails = () => {
@@ -31,16 +31,13 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
 
   const { name, symbol } = getMarketDetails()
 
-  const { prices, assets, getPrices } = usePrices()
-  const price = prices[name]
-
   useEffect(() => {
-    getPrices(name)
+    getPrice(name).then((p) => setPrice(p))
     const refreshInterval = setInterval(() => {
-      getPrices(name)
+      getPrice(name).then((p) => setPrice(p))
     }, 10000)
     return () => clearInterval(refreshInterval)
-  }, [blink, getPrices, setBlink, name])
+  }, [blink, price, setPrice, setBlink, name])
 
   useEffect(() => {
     if (price !== prevPrice.current) {
@@ -70,15 +67,15 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
           </StyledTitle>
           <StyledPrice blink={blink}>
-            {prices[name] ? (
-              `$${(+prices[name]).toFixed(2)}`
+            {price[name] ? (
+              `$${(+price[name].usd).toFixed(2)}`
             ) : (
               <StyledLoadingBlock />
             )}
           </StyledPrice>
           <StyledPrice blink={blink} size="sm">
-            {assets[name] ? (
-              `${(+assets[name]['usd_24h_change']).toFixed(2)}% Today`
+            {price[name] ? (
+              `${(+price[name].usd_24h_change).toFixed(2)}% Today`
             ) : (
               <StyledLoadingBlock />
             )}
