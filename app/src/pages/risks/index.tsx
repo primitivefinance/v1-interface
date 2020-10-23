@@ -54,7 +54,7 @@ const Risks: React.FC = () => {
                 <StyledSpacer size={24} />
                 <StyledText>
                   Primitive's core contracts have been audited:{' '}
-                  <Link href={auditLink} styled={{ textDecoration: 'none' }}>
+                  <Link href={auditLink}>
                     <StyledNavItem>Phase 1 Audit.</StyledNavItem>
                   </Link>
                   <StyledSpacer size={24} />
