@@ -14,7 +14,6 @@ const Layout: React.FC<PageProps> = (props) => {
   return (
     <>
       <TopBar />
-      <StyledSeparator />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>
@@ -27,10 +26,6 @@ const StyledPage = styled.div``
 interface StyledMainProps {
   full?: boolean
 }
-
-const StyledSeparator = styled.div`
-  min-height: ${(props) => props.theme.barHeight}px;
-`
 
 const StyledMain = styled.div<StyledMainProps>`
   align-items: center;
