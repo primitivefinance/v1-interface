@@ -20,7 +20,7 @@ const TopBar: React.FC = () => {
   return (
     <StyledTopBar>
       <Container alignItems="center" display="flex" height={72}>
-        <StyledNav>
+        <StyledFlex>
           <Link href="/">
             <StyledNavItem active>
               <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
@@ -31,7 +31,8 @@ const TopBar: React.FC = () => {
               <Logo />
             </StyledNavItem>
           </Link>
-          <Spacer size="lg" />
+        </StyledFlex>
+        <StyledNav>
           <Link href="/create">
             <StyledNavItem
               active={location.pathname === '/create' ? true : false}
@@ -68,12 +69,11 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledNav>
-        <Spacer size="lg" />
         <StyledFlex>
+          <StyledFlex />
           <Wallet />
-          <Spacer size="md" />
+          <Spacer size="sm" />
           <Settings />
-          <Spacer size="md" />
         </StyledFlex>
       </Container>
     </StyledTopBar>
