@@ -6,6 +6,8 @@ import styled from 'styled-components'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import NotificationsIcon from '@material-ui/icons/Notifications'
 
+import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
+
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
 import Spacer from '@/components/Spacer'
@@ -17,17 +19,11 @@ const TopBar: React.FC = () => {
   const location = useRouter()
   return (
     <StyledTopBar>
-      <Container
-        alignItems="center"
-        justifyContent="flex-start"
-        display="flex"
-        flexDirection="row"
-        height={65}
-      >
+      <Container alignItems="center" display="flex" height={72}>
         <StyledNav>
           <Link href="/">
             <StyledNavItem active>
-              <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
+              <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
             </StyledNavItem>
           </Link>
           <Link href="/">
@@ -35,15 +31,7 @@ const TopBar: React.FC = () => {
               <Logo />
             </StyledNavItem>
           </Link>
-          <Link href="/markets">
-            <StyledNavItem
-              active={
-                location.pathname.indexOf('/markets') !== -1 ? true : false
-              }
-            >
-              Markets
-            </StyledNavItem>
-          </Link>
+          <Spacer size="lg" />
           <Link href="/create">
             <StyledNavItem
               active={location.pathname === '/create' ? true : false}
@@ -56,6 +44,15 @@ const TopBar: React.FC = () => {
               active={location.pathname === '/portfolio' ? true : false}
             >
               Portfolio
+            </StyledNavItem>
+          </Link>
+          <Link href="/markets">
+            <StyledNavItem
+              active={
+                location.pathname.indexOf('/markets') !== -1 ? true : false
+              }
+            >
+              Markets
             </StyledNavItem>
           </Link>
           <Link href="/faq">
@@ -71,7 +68,7 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledNav>
-        <div style={{ width: '30rem' }} />
+        <Spacer size="lg" />
         <StyledFlex>
           <Wallet />
           <Spacer size="md" />
@@ -85,10 +82,11 @@ const TopBar: React.FC = () => {
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
+  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 65px;
+  height: 72px;
   top: 0em;
   padding-top: 0.3em;
   position: fixed;
@@ -102,18 +100,18 @@ const StyledFlex = styled.div`
 `
 
 const StyledNav = styled.div`
+  align-items: center;
   display: flex;
   flex: 1;
   font-weight: 700;
   justify-content: center;
-  align-items: center;
 `
 
 interface StyledNavItemProps {
   active: boolean
 }
 
-const StyledNavItem = styled.h3<StyledNavItemProps>`
+const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
