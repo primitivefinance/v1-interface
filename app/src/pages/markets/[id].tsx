@@ -28,16 +28,13 @@ const mockOptions = [
   { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
 ]
 
-const StyledMain = styled.div`
-  background: black;
-`
+const StyledMain = styled.div``
 
 const StyledText = styled.div`
   font-size: 18px;
 `
 
 const StyledMarket = styled.div`
-  justify-content: center;
   display: flex;
   width: 100%;
 `
@@ -50,9 +47,7 @@ const StyledSideBar = styled.div`
   padding: ${(props) => props.theme.spacing[4]}px;
   width: 400px;
 `
-const StyledBox = styled(Box)`
-  max-width: 50em;
-`
+const StyledBox = styled.div``
 
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
@@ -76,13 +71,8 @@ const Market = ({ market }) => {
         <StyledMarket>
           <>
             <StyledMain>
-              <StyledBox row alignItems="center">
-                <MarketHeader marketId={marketId} />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilter}
-                />
-              </StyledBox>
+              <MarketHeader marketId={marketId} />
+              <FilterBar active={callPutActive} setCallActive={handleFilter} />
               <OptionsTable
                 options={mockOptions}
                 asset="Ethereum"

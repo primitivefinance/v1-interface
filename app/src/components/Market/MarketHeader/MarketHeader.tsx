@@ -58,33 +58,26 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   return (
     <StyledHeader>
       <LitContainer>
+        <GoBack to="/markets" />
+        <StyledTitle>
+          <StyledName>
+            {name.charAt(0).toUpperCase() + name.slice(1)}
+          </StyledName>
+          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+        </StyledTitle>
         <Box row alignItems="baseline">
-          <GoBack to="/markets" />
-          <Spacer size="lg" />
-          <Box>
-            <StyledTitle>
-              <StyledName>
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </StyledName>
-              <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-            </StyledTitle>
-            <StyledPrice blink={blink}>
-              {data ? (
-                `$${(+data[name].usd).toFixed(2)}`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <StyledPrice blink={blink} size="sm">
-              {data ? (
-                `${(+data[name].usd_24h_change).toFixed(2)}% Today`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <Spacer size="sm" />
-            <StyledSource>via {source}</StyledSource>
-          </Box>
+          <StyledPrice blink={blink}>
+            {data ? `$${(+data[name].usd).toFixed(2)}` : <StyledLoadingBlock />}
+          </StyledPrice>
+          <StyledPrice blink={blink} size="sm">
+            {data ? (
+              `${(+data[name].usd_24h_change).toFixed(2)}% Today`
+            ) : (
+              <StyledLoadingBlock />
+            )}
+          </StyledPrice>
+          <Spacer size="sm" />
+          <StyledSource>via {source}</StyledSource>
         </Box>
       </LitContainer>
     </StyledHeader>
@@ -99,8 +92,7 @@ const StyledLoadingBlock = styled.div`
 `
 
 const StyledHeader = styled.div`
-  max-width: 30em;
-  background-color: black;
+  background-color: ${(props) => props.theme.color.grey[800]};
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   padding-top: ${(props) => props.theme.spacing[4]}px;
 `

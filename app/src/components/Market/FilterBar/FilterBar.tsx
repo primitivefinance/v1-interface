@@ -63,7 +63,7 @@ const StyledSelect = styled.select`
 const StyledOption = styled.option``
 
 const StyledFilterBar = styled.div`
-  background: black;
+  background: ${(props) => props.theme.color.grey[800]};
 `
 
 const StyledFilterBarInner = styled.div`
