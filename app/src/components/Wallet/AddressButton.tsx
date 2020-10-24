@@ -53,13 +53,13 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
 const StyledAddress = styled.h4``
 
 const StyledAddressButton = styled.div`
+  background-color: ${(props) => props.theme.color.black};
+  color: ${(props) => props.theme.color.grey[400]};
+  cursor: pointer;
   min-width: 6em;
   position: relative;
-  cursor: pointer;
   text-decoration: none;
-  background: black;
-  color: grey;
   &:hover {
-    color: white;
+    color: ${(props) => props.theme.color.white};
   }
 `
