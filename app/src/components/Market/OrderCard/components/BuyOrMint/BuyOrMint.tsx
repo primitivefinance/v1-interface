@@ -39,8 +39,18 @@ const BuyOrMint: React.FC = () => {
       <CardContent>
         <StyledTitle>{title}</StyledTitle>
         <Toggle>
-          <ToggleButton active={buyCard} onClick={handleToggle} text="Buy" />
-          <ToggleButton active={!buyCard} onClick={handleToggle} text="Mint" />
+          <ToggleButton
+            size="sm"
+            active={buyCard}
+            onClick={handleToggle}
+            text="Buy"
+          />
+          <ToggleButton
+            size="sm"
+            active={!buyCard}
+            onClick={handleToggle}
+            text="Mint"
+          />
         </Toggle>
         {buyCard ? <Buy /> : <Mint />}
       </CardContent>

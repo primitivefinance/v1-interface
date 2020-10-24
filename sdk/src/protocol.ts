@@ -1,17 +1,17 @@
 import ethers from 'ethers'
-import { Option, OptionParameters } from './entities/option'
+import { Option, OptionParameters } from './src/entities/option'
 import OptionContract from '@primitivefi/contracts/artifacts/Option.json'
 import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFactory.json'
 //import MainnetFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
-import { Asset, Quantity, Token } from './entities'
+import { Asset, Quantity, Token } from './src/entities'
 import {
   OPTION_SALT,
   UNISWAP_FACTORY_V2,
   UNISWAP_INIT_CODE_HASH,
   STABLECOIN_ADDRESS,
 } from './constants'
-import computeClone2Clone from './utils/computeCreate2Clone'
+import computeClone2Clone from './src/utils/computeCreate2Clone'
 
 /**
  * Methods for asyncronously getting on-chain data and returning SDK classes using the data.

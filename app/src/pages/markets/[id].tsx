@@ -15,8 +15,8 @@ import {
   MarketHeader,
   OptionsTable,
   PositionsTable,
+  TransactionCard,
   OrderCard,
-  TestnetCard,
   PositionsHeader,
 } from '../../components/Market'
 
@@ -92,8 +92,8 @@ const Market = ({ market }) => {
             <StyledSideBar>
               <OrderCard />
               <Spacer />
-              {chainId === 4 ? <TestnetCard /> : <> </>}
-            </StyledSideBar>{' '}
+              <TransactionCard />
+            </StyledSideBar>
           </>
         </StyledMarket>
       </OptionsProvider>

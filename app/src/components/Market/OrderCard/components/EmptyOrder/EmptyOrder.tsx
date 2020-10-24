@@ -9,7 +9,7 @@ import CardTitle from '@/components/CardTitle'
 
 const EmptyOrder: React.FC = () => (
   <Card>
-    <CardTitle>Your order</CardTitle>
+    <CardTitle>Option Order</CardTitle>
     <CardContent>
       <StyledEmptyContent>
         <StyledEmptyIcon>

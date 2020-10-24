@@ -1,5 +1,5 @@
 import { Direction, Operation } from './constants'
-import { Trade } from './entities'
+import { Trade } from './src/entities'
 
 export interface TradeSettings {
   slippage: string

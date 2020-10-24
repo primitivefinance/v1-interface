@@ -14,7 +14,6 @@ const Layout: React.FC<PageProps> = (props) => {
   return (
     <>
       <TopBar />
-      <div style={{ minHeight: '5em' }} />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>
@@ -32,7 +31,7 @@ const StyledMain = styled.div<StyledMainProps>`
   align-items: center;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  min-height: 70vh;
   width: 100%;
 `
 

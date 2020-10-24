@@ -1,7 +1,7 @@
 
-export * from './entities'
-export * from './utils'
-export * from './math'
+export * from './src/entities'
+export * from './src/utils'
+export * from './src/math'
 
 export * from './constants'
 export * from './protocol'

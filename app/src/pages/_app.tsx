@@ -8,13 +8,12 @@ import Layout from '@/components/Layout'
 import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
+import BetaBanner from '@/components/BetaBanner'
+
 import theme from '../theme'
 
 import { default as TransactionProvider } from '@/contexts/Transactions/Transactions'
 import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
-
-import { QueryParameters } from '../constants'
-import { useQueryParameters } from '@/hooks/utils'
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -23,7 +22,7 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     line-height: 1.5;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: initial !important;
     overflow-y: visible;
   }
   body {
@@ -82,6 +81,7 @@ export default function App({ Component, pageProps }) {
             <TransactionProvider>
               <Updater />
               <Layout>
+                <BetaBanner isOpen={true} />
                 {active ? (
                   <WaitingRoom>
                     <Spacer size="lg" />
