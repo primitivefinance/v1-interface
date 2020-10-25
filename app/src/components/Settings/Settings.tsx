@@ -4,6 +4,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
+import Button from '@/components/Button'
 
 import { useClickAway } from '../../hooks/utils/useClickAway'
 
@@ -26,19 +27,20 @@ export const Settings = () => {
           <SettingsIcon style={{ color: 'black' }} />
         </IconButton>
         <StyledModal ref={nodeRef}>
-          <Box alignItems="center" justifyContent="center" row>
-            <Box alignItems="flex-start" justifyContent="space-between" column>
-              <h5>Preferred Stablecoin</h5>
-              <h5>Other Settings</h5>
-              <h5>Even More User Settings</h5>
-            </Box>
-            <Spacer size="sm" />
-            <Box alignItems="flex-start" justifyContent="space-between" column>
-              <h5>Preferred Stablecoin</h5>
-              <h5>Other Settings</h5>
-              <h5>Even More User Settings</h5>
-            </Box>
-          </Box>
+          <StyledRow>
+            <StyledContent>
+              <StyledTitle>Settings</StyledTitle>
+              <StyledSetting>Slippage tolerance</StyledSetting>
+              <Spacer size="sm" />
+              <StyledRow>
+                <Button size="sm" text="0.10%" onClick={() => {}}></Button>
+                <Spacer size="sm" />
+                <Button size="sm" text="0.50%" onClick={() => {}}></Button>
+                <Spacer size="sm" />
+                <Button size="sm" text="1.00%" onClick={() => {}}></Button>
+              </StyledRow>
+            </StyledContent>
+          </StyledRow>
         </StyledModal>
       </>
     )
@@ -50,15 +52,38 @@ export const Settings = () => {
   )
 }
 
+const StyledTitle = styled.div`
+  font-weight: 700;
+`
+
+const StyledSetting = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  font-size: 12px;
+  font-weight: 400;
+`
+
+const StyledContent = styled(Box)`
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
+`
+
+const StyledRow = styled(Box)`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`
+
 const StyledModal = styled.div`
-  padding-left: 1em;
-  width: 70%;
-  top: 10em;
-  right: 15%;
-  border-radius: 0.3em;
-  z-index: 0;
+  background: ${(props) => props.theme.color.grey[800]};
+  border: 1px solid ${(props) => props.theme.color.grey[500]}ff;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  color: ${(props) => props.theme.color.white};
+  padding: ${(props) => props.theme.spacing[3]}px;
   position: fixed;
+  right: 15%;
+  top: ${(props) => props.theme.barHeight}px;
+  z-index: 0;
   z-index: 9999 !important;
-  background: ${(props) => props.theme.color.grey[600]};
-  color: white;
 `

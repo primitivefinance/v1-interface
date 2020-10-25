@@ -56,11 +56,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         <LitContainer>
           <TableRow isHead>
             {headers.map((header, index) => {
-              if (index === headers.length - 1) {
+              /* if (index === headers.length - 1) {
                 return (
                   <StyledButtonCell key={header}>{header}</StyledButtonCell>
                 )
-              }
+              } */
               return <TableCell key={header}>{header}</TableCell>
             })}
           </TableRow>
@@ -72,7 +72,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             {options[type].map((option, i) => {
               const { breakEven, price, strike, address } = option
               return (
-                <TableRow key={address}>
+                <TableRow
+                  key={address}
+                  onClick={() => {
+                    onAddItem(option, {
+                      buyOrMint: true,
+                    })
+                  }}
+                >
                   <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
                   <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
                   <TableCell key={price}>${price.toFixed(2)}</TableCell>
@@ -82,7 +89,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
-                  <StyledButtonCell key={'Open'}>
+                  {/* <StyledButtonCell key={'Open'}>
                     <Button
                       onClick={() => {
                         onAddItem(option, {
@@ -94,7 +101,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     >
                       {'Open'}
                     </Button>
-                  </StyledButtonCell>
+                  </StyledButtonCell> */}
                 </TableRow>
               )
             })}
@@ -112,8 +119,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 }
 
 const StyledARef = styled.a`
-  text-decoration: none;
   color: ${(props) => props.theme.color.white};
+  text-decoration: none;
 `
 
 const StyledTableHead = styled.div`
@@ -122,9 +129,9 @@ const StyledTableHead = styled.div`
 `
 
 const StyledButtonCell = styled.div`
-  width: ${(props) => props.theme.buttonSize}px;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
   flex: 0.5;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+  width: ${(props) => props.theme.buttonSize}px;
 `
 
 export default OptionsTable

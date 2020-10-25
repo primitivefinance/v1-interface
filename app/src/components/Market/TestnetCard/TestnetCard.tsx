@@ -31,7 +31,7 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
       <StyledContainer>
         <CardContent>
           <StyledTitle>
-            Earn NFT Rewards
+            Earn Rewards
             <Button
               href="https://primitive.finance/beta"
               variant="transparent"

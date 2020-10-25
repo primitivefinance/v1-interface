@@ -35,11 +35,9 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
-          {/**
           <StyledSelect>
             <StyledOption>November 2</StyledOption>
           </StyledSelect>
-           */}
         </StyledFilterBarInner>
       </LitContainer>
     </StyledFilterBar>
@@ -63,7 +61,7 @@ const StyledSelect = styled.select`
 const StyledOption = styled.option``
 
 const StyledFilterBar = styled.div`
-  background: black;
+  background: ${(props) => props.theme.color.grey[800]};
 `
 
 const StyledFilterBarInner = styled.div`

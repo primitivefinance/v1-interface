@@ -19,7 +19,7 @@ import { useQueryParameters } from '@/hooks/utils'
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-    height: 100%;
+   /*  height: 100%; */
     width: 100%;
     line-height: 1.5;
     max-width: 100%;
@@ -44,7 +44,7 @@ const GlobalStyle = createGlobalStyle`
 `
 const StyledText = styled.div`
   font-size: 18px;
-  color: white;
+  color: ${(props) => props.theme.color.white};
 `
 const WaitingRoom = styled.div`
   align-items: center;
