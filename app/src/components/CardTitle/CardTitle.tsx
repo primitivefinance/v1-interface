@@ -7,9 +7,10 @@ const CardTitle: React.FC = (props) => {
 
 const StyledCardTitle = styled.div`
   align-items: center;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   display: flex;
   font-weight: 700;
+  font-size: 18px;
   margin: ${(props) => props.theme.spacing[4]}px;
 `
 

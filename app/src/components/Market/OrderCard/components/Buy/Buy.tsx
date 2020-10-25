@@ -1,9 +1,12 @@
 import React, { useCallback, useState } from 'react'
 
 import { useWeb3React } from '@web3-react/core'
+import styled from 'styled-components'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
+import IconButton from '@/components/IconButton'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
@@ -12,9 +15,10 @@ import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
+import { destructureOptionSymbol } from '@/lib/utils'
 
-const LP: React.FC = () => {
-  const { buyOptions, item } = useOrders()
+const Buy: React.FC = () => {
+  const { buyOptions, item, onChangeItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -44,9 +48,21 @@ const LP: React.FC = () => {
       Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
+  const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
 
   return (
     <>
+      <Box row justifyContent="flex-start">
+        <IconButton
+          variant="tertiary"
+          size="sm"
+          onClick={() => onChangeItem(item, '')}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Spacer />
+        <StyledTitle>{`Buy Option Tokens`}</StyledTitle>
+      </Box>
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
@@ -77,11 +93,20 @@ const LP: React.FC = () => {
       <Button
         disabled={!quantity}
         full
+        size="sm"
         onClick={() => buyOptions(library, item?.address, Number(quantity))}
-        text="Continue to Review"
+        text="Review Transaction"
       />
     </>
   )
 }
 
-export default LP
+const StyledTitle = styled.h5`
+  align-items: center;
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  font-size: 18px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+`
+export default Buy

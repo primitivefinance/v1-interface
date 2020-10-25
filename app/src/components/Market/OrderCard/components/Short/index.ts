@@ -1,1 +1,1 @@
-export { default } from '@/components/Short'
+export { default } from './Short'

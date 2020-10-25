@@ -6,15 +6,22 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = (props) => {
-  return <StyledCard border={props.border ? true : false}>{props.children}</StyledCard>
+  return (
+    <StyledCard border={props.border ? true : false}>
+      {props.children}
+    </StyledCard>
+  )
 }
 
 const StyledCard = styled.div<CardProps>`
-  background-color: ${(props) => props.theme.color.grey[800]};
+  background-color: ${(props) => props.theme.color.black};
   border-radius: ${(props) => props.theme.borderRadius}px;
   overflow: hidden;
-  border: 1px solid ${(props) => props.border ? props.theme.color.grey[500] : props.theme.color.grey[300]}ff;
   display: flex;
+  border-radius: 0.2em 0.2em 0 0;
+  border-width: 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
   flex: 1;
   flex-direction: column;
 `

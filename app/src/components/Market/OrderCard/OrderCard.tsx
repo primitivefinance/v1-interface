@@ -12,19 +12,19 @@ import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import { destructureOptionSymbol } from '@/lib/utils'
 
-import BuyOrMint from './components/BuyOrMint'
-import EmptyOrder from './components/EmptyOrder'
-import SellOrExercise from './components/SellOrExercise'
-import LiquidityPool from './components/LiquidityPool'
+import Buy from './components/Buy'
+import Sell from './components/Sell'
+import Short from './components/Short'
+import { Exercise } from './components/Exercise'
+import { LP, WLP } from './components/LiquidityPool'
 import OrderOptions from './components/OrderOptions'
 
 const OrderContent: React.FC = () => {
-  const { item, orderType } = useOrders()
+  const { orderType } = useOrders()
 
-  useEffect(() => {}, [item])
-
-  if (orderType === 'BUY' || orderType === 'M_SELL') {
-    return <BuyOrMint />
+  // I know this should be a switch
+  if (orderType === 'BUY') {
+    return <Buy />
   }
   if (orderType === 'SELL') {
     return <Sell />
@@ -32,10 +32,15 @@ const OrderContent: React.FC = () => {
   if (orderType === 'M_SELL') {
     return <Short />
   }
-  if (orderType === 'LP' || orderType === 'W_LP') {
-    return <LiquidityPool />
+  if (orderType === 'LP') {
+    return <LP />
   }
-  if (orderType === 'SELL' || orderType === 'EXEC') return <SellOrExercise />
+  if (orderType === 'W_LP') {
+    return <WLP />
+  }
+  if (orderType === 'EXEC') {
+    return <Exercise />
+  }
   if (orderType === '') {
     return <OrderOptions />
   }
@@ -53,14 +58,20 @@ const OrderCard: React.FC = () => {
   return (
     <Card>
       <CardTitle>
-        Order for{' '}
-        {`${asset} ${type === 'C' ? 'Call' : 'Put'} $${strike} ${month}/${day}`}
-        <Spacer />
-        <IconButton variant="transparent" size="sm" onClick={() => clear()}>
-          <CloseIcon />
-        </IconButton>
+        <Box row justifyContent="center" alignItems="center">
+          <>
+            {`${asset} ${
+              type === 'C' ? 'Call' : 'Put'
+            } $${strike} ${month}/${day}`}
+          </>
+          <Button variant="tertiary" size="sm" onClick={() => clear()}>
+            cancel
+          </Button>
+        </Box>
       </CardTitle>
-      <OrderContent />
+      <CardContent>
+        <OrderContent />
+      </CardContent>
     </Card>
   )
 }

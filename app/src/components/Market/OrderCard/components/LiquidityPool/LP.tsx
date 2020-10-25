@@ -1,33 +1,36 @@
 import React, { useCallback, useState } from 'react'
-
-import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
+import { useWeb3React } from '@web3-react/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 import Box from '@/components/Box'
-import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import AddIcon from '@material-ui/icons/Add'
+
+import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
 
 import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
-
-import formatBalance from '@/utils/formatBalance'
 import { destructureOptionSymbol } from '@/lib/utils'
 
-const Short: React.FC = () => {
-  const { mintOptions, item, onChangeItem } = useOrders()
+import formatBalance from '@/utils/formatBalance'
+
+const LP: React.FC = () => {
+  const { buyOptions, item, onChangeItem } = useOrders()
+  const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
+
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
-  const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb' // Fix - should not be hardcode
-  const tokenBalance = useTokenBalance(testEthAddress)
+  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const tokenBalance = useTokenBalance(stablecoinAddress)
 
-  const handleMintClick = useCallback(() => {
-    mintOptions(library, item?.address, Number(quantity))
-  }, [mintOptions, item, library, quantity])
+  /* const handleBuyClick = useCallback(() => {
+    buyOptions(library, item?.address, Number(quantity))
+  }, [buyOptions, item, library, quantity]) */
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -41,11 +44,14 @@ const Short: React.FC = () => {
     [setQuantity]
   )
 
+  const buyingPower = 250000
+
   const handleSetMax = () => {
     const max =
-      Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
+
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -57,16 +63,10 @@ const Short: React.FC = () => {
           <ArrowBackIcon />
         </IconButton>
         <Spacer />
-        <StyledTitle>{`Short Option Tokens`}</StyledTitle>
+        <StyledTitle>{`Provide Liquidity`}</StyledTitle>
       </Box>
       <Spacer />
-      <Box row justifyContent="space-between">
-        <Label text="Price" />
-        <span>${item.price.toFixed(2)}</span>
-      </Box>
-      <Spacer />
-      <Box row justifyContent="flex-start"></Box>
-      <Label text="Quantity" />
+      <Label text={`Quantity (${item.id})`} />
       <Spacer size="sm" />
       <Input
         placeholder="0.00"
@@ -75,22 +75,28 @@ const Short: React.FC = () => {
         endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
       <Spacer />
+      <Label text="Quantity (DAI)" />
+      <Spacer size="sm" />
+      <Input
+        placeholder="0.00"
+        onChange={handleQuantityChange}
+        value={`${quantity}`}
+      />
+      <Spacer />
       <Box row justifyContent="space-between">
-        <Label text="Minting Power" />
-        <span>{formatBalance(tokenBalance)} ETH</span>
+        <Label text="Price per LP Token" />
+        <span>${formatBalance(tokenBalance)}</span>
       </Box>
       <Spacer />
       <Box row justifyContent="space-between">
-        <Label text="Total Credit" />
-        <span>
-          {+quantity ? '+' : ''}${(+item.price * +quantity).toFixed(2)}
-        </span>
+        <Label text="LP Tokens Recieved" />
+        <span>{+(item.price * +quantity).toFixed(2)}</span>
       </Box>
       <Spacer />
       <Button
         disabled={!quantity}
         full
-        onClick={handleMintClick}
+        onClick={() => buyOptions(library, item?.address, Number(quantity))}
         text="Continue to Review"
       />
     </>
@@ -105,4 +111,5 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-export default Short
+
+export default LP

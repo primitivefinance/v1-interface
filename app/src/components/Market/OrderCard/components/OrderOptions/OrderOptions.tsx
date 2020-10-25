@@ -13,6 +13,7 @@ import CardTitle from '@/components/CardTitle'
 import useOrders from '@/hooks/useOrders'
 import { destructureOptionSymbol } from '@/lib/utils'
 import useTokenBalance from '@/hooks/useTokenBalance'
+import Exercise from '../Exercise/Exercise'
 
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem, onRemoveItem } = useOrders()
@@ -24,11 +25,8 @@ const OrderOptions: React.FC = () => {
     onChangeItem(item, t)
   }
 
-  const clear = () => {
-    onRemoveItem(item)
-  }
   return (
-    <CardContent>
+    <>
       <StyledR />
       <>
         <Box column alignItems="flex-start">
@@ -50,6 +48,14 @@ const OrderOptions: React.FC = () => {
                   onClick={() => change('SELL')}
                 >
                   Sell
+                </Button>
+                <Spacer />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => change('EXEC')}
+                >
+                  Exercise
                 </Button>
                 <Spacer />
               </>
@@ -92,7 +98,7 @@ const OrderOptions: React.FC = () => {
           )}
         </Box>
       </>
-    </CardContent>
+    </>
   )
 }
 

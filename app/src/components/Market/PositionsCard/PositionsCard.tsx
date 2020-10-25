@@ -33,7 +33,7 @@ export type FormattedOption = {
 
 const PositionsCard: React.FC = () => {
   const { options, getOptions } = useOptions()
-  const { item } = useOrders()
+  const { item, onRemoveItem } = useOrders()
   const { library } = useWeb3React()
 
   /*
@@ -66,7 +66,7 @@ const PositionsCard: React.FC = () => {
             <AddIcon />
           </StyledEmptyIcon>
           <StyledEmptyMessage>
-            Click the open button next to the options to create a position
+            Click an option to open an position
           </StyledEmptyMessage>
         </StyledEmptyContent>
       </CardContent>
@@ -83,9 +83,9 @@ const StyledEmptyContent = styled.div`
 
 const StyledEmptyIcon = styled.div`
   align-items: center;
-  border: 1px dashed ${(props) => props.theme.color.grey[600]};
+  border: 1px dashed ${(props) => props.theme.color.white};
   border-radius: 32px;
-  color: ${(props) => props.theme.color.grey[600]};
+  color: ${(props) => props.theme.color.white};
   display: flex;
   height: 44px;
   justify-content: center;

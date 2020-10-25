@@ -12,7 +12,7 @@ import useOrders from '@/hooks/useOrders'
 
 import { destructureOptionSymbol } from '@/lib/utils'
 
-import Buy from './components/Buy'
+import Buy from './Buy'
 import Mint from './components/Mint'
 
 const BuyOrMint: React.FC = () => {

@@ -30,6 +30,7 @@ const mockOptions = [
 
 const StyledMain = styled.div`
   background: black;
+  width: 70%;
 `
 
 const StyledText = styled.div`
@@ -48,11 +49,9 @@ const StyledSideBar = styled.div`
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
-  width: 400px;
+  width: 30%;
 `
-const StyledBox = styled(Box)`
-  max-width: 60em;
-`
+const StyledBox = styled(Box)``
 
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)

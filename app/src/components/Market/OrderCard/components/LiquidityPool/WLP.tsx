@@ -1,8 +1,11 @@
 import React, { useCallback, useState } from 'react'
-
+import styled from 'styled-components'
 import { useWeb3React } from '@web3-react/core'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 import Box from '@/components/Box'
+import IconButton from '@/components/IconButton'
+
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
@@ -14,7 +17,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import formatBalance from '@/utils/formatBalance'
 
 const WLP: React.FC = () => {
-  const { buyOptions, item } = useOrders()
+  const { buyOptions, item, onChangeItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -47,6 +50,17 @@ const WLP: React.FC = () => {
 
   return (
     <>
+      <Box row justifyContent="flex-start">
+        <IconButton
+          variant="tertiary"
+          size="sm"
+          onClick={() => onChangeItem(item, '')}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Spacer />
+        <StyledTitle>{`Withdraw Liquidity for Option`}</StyledTitle>
+      </Box>
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
@@ -83,5 +97,14 @@ const WLP: React.FC = () => {
     </>
   )
 }
+
+const StyledTitle = styled.h5`
+  align-items: center;
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  font-size: 18px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+`
 
 export default WLP

@@ -10,36 +10,42 @@ import useOrders from '@/hooks/useOrders'
 
 import { destructureOptionSymbol } from '@/lib/utils'
 
-import LP from './components/LP'
-import WLP from './components/WLP'
+import Exercise from './Exercise'
+import Sell from './components/Sell'
 
-const LiquidityPool: React.FC = () => {
-  const { item, orderType } = useOrders()
+const SellOrExercise: React.FC = () => {
+  const { item } = useOrders()
+  const [sellCard, setSellCard] = useState(true)
+
+  const handleToggle = useCallback(() => {
+    setSellCard(!sellCard)
+  }, [sellCard, setSellCard])
+
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
 
-  const isLP = useMemo(() => {
-    if (orderType === 'W_LP') {
-      return false
-    }
-    return true
-  }, [orderType])
-
   const title = useMemo(() => {
-    if (isLP) {
-      return `Provide Liquidity ${asset} ${
+    if (sellCard) {
+      return `Sell to Close ${asset} ${
         type === 'C' ? 'Call' : 'Put'
       } $${strike} ${month}/${day}`
     }
-    return `Withdrawl Liquidity ${asset} ${
+    return `Exercise ${asset} ${
       type === 'C' ? 'Call' : 'Put'
     } $${strike} ${month}/${day}`
-  }, [asset, day, month, strike, type])
-
+  }, [asset, sellCard, day, month, strike, type])
   return (
     <Card border>
       <CardContent>
         <StyledTitle>{title}</StyledTitle>
-        {isLP ? <LP /> : <WLP />}
+        <Toggle>
+          <ToggleButton active={sellCard} onClick={handleToggle} text="Sell" />
+          <ToggleButton
+            active={!sellCard}
+            onClick={handleToggle}
+            text="Exercise"
+          />
+        </Toggle>
+        {sellCard ? <Sell /> : <Exercise />}
       </CardContent>
     </Card>
   )
@@ -54,4 +60,4 @@ const StyledTitle = styled.h4`
   margin: ${(props) => props.theme.spacing[2]}px;
 `
 
-export default LiquidityPool
+export default SellOrExercise
