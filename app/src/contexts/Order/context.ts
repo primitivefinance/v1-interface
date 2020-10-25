@@ -27,6 +27,18 @@ const OrderContext = createContext<OrderContextValues>({
     optionAddress: string,
     quantity: number
   ) => {},
+  provideLiquidity: async (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    max_tokens: number
+  ) => {},
+  withdrawLiquidity: async (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    min_tokens: number
+  ) => {},
 })
 
 export default OrderContext

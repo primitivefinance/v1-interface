@@ -21,11 +21,12 @@ export const Balance: React.FC<BalanceProps> = ({ amount }) => {
 const StyledContent = styled.div`
   align-items: center;
   display: flex;
+  width: 4em;
   flex-direction: column;
 `
 
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
-  font-weight: 700;
+  font-weight: 600;
   padding: 0;
 `

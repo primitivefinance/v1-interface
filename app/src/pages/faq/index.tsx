@@ -10,7 +10,7 @@ const FAQ: React.FC = () => {
   return (
     <OrderProvider>
       <OptionsProvider>
-        <StyledSpacer size={48} />
+        <StyledSpacer size={24} />
         <StyledFAQ>
           <StyledTitle>
             Frequently Asked Questions of using Primitive Finance

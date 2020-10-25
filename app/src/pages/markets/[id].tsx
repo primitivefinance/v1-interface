@@ -10,14 +10,14 @@ import Box from '@/components/Box'
 
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
+import useOrders from '@/hooks/useOrders'
 import {
   FilterBar,
   MarketHeader,
   OptionsTable,
-  PositionsTable,
+  TransactionCard,
   OrderCard,
-  TestnetCard,
-  PositionsHeader,
+  PositionsCard,
 } from '../../components/Market'
 
 const mockOptions = [
@@ -28,7 +28,10 @@ const mockOptions = [
   { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
 ]
 
-const StyledMain = styled.div``
+const StyledMain = styled.div`
+  background: black;
+  width: 70%;
+`
 
 const StyledText = styled.div`
   font-size: 18px;
@@ -45,13 +48,12 @@ const StyledSideBar = styled.div`
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
-  width: 400px;
+  width: 30%;
 `
-const StyledBox = styled.div``
+const StyledBox = styled(Box)``
 
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-
   // Market Id
   const { marketId } = market
 
@@ -80,10 +82,11 @@ const Market = ({ market }) => {
               />
             </StyledMain>
             <StyledSideBar>
+              <PositionsCard />
               <OrderCard />
               <Spacer />
-              {chainId === 4 ? <TestnetCard /> : <> </>}
-            </StyledSideBar>{' '}
+              <TransactionCard />
+            </StyledSideBar>
           </>
         </StyledMarket>
       </OptionsProvider>

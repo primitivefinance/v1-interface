@@ -1,5 +1,5 @@
 import { Direction, STABLECOIN_ADDRESS } from './constants'
-import { Trade } from './entities'
+import { Trade } from './src/entities'
 import { TradeSettings, SinglePositionParameters } from './trader'
 
 /**
@@ -32,7 +32,7 @@ export class Uniswap {
         ? (
             Math.floor(new Date().getTime() / 1000) + tradeSettings.timeLimit
           ).toString()
-        : tradeSettings.deadline.toString()
+        : tradeSettings.deadline  .toString()
     let to: string = tradeSettings.receiver
 
     switch (trade.direction) {

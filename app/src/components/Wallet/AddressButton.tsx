@@ -38,7 +38,7 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
             >
               <StyledAddressButton>
                 <Box row alignItems="center" justifyContent="space-between">
-                  <StyledAddress>{address.slice(0, 6)}</StyledAddress>
+                  <StyledAddress>{address.slice(0, 8)}</StyledAddress>
                   <CallMadeIcon />
                 </Box>
               </StyledAddressButton>
@@ -59,6 +59,10 @@ const StyledAddressButton = styled.div`
   min-width: 6em;
   position: relative;
   text-decoration: none;
+  background: black;
+  color: grey;
+  height: 4em;
+  margin-top: -0.1em;
   &:hover {
     color: ${(props) => props.theme.color.white};
   }

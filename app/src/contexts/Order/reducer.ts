@@ -1,4 +1,4 @@
-import { OrderItem, OrderState, OrderType } from './types'
+import { OrderItem, OrderState } from './types'
 import { EmptyAttributes } from '../Options/types'
 
 const ADD_ITEM = 'ADD_ITEM'
@@ -8,44 +8,36 @@ const CHANGE_ITEM = 'CHANGE_ITEM'
 export interface AddItemAction {
   type: typeof ADD_ITEM
   item: OrderItem
-  orderType: OrderType
+  orderType: string
 }
 
 export interface RemoveItemAction {
   type: typeof REMOVE_ITEM
   item: OrderItem
-  orderType: OrderType
 }
 
 export interface ChangeItemAction {
   type: typeof CHANGE_ITEM
   item: OrderItem
-  orderType: OrderType
+  orderType: string
 }
 
 export type OrderAction = AddItemAction | ChangeItemAction | RemoveItemAction
 
-export const addItem = (
-  item: OrderItem,
-  orderType: OrderType
-): AddItemAction => ({
+export const addItem = (item: OrderItem, orderType: string): AddItemAction => ({
   type: ADD_ITEM,
   item,
   orderType,
 })
 
-export const removeItem = (
-  item: OrderItem,
-  orderType: OrderType
-): RemoveItemAction => ({
+export const removeItem = (item: OrderItem): RemoveItemAction => ({
   type: REMOVE_ITEM,
   item,
-  orderType,
 })
 
 export const changeItem = (
   item: OrderItem,
-  orderType: OrderType
+  orderType: string
 ): ChangeItemAction => ({
   type: CHANGE_ITEM,
   item,
@@ -54,7 +46,7 @@ export const changeItem = (
 
 export const initialState = {
   item: EmptyAttributes,
-  orderType: { buyOrMint: true },
+  orderType: '',
 }
 
 const reducer = (state: OrderState = initialState, action: OrderAction) => {
@@ -70,10 +62,7 @@ const reducer = (state: OrderState = initialState, action: OrderAction) => {
         orderType: action.orderType,
       }
     case REMOVE_ITEM:
-      return {
-        item: action.item,
-        orderType: action.orderType,
-      }
+      return initialState
     default:
       return state
   }

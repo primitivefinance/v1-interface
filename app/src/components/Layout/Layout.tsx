@@ -31,7 +31,7 @@ const StyledMain = styled.div<StyledMainProps>`
   align-items: center;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  min-height: 70vh;
   width: 100%;
 `
 

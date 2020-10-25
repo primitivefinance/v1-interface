@@ -48,7 +48,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', '']
+  const headers = ['Strike Price', 'Expiry', 'Break Even', 'Price', 'Contract']
 
   return (
     <Table>
@@ -70,17 +70,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         {options[type].length > 1 ? (
           <TableBody>
             {options[type].map((option, i) => {
-              const { breakEven, price, strike, address } = option
+              const { breakEven, price, strike, address, expiry } = option
+              const date = new Date(expiry * 1000)
               return (
                 <TableRow
                   key={address}
                   onClick={() => {
-                    onAddItem(option, {
-                      buyOrMint: true,
-                    })
+                    onAddItem(option, '')
                   }}
                 >
                   <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
+                  <TableCell key={expiry}>{date.toUTCString()}</TableCell>
                   <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
                   <TableCell key={price}>${price.toFixed(2)}</TableCell>
                   <TableCell key={address}>
