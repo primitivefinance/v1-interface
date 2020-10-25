@@ -1,39 +1,16 @@
 import { Web3Provider } from '@ethersproject/providers'
+import { Operation } from '@/lib/constants'
 
 export interface OrderContextValues {
   item: OrderItem
   orderType: OrderType
   onAddItem: (item: OrderItem, orderType: OrderType) => void
   onChangeItem: (item: OrderItem, orderType: OrderType) => void
-  buyOptions: (
+  submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  sellOptions: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  mintOptions: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  exerciseOptions: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  redeemOptions: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  closeOptions: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
+    quantity: number,
+    operation: Operation
   ) => Promise<void>
   createOption: (
     provider: Web3Provider,

@@ -6,7 +6,7 @@ import {
 
 import { ChainId } from '@uniswap/sdk'
 
-export const initialState = {}
+export const initialState = { 1: {}, 3: {}, 4: {}, 5: {}, 42: {} }
 
 export interface AddTransactionAction {
   type: string
@@ -80,11 +80,11 @@ const reducer = (state: TransactionState = initialState, action: any) => {
   switch (action.type) {
     case 'ADD':
       return {
-        state: state[action.chainId][action.tx.hash] = action.tx,
+        [action.chainId]: { [action.tx.hash]: action.tx },
       }
     case 'CLEAR':
       return {
-        state: state[action.chainId] = {},
+        [action.chainId]: {},
       }
     case 'FINALIZE':
       /*eslint-disable-next-line*/

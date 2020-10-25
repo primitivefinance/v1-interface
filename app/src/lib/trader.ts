@@ -1,5 +1,8 @@
-import { Direction, Operation } from './constants'
+import ethers from 'ethers'
+import { Operation } from './constants'
 import { Trade } from './entities'
+import TraderArtifact from '@primitivefi/contracts/artifacts/Trader.json'
+//import WethConnector from '@primitivefi/contracts/artifacts/'
 
 export interface TradeSettings {
   slippage: string
@@ -9,7 +12,7 @@ export interface TradeSettings {
 }
 
 export interface SinglePositionParameters {
-  contractName: string
+  contract: ethers.Contract
   methodName: string
   args: (string | string[])[]
   value: string
@@ -25,12 +28,12 @@ export class Trader {
     trade: Trade,
     tradeSettings: TradeSettings
   ): SinglePositionParameters {
-    let contractName = 'Trader'
+    let contract = new ethers.Contract('', TraderArtifact.abi, trade.signer)
     let methodName: string
     let args: (string | string[])[]
     let value: string
 
-    const option: string = trade.option.address
+    const optionAddress: string = trade.option.address
     const amountIn: string = trade.inputAmount.quantity.toString()
     const to: string = tradeSettings.receiver
 
@@ -43,13 +46,13 @@ export class Trader {
         // Mint options through the Trader Library (inherited by Trader and WethConnector).
 
         if (isWethCall) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeMintWithETH'
-          args = [option, to]
+          args = [optionAddress, to]
           value = amountIn
         } else {
           methodName = 'safeMint'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         }
         break
@@ -57,18 +60,18 @@ export class Trader {
         // Exercise options through the Trader Library (inherited by Trader and WethConnector).
 
         if (isWethPut) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeExerciseWithETH'
-          args = [option, to]
+          args = [optionAddress, to]
           value = amountIn
         } else if (isWethCall) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeExerciseForETH'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         } else {
           methodName = 'safeExercise'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         }
         break
@@ -76,42 +79,42 @@ export class Trader {
         // Exercise options through the Trader Library (inherited by Trader and WethConnector).
 
         if (isWethCall) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeRedeemForETH'
         } else {
           methodName = 'safeRedeem'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
       case Operation.CLOSE:
         // Exercise options through the Trader Library (inherited by Trader and WethConnector).
 
         if (isWethCall) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeCloseForETH'
         } else {
           methodName = 'safeClose'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
       case Operation.UNWIND:
         // Exercise options through the Trader Library (inherited by Trader and WethConnector).
 
         if (isWethCall) {
-          contractName = 'WethConnector'
+          //fix - publish primitive contracts contract = 'WethConnector'
           methodName = 'safeUnwindForETH'
         } else {
           methodName = 'safeUnwind'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
     }
 
     return {
-      contractName,
+      contract,
       methodName,
       args,
       value,

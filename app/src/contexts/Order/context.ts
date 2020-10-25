@@ -1,7 +1,7 @@
 import { createContext } from 'react'
-
-import { OrderContextValues, OrderItem, OrderType } from './types'
 import { EmptyAttributes } from '../Options/types'
+import { OrderContextValues, OrderItem, OrderType } from './types'
+import { Operation } from '@/lib/constants'
 import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({
@@ -9,35 +9,11 @@ const OrderContext = createContext<OrderContextValues>({
   orderType: { buyOrMint: true },
   onAddItem: (item: OrderItem, orderType: OrderType) => {},
   onChangeItem: (item: OrderItem, orderType: OrderType) => {},
-  buyOptions: async (
+  submitOrder: async (
     provider: Web3Provider,
     optionAddress: string,
-    quantity: number
-  ) => {},
-  sellOptions: async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => {},
-  mintOptions: async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => {},
-  exerciseOptions: async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => {},
-  redeemOptions: async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => {},
-  closeOptions: async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
+    quantity: number,
+    operation: Operation
   ) => {},
   createOption: async (
     provider: Web3Provider,
