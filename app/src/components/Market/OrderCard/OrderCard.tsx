@@ -5,12 +5,10 @@ import useOrders from '@/hooks/useOrders'
 import BuyOrMint from './components/BuyOrMint'
 import EmptyOrder from './components/EmptyOrder'
 import SellOrExercise from './components/SellOrExercise'
-import useTransactions from '@/hooks/transactions'
+import LiquidityPool from './components/LiquidityPool'
 
 const OrderCard: React.FC = () => {
   const { item, orderType } = useOrders()
-  const { transactions } = useTransactions()
-  const { buyOrMint } = orderType
 
   useEffect(() => {}, [item])
 
@@ -18,10 +16,12 @@ const OrderCard: React.FC = () => {
     return <EmptyOrder />
   }
 
-  if (buyOrMint) {
+  if (orderType === 'BUY' || orderType === 'MINT') {
     return <BuyOrMint />
   }
-
+  if (orderType === 'LP' || orderType === 'W_LP') {
+    return <LiquidityPool />
+  }
   return <SellOrExercise />
 }
 

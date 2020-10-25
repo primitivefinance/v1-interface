@@ -51,7 +51,7 @@ const StyledSideBar = styled.div`
   width: 400px;
 `
 const StyledBox = styled(Box)`
-  max-width: 50em;
+  max-width: 60em;
 `
 
 const Market = ({ market }) => {

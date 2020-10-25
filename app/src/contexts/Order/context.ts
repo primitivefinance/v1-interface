@@ -1,14 +1,14 @@
 import { createContext } from 'react'
 
-import { OrderContextValues, OrderItem, OrderType } from './types'
+import { OrderContextValues, OrderItem } from './types'
 import { EmptyAttributes } from '../Options/types'
 import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({
   item: EmptyAttributes,
-  orderType: { buyOrMint: true },
-  onAddItem: (item: OrderItem, orderType: OrderType) => {},
-  onChangeItem: (item: OrderItem, orderType: OrderType) => {},
+  orderType: 'BUY',
+  onAddItem: (item: OrderItem, orderType: string) => {},
+  onChangeItem: (item: OrderItem, orderType: string) => {},
   buyOptions: async (
     provider: Web3Provider,
     optionAddress: string,
@@ -50,6 +50,18 @@ const OrderContext = createContext<OrderContextValues>({
     provider: Web3Provider,
     optionAddress: string,
     quantity: number
+  ) => {},
+  provideLiquidity: async (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    max_tokens: number
+  ) => {},
+  withdrawLiquidity: async (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    min_tokens: number
   ) => {},
 })
 

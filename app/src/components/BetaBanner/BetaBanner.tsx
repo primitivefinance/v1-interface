@@ -19,22 +19,22 @@ const BetaBanner: React.FC<BetaBannerProps> = ({ isOpen }) => {
   if (!open) return null
   return (
     <StyledContainer>
-      <StyledLink href="https://primitive.finance/beta">
-        <StyledTitle>
-          Trade an Option, Earn NFT Rewards
-          <Spacer size="sm" />
-          <LaunchIcon fontSize="inherit" />
-        </StyledTitle>
-      </StyledLink>
       <CloseButton onClick={handleClose} variant="transparent" size="sm">
         <CloseIcon fontSize="small" />
       </CloseButton>
+      <StyledLink href="https://primitive.finance/beta">
+        <StyledTitle>
+          Earn NFT Rewards
+          <LaunchIcon fontSize="inherit" />
+        </StyledTitle>
+      </StyledLink>
     </StyledContainer>
   )
 }
 
 const CloseButton = styled(Button)`
   padding-right: 10em;
+  color: inherit;
 `
 const StyledLink = styled.a`
   text-decoration: none;
@@ -51,12 +51,17 @@ const StyledTitle = styled.h3`
 `
 
 const StyledContainer = styled.div`
-  align-items: center;
+  align-items: flex-start;
   display: flex;
+  padding: 0.3em;
+  flex-direction: row;
+  border-radius: 1em;
   justify-content: center;
-  height: 23px;
+  height: 5em;
   position: fixed;
-  width: 100%;
+  width: 10em;
+  bottom: 1em;
+  left: 1em;
   background: linear-gradient(
     45deg,
     rgba(255, 0, 0, 0.75) 0%,

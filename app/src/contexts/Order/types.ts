@@ -2,9 +2,9 @@ import { Web3Provider } from '@ethersproject/providers'
 
 export interface OrderContextValues {
   item: OrderItem
-  orderType: OrderType
-  onAddItem: (item: OrderItem, orderType: OrderType) => void
-  onChangeItem: (item: OrderItem, orderType: OrderType) => void
+  orderType: string
+  onAddItem: (item: OrderItem, orderType: string) => void
+  onChangeItem: (item: OrderItem, orderType: string) => void
   buyOptions: (
     provider: Web3Provider,
     optionAddress: string,
@@ -47,6 +47,18 @@ export interface OrderContextValues {
     optionAddress: string,
     quantity: number
   ) => Promise<void>
+  provideLiquidity: (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    max_tokens: number
+  ) => Promise<void>
+  withdrawLiquidity: (
+    provider: Web3Provider,
+    optionAddress: string,
+    min_l: number,
+    min_tokens: number
+  ) => Promise<void>
 }
 
 export interface OrderItem {
@@ -62,9 +74,5 @@ export interface OrderItem {
 
 export interface OrderState {
   item: OrderItem
-  orderType: OrderType
-}
-
-export interface OrderType {
-  buyOrMint: boolean
+  orderType: string
 }

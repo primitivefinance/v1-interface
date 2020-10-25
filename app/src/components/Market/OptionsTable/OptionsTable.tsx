@@ -48,7 +48,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', '']
+  const headers = ['Strike Price', 'Expiry', 'Break Even', 'Price', 'Contract']
 
   return (
     <Table>
@@ -56,11 +56,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         <LitContainer>
           <TableRow isHead>
             {headers.map((header, index) => {
-              if (index === headers.length - 1) {
+              /* if (index === headers.length - 1) {
                 return (
                   <StyledButtonCell key={header}>{header}</StyledButtonCell>
                 )
-              }
+              } */
               return <TableCell key={header}>{header}</TableCell>
             })}
           </TableRow>
@@ -70,10 +70,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         {options[type].length > 1 ? (
           <TableBody>
             {options[type].map((option, i) => {
-              const { breakEven, price, strike, address } = option
+              const { breakEven, price, strike, address, expiry } = option
+              const date = new Date(expiry * 1000)
               return (
-                <TableRow key={address}>
+                <TableRow
+                  key={address}
+                  onClick={() => {
+                    onAddItem(option, 'BUY')
+                  }}
+                >
                   <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
+                  <TableCell key={expiry}>{date.toUTCString()}</TableCell>
                   <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
                   <TableCell key={price}>${price.toFixed(2)}</TableCell>
                   <TableCell key={address}>
@@ -82,7 +89,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
-                  <StyledButtonCell key={'Open'}>
+                  {/* <StyledButtonCell key={'Open'}>
                     <Button
                       onClick={() => {
                         onAddItem(option, {
@@ -94,7 +101,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     >
                       {'Open'}
                     </Button>
-                  </StyledButtonCell>
+                  </StyledButtonCell> */}
                 </TableRow>
               )
             })}
@@ -112,8 +119,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 }
 
 const StyledARef = styled.a`
-  text-decoration: none;
   color: ${(props) => props.theme.color.white};
+  text-decoration: none;
 `
 
 const StyledTableHead = styled.div`
@@ -122,9 +129,9 @@ const StyledTableHead = styled.div`
 `
 
 const StyledButtonCell = styled.div`
-  width: ${(props) => props.theme.buttonSize}px;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
   flex: 0.5;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+  width: ${(props) => props.theme.buttonSize}px;
 `
 
 export default OptionsTable

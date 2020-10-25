@@ -4,7 +4,7 @@ import OrderContext from './context'
 
 import reducer, { addItem, initialState, changeItem } from './reducer'
 
-import { OrderItem, OrderType } from './types'
+import { OrderItem } from './types'
 import { Web3Provider } from '@ethersproject/providers'
 
 import { useWeb3React } from '@web3-react/core'
@@ -17,8 +17,10 @@ import {
 } from '../../lib/uniswap'
 import { Option } from '../../lib/entities/option'
 import { Trade } from '../../lib/entities'
+import { Direction, Operation, UNISWAP_FACTORY_V2 } from '../../lib/constants'
 
 import useTransactions from '@/hooks/transactions/index'
+import { SinglePositionParameters } from '../../../../sdk/src/trader'
 
 import {
   mint,
@@ -55,14 +57,14 @@ const Order: React.FC = (props) => {
   } */
 
   const handleAddItem = useCallback(
-    (item: OrderItem, orderType: OrderType) => {
+    (item: OrderItem, orderType: string) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem, orderType: OrderType) => {
+    (item: OrderItem, orderType: string) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]
@@ -77,6 +79,12 @@ const Order: React.FC = (props) => {
     const pairAddress = UniswapPairs[state.item.id].pairAddress
     const signer = await provider.getSigner()
 
+    const trade: Trade = {
+      option: optionAddress,
+      amount: quantity,
+      direction: Direction.LONG,
+    }
+
     const params: TradeSettings = {
       slippage: DEFAULT_SLIPPAGE,
       timeLimit: DEFAULT_TIMELIMIT,
@@ -84,7 +92,8 @@ const Order: React.FC = (props) => {
       deadline: DEFAULT_DEADLINE,
     }
 
-    const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
+    const args = Uniswap.singlePositionCallParameters(trade, params)
+
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
@@ -216,6 +225,40 @@ const Order: React.FC = (props) => {
     }
   }
 
+  const handleProvideLiquidity = async (
+    provider: Web3Provider,
+    optionAddress: string,
+    quantity: number
+  ) => {
+    const signer = await provider.getSigner()
+
+    const tx = await mintTestToken(signer, optionAddress, quantity)
+    if (tx.hash) {
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
+    }
+  }
+
+  const handleWithdrawLiquidity = async (
+    provider: Web3Provider,
+    optionAddress: string,
+    quantity: number
+  ) => {
+    const signer = await provider.getSigner()
+
+    const tx = await mintTestToken(signer, optionAddress, quantity)
+    if (tx.hash) {
+      addTransaction(chainId, {
+        hash: tx.hash,
+        addedTime: now(),
+        from: account,
+      })
+    }
+  }
+
   return (
     <OrderContext.Provider
       value={{
@@ -231,6 +274,8 @@ const Order: React.FC = (props) => {
         closeOptions: handleCloseOptions,
         createOption: handleCreateOption,
         mintTestTokens: handleMintTestTokens,
+        provideLiquidity: handleProvideLiquidity,
+        withdrawLiquidity: handleWithdrawLiquidity,
       }}
     >
       {props.children}

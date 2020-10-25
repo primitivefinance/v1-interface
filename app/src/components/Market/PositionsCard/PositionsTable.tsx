@@ -34,7 +34,7 @@ export interface PositionsTableProps {
   callActive: boolean
 }
 
-const PositionsTable: React.FC<PositionsTableProps> = (props) => {
+const PositionsCard: React.FC<PositionsTableProps> = (props) => {
   const { callActive, asset } = props
   const { options, getOptions } = useOptions()
   const { positions, getPositions } = usePositions()
@@ -100,12 +100,8 @@ const PositionsTable: React.FC<PositionsTableProps> = (props) => {
 
               return (
                 <TableRow key={i}>
-                  <TableCell>
-                    {asset === 'Ether' ? 'Weth' : asset}
-                  </TableCell>
-                  <TableCell>{`$${(+strike).toFixed(
-                    2
-                  )}`}</TableCell>
+                  <TableCell>{asset === 'Ether' ? 'Weth' : asset}</TableCell>
+                  <TableCell>{`$${(+strike).toFixed(2)}`}</TableCell>
                   <TableCell>{`${month}/${day}/${year}`}</TableCell>
                   <TableCell>{balance.toFixed(2)}</TableCell>
                   <TableCell>${price.toFixed(2)}</TableCell>
