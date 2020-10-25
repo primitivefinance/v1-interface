@@ -1,25 +1,22 @@
 import { Quantity } from './quantity'
 import { Option } from './option'
-import { Direction, Operation } from '../constants'
+import { Operation } from '../constants'
 import ethers from 'ethers'
 
 export class Trade {
   public readonly option: Option
   public readonly inputAmount: Quantity
-  public readonly direction: Direction
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
     inputAmount: Quantity,
-    direction: Direction,
     operation: Operation,
     signer: ethers.Signer
   ) {
     this.option = option
     this.inputAmount = inputAmount
-    this.direction = direction
     this.operation = operation ? operation : null
     this.signer = signer
   }

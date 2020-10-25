@@ -10,6 +10,28 @@ export interface OptionParameters {
   expiry: number
 }
 
+export const EMPTY_ASSET: Asset = new Asset(18)
+export const EMPTY_QUANTITY: Quantity = new Quantity(EMPTY_ASSET, '')
+export const EMPTY_OPTION_PARAMETERS: OptionParameters = {
+  base: EMPTY_QUANTITY,
+  quote: EMPTY_QUANTITY,
+  expiry: 0,
+}
+
+export const createOptionEntityWithAddress = (
+  chainId: number,
+  optionAddress: string
+) => {
+  return new Option(
+    EMPTY_OPTION_PARAMETERS,
+    chainId,
+    optionAddress,
+    18,
+    'Primitive V1 Option',
+    'PRM'
+  )
+}
+
 /**
  * Represents a Primitive V1 Option.
  */

@@ -8,14 +8,19 @@ import { OrderItem, OrderType } from './types'
 import { Web3Provider } from '@ethersproject/providers'
 
 import { useWeb3React } from '@web3-react/core'
-
+import ethers from 'ethers'
 import UniswapPairs from './uniswap_pairs.json'
 import {
   Uniswap,
   TradeSettings,
   SinglePositionParameters,
 } from '../../lib/uniswap'
-import { Option, OptionParameters } from '../../lib/entities/option'
+import {
+  Option,
+  OptionParameters,
+  EMPTY_OPTION_PARAMETERS,
+  createOptionEntityWithAddress,
+} from '../../lib/entities/option'
 import { Trade } from '../../lib/entities'
 import { Quantity } from '../../lib/entities'
 import { Asset } from '../../lib/entities'
@@ -30,8 +35,9 @@ import {
   close,
   create,
   mintTestToken,
-  executeTransaction,
 } from '../../lib/primitive'
+
+import executeTransaction from '../../lib/utils/executeTransaction'
 
 import {
   DEFAULT_SLIPPAGE,
@@ -80,25 +86,21 @@ const Order: React.FC = (props) => {
   ) => {
     const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     const pairAddress = UniswapPairs[state.item.id].pairAddress
-    const signer = await provider.getSigner()
-    const receiver = await signer.getAddress()
+    const signer: ethers.Signer = await provider.getSigner()
+    const receiver: string = await signer.getAddress()
+    const chainId: number = await signer.getChainId()
 
-    const base: Quantity = new Quantity(new Asset(18), '10')
-    const quote: Quantity = new Quantity(new Asset(18), '10')
-    const expiry: number = 10
-    const optionParameters: OptionParameters = { base, quote, expiry }
-
-    const optionEntity: Option = new Option(
-      optionParameters,
-      await signer.getChainId(),
-      optionAddress,
-      18
+    const optionEntity: Option = createOptionEntityWithAddress(
+      chainId,
+      optionAddress
     )
-    const inputAmount: Quantity = new Quantity(new Asset(18), quantity)
+    const inputAmount: Quantity = new Quantity(
+      new Asset(18, 'Dai Stablecoin', 'DAI'), // fix with actual metadata
+      quantity
+    )
     const trade: Trade = new Trade(
       optionEntity,
       inputAmount,
-      Direction.LONG,
       Operation.LONG,
       signer
     )
@@ -115,11 +117,8 @@ const Order: React.FC = (props) => {
       trade,
       tradeSettings
     )
-    console.log(trade, transaction)
+    const tx: any = await executeTransaction(signer, transaction)
 
-    const tx = await executeTransaction(signer, transaction)
-
-    //const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
