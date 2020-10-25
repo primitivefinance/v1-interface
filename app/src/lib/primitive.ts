@@ -7,6 +7,8 @@ import TraderRinkeby from '@primitivefi/contracts/deployments/rinkeby/Trader.jso
 import RegistryRinkeby from '@primitivefi/contracts/deployments/rinkeby/Registry.json'
 import { ethers } from 'ethers'
 
+import { SinglePositionParameters } from '../lib/uniswap'
+
 import { parseEther } from 'ethers/lib/utils'
 
 import Assets from '../contexts/Options/assets.json'
@@ -225,7 +227,32 @@ const getOptionMarkets = async (options) => {
   return markets
 }
 
+const executeTransaction = async (
+  signer: any,
+  transaction: SinglePositionParameters
+): Promise<any> => {
+  let tx: any = {}
+  console.log(transaction)
+  let args = transaction.args
+  let path = args[2]
+  let token0 = path[0]
+
+  await checkAllowance(signer, token0, transaction.contract.address)
+  try {
+    tx = await transaction.contract[transaction.methodName](...args, {
+      value: transaction.value,
+    })
+  } catch (err) {
+    console.error(
+      `Issue when attempting to submit transaction: ${transaction.methodName}`
+    )
+  }
+
+  return tx
+}
+
 export {
+  executeTransaction,
   mint,
   exercise,
   redeem,

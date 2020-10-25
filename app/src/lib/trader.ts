@@ -30,7 +30,7 @@ export class Trader {
     let args: (string | string[])[]
     let value: string
 
-    const option: string = trade.option.address
+    const optionAddress: string = trade.option.address
     const amountIn: string = trade.inputAmount.quantity.toString()
     const to: string = tradeSettings.receiver
 
@@ -45,11 +45,11 @@ export class Trader {
         if (isWethCall) {
           contractName = 'WethConnector'
           methodName = 'safeMintWithETH'
-          args = [option, to]
+          args = [optionAddress, to]
           value = amountIn
         } else {
           methodName = 'safeMint'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         }
         break
@@ -59,16 +59,16 @@ export class Trader {
         if (isWethPut) {
           contractName = 'WethConnector'
           methodName = 'safeExerciseWithETH'
-          args = [option, to]
+          args = [optionAddress, to]
           value = amountIn
         } else if (isWethCall) {
           contractName = 'WethConnector'
           methodName = 'safeExerciseForETH'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         } else {
           methodName = 'safeExercise'
-          args = [option, amountIn, to]
+          args = [optionAddress, amountIn, to]
           value = '0'
         }
         break
@@ -81,7 +81,7 @@ export class Trader {
         } else {
           methodName = 'safeRedeem'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
       case Operation.CLOSE:
@@ -93,7 +93,7 @@ export class Trader {
         } else {
           methodName = 'safeClose'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
       case Operation.UNWIND:
@@ -105,7 +105,7 @@ export class Trader {
         } else {
           methodName = 'safeUnwind'
         }
-        args = [option, amountIn, to]
+        args = [optionAddress, amountIn, to]
         value = '0'
         break
     }

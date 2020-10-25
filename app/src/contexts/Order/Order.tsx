@@ -15,8 +15,11 @@ import {
   TradeSettings,
   SinglePositionParameters,
 } from '../../lib/uniswap'
-import { Option } from '../../lib/entities/option'
+import { Option, OptionParameters } from '../../lib/entities/option'
 import { Trade } from '../../lib/entities'
+import { Quantity } from '../../lib/entities'
+import { Asset } from '../../lib/entities'
+import { Direction, Operation } from '../../lib/constants'
 
 import useTransactions from '@/hooks/transactions/index'
 
@@ -27,6 +30,7 @@ import {
   close,
   create,
   mintTestToken,
+  executeTransaction,
 } from '../../lib/primitive'
 
 import {
@@ -34,6 +38,7 @@ import {
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
 } from '../../constants/index'
+import { exec } from 'child_process'
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -76,15 +81,45 @@ const Order: React.FC = (props) => {
     const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     const pairAddress = UniswapPairs[state.item.id].pairAddress
     const signer = await provider.getSigner()
+    const receiver = await signer.getAddress()
 
-    const params: TradeSettings = {
+    const base: Quantity = new Quantity(new Asset(18), '10')
+    const quote: Quantity = new Quantity(new Asset(18), '10')
+    const expiry: number = 10
+    const optionParameters: OptionParameters = { base, quote, expiry }
+
+    const optionEntity: Option = new Option(
+      optionParameters,
+      await signer.getChainId(),
+      optionAddress,
+      18
+    )
+    const inputAmount: Quantity = new Quantity(new Asset(18), quantity)
+    const trade: Trade = new Trade(
+      optionEntity,
+      inputAmount,
+      Direction.LONG,
+      Operation.LONG,
+      signer
+    )
+
+    const tradeSettings: TradeSettings = {
       slippage: DEFAULT_SLIPPAGE,
       timeLimit: DEFAULT_TIMELIMIT,
-      receiver: pairAddress,
+      receiver: receiver,
       deadline: DEFAULT_DEADLINE,
+      stablecoin: stablecoinAddress,
     }
 
-    const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
+    const transaction: SinglePositionParameters = Uniswap.singlePositionCallParameters(
+      trade,
+      tradeSettings
+    )
+    console.log(trade, transaction)
+
+    const tx = await executeTransaction(signer, transaction)
+
+    //const tx = await buy(signer, quantity, optionAddress, stablecoinAddress)
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,

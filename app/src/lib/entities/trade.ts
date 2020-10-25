@@ -8,21 +8,24 @@ export class Trade {
   public readonly inputAmount: Quantity
   public readonly direction: Direction
   public readonly operation: Operation
+  public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
-    amount: Quantity,
+    inputAmount: Quantity,
     direction: Direction,
-    operation?: Operation
+    operation: Operation,
+    signer: ethers.Signer
   ) {
     this.option = option
-    this.inputAmount = amount
+    this.inputAmount = inputAmount
     this.direction = direction
-    this.operation = operation
+    this.operation = operation ? operation : null
+    this.signer = signer
   }
 
   public maximumAmountIn(slippagePercent: string): Quantity {
-    if (this.direction === Direction.SHORT) {
+    if (this.operation === Operation.SHORT) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(slippagePercent)
@@ -33,7 +36,7 @@ export class Trade {
   }
 
   public minimumAmountOut(slippagePercent: string): Quantity {
-    if (this.direction === Direction.LONG) {
+    if (this.operation === Operation.LONG) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(slippagePercent)
