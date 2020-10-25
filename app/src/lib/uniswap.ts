@@ -1,4 +1,4 @@
-import { Direction, STABLECOIN_ADDRESS, Operation } from './constants'
+import { STABLECOIN_ADDRESS, Operation } from './constants'
 import { Trade } from './entities'
 import ethers from 'ethers'
 import UniswapTrader from '@primitivefi/contracts/artifacts/UniswapTrader.json'
@@ -54,18 +54,16 @@ export class Uniswap {
         : tradeSettings.deadline.toString()
     const to: string = tradeSettings.receiver
 
-    console.log('skipping operation', path)
     switch (trade.operation) {
       case Operation.LONG:
-        console.log('LONG')
         // Standard swap from stablecoin to option through the Uniswap V2 Router.
         contract = new ethers.Contract(
           UNISWAP_ROUTER02_V2,
           UniswapV2Router02.abi,
           trade.signer
         )
-        methodName = 'swapExactTokensForTokens'
-        args = [amountIn, amountOut, path, to, deadline]
+        methodName = 'swapTokensForExactTokens'
+        args = [amountOut, amountIn, path, to, deadline]
         value = '0'
         break
       case Operation.SHORT:

@@ -12,9 +12,10 @@ import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
+import { Operation } from '@/lib/constants'
 
 const Exercise: React.FC = () => {
-  const { exerciseOptions, item } = useOrders()
+  const { submitOrder, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -25,8 +26,8 @@ const Exercise: React.FC = () => {
   const stablecoinBalance = useTokenBalance(stablecoinAddress)
 
   const handleExerciseClick = useCallback(() => {
-    exerciseOptions(library, item?.address, Number(quantity))
-  }, [exerciseOptions, item, library, quantity])
+    submitOrder(library, item?.address, Number(quantity), Operation.EXERCISE)
+  }, [submitOrder, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

@@ -1,7 +1,7 @@
-import { Quantity } from './quantity'
+import ethers from 'ethers'
 import { Option } from './option'
 import { Operation } from '../constants'
-import ethers from 'ethers'
+import { Quantity } from './quantity'
 
 export class Trade {
   public readonly option: Option
@@ -29,17 +29,22 @@ export class Trade {
     const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
     const one = ethers.BigNumber.from(1)
     const slippageAdjustedValue = amountIn.mul(one.add(slippage))
-    return new Quantity(this.inputAmount.asset, slippageAdjustedValue)
+    const formattedValue = slippageAdjustedValue
+    console.log(`max amount in: ${formattedValue.toString()}`)
+    return new Quantity(this.inputAmount.asset, formattedValue)
   }
 
   public minimumAmountOut(slippagePercent: string): Quantity {
     if (this.operation === Operation.LONG) {
+      console.log(`min amount out: ${this.inputAmount.quantity.toString()}`)
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(slippagePercent)
     const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
     const one = ethers.BigNumber.from(1)
     const slippageAdjustedValue = amountIn.mul(one.add(slippage))
-    return new Quantity(this.inputAmount.asset, slippageAdjustedValue)
+    const formattedValue = slippageAdjustedValue
+    console.log(`min amount out: ${formattedValue.toString()}`)
+    return new Quantity(this.inputAmount.asset, formattedValue)
   }
 }
