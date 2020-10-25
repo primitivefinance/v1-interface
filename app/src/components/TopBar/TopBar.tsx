@@ -6,6 +6,8 @@ import styled from 'styled-components'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import NotificationsIcon from '@material-ui/icons/Notifications'
 
+import PrimitiveIcon from '../../assets/img/primitive-logo.svg'
+
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
 import Spacer from '@/components/Spacer'
@@ -69,23 +71,22 @@ const TopBar: React.FC = () => {
           </StyledFlex>
         </Container>
       </StyledTopBar>
-      <div style={{ minHeight: '4em' }} />
     </>
   )
 }
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
+  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   border-width: 0 0 1px 0;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
   display: flex;
   flex-direction: column;
-  height: 65px;
-  top: 0em;
-  padding-top: 0.3em;
-  position: fixed;
+  height: 72px;
+  position: sticky;
+  top: 0;
   width: 100%;
 `
 
@@ -96,18 +97,18 @@ const StyledFlex = styled.div`
 `
 
 const StyledNav = styled.div`
+  align-items: center;
   display: flex;
   flex: 1;
   font-weight: 700;
   justify-content: center;
-  align-items: center;
 `
 
 interface StyledNavItemProps {
   active: boolean
 }
 
-const StyledNavItem = styled.h3<StyledNavItemProps>`
+const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;

@@ -38,7 +38,6 @@ const StyledText = styled.div`
 `
 
 const StyledMarket = styled.div`
-  justify-content: center;
   display: flex;
   width: 100%;
 `
@@ -74,13 +73,8 @@ const Market = ({ market }) => {
         <StyledMarket>
           <>
             <StyledMain>
-              <StyledBox row alignItems="center">
-                <MarketHeader marketId={marketId} />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilter}
-                />
-              </StyledBox>
+              <MarketHeader marketId={marketId} />
+              <FilterBar active={callPutActive} setCallActive={handleFilter} />
               <OptionsTable
                 options={mockOptions}
                 asset="Ethereum"

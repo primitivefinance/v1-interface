@@ -10,17 +10,23 @@ export interface BalanceProps {
 export const Balance: React.FC<BalanceProps> = ({ amount }) => {
   if (amount === undefined) return <></>
   return (
-    <StyledBalance>
+    <StyledContent>
       <StyledText>
         Ξ {amount.toSignificant(4, { groupSeparator: ',' })}
       </StyledText>
-    </StyledBalance>
+    </StyledContent>
   )
 }
 
-const StyledBalance = styled.div`
-  color: white;
-  width: 3.5em;
+const StyledContent = styled.div`
+  align-items: center;
+  display: flex;
+  width: 4em;
+  flex-direction: column;
 `
 
-const StyledText = styled.h4``
+const StyledText = styled.h4`
+  color: ${(props) => props.theme.color.white};
+  font-weight: 600;
+  padding: 0;
+`

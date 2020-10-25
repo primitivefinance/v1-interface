@@ -39,13 +39,10 @@ export interface Transaction {
   from: string
 }
 
-export interface TransactionState {
-  [chainId: number]: {
+export type TransactionState = {
+  [chainId in ChainId]: {
     [txHash: string]: Transaction
   }
 }
 
-export const nullState = {
-  1: {},
-  4: {},
-}
+export const nullState = { 1: {}, 3: {}, 4: {}, 5: {}, 42: {} }

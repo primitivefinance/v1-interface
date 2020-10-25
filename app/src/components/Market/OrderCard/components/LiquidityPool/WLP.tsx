@@ -15,18 +15,19 @@ import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
+import { Operation } from '@/lib/constants'
 
 const WLP: React.FC = () => {
-  const { buyOptions, item, onChangeItem } = useOrders()
+  const { buyOptions, item, submitOrder } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
   const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
   const tokenBalance = useTokenBalance(stablecoinAddress)
 
-  /* const handleBuyClick = useCallback(() => {
-    buyOptions(library, item?.address, Number(quantity))
-  }, [buyOptions, item, library, quantity]) */
+  const handleBuyClick = useCallback(() => {
+    submitOrder(library, item?.address, Number(quantity), Operation.LONG)
+  }, [submitOrder, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -91,7 +92,7 @@ const WLP: React.FC = () => {
       <Button
         disabled={!quantity}
         full
-        onClick={() => buyOptions(library, item?.address, Number(quantity))}
+        onClick={handleBuyClick}
         text="Continue to Review"
       />
     </>

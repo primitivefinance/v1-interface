@@ -16,9 +16,10 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
 import { destructureOptionSymbol } from '@/lib/utils'
+import { Operation } from '@/lib/constants'
 
 const Short: React.FC = () => {
-  const { mintOptions, item, onChangeItem } = useOrders()
+  const { submitOrder, item, onChangeItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -26,8 +27,8 @@ const Short: React.FC = () => {
   const tokenBalance = useTokenBalance(testEthAddress)
 
   const handleMintClick = useCallback(() => {
-    mintOptions(library, item?.address, Number(quantity))
-  }, [mintOptions, item, library, quantity])
+    submitOrder(library, item?.address, Number(quantity), Operation.MINT)
+  }, [submitOrder, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

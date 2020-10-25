@@ -25,9 +25,9 @@ export const Network: React.FC<NetworkProps> = ({ id }) => {
 
 const StyledRink = styled.div`
   align-items: center;
-  color: orange;
+  color: ${(props) => props.theme.color.orange[500]};
 `
 const StyledRopsten = styled.div`
   align-items: center;
-  color: pink;
+  color: ${(props) => props.theme.color.red[300]};
 `

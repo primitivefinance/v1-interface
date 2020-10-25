@@ -12,9 +12,10 @@ import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
+import { Operation } from '@/lib/constants'
 
 const Sell: React.FC = () => {
-  const { sellOptions, item } = useOrders()
+  const { submitOrder, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -26,8 +27,8 @@ const Sell: React.FC = () => {
   const tokenBalance = useTokenBalance(tokenAddress)
 
   const handleSellClick = useCallback(() => {
-    sellOptions(library, item?.address, Number(quantity))
-  }, [sellOptions, item, library, quantity])
+    submitOrder(library, item?.address, Number(quantity), Operation.SHORT)
+  }, [submitOrder, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
