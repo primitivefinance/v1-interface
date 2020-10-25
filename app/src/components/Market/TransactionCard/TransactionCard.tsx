@@ -17,6 +17,7 @@ const TransactionCard: React.FC = () => {
 
   const txs = transactions[chainId]
 
+  if (!txs) return null
   if (Object.keys(txs).length === 0 && txs.constructor === Object) return null
   return (
     <>
