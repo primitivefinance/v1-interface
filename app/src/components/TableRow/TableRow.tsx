@@ -23,6 +23,7 @@ const StyledTableRow = styled.div<StyleProps>`
   border-bottom: 1px solid
     ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[700])};
   color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
+  cursor: ${(props) => (props.isHead ? null : 'pointer')};
   display: flex;
   height: ${(props) => props.theme.rowHeight}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
@@ -30,6 +31,8 @@ const StyledTableRow = styled.div<StyleProps>`
   padding-right: ${(props) => props.theme.spacing[4]}px;
   &:hover {
     background-color: ${(props) => props.theme.color.grey[800]};
+    color: ${(props) => (props.isHead ? null : props.theme.color.white)};
+    font-weight: ${(props) => (props.isHead ? null : '600')};
   }
 `
 

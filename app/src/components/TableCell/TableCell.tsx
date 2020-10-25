@@ -6,8 +6,8 @@ const TableCell: React.FC = (props) => {
 }
 
 const StyledTableCell = styled.div`
-  flex: 1;
   color: ${(props) => props.theme.color.white};
+  flex: 1;
 `
 
 export default TableCell
