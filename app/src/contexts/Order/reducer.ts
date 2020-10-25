@@ -14,7 +14,6 @@ export interface AddItemAction {
 export interface RemoveItemAction {
   type: typeof REMOVE_ITEM
   item: OrderItem
-  orderType: string
 }
 
 export interface ChangeItemAction {
@@ -31,13 +30,9 @@ export const addItem = (item: OrderItem, orderType: string): AddItemAction => ({
   orderType,
 })
 
-export const removeItem = (
-  item: OrderItem,
-  orderType: string
-): RemoveItemAction => ({
+export const removeItem = (item: OrderItem): RemoveItemAction => ({
   type: REMOVE_ITEM,
   item,
-  orderType,
 })
 
 export const changeItem = (
@@ -51,7 +46,7 @@ export const changeItem = (
 
 export const initialState = {
   item: EmptyAttributes,
-  orderType: 'BUY',
+  orderType: '',
 }
 
 const reducer = (state: OrderState = initialState, action: OrderAction) => {
@@ -67,10 +62,7 @@ const reducer = (state: OrderState = initialState, action: OrderAction) => {
         orderType: action.orderType,
       }
     case REMOVE_ITEM:
-      return {
-        item: action.item,
-        orderType: action.orderType,
-      }
+      return initialState
     default:
       return state
   }

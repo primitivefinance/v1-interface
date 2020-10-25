@@ -14,7 +14,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import formatBalance from '@/utils/formatBalance'
 
 const Buy: React.FC = () => {
-  const { buyOptions, item } = useOrders()
+  const { buyOptions, item, onChangeItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -40,7 +40,7 @@ const Buy: React.FC = () => {
   const buyingPower = 250000
 
   const handleSetMax = () => {
-    let max =
+    const max =
       Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
@@ -77,8 +77,9 @@ const Buy: React.FC = () => {
       <Button
         disabled={!quantity}
         full
+        size="sm"
         onClick={() => buyOptions(library, item?.address, Number(quantity))}
-        text="Continue to Review"
+        text="Review Transaction"
       />
     </>
   )

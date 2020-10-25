@@ -10,14 +10,14 @@ import Box from '@/components/Box'
 
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
+import useOrders from '@/hooks/useOrders'
 import {
   FilterBar,
   MarketHeader,
   OptionsTable,
-  PositionsTable,
   TransactionCard,
   OrderCard,
-  PositionsHeader,
+  PositionsCard,
 } from '../../components/Market'
 
 const mockOptions = [
@@ -56,7 +56,6 @@ const StyledBox = styled(Box)`
 
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-
   // Market Id
   const { marketId } = market
 
@@ -90,6 +89,7 @@ const Market = ({ market }) => {
               />
             </StyledMain>
             <StyledSideBar>
+              <PositionsCard />
               <OrderCard />
               <Spacer />
               <TransactionCard />

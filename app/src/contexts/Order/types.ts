@@ -5,6 +5,7 @@ export interface OrderContextValues {
   orderType: string
   onAddItem: (item: OrderItem, orderType: string) => void
   onChangeItem: (item: OrderItem, orderType: string) => void
+  onRemoveItem: (item: OrderItem) => void
   buyOptions: (
     provider: Web3Provider,
     optionAddress: string,
@@ -74,5 +75,5 @@ export interface OrderItem {
 
 export interface OrderState {
   item: OrderItem
-  orderType: string
+  orderType?: string
 }

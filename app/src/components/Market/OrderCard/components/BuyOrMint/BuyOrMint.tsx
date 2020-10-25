@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
-
+import Box from '@/components/Box'
+import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import Toggle from '@/components/Toggle'
@@ -14,7 +16,7 @@ import Buy from './components/Buy'
 import Mint from './components/Mint'
 
 const BuyOrMint: React.FC = () => {
-  const { item } = useOrders()
+  const { item, onChangeItem } = useOrders()
   const [buyCard, setBuyCard] = useState(true)
 
   const handleToggle = useCallback(() => {
@@ -37,7 +39,16 @@ const BuyOrMint: React.FC = () => {
   return (
     <Card border>
       <CardContent>
-        <StyledTitle>{title}</StyledTitle>
+        <Box row justifyContent="space-between">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onChangeItem(item, '')}
+            text="Back"
+          />
+          <Spacer />
+          <StyledTitle>{title}</StyledTitle>
+        </Box>
         <Toggle>
           <ToggleButton
             size="sm"

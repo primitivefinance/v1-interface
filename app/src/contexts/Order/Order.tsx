@@ -2,7 +2,12 @@ import React, { useCallback, useReducer } from 'react'
 
 import OrderContext from './context'
 
-import reducer, { addItem, initialState, changeItem } from './reducer'
+import reducer, {
+  addItem,
+  initialState,
+  changeItem,
+  removeItem,
+} from './reducer'
 
 import { OrderItem } from './types'
 import { Web3Provider } from '@ethersproject/providers'
@@ -20,7 +25,6 @@ import { Trade } from '../../lib/entities'
 import { Direction, Operation, UNISWAP_FACTORY_V2 } from '../../lib/constants'
 
 import useTransactions from '@/hooks/transactions/index'
-import { SinglePositionParameters } from '../../../../sdk/src/trader'
 
 import {
   mint,
@@ -70,6 +74,12 @@ const Order: React.FC = (props) => {
     [dispatch]
   )
 
+  const handleRemoveItem = useCallback(
+    (item: OrderItem) => {
+      dispatch(removeItem(item))
+    },
+    [dispatch]
+  )
   const handleBuyOptions = async (
     provider: Web3Provider,
     optionAddress: string,
@@ -228,7 +238,8 @@ const Order: React.FC = (props) => {
   const handleProvideLiquidity = async (
     provider: Web3Provider,
     optionAddress: string,
-    quantity: number
+    min_l: number,
+    max_tokens: number
   ) => {
     const signer = await provider.getSigner()
 
@@ -245,7 +256,8 @@ const Order: React.FC = (props) => {
   const handleWithdrawLiquidity = async (
     provider: Web3Provider,
     optionAddress: string,
-    quantity: number
+    min_l: number,
+    min_tokens: number
   ) => {
     const signer = await provider.getSigner()
 
@@ -266,6 +278,7 @@ const Order: React.FC = (props) => {
         orderType: state.orderType,
         onAddItem: handleAddItem,
         onChangeItem: handleChangeItem,
+        onRemoveItem: handleRemoveItem,
         buyOptions: handleBuyOptions,
         sellOptions: handleSellOptions,
         mintOptions: handleMintOptions,

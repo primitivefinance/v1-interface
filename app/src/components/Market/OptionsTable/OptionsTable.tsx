@@ -76,7 +76,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 <TableRow
                   key={address}
                   onClick={() => {
-                    onAddItem(option, 'BUY')
+                    onAddItem(option, '')
                   }}
                 >
                   <TableCell key={strike}>${strike.toFixed(2)}</TableCell>

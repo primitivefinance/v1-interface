@@ -9,6 +9,7 @@ const OrderContext = createContext<OrderContextValues>({
   orderType: 'BUY',
   onAddItem: (item: OrderItem, orderType: string) => {},
   onChangeItem: (item: OrderItem, orderType: string) => {},
+  onRemoveItem: (item: OrderItem) => {},
   buyOptions: async (
     provider: Web3Provider,
     optionAddress: string,
