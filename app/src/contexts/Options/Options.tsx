@@ -87,7 +87,7 @@ const Options: React.FC = (props) => {
     premium = executionPrice > midPrice ? executionPrice : midPrice
     return { premium }
   }, [])
-
+  // FIX
   const handleOptions = useCallback(
     async (assetName) => {
       // Asset address and quantity of options
