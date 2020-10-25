@@ -16,7 +16,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import Exercise from '../Exercise/Exercise'
 
 const OrderOptions: React.FC = () => {
-  const { item, onChangeItem, onRemoveItem } = useOrders()
+  const { item, onChangeItem } = useOrders()
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
   const optionBalance = useTokenBalance(item.address)
   const LPBalance = useTokenBalance(item.address)

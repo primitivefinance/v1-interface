@@ -80,10 +80,12 @@ const reducer = (state: TransactionState = initialState, action: any) => {
   switch (action.type) {
     case 'ADD':
       return {
+        ...state,
         [action.chainId]: { [action.tx.hash]: action.tx },
       }
     case 'CLEAR':
       return {
+        ...state,
         [action.chainId]: {},
       }
     case 'FINALIZE':
@@ -92,7 +94,8 @@ const reducer = (state: TransactionState = initialState, action: any) => {
       fin.receipt = action.receipt
       fin.confirmedTime = now()
       return {
-        state: state[action.chainId][action.tx.hash] = fin,
+        ...state,
+        [action.chainId]: { [action.tx.hash]: fin },
       }
     case 'CHECKED':
       /*eslint-disable-next-line*/
@@ -105,10 +108,11 @@ const reducer = (state: TransactionState = initialState, action: any) => {
           check.lastCheckedBlockNumber
         )
       return {
-        state: state[action.chainId][action.tx.hash] = check,
+        ...state,
+        [action.chainId]: { [action.tx.hash]: check },
       }
     default:
-      return state
+      throw new Error()
   }
 }
 
