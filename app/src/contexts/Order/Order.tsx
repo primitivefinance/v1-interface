@@ -45,12 +45,19 @@ import {
   DEFAULT_TIMELIMIT,
 } from '../../constants/index'
 import { exec } from 'child_process'
+import { ChainId } from '@uniswap/sdk'
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { library, chainId, account } = useWeb3React()
   const { addTransaction } = useTransactions()
   const now = () => new Date().getTime()
+  const chain: ChainId =
+    chainId === 4
+      ? ChainId.RINKEBY
+      : chainId === 1
+      ? ChainId.MAINNET
+      : ChainId.ROPSTEN
 
   /* const networkIdToUrl = {
     '1': 'https://etherscan.io/tx',
@@ -88,7 +95,6 @@ const Order: React.FC = (props) => {
     const pairAddress = UniswapPairs[state.item.id].pairAddress
     const signer: ethers.Signer = await provider.getSigner()
     const receiver: string = await signer.getAddress()
-    const chainId: number = await signer.getChainId()
 
     const optionEntity: Option = createOptionEntityWithAddress(
       chainId,
@@ -117,10 +123,10 @@ const Order: React.FC = (props) => {
       trade,
       tradeSettings
     )
-    const tx: any = await executeTransaction(signer, transaction)
-
+    let tx: any = await executeTransaction(signer, transaction)
+    tx = { hash: 'test' }
     if (tx.hash) {
-      addTransaction(chainId, {
+      addTransaction(1, {
         hash: tx.hash,
         addedTime: now(),
         from: account,

@@ -28,6 +28,7 @@ const executeTransaction = async (
     tx = await transaction.contract[transaction.methodName](...args, {
       value: transaction.value,
     })
+    console.log(`tx: ${tx}`)
   } catch (err) {
     console.error(
       `Issue when attempting to submit transaction: ${transaction.methodName}`
