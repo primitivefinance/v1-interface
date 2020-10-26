@@ -19,7 +19,7 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import { Operation } from '@/lib/constants'
 
 const Test: React.FC = () => {
-  const { mintTestTokens, item, onChangeItem } = useOrders()
+  const { mintTestTokens, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -28,7 +28,8 @@ const Test: React.FC = () => {
 
   const handleMintClick = useCallback(() => {
     mintTestTokens(library, item?.address, Number(quantity))
-  }, [mintTestTokens, item, library, quantity])
+    onRemoveItem(item)
+  }, [mintTestTokens, onRemoveItem, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

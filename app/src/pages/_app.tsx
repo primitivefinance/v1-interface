@@ -8,7 +8,6 @@ import Layout from '@/components/Layout'
 import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-import BetaBanner from '@/components/BetaBanner'
 
 import theme from '../theme'
 
@@ -81,7 +80,6 @@ export default function App({ Component, pageProps }) {
             <TransactionProvider>
               <Updater />
               <Layout>
-                <BetaBanner isOpen={true} />
                 {active ? (
                   <WaitingRoom>
                     <Spacer size="lg" />

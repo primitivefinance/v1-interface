@@ -15,7 +15,7 @@ import formatBalance from '@/utils/formatBalance'
 import { Operation } from '@/lib/constants'
 
 const Exercise: React.FC = () => {
-  const { submitOrder, item } = useOrders()
+  const { onChangeItem, submitOrder, item } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -42,7 +42,7 @@ const Exercise: React.FC = () => {
   )
 
   const handleSetMax = () => {
-    let max =
+    const max =
       Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }

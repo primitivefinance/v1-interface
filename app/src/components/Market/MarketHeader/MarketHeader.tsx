@@ -59,25 +59,31 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
-        <StyledTitle>
-          <StyledName>
-            {name.charAt(0).toUpperCase() + name.slice(1)}
-          </StyledName>
-          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-        </StyledTitle>
-        <Box row alignItems="baseline">
-          <StyledPrice blink={blink}>
-            {data ? `$${(+data[name].usd).toFixed(2)}` : <StyledLoadingBlock />}
-          </StyledPrice>
-          <StyledPrice blink={blink} size="sm">
-            {data ? (
-              `${(+data[name].usd_24h_change).toFixed(2)}% Today`
-            ) : (
-              <StyledLoadingBlock />
-            )}
-          </StyledPrice>
-          <Spacer size="sm" />
-          <StyledSource>via {source}</StyledSource>
+        <Box column justifyContent="flex-end" alignItems="center">
+          <StyledTitle>
+            <StyledName>
+              {name.charAt(0).toUpperCase() + name.slice(1)}
+            </StyledName>
+            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+          </StyledTitle>
+          <Box row alignItems="baseline">
+            <StyledPrice blink={blink}>
+              {data ? (
+                `$${(+data[name].usd).toFixed(2)}`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+            <StyledPrice blink={blink} size="sm">
+              {data ? (
+                `${(+data[name].usd_24h_change).toFixed(2)}% Today`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+            <Spacer size="sm" />
+            <StyledSource>via {source}</StyledSource>
+          </Box>
         </Box>
       </LitContainer>
     </StyledHeader>

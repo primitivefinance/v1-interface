@@ -16,18 +16,20 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
 import { destructureOptionSymbol } from '@/lib/utils'
+import { Operation } from '@/lib/constants'
 
 const Sell: React.FC = () => {
-  const { buyOptions, item, onChangeItem } = useOrders()
+  const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
   const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
   const tokenBalance = useTokenBalance(stablecoinAddress)
 
-  /* const handleBuyClick = useCallback(() => {
-    buyOptions(library, item?.address, Number(quantity))
-  }, [buyOptions, item, library, quantity]) */
+  const handleSellClick = useCallback(() => {
+    submitOrder(library, item?.address, Number(quantity), Operation.CLOSE)
+    onRemoveItem(item)
+  }, [submitOrder, onRemoveItem, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -94,7 +96,7 @@ const Sell: React.FC = () => {
         disabled={!quantity}
         full
         size="sm"
-        onClick={() => buyOptions(library, item?.address, Number(quantity))}
+        onClick={handleSellClick}
         text="Review Transaction"
       />
     </>

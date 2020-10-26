@@ -97,7 +97,7 @@ const LP: React.FC = () => {
         disabled={!quantity}
         full
         onClick={() => buyOptions(library, item?.address, Number(quantity))}
-        text="Continue to Review"
+        text="Confirm Transaction"
       />
     </>
   )

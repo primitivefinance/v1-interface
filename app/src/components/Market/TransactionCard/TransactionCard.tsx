@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
+import Box from '@/components/Box'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
@@ -24,12 +25,15 @@ const TransactionCard: React.FC = () => {
       <Card>
         <StyledContainer>
           <CardContent>
-            <StyledTitle>Your Transactions</StyledTitle>
+            <Box row>
+              <StyledTitle>Recent Transactions</StyledTitle>
+              <Button variant="tertiary">clear</Button>
+            </Box>
             <Spacer />
             {Object.keys(txs).map((hash, i) => (
               <li key={i}>
                 <span>{txs[hash].addedTime}</span>
-                <span>{txs[hash].hash}</span>
+                <span>{txs[hash].hash.substr(0, 3)}</span>
                 {!txs[hash].receipt ? (
                   <span>Pending...</span>
                 ) : (

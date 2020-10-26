@@ -33,7 +33,7 @@ const OrderOptions: React.FC = () => {
       <>
         <Box column alignItems="flex-start">
           <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>Your Option Tokens</StyledSub>
+            <StyledSub>Option Token Balance</StyledSub>
             <Spacer />
             <StyledBalance>{optionBalance}</StyledBalance>
           </Box>
@@ -89,7 +89,7 @@ const OrderOptions: React.FC = () => {
         <Spacer />
         <Box column alignItems="flex-start">
           <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>Your LP Tokens</StyledSub>
+            <StyledSub>LP Token Balance</StyledSub>
             <Spacer />
             <StyledBalance>{LPBalance}</StyledBalance>
           </Box>

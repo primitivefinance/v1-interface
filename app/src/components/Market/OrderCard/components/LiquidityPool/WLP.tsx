@@ -18,7 +18,7 @@ import formatBalance from '@/utils/formatBalance'
 import { Operation } from '@/lib/constants'
 
 const WLP: React.FC = () => {
-  const { buyOptions, item, submitOrder } = useOrders()
+  const { onChangeItem, item, submitOrder } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -93,7 +93,7 @@ const WLP: React.FC = () => {
         disabled={!quantity}
         full
         onClick={handleBuyClick}
-        text="Continue to Review"
+        text="Confirm Transaction"
       />
     </>
   )

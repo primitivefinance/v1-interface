@@ -71,7 +71,7 @@ export const Wallet = () => {
     }
   }, [active, error])
 
-  const [ENSName, setENSName] = useState<string>('')
+  const [ENSName, setENSName] = useState('')
   useEffect(() => {
     if (library && account) {
       let stale = false

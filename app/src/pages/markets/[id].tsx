@@ -82,7 +82,7 @@ const Market = ({ market }) => {
               />
             </StyledMain>
             <StyledSideBar>
-              <PositionsCard />
+              <PositionsCard asset="ethereum" />
               <OrderCard />
               <Spacer />
               <TransactionCard />
