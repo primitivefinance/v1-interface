@@ -17,6 +17,7 @@ const Layout: React.FC<PageProps> = (props) => {
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>
+      <Footer />
     </>
   )
 }
