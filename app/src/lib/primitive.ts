@@ -233,9 +233,9 @@ const executeTransaction = async (
 ): Promise<any> => {
   let tx: any = {}
   console.log(transaction)
-  let args = transaction.args
-  let path = args[2]
-  let token0 = path[0]
+  const args = transaction.args
+  const path = args[2]
+  const token0 = path[0]
 
   await checkAllowance(signer, token0, transaction.contract.address)
   try {

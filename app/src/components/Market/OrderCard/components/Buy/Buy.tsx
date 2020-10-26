@@ -19,7 +19,7 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import { Operation } from '@/lib/constants'
 
 const Buy: React.FC = () => {
-  const { submitOrder, item, onChangeItem } = useOrders()
+  const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
@@ -28,7 +28,8 @@ const Buy: React.FC = () => {
 
   const handleBuyClick = useCallback(() => {
     submitOrder(library, item?.address, Number(quantity), Operation.LONG)
-  }, [submitOrder, item, library, quantity])
+    onRemoveItem(item)
+  }, [submitOrder, onRemoveItem, item, library, quantity])
 
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

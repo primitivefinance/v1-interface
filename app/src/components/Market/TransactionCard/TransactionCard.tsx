@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
+import Box from '@/components/Box'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
@@ -9,36 +10,40 @@ import LaunchIcon from '@material-ui/icons/Launch'
 import useTransactions from '@/hooks/transactions'
 import { useWeb3React } from '@web3-react/core'
 
+import { nullState } from '@/contexts/Transactions/types'
+
 const TransactionCard: React.FC = () => {
   const { transactions } = useTransactions()
   const { library, chainId } = useWeb3React()
 
   const txs = transactions[chainId]
+
+  if (!txs) return null
+  if (Object.keys(txs).length === 0 && txs.constructor === Object) return null
   return (
     <>
-      {txs ? (
-        <Card>
-          <StyledContainer>
-            <CardContent>
-              <StyledTitle>Your Transactions</StyledTitle>
-              <Spacer />
-              {Object.keys(txs).map((hash, i) => (
-                <li key={i}>
-                  <span>{txs[hash].addedTime}</span>
-                  <span>{txs[hash].hash}</span>
-                  {!txs[hash].receipt ? (
-                    <span>Pending...</span>
-                  ) : (
-                    <span>Confirmed</span>
-                  )}
-                </li>
-              ))}
-            </CardContent>
-          </StyledContainer>
-        </Card>
-      ) : (
-        <></>
-      )}
+      <Card>
+        <StyledContainer>
+          <CardContent>
+            <Box row>
+              <StyledTitle>Recent Transactions</StyledTitle>
+              <Button variant="tertiary">clear</Button>
+            </Box>
+            <Spacer />
+            {Object.keys(txs).map((hash, i) => (
+              <li key={i}>
+                <span>{txs[hash].addedTime}</span>
+                <span>{txs[hash].hash.substr(0, 3)}</span>
+                {!txs[hash].receipt ? (
+                  <span>Pending...</span>
+                ) : (
+                  <span>Confirmed</span>
+                )}
+              </li>
+            ))}
+          </CardContent>
+        </StyledContainer>
+      </Card>
     </>
   )
 }

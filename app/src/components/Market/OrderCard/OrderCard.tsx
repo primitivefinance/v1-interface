@@ -15,6 +15,7 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import Buy from './components/Buy'
 import Sell from './components/Sell'
 import Short from './components/Short'
+import Test from './components/Test'
 import { Exercise } from './components/Exercise'
 import { LP, WLP } from './components/LiquidityPool'
 import OrderOptions from './components/OrderOptions'
@@ -31,6 +32,9 @@ const OrderContent: React.FC = () => {
   }
   if (orderType === 'M_SELL') {
     return <Short />
+  }
+  if (orderType === 'TEST') {
+    return <Test />
   }
   if (orderType === 'LP') {
     return <LP />

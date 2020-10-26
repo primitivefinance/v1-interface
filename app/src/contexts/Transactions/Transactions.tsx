@@ -16,19 +16,26 @@ import {
 import { useLocalStorage } from '@/hooks/utils'
 import { ChainId } from '@uniswap/sdk'
 import TransactionContext from './context'
+import { LocalStorageKeys } from '../../constants/index'
 
 const Transactions: React.FC = (props) => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [stored, setStorage] = useLocalStorage<TransactionState>(
+    LocalStorageKeys.Transactions,
+    initialState
+  )
+  const [state, dispatch] = useReducer(reducer, stored)
 
   const handleAddTransaction = useCallback(
     (chainId: ChainId, tx: Transaction) => {
       dispatch(addTransaction(chainId, tx))
+      setStorage(state)
     },
     [dispatch]
   )
   const handleClearAllTransactions = useCallback(
     (chainId: ChainId) => {
       dispatch(clearAllTransactions(chainId))
+      setStorage(state)
     },
     [dispatch]
   )

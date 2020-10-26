@@ -5,7 +5,7 @@ import { Web3Provider } from '@ethersproject/providers'
 
 import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
-import { LocalStorageKeys } from '../../constants'
+import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '../../constants'
 
 declare global {
   interface Window {
@@ -14,6 +14,9 @@ declare global {
 }
 
 // https://github.com/Uniswap/uniswap-interface/blob/master/src/hooks/index.ts
+export function useSlippage() {
+  return useLocalStorage<string>(LocalStorageKeys.Slippage, DEFAULT_SLIPPAGE)
+}
 
 export function useActiveWeb3React(): Web3ReactContextInterface<
   Web3Provider

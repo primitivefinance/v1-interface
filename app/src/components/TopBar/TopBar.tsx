@@ -25,7 +25,7 @@ const TopBar: React.FC = () => {
           justifyContent="flex-start"
           display="flex"
           flexDirection="row"
-          height={65}
+          height={75}
         >
           <StyledNav>
             <Link href="/">

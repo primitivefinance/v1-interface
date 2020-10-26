@@ -1,6 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
+import { Web3Provider } from '@ethersproject/providers'
+
 import { responseInterface } from 'swr'
+import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { useBlockNumber } from '../data'
+import { useWeb3React } from '@web3-react/core'
 
 export { usePrevious } from './usePrevious'
 export { useLocalStorage } from './useLocalStorage'
@@ -20,4 +24,23 @@ export function useKeepSWRDataLiveAsBlocksArrive(
   useEffect(() => {
     mutateRef.current()
   }, [data])
+}
+
+export function useContract(
+  library: Web3Provider,
+  account: string,
+  address?: string,
+
+  ABI?: ContractInterface,
+  withSigner = false
+): Contract | undefined {
+  let result = undefined
+  !!address && !!ABI && !!library
+    ? (result = new Contract(
+        address,
+        ABI,
+        withSigner ? library.getSigner(account).connectUnchecked() : library
+      ))
+    : null
+  return result
 }

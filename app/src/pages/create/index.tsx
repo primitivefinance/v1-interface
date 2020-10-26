@@ -7,7 +7,7 @@ import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import PricesProvider from '@/contexts/Prices-dep'
 import OptionsProvider from '@/contexts/Options'
-import PositionsProvider from '@/contexts/Positions-dep'
+import PositionsProvider from '@/contexts/Positions'
 
 const Create: React.FC = () => {
   return (

@@ -14,9 +14,11 @@ import useOrders from '@/hooks/useOrders'
 import { destructureOptionSymbol } from '@/lib/utils'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import Exercise from '../Exercise/Exercise'
+import { useWeb3React } from '@web3-react/core'
 
 const OrderOptions: React.FC = () => {
-  const { item, onChangeItem, onRemoveItem } = useOrders()
+  const { item, onChangeItem } = useOrders()
+  const { chainId } = useWeb3React()
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
   const optionBalance = useTokenBalance(item.address)
   const LPBalance = useTokenBalance(item.address)
@@ -31,7 +33,7 @@ const OrderOptions: React.FC = () => {
       <>
         <Box column alignItems="flex-start">
           <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>Your Option Tokens</StyledSub>
+            <StyledSub>Option Token Balance</StyledSub>
             <Spacer />
             <StyledBalance>{optionBalance}</StyledBalance>
           </Box>
@@ -70,11 +72,24 @@ const OrderOptions: React.FC = () => {
               Mint & Sell
             </Button>
           </Box>
+          {chainId === 1 ? null : (
+            <>
+              <Spacer />
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => change('TEST')}
+              >
+                Mint Test Tokens
+              </Button>
+            </>
+          )}
         </Box>
         <Spacer />
         <Box column alignItems="flex-start">
           <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>Your LP Tokens</StyledSub>
+            <StyledSub>LP Token Balance</StyledSub>
             <Spacer />
             <StyledBalance>{LPBalance}</StyledBalance>
           </Box>

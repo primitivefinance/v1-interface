@@ -8,7 +8,6 @@ import Layout from '@/components/Layout'
 import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-import BetaBanner from '@/components/BetaBanner'
 
 import theme from '../theme'
 
@@ -21,6 +20,7 @@ const GlobalStyle = createGlobalStyle`
    /*  height: 100%; */
     width: 100%;
     line-height: 1.5;
+    margin: 0;
     max-width: 100%;
     overflow-x: initial !important;
     overflow-y: visible;
@@ -81,7 +81,6 @@ export default function App({ Component, pageProps }) {
             <TransactionProvider>
               <Updater />
               <Layout>
-                <BetaBanner isOpen={true} />
                 {active ? (
                   <WaitingRoom>
                     <Spacer size="lg" />

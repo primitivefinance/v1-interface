@@ -5,11 +5,12 @@ import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-
 import { useClickAway } from '../../hooks/utils/useClickAway'
+import { useSlippage } from '@/hooks/user'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
+  const [slippage, setSlippage] = useSlippage()
 
   const onClick = () => {
     setOpen(true)
@@ -20,6 +21,9 @@ export const Settings = () => {
   const nodeRef = useClickAway(() => {
     setOpen(false)
   })
+  const handleSlip = (s: string) => {
+    setSlippage(s)
+  }
   if (open) {
     return (
       <>
@@ -33,11 +37,50 @@ export const Settings = () => {
               <StyledSetting>Slippage tolerance</StyledSetting>
               <Spacer size="sm" />
               <StyledRow>
-                <Button size="sm" text="0.10%" onClick={() => {}}></Button>
+                {slippage === '0.10%' ? (
+                  <Button
+                    size="sm"
+                    text="0.10%"
+                    disabled
+                    onClick={() => handleSlip('0.10%')}
+                  ></Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    text="0.10%"
+                    onClick={() => handleSlip('0.10%')}
+                  ></Button>
+                )}
                 <Spacer size="sm" />
-                <Button size="sm" text="0.50%" onClick={() => {}}></Button>
+                {slippage === '0.50%' ? (
+                  <Button
+                    size="sm"
+                    text="0.50%"
+                    disabled
+                    onClick={() => handleSlip('0.50%')}
+                  ></Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    text="0.50%"
+                    onClick={() => handleSlip('0.50%')}
+                  ></Button>
+                )}
                 <Spacer size="sm" />
-                <Button size="sm" text="1.00%" onClick={() => {}}></Button>
+                {slippage === '1.00%' ? (
+                  <Button
+                    size="sm"
+                    text="1.00%"
+                    disabled
+                    onClick={() => handleSlip('1.00%')}
+                  ></Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    text="1.00%"
+                    onClick={() => handleSlip('1.00%')}
+                  ></Button>
+                )}
               </StyledRow>
             </StyledContent>
           </StyledRow>
@@ -82,8 +125,8 @@ const StyledModal = styled.div`
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
   position: fixed;
-  right: 15%;
-  top: ${(props) => props.theme.barHeight}px;
+  right: 10%;
+  top: ${(props) => props.theme.barHeight + 10}px;
   z-index: 0;
   z-index: 9999 !important;
 `

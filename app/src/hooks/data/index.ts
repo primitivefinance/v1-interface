@@ -11,3 +11,4 @@ export enum DataType {
 export { useETHBalance } from './useETHBalance'
 export { useBlockNumber } from './useBlockNumber'
 export { usePriceAPI } from './usePriceAPI'
+export { useBalance } from './useBalances'

@@ -1,7 +1,7 @@
 import { ChainId } from '@uniswap/sdk'
 
 export interface TransactionContextValues {
-  transactions: TransactionState
+  transactions: TransactionState | null
   addTransaction: (chainId: ChainId, tx: Transaction) => void
   clearAllTransactions: (chainId: ChainId) => void
   finalizeTransaction: (

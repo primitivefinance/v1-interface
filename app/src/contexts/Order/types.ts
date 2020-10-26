@@ -6,6 +6,7 @@ export interface OrderContextValues {
   orderType: string
   onAddItem: (item: OrderItem, orderType: string) => void
   onChangeItem: (item: OrderItem, orderType: string) => void
+  onRemoveItem: (item: OrderItem) => void
   submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
