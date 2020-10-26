@@ -18,60 +18,51 @@ import { Wallet } from '@/components/Wallet'
 const TopBar: React.FC = () => {
   const location = useRouter()
   return (
-    <>
-      <StyledTopBar>
-        <Container
-          alignItems="center"
-          justifyContent="flex-start"
-          display="flex"
-          flexDirection="row"
-          height={75}
-        >
-          <StyledNav>
-            <Link href="/">
-              <StyledNavItem active>
-                <StyledLogo src="/primitive-logo.svg" alt="Primitive Logo" />
-              </StyledNavItem>
-            </Link>
-            <Link href="/">
-              <StyledNavItem active>
-                <Logo />
-              </StyledNavItem>
-            </Link>
-            <Link href="/markets">
-              <StyledNavItem
-                active={
-                  location.pathname.indexOf('/markets') !== -1 ? true : false
-                }
-              >
-                Markets
-              </StyledNavItem>
-            </Link>
-            <Link href="/faq">
-              <StyledNavItem
-                active={location.pathname === '/faq' ? true : false}
-              >
-                FAQ
-              </StyledNavItem>
-            </Link>
-            <Link href="/risks">
-              <StyledNavItem
-                active={location.pathname === '/risks' ? true : false}
-              >
-                Risks
-              </StyledNavItem>
-            </Link>
-          </StyledNav>
-          <div style={{ width: '30rem' }} />
-          <StyledFlex>
-            <Wallet />
-            <Spacer size="md" />
-            <Settings />
-            <Spacer size="md" />
-          </StyledFlex>
-        </Container>
-      </StyledTopBar>
-    </>
+    <StyledTopBar>
+      <Container alignItems="center" display="flex" height={72}>
+        <StyledFlex>
+          <Link href="/">
+            <StyledNavItem active>
+              <StyledLogo src={PrimitiveIcon} alt="Primitive Logo" />
+            </StyledNavItem>
+          </Link>
+          <Link href="/">
+            <StyledNavItem active>
+              <Logo />
+            </StyledNavItem>
+          </Link>
+        </StyledFlex>
+        <StyledNav>
+          <Link href="/markets">
+            <StyledNavItem
+              active={
+                location.pathname.indexOf('/markets') !== -1 ? true : false
+              }
+            >
+              Markets
+            </StyledNavItem>
+          </Link>
+          <Link href="/faq">
+            <StyledNavItem active={location.pathname === '/faq' ? true : false}>
+              FAQ
+            </StyledNavItem>
+          </Link>
+          <Link href="/risks">
+            <StyledNavItem
+              active={location.pathname === '/risks' ? true : false}
+            >
+              Risks
+            </StyledNavItem>
+          </Link>
+        </StyledNav>
+        <StyledFlex>
+          <StyledFlex />
+          <Wallet />
+          <Spacer size="sm" />
+          <Settings />
+        </StyledFlex>
+      </Container>
+    </StyledTopBar>
   )
 }
 
@@ -79,9 +70,6 @@ const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
-  border-width: 0 0 1px 0;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
   display: flex;
   flex-direction: column;
   height: 72px;
