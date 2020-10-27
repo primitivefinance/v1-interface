@@ -71,7 +71,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       <LitContainer>
         {options[type].length > 1 ? (
           <TableBody>
-            {options[type].map((option, i) => {
+            {options[type].map((option) => {
               const { breakEven, price, strike, address } = option
               return (
                 <TableRow

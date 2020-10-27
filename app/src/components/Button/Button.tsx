@@ -11,7 +11,7 @@ export interface ButtonProps {
   onClick?: () => void
   leftIcon?: string
   round?: boolean
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   text?: string
   to?: boolean // use if Button is wrapped in Next.js Link component
   variant?: 'default' | 'secondary' | 'tertiary' | 'transparent'
@@ -35,6 +35,10 @@ const Button: React.FC<ButtonProps> = ({
   let buttonPadding: number
   let fontSize: number
   switch (size) {
+    case 'xs':
+      buttonPadding = spacing[2]
+      fontSize = 10
+      break
     case 'sm':
       buttonPadding = spacing[3]
       fontSize = 14
@@ -166,7 +170,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   display: flex;
   font-family: Nunito Sans;
   font-size: ${(props) => props.fontSize}px;
-  font-weight: 700;
+  font-weight: 600;
   height: ${(props) => props.size}px;
   justify-content: center;
   letter-spacing: 0.5px;
@@ -182,6 +186,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   &:hover {
     background: ${(props) => props.hoverBackgroundColor};
     border-color: ${(props) => props.hoverBorderColor};
+    box-shadow: rgba(231, 221, 222, 0.1) 0px 8px 40px;
     color: ${(props) => props.hoverColor};
   }
 `

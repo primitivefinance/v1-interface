@@ -78,12 +78,12 @@ const StyledMarket = styled.div`
 `
 
 const StyledSideBar = styled.div`
-  border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   background: ${(props) => props.theme.color.black};
+  border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
-  width: 30%;
+  width: ${(props) => props.theme.sidebarWidth}%;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};

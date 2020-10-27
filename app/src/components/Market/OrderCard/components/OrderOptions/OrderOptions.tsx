@@ -16,12 +16,17 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import Exercise from '../Exercise/Exercise'
 import { useWeb3React } from '@web3-react/core'
 
+import Label from '@/components/Label'
+import LineItem from '@/components/LineItem'
+
+import formatBalance from '@/utils/formatBalance'
+
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
   const { chainId } = useWeb3React()
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
   const optionBalance = useTokenBalance(item.address)
-  const LPBalance = useTokenBalance(item.address)
+  const LPBalance = useTokenBalance(item.address) // fix
 
   const change = (t: string) => {
     onChangeItem(item, t)
@@ -29,90 +34,52 @@ const OrderOptions: React.FC = () => {
 
   return (
     <>
-      <StyledR />
-      <>
-        <Box column alignItems="flex-start">
-          <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>Option Token Balance</StyledSub>
-            <Spacer />
-            <StyledBalance>{optionBalance}</StyledBalance>
-          </Box>
-          <Box row justifyContent="flex-start">
-            <Button variant="secondary" size="sm" onClick={() => change('BUY')}>
-              Buy
-            </Button>
-            <Spacer />
-            {!optionBalance ? (
-              <>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => change('SELL')}
-                >
-                  Sell
-                </Button>
-                <Spacer />
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => change('EXEC')}
-                >
-                  Exercise
-                </Button>
-                <Spacer />
-              </>
-            ) : (
-              <></>
-            )}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => change('M_SELL')}
-            >
-              Mint & Sell
-            </Button>
-          </Box>
-          {chainId === 1 ? null : (
-            <>
-              <Spacer />
-
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => change('TEST')}
-              >
-                Mint Test Tokens
-              </Button>
-            </>
-          )}
-        </Box>
+      <Box column alignItems="flex-start">
+        <LineItem label={'Option Balance'} data={optionBalance} />
         <Spacer />
-        <Box column alignItems="flex-start">
-          <Box row justifyContent="flex-start" alignItems="center">
-            <StyledSub>LP Token Balance</StyledSub>
-            <Spacer />
-            <StyledBalance>{LPBalance}</StyledBalance>
-          </Box>
-          <Button variant="secondary" size="sm" onClick={() => change('LP')}>
-            Provide Liquidity
+        <Box row justifyContent="flex-start">
+          <Button full size="md" onClick={() => change('BUY')}>
+            Buy
           </Button>
           <Spacer />
-          {!LPBalance ? (
+          {!optionBalance ? (
             <>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => change('W_LP')}
-              >
-                Withdraw LP
+              <Button size="md" onClick={() => change('SELL')}>
+                Sell
+              </Button>
+              <Spacer />
+              <Button size="md" onClick={() => change('EXEC')}>
+                Exercise
               </Button>
               <Spacer />
             </>
           ) : (
             <></>
           )}
+          <Button full size="md" onClick={() => change('M_SELL')}>
+            Mint & Sell
+          </Button>
         </Box>
-      </>
+      </Box>
+      <Spacer />
+      <Box column alignItems="flex-start">
+        <LineItem label={'LP Balance'} data={LPBalance} />
+        <Spacer />
+        <Button size="md" onClick={() => change('LP')}>
+          Provide Liquidity
+        </Button>
+        <Spacer />
+        {!LPBalance ? (
+          <>
+            <Button full size="md" onClick={() => change('W_LP')}>
+              Withdraw LP
+            </Button>
+            <Spacer />
+          </>
+        ) : (
+          <></>
+        )}
+      </Box>
     </>
   )
 }
@@ -121,9 +88,12 @@ const StyledR = styled.div`
   margin-bottom: -1.2em;
 `
 const StyledBalance = styled.h6`
-  color: white;
+  color: ${(props) => props.theme.color.white};
 `
-const StyledSub = styled.h5`
-  color: grey;
+const StyledSub = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  opacity: 0.66;
+  text-transform: uppercase;
 `
 export default OrderOptions
