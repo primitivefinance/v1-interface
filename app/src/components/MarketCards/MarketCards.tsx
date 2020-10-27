@@ -20,7 +20,7 @@ const MarketCards: React.FC = () => {
           {markets.map((m, i) => (
             <React.Fragment key={i}>
               <MarketCard market={m} />
-              {(i === 0 || i === 1) && <StyledSpacer />}
+              {i === 0 || i === 1}
             </React.Fragment>
           ))}
         </StyledRow>
@@ -50,7 +50,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
                 <img
                   height="64"
                   src={market.icon}
-                  style={{ filter: 'brightness(2) grayscale(1)' }}
+                  /* style={{ filter: 'brightness(2) grayscale(1)' }} */
                   alt={'icon'}
                 />
               ) : (
@@ -101,7 +101,8 @@ const StyledRow = styled.div`
 const StyledCardWrapper = styled.div`
   display: flex;
   width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
-  position: relative;
+  margin: ${(props) => props.theme.spacing[2]}px;
+  //position: relative;
 `
 
 const StyledTitle = styled.h4`
