@@ -1,21 +1,21 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import useOrders from '../../../hooks/useOrders'
-import useOptions from '../../../hooks/useOptions'
+import useOrders from '@/hooks/useOrders'
+import useOptions from '@/hooks/useOptions'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 
 import { useWeb3React } from '@web3-react/core'
-import { formatAddress } from '../../../utils'
+import formatAddress from '@/utils/formatAddress'
 
-import Button from '../../Button'
+import Button from '@/components/Button'
 import EmptyTable from '../EmptyTable'
-import LitContainer from '../../LitContainer'
-import Table from '../../Table'
-import TableBody from '../../TableBody'
-import TableCell from '../../TableCell'
-import TableRow from '../../TableRow'
+import LitContainer from '@/components/LitContainer'
+import Table from '@/components/Table'
+import TableBody from '@/components/TableBody'
+import TableCell from '@/components/TableCell'
+import TableRow from '@/components/TableRow'
 
 export type FormattedOption = {
   breakEven: number
@@ -48,7 +48,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Expiry', 'Break Even', 'Price', 'Contract']
+  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract']
 
   return (
     <Table>
@@ -71,7 +71,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           <TableBody>
             {options[type].map((option, i) => {
               const { breakEven, price, strike, address, expiry } = option
-              const date = new Date(expiry * 1000)
               return (
                 <TableRow
                   key={address}
@@ -80,7 +79,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   }}
                 >
                   <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
-                  <TableCell key={expiry}>{date.toUTCString()}</TableCell>
                   <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
                   <TableCell key={price}>${price.toFixed(2)}</TableCell>
                   <TableCell key={address}>
