@@ -13,11 +13,7 @@ import reducer, {
   removeItem,
 } from './reducer'
 
-import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_DEADLINE,
-  DEFAULT_TIMELIMIT,
-} from '@/constants/index'
+import { DEFAULT_DEADLINE, DEFAULT_TIMELIMIT } from '@/constants/index'
 
 import { Asset } from '@/lib/entities'
 import { create, mintTestToken } from '@/lib/primitive'
@@ -32,11 +28,13 @@ import { Uniswap, TradeSettings, SinglePositionParameters } from '@/lib/uniswap'
 import executeTransaction from '@/lib/utils/executeTransaction'
 import UniswapPairs from './uniswap_pairs.json'
 import useTransactions from '@/hooks/transactions/index'
+import { useSlippage } from '@/hooks/user'
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { chainId, account } = useWeb3React()
   const { addTransaction } = useTransactions()
+  const [slippage] = useSlippage()
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
@@ -70,7 +68,7 @@ const Order: React.FC = (props) => {
     const signer: ethers.Signer = await provider.getSigner()
     const receiver: string = await signer.getAddress()
     const tradeSettings: TradeSettings = {
-      slippage: DEFAULT_SLIPPAGE,
+      slippage: slippage,
       timeLimit: DEFAULT_TIMELIMIT,
       receiver: receiver,
       deadline: DEFAULT_DEADLINE,
