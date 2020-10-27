@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import useOrders from '@/hooks/useOrders'
-import useOptions from '@/hooks/useOptions'
-
-import LaunchIcon from '@material-ui/icons/Launch'
-
-import { useWeb3React } from '@web3-react/core'
-import formatAddress from '@/utils/formatAddress'
-
-import Button from '@/components/Button'
 import EmptyTable from '../EmptyTable'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
+
+import useOrders from '@/hooks/useOrders'
+import useOptions from '@/hooks/useOptions'
+
+import LaunchIcon from '@material-ui/icons/Launch'
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+
+import formatAddress from '@/utils/formatAddress'
+import formatBalance from '@/utils/formatBalance'
+
+import { useWeb3React } from '@web3-react/core'
 
 export type FormattedOption = {
   breakEven: number
@@ -48,7 +50,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract']
+  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', '']
 
   return (
     <Table>
@@ -56,11 +58,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         <LitContainer>
           <TableRow isHead>
             {headers.map((header, index) => {
-              /* if (index === headers.length - 1) {
+              if (index === headers.length - 1) {
                 return (
                   <StyledButtonCell key={header}>{header}</StyledButtonCell>
                 )
-              } */
+              }
               return <TableCell key={header}>{header}</TableCell>
             })}
           </TableRow>
@@ -70,7 +72,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         {options[type].length > 1 ? (
           <TableBody>
             {options[type].map((option, i) => {
-              const { breakEven, price, strike, address, expiry } = option
+              const { breakEven, price, strike, address } = option
               return (
                 <TableRow
                   key={address}
@@ -78,28 +80,20 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     onAddItem(option, '')
                   }}
                 >
-                  <TableCell key={strike}>${strike.toFixed(2)}</TableCell>
-                  <TableCell key={breakEven}>${breakEven.toFixed(2)}</TableCell>
-                  <TableCell key={price}>${price.toFixed(2)}</TableCell>
+                  <TableCell key={strike}>${formatBalance(strike)}</TableCell>
+                  <TableCell key={breakEven}>
+                    ${formatBalance(breakEven)}
+                  </TableCell>
+                  <TableCell key={price}>${formatBalance(price)}</TableCell>
                   <TableCell key={address}>
                     <StyledARef href={`${baseUrl}/${address}`}>
                       {formatAddress(address)}{' '}
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
-                  {/* <StyledButtonCell key={'Open'}>
-                    <Button
-                      onClick={() => {
-                        onAddItem(option, {
-                          buyOrMint: true,
-                        })
-                      }}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      {'Open'}
-                    </Button>
-                  </StyledButtonCell> */}
+                  <StyledButtonCell key={'Open'}>
+                    <ArrowForwardIosIcon />
+                  </StyledButtonCell>
                 </TableRow>
               )
             })}
@@ -127,7 +121,8 @@ const StyledTableHead = styled.div`
 `
 
 const StyledButtonCell = styled.div`
-  flex: 0.5;
+  font-weight: inherit;
+  flex: 0.25;
   margin-right: ${(props) => props.theme.spacing[2]}px;
   width: ${(props) => props.theme.buttonSize}px;
 `
