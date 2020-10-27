@@ -72,6 +72,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       break
     case Operation.ADD_LIQUIDITY:
       title = 'Provide Liquidity'
+      capitalLabel = 'LP Token'
       tokenAddress = stablecoinAddress
       break
     case Operation.REMOVE_LIQUIDITY:
@@ -163,7 +164,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           <LineItem
             label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
             data={+item.price * +quantity}
-            units={`${sign} $`}
+            units={`${sign ? sign : ''} $`}
           />
           <Spacer />
         </>

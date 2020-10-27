@@ -1,11 +1,10 @@
 import React from 'react'
 
 import Box from '@/components/Box'
-import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
-import Spacer from '@/components/Spacer'
 import PriceInput from '@/components/PriceInput'
+import Spacer from '@/components/Spacer'
 
 export interface LPProps {
   title: string

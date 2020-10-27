@@ -7,9 +7,9 @@ import Spacer from '@/components/Spacer'
 import formatBalance from '@/utils/formatBalance'
 
 export interface LineItemProps {
-  label: string
+  label: React.ReactNode
   data: string | number
-  units?: string
+  units?: React.ReactNode
 }
 
 const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {

@@ -1,27 +1,18 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import useOrders from '@/hooks/useOrders'
-import CloseIcon from '@material-ui/icons/Close'
 import ClearIcon from '@material-ui/icons/Clear'
 
-import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
 import Box from '@/components/Box'
-import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import { destructureOptionSymbol } from '@/lib/utils'
 
 import Submit from './components/Submit'
-
-import Buy from './components/Buy'
-import Sell from './components/Sell'
-import Short from './components/Short'
 import Test from './components/Test'
-import { Exercise } from './components/Exercise'
-import { LP, WLP } from './components/LiquidityPool'
 import OrderOptions from './components/OrderOptions'
 import { Operation } from '@/lib/constants'
 
@@ -56,7 +47,7 @@ const OrderContent: React.FC = () => {
 }
 
 const OrderCard: React.FC = () => {
-  const { item, onChangeItem, onRemoveItem } = useOrders()
+  const { item, onRemoveItem } = useOrders()
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
   const clear = () => {
     onRemoveItem(item)

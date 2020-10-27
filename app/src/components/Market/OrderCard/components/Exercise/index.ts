@@ -1,2 +1,1 @@
-export { default } from './SellOrExercise'
-export { default as Exercise } from './Exercise'
+export { default } from './Exercise'
