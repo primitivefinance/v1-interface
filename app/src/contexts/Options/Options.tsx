@@ -84,8 +84,10 @@ const Options: React.FC = (props) => {
 
     const executionPrice = Number(trade.executionPrice.toSignificant(6))
 
+    const reserveDAI =
+      Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
     premium = executionPrice > midPrice ? executionPrice : midPrice
-    return { premium }
+    return { premium, reserveDAI }
   }, [])
   // FIX
   const handleOptions = useCallback(
@@ -98,10 +100,12 @@ const Options: React.FC = (props) => {
       const optionsObject = {
         calls: [EmptyAttributes],
         puts: [EmptyAttributes],
+        reservesTotal: 0,
       }
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
+      let pairReserveTotal = 0
       // For each option in the option deployments file...
       for (let i = 0; i < optionsLength; i++) {
         // Get the parameters for the option object in the option_deployments json file.
@@ -129,14 +133,16 @@ const Options: React.FC = (props) => {
         let isCall
 
         // Get the option price data from uniswap pair.
-        const { premium } = await getPairData(provider, address)
+        const { premium, reserveDAI } = await getPairData(provider, address)
         price = premium
         /* price = 1 */
-
+        pairReserveTotal += reserveDAI
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
         // If a call, set the strike to the quote. If a put, set the strike to the base.
         let arrayToPushTo: OptionsAttributes[] = []
         if (base === '1') {
+          console.log(reserveDAI)
+          pairReserveTotal += reserveDAI
           isCall = true
           strike = Number(quote)
           arrayToPushTo = calls
@@ -166,6 +172,7 @@ const Options: React.FC = (props) => {
       Object.assign(optionsObject, {
         calls: calls,
         puts: puts,
+        reservesTotal: pairReserveTotal,
       })
       dispatch(setOptions(optionsObject))
     },

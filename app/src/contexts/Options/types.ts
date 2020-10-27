@@ -5,6 +5,7 @@ export interface OptionsContextValues {
 export interface OptionsData {
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
+  reservesTotal: number
 }
 
 export type OptionsAttributes = {

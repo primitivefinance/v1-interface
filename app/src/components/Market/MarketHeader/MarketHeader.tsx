@@ -6,6 +6,8 @@ import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
 import Spacer from '@/components/Spacer'
 import useSWR from 'swr'
+import useOptions from '@/hooks/useOptions'
+import { useWeb3React } from '@web3-react/core'
 
 import formatBalance from '@/utils/formatBalance'
 
@@ -21,6 +23,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const { marketId } = props
+  const { options, getOptions } = useOptions()
+  const { library, chainId } = useWeb3React()
 
   const getMarketDetails = () => {
     if (marketId === 'weth') {
@@ -33,6 +37,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
       return { name, symbol }
     }
   }
+  useEffect(() => {
+    if (library) {
+      getOptions(getMarketDetails().name)
+    }
+  }, [library, marketId, getOptions])
 
   const { name, symbol } = getMarketDetails()
   const { data, mutate } = useSWR(
@@ -67,27 +76,44 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
       <LitContainer>
         <GoBack to="/markets" />
         <StyledTitle>
-          <StyledName>{formatName(name)}</StyledName>
-          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+          <StyledLogo alt={formatName(name)} />
+          <Spacer />
+          <Box column>
+            <StyledName>{formatName(name)}</StyledName>
+            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+          </Box>
         </StyledTitle>
-        <StyledContent>
-          <StyledPrice blink={blink}>
-            {data ? (
-              `$${formatBalance(data[name].usd)}`
-            ) : (
-              <StyledLoadingBlock />
-            )}
-          </StyledPrice>
-          <StyledPrice blink={blink} size="sm">
-            {data ? (
-              `${formatBalance(data[name].usd_24h_change)}% Today`
-            ) : (
-              <StyledLoadingBlock />
-            )}
-          </StyledPrice>
-          <Spacer size="sm" />
-          <StyledSource>via {source}</StyledSource>
-        </StyledContent>
+        <Box row justifyContent="flex-start">
+          <StyledContent>
+            <StyledPrice blink={blink}>
+              {data ? (
+                `$${formatBalance(data[name].usd)}`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+            <StyledPrice blink={blink} size="sm">
+              {data ? (
+                `${formatBalance(data[name].usd_24h_change)}% Today`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+            <Spacer size="sm" />
+            <StyledSource>via {source}</StyledSource>
+          </StyledContent>
+          <Spacer size="lg" />
+          <StyledContent>
+            <StyledLiquidity>
+              {options.reservesTotal !== 0 ? (
+                `Total Liquidity $${options.reservesTotal.toFixed(4)}`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledLiquidity>
+            <Spacer size="sm" />
+          </StyledContent>
+        </Box>
       </LitContainer>
     </StyledHeader>
   )
@@ -112,6 +138,7 @@ const StyledLoadingBlock = styled.div`
 `
 const StyledTitle = styled.div`
   align-items: baseline;
+  flex-direction: row;
   color: ${(props) => props.theme.color.white};
   display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
@@ -133,11 +160,17 @@ const StyledSymbol = styled.span`
   letter-spacing: 1px;
   text-transform: uppercase;
 `
-
+const StyledLogo = styled.img`
+  width: 3em;
+`
 interface StyledPriceProps {
   size?: 'sm' | 'md' | 'lg'
   blink?: boolean
 }
+
+const StyledLiquidity = styled.h5`
+  color: ${(props) => props.theme.color.grey[400]};
+`
 
 const StyledPrice = styled.span<StyledPriceProps>`
   color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};

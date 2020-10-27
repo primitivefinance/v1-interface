@@ -27,20 +27,20 @@ export function useKeepSWRDataLiveAsBlocksArrive(
 }
 
 export function useContract(
-  library: Web3Provider,
-  account: string,
   address?: string,
-
   ABI?: ContractInterface,
   withSigner = false
 ): Contract | undefined {
-  let result = undefined
-  !!address && !!ABI && !!library
-    ? (result = new Contract(
-        address,
-        ABI,
-        withSigner ? library.getSigner(account).connectUnchecked() : library
-      ))
-    : null
-  return result
+  const { library, account } = useWeb3React()
+  return useMemo(
+    () =>
+      !!address && !!ABI && !!library
+        ? new Contract(
+            address,
+            ABI,
+            withSigner ? library.getSigner(account).connectUnchecked() : library
+          )
+        : undefined,
+    [address, ABI, withSigner, library, account]
+  )
 }
