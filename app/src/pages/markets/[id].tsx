@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { GetServerSideProps } from 'next'
 import { useWeb3React } from '@web3-react/core'
 
+import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
@@ -47,23 +48,21 @@ const Market = ({ market }) => {
     <OrderProvider>
       <OptionsProvider>
         <StyledMarket>
-          <>
-            <StyledMain>
-              <MarketHeader marketId={marketId} />
-              <FilterBar active={callPutActive} setCallActive={handleFilter} />
-              <OptionsTable
-                options={mockOptions}
-                asset="Ethereum"
-                callActive={callPutActive}
-              />
-            </StyledMain>
-            <StyledSideBar>
-              <PositionsCard asset="ethereum" />
-              <OrderCard />
-              <Spacer />
-              <TransactionCard />
-            </StyledSideBar>
-          </>
+          <StyledMain>
+            <MarketHeader marketId={marketId} />
+            <FilterBar active={callPutActive} setCallActive={handleFilter} />
+            <OptionsTable
+              options={mockOptions}
+              asset="Ethereum"
+              callActive={callPutActive}
+            />
+          </StyledMain>
+          <StyledSideBar>
+            <PositionsCard asset="ethereum" />
+            <OrderCard />
+            <Spacer />
+            <TransactionCard />
+          </StyledSideBar>
         </StyledMarket>
       </OptionsProvider>
     </OrderProvider>
@@ -73,6 +72,9 @@ const Market = ({ market }) => {
 const StyledMain = styled.div``
 
 const StyledMarket = styled.div`
+  width: auto;
+  position: relative;
+  overflow: auto;
   display: flex;
   width: ${(props) => props.theme.tableWidth}%;
 `
