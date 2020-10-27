@@ -1,7 +1,6 @@
 import { OptionsData, OptionsState, EmptyAttributes } from './types'
 
 export const SET_OPTIONS = 'SET_OPTIONS'
-
 export interface SetOptionsAction {
   type: typeof SET_OPTIONS
   options: OptionsData
@@ -9,7 +8,11 @@ export interface SetOptionsAction {
 
 export type OptionsActions = SetOptionsAction
 export const initialState: OptionsState = {
-  options: { calls: [EmptyAttributes], puts: [EmptyAttributes] },
+  options: {
+    calls: [EmptyAttributes],
+    puts: [EmptyAttributes],
+    reservesTotal: 0,
+  },
 }
 
 export const setOptions = (optionsData: OptionsData): SetOptionsAction => {
