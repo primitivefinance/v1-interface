@@ -1,27 +1,24 @@
 import React, { useCallback, useState } from 'react'
-
-import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
-import Input from '@/components/Input'
-import Label from '@/components/Label'
-import Spacer from '@/components/Spacer'
+import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
+import Spacer from '@/components/Spacer'
 
 import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
-import formatBalance from '@/utils/formatBalance'
-import { destructureOptionSymbol } from '@/lib/utils'
 import { Operation } from '@/lib/constants'
+import formatBalance from '@/utils/formatBalance'
 
-import Buy from '../Buy'
 import Exercise from '../Exercise/Exercise'
 import LP from '../LiquidityPool/LP'
+
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import { useWeb3React } from '@web3-react/core'
 
 export interface SubmitProps {
   orderType: Operation
@@ -139,10 +136,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <Box row justifyContent="space-between">
-            <Label text="Price" />
-            <span>${formatBalance(item.price)}</span>
-          </Box>
+          <LineItem label="Price" data={item.price} units="$" />
           <Spacer />
           <PriceInput
             title="Quantity"
@@ -154,10 +148,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       )}
 
       <Spacer />
-      <Box row justifyContent="space-between">
-        <Label text={`${capitalLabel} Power`} />
-        <span>${formatBalance(tokenBalance)}</span>
-      </Box>
+      <LineItem label={`${capitalLabel} Power`} data={tokenBalance} units="$" />
 
       <Spacer />
       {orderType === Operation.EXERCISE ? (
@@ -169,12 +160,11 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         />
       ) : (
         <>
-          <Box row justifyContent="space-between">
-            <Label text={`Total ${isDebit ? 'Debit' : 'Credit'}`} />
-            <span>
-              {sign} ${formatBalance(+item.price * +quantity)}
-            </span>
-          </Box>
+          <LineItem
+            label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
+            data={+item.price * +quantity}
+            units={`${sign} $`}
+          />
           <Spacer />
         </>
       )}

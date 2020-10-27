@@ -9,14 +9,17 @@ import formatBalance from '@/utils/formatBalance'
 export interface LineItemProps {
   label: string
   data: string | number
+  units?: string
 }
 
-const LineItem: React.FC<LineItemProps> = ({ label, data }) => {
+const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
   return (
     <StyledLineItem>
       <StyledLabel>{label}</StyledLabel>
       <Spacer />
-      <span>{formatBalance(data)}</span>
+      <span>
+        {units ? units : null} {formatBalance(data)}
+      </span>
     </StyledLineItem>
   )
 }
