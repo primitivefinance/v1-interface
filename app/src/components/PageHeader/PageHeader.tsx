@@ -21,7 +21,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ icon, subtitle, title }) => {
 
 const StyledPageHeader = styled.div`
   align-items: center;
-  //box-sizing: border-box;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding-bottom: ${(props) => props.theme.spacing[6]}px;

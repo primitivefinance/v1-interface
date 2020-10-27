@@ -110,14 +110,14 @@ const Markets: React.FC = () => {
   }, [day, setDay])
 
   return (
-    <>
+    <div>
       <PageHeader
         icon={days[day]}
         title="Choose an option market."
         subtitle="View available options and trade."
       />
       <MarketCards />
-    </>
+    </div>
   )
 }
 
