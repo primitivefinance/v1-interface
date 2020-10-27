@@ -11,19 +11,17 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ icon, subtitle, title }) => {
   return (
-    <Container>
-      <StyledPageHeader>
-        <StyledIcon>{icon}</StyledIcon>
-        <StyledTitle>{title}</StyledTitle>
-        <StyledSubtitle>{subtitle}</StyledSubtitle>
-      </StyledPageHeader>
-    </Container>
+    <StyledPageHeader>
+      <StyledIcon>{icon}</StyledIcon>
+      <StyledTitle>{title}</StyledTitle>
+      <StyledSubtitle>{subtitle}</StyledSubtitle>
+    </StyledPageHeader>
   )
 }
 
 const StyledPageHeader = styled.div`
   align-items: center;
-  box-sizing: border-box;
+  //box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding-bottom: ${(props) => props.theme.spacing[6]}px;
