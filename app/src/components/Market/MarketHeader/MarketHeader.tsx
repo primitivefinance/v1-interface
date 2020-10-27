@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import Box from '../../Box'
-import GoBack from '../../GoBack'
-import LitContainer from '../../LitContainer'
-import Spacer from '../../Spacer'
+import Box from '@/components/Box'
+import GoBack from '@/components/GoBack'
+import LitContainer from '@/components/LitContainer'
+import Spacer from '@/components/Spacer'
 import useSWR from 'swr'
+
+import formatBalance from '@/utils/formatBalance'
+
+const formatName = (name) => {
+  return name.charAt(0).toUpperCase() + name.slice(1)
+}
+
 export interface MarketHeaderProps {
   marketId: string
 }
@@ -59,42 +66,36 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
-        <Box column justifyContent="flex-end" alignItems="center">
-          <StyledTitle>
-            <StyledName>
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </StyledName>
-            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-          </StyledTitle>
-          <Box row alignItems="baseline">
-            <StyledPrice blink={blink}>
-              {data ? (
-                `$${(+data[name].usd).toFixed(2)}`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <StyledPrice blink={blink} size="sm">
-              {data ? (
-                `${(+data[name].usd_24h_change).toFixed(2)}% Today`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <Spacer size="sm" />
-            <StyledSource>via {source}</StyledSource>
-          </Box>
-        </Box>
+        <StyledTitle>
+          <StyledName>{formatName(name)}</StyledName>
+          <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+        </StyledTitle>
+        <StyledContent>
+          <StyledPrice blink={blink}>
+            {data ? (
+              `$${formatBalance(data[name].usd)}`
+            ) : (
+              <StyledLoadingBlock />
+            )}
+          </StyledPrice>
+          <StyledPrice blink={blink} size="sm">
+            {data ? (
+              `${formatBalance(data[name].usd_24h_change)}% Today`
+            ) : (
+              <StyledLoadingBlock />
+            )}
+          </StyledPrice>
+          <Spacer size="sm" />
+          <StyledSource>via {source}</StyledSource>
+        </StyledContent>
       </LitContainer>
     </StyledHeader>
   )
 }
 
-const StyledLoadingBlock = styled.div`
-  background-color: ${(props) => props.theme.color.grey[400]};
-  width: 60px;
-  height: 24px;
-  border-radius: 12px;
+const StyledContent = styled(Box)`
+  align-items: baseline;
+  flex-direction: row;
 `
 
 const StyledHeader = styled.div`
@@ -103,17 +104,28 @@ const StyledHeader = styled.div`
   padding-top: ${(props) => props.theme.spacing[4]}px;
 `
 
+const StyledLoadingBlock = styled.div`
+  background-color: ${(props) => props.theme.color.grey[400]};
+  border-radius: 12px;
+  height: 24px;
+  width: 60px;
+`
 const StyledTitle = styled.div`
   align-items: baseline;
+  color: ${(props) => props.theme.color.white};
   display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
-  color: ${(props) => props.theme.color.white};
 `
 
 const StyledName = styled.span`
   font-size: 24px;
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+`
+const StyledSource = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  font-size: 12px;
 `
 
 const StyledSymbol = styled.span`
@@ -122,30 +134,17 @@ const StyledSymbol = styled.span`
   text-transform: uppercase;
 `
 
-const StyledSource = styled.span`
-  color: ${(props) => props.theme.color.grey[400]};
-  letter-spacing: 1px;
-  font-size: 12px;
-`
-
 interface StyledPriceProps {
   size?: 'sm' | 'md' | 'lg'
   blink?: boolean
 }
 
 const StyledPrice = styled.span<StyledPriceProps>`
+  color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
   font-size: ${(props) =>
     props.size === 'lg' ? 36 : props.size === 'sm' ? 12 : 24}px;
   font-weight: 700;
-  margin: 0.2em;
-  color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
+  margin: ${(props) => props.theme.spacing[1]}px;
 `
-
-/*
-  color: ${(props) =>
-    props.size === 'sm'
-      ? props.theme.color.grey[400]
-      : props.theme.color.white};
-*/
 
 export default MarketHeader

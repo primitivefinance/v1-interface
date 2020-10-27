@@ -13,6 +13,8 @@ export enum Operation {
   LONG,
   SHORT,
   NEUTRAL,
+  ADD_LIQUIDITY,
+  REMOVE_LIQUIDITY,
 }
 
 export const STABLECOIN_ADDRESS = ''

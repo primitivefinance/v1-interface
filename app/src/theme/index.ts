@@ -11,12 +11,11 @@ import {
 
 const theme = {
   barHeight: 72,
-  rowHeight: 64,
   borderRadius: 4,
-  buttonSize: 44,
   breakpoints: {
     mobile: 400,
   },
+  buttonSize: 44,
   color: {
     black,
     grey,
@@ -35,6 +34,8 @@ const theme = {
     },
   },
   contentWidth: 1200,
+  rowHeight: 64,
+  sidebarWidth: 25,
   spacing: {
     1: 4,
     2: 8,
@@ -44,6 +45,7 @@ const theme = {
     6: 40,
     7: 48,
   },
+  tableWidth: 100,
 }
 
 export default theme

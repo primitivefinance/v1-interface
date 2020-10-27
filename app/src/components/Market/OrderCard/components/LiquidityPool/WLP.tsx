@@ -62,11 +62,13 @@ const WLP: React.FC = () => {
         <Spacer />
         <StyledTitle>{`Withdraw Liquidity for Option`}</StyledTitle>
       </Box>
+
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
         <span>${item.price.toFixed(2)}</span>
       </Box>
+
       <Spacer />
       <Label text="Quantity" />
       <Spacer size="sm" />
@@ -76,11 +78,13 @@ const WLP: React.FC = () => {
         value={`${quantity}`}
         endAdornment={<Button size="sm" text="Max" onClick={handleSetMax} />}
       />
+
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Buying Power" />
         <span>${formatBalance(tokenBalance)}</span>
       </Box>
+
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Total Debit" />
@@ -88,6 +92,7 @@ const WLP: React.FC = () => {
           {+quantity ? '-' : ''}${(+item.price * +quantity).toFixed(2)}
         </span>
       </Box>
+
       <Spacer />
       <Button
         disabled={!quantity}

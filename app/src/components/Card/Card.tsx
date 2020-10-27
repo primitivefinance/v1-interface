@@ -14,16 +14,18 @@ const Card: React.FC<CardProps> = (props) => {
 }
 
 const StyledCard = styled.div<CardProps>`
-  background-color: ${(props) => props.theme.color.black};
+  background-color: ${(props) => props.theme.color.grey[800]};
+  border: 1px solid
+    ${(props) =>
+      props.border
+        ? props.theme.color.grey[500]
+        : props.theme.color.grey[300]}ff;
   border-radius: ${(props) => props.theme.borderRadius}px;
-  overflow: hidden;
+  //box-shadow: rgba(145, 136, 137, 0.15) 0px 8px 40px;
   display: flex;
-  border-radius: 0.2em 0.2em 0 0;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
 `
 
 export default Card
