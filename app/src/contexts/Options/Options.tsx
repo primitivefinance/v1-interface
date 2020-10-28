@@ -95,6 +95,11 @@ const Options: React.FC = (props) => {
       // Asset address and quantity of options
       const assetAddress = AssetAddresses[assetName][chainId]
       const optionsLength = Object.keys(OptionDeployments).length
+      const priceData = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${assetName}&vs_currencies=usd`
+      )
+      const price = await priceData.json()
+      const spotPrice = Math.ceil(price[assetName].usd / 10) * 10
       // Objects and arrays to populate
       const optionsObject = {
         calls: [EmptyAttributes],
@@ -173,7 +178,7 @@ const Options: React.FC = (props) => {
           breakEven: 0,
           change: 0,
           price: 0,
-          strike: 350,
+          strike: spotPrice,
           volume: 0,
           address: '',
           id: '',
@@ -189,7 +194,7 @@ const Options: React.FC = (props) => {
           breakEven: 0,
           change: 0,
           price: 0,
-          strike: 350,
+          strike: spotPrice,
           volume: 0,
           address: '',
           id: '',
