@@ -169,6 +169,7 @@ const StyledSymbol = styled.span`
   text-transform: uppercase;
 `
 const StyledLogo = styled.img`
+  border-radius: 50%;
   height: 64px;
 `
 interface StyledPriceProps {
