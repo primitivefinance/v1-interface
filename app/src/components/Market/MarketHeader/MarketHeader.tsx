@@ -30,7 +30,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const [blink, setBlink] = useState(false)
   const { marketId } = props
   const { options, getOptions } = useOptions()
-  const { library, chainId } = useWeb3React()
+  const { library } = useWeb3React()
 
   const getMarketDetails = () => {
     let key: string
@@ -72,8 +72,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     return () => clearTimeout(resetBlinkTimeout)
   }, [blink, setBlink])
 
-  const source = 'coingecko'
-
   return (
     <StyledHeader>
       <LitContainer>
@@ -82,14 +80,13 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
         <Spacer />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-          <Spacer />
-          <Box column>
-            <StyledName>{formatName(name)}</StyledName>
-            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-          </Box>
 
-          {/* <Spacer />
-          <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} /> */}
+          <Spacer size="lg" />
+          <StyledContent>
+            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+            <Spacer size="sm" />
+            <StyledName>{formatName(name)}</StyledName>
+          </StyledContent>
 
           <Spacer size="lg" />
           <StyledContent>
@@ -102,17 +99,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
                 <StyledLoadingBlock />
               )}
             </StyledPrice>
-
-            {/* <StyledPrice blink={blink} size="sm">
-              {data ? (
-                `${formatBalance(data[key].usd_24h_change)}% Today`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-
-            <Spacer size="sm" />
-            <StyledSource>via {source}</StyledSource> */}
           </StyledContent>
 
           <Spacer size="lg" />
@@ -139,46 +125,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
                 <StyledLoadingBlock />
               )}
             </StyledPrice>
-            <Spacer size="sm" />
           </StyledContent>
         </StyledTitle>
-
-        {/* <Spacer />
-        <Box row justifyContent="flex-start">
-          <StyledContent>
-            <StyledSymbol>Price</StyledSymbol>
-            <Spacer size="sm" />
-            <StyledPrice blink={blink}>
-              {data ? (
-                `$${formatBalance(data[key].usd)}`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <StyledPrice blink={blink} size="sm">
-              {data ? (
-                `${formatBalance(data[key].usd_24h_change)}% Today`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <Spacer size="sm" />
-            <StyledSource>via {source}</StyledSource>
-          </StyledContent>
-          <Spacer size="lg" />
-          <StyledContent>
-            <StyledSymbol>Total Liquidity</StyledSymbol>
-            <Spacer size="sm" />
-            <StyledPrice>
-              {options?.reservesTotal !== 0 ? (
-                `$ ${formatBalance(options?.reservesTotal)}`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <Spacer size="sm" />
-          </StyledContent>
-        </Box> */}
       </LitContainer>
     </StyledHeader>
   )
@@ -214,11 +162,6 @@ const StyledName = styled.span`
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
 `
-const StyledSource = styled.span`
-  color: ${(props) => props.theme.color.grey[400]};
-  letter-spacing: 1px;
-  font-size: 12px;
-`
 
 const StyledSymbol = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
@@ -233,16 +176,11 @@ interface StyledPriceProps {
   blink?: boolean
 }
 
-const StyledLiquidity = styled.h5`
-  color: ${(props) => props.theme.color.grey[400]};
-`
-
 const StyledPrice = styled.span<StyledPriceProps>`
   color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
   font-size: ${(props) =>
     props.size === 'lg' ? 36 : props.size === 'sm' ? 12 : 24}px;
   font-weight: 700;
-  //margin: ${(props) => props.theme.spacing[1]}px;
 `
 
 export default MarketHeader
