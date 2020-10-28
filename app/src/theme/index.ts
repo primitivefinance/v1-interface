@@ -46,6 +46,7 @@ const theme = {
     7: 48,
   },
   tableWidth: 100,
+  units: 'em',
 }
 
 export default theme

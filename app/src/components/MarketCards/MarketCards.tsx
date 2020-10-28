@@ -50,7 +50,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
                 <img
                   height="64"
                   src={market.icon}
-                  /* style={{ filter: 'brightness(2) grayscale(1)' }} */
+                  style={{ borderRadius: '50%' }}
                   alt={'icon'}
                 />
               ) : (

@@ -36,8 +36,6 @@ const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
-  const { marketId } = market
-
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
@@ -53,7 +51,7 @@ const Market = ({ market }) => {
       <OptionsProvider>
         <StyledMarket>
           <StyledMain>
-            <MarketHeader marketId={marketId} />
+            <MarketHeader marketId={market} />
             <FilterBar
               active={callPutActive}
               setCallActive={handleFilterType}
