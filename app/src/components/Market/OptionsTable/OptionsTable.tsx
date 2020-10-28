@@ -29,6 +29,7 @@ export type FormattedOption = {
 
 export interface OptionsTableProps {
   options: FormattedOption[]
+  optionExp: number
   asset: string
   callActive: boolean
 }
@@ -37,9 +38,9 @@ const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-  const { callActive, asset } = props
+  const { callActive, asset, optionExp } = props
   const { options, getOptions } = useOptions()
-  const { onAddItem } = useOrders()
+  const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
 
   useEffect(() => {
@@ -72,7 +73,33 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         {options[type].length > 1 ? (
           <TableBody>
             {options[type].map((option) => {
-              const { breakEven, price, strike, address } = option
+              const {
+                breakEven,
+                price,
+                strike,
+                address,
+                isActive,
+                expiry,
+              } = option
+              if (optionExp != expiry && expiry !== 0) return null
+              if (!isActive) {
+                return (
+                  <TableRow
+                    key={strike}
+                    onClick={() => {
+                      onAddItem(option, 'BUY')
+                    }}
+                  >
+                    <TableCell key={strike}>${formatBalance(strike)}</TableCell>
+                    <TableCell key={breakEven}>---</TableCell>
+                    <TableCell key={price}>---</TableCell>
+                    <TableCell key={address}>---</TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <ArrowForwardIosIcon />
+                    </StyledButtonCell>
+                  </TableRow>
+                )
+              }
               return (
                 <TableRow
                   key={address}

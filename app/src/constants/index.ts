@@ -118,6 +118,10 @@ export const DAI = new Token(
   'Dai Stablecoin'
 )
 
+export const DEFAULT_STRIKE_LOW = 0.9
+export const DEFAULT_STRIKE_MID = 1.0
+export const DEFAULT_STRIKE_HIGH = 1.1
+
 export const CURRENT_VERSION = 1.0
 export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20

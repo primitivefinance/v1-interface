@@ -17,6 +17,7 @@ export type OptionsAttributes = {
   address: string
   id: string
   expiry: number
+  isActive: boolean
 }
 
 export const EmptyAttributes = {
@@ -28,6 +29,7 @@ export const EmptyAttributes = {
   address: '',
   id: '',
   expiry: 0,
+  isActive: false,
 }
 
 export interface OptionsState {

@@ -17,7 +17,7 @@ import {
   getIconForMarket,
 } from '@/constants/index'
 
-const formatName = (name) => {
+const formatName = (name: any) => {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
 
@@ -35,7 +35,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const getMarketDetails = () => {
     let key: string
     let name: string
-    let symbol: string = marketId
+    const symbol: string = marketId
     name = NAME_FOR_MARKET[marketId]
     key = COINGECKO_ID_FOR_MARKET[marketId]
     return { name, symbol, key }
