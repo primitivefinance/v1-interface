@@ -34,8 +34,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const { chainId, active } = useWeb3React()
-  const { marketId } = market
-
   const handleFilter = () => {
     setCallPutActive(!callPutActive)
   }
@@ -49,7 +47,7 @@ const Market = ({ market }) => {
         <StyledMarket>
           <>
             <StyledMain>
-              <MarketHeader marketId={marketId} />
+              <MarketHeader marketId={market} />
               <FilterBar active={callPutActive} setCallActive={handleFilter} />
               <OptionsTable
                 options={mockOptions}

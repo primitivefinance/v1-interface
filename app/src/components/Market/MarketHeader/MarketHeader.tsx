@@ -11,6 +11,12 @@ import { useWeb3React } from '@web3-react/core'
 
 import formatBalance from '@/utils/formatBalance'
 
+import {
+  COINGECKO_ID_FOR_MARKET,
+  NAME_FOR_MARKET,
+  getIconForMarket,
+} from '@/constants/index'
+
 const formatName = (name) => {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
@@ -24,28 +30,25 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
   const [blink, setBlink] = useState(false)
   const { marketId } = props
   const { options, getOptions } = useOptions()
-  const { library, chainId } = useWeb3React()
+  const { library } = useWeb3React()
 
   const getMarketDetails = () => {
-    if (marketId === 'weth') {
-      const name = 'ethereum'
-      const symbol = 'ETH'
-      return { name, symbol }
-    } else {
-      const name = 'ethereum'
-      const symbol = 'ETH'
-      return { name, symbol }
-    }
+    let key: string
+    let name: string
+    let symbol: string = marketId
+    name = NAME_FOR_MARKET[marketId]
+    key = COINGECKO_ID_FOR_MARKET[marketId]
+    return { name, symbol, key }
   }
   useEffect(() => {
-    if (library) {
+    /* if (library) {
       getOptions(getMarketDetails().name)
-    }
+    } */
   }, [library, marketId, getOptions])
 
-  const { name, symbol } = getMarketDetails()
+  const { name, symbol, key } = getMarketDetails()
   const { data, mutate } = useSWR(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${name}&vs_currencies=usd&include_24hr_change=true`
+    `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
 
   useEffect(() => {
@@ -69,51 +72,61 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
     return () => clearTimeout(resetBlinkTimeout)
   }, [blink, setBlink])
 
-  const source = 'coingecko'
-
   return (
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
+
+        <Spacer />
         <StyledTitle>
-          <StyledLogo alt={formatName(name)} />
-          <Spacer />
-          <Box column>
-            <StyledName>{formatName(name)}</StyledName>
-            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-          </Box>
-        </StyledTitle>
-        <Box row justifyContent="flex-start">
-          <StyledContent>
-            <StyledPrice blink={blink}>
-              {data ? (
-                `$${formatBalance(data[name].usd)}`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <StyledPrice blink={blink} size="sm">
-              {data ? (
-                `${formatBalance(data[name].usd_24h_change)}% Today`
-              ) : (
-                <StyledLoadingBlock />
-              )}
-            </StyledPrice>
-            <Spacer size="sm" />
-            <StyledSource>via {source}</StyledSource>
-          </StyledContent>
+          <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
+
           <Spacer size="lg" />
           <StyledContent>
-            <StyledLiquidity>
-              {options.reservesTotal !== 0 ? (
-                `Total Liquidity $${options.reservesTotal.toFixed(4)}`
+            <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+            <Spacer size="sm" />
+            <StyledName>{formatName(name)}</StyledName>
+          </StyledContent>
+
+          <Spacer size="lg" />
+          <StyledContent>
+            <StyledSymbol>Price</StyledSymbol>
+            <Spacer size="sm" />
+            <StyledPrice blink={blink}>
+              {data ? (
+                `$ ${formatBalance(data[key].usd)}`
               ) : (
                 <StyledLoadingBlock />
               )}
-            </StyledLiquidity>
-            <Spacer size="sm" />
+            </StyledPrice>
           </StyledContent>
-        </Box>
+
+          <Spacer size="lg" />
+          <StyledContent>
+            <StyledSymbol>24hr Change</StyledSymbol>
+            <Spacer size="sm" />
+            <StyledPrice blink={blink}>
+              {data ? (
+                `${formatBalance(data[key].usd_24h_change)}%`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+          </StyledContent>
+
+          <Spacer size="lg" />
+          <StyledContent>
+            <StyledSymbol>Total Liquidity</StyledSymbol>
+            <Spacer size="sm" />
+            <StyledPrice>
+              {options?.reservesTotal !== 0 ? (
+                `$ ${formatBalance(options?.reservesTotal)}`
+              ) : (
+                <StyledLoadingBlock />
+              )}
+            </StyledPrice>
+          </StyledContent>
+        </StyledTitle>
       </LitContainer>
     </StyledHeader>
   )
@@ -137,7 +150,7 @@ const StyledLoadingBlock = styled.div`
   width: 60px;
 `
 const StyledTitle = styled.div`
-  align-items: baseline;
+  align-items: center;
   flex-direction: row;
   color: ${(props) => props.theme.color.white};
   display: flex;
@@ -149,11 +162,6 @@ const StyledName = styled.span`
   font-weight: 700;
   margin-right: ${(props) => props.theme.spacing[2]}px;
 `
-const StyledSource = styled.span`
-  color: ${(props) => props.theme.color.grey[400]};
-  letter-spacing: 1px;
-  font-size: 12px;
-`
 
 const StyledSymbol = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
@@ -161,23 +169,19 @@ const StyledSymbol = styled.span`
   text-transform: uppercase;
 `
 const StyledLogo = styled.img`
-  width: 3em;
+  border-radius: 50%;
+  height: 64px;
 `
 interface StyledPriceProps {
   size?: 'sm' | 'md' | 'lg'
   blink?: boolean
 }
 
-const StyledLiquidity = styled.h5`
-  color: ${(props) => props.theme.color.grey[400]};
-`
-
 const StyledPrice = styled.span<StyledPriceProps>`
   color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
   font-size: ${(props) =>
     props.size === 'lg' ? 36 : props.size === 'sm' ? 12 : 24}px;
   font-weight: 700;
-  margin: ${(props) => props.theme.spacing[1]}px;
 `
 
 export default MarketHeader

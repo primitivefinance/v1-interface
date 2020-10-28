@@ -31,57 +31,55 @@ export const WALLETS: { [key: string]: Wallet } = {
 }
 
 export const NAME_FOR_MARKET: { [key: string]: string } = {
-  yfi_pool: 'YFI',
-  eth_pool: 'Weth',
-  sushi_pool: 'Sushi',
-  ycrv_pool: 'Ycrv',
-  comp_pool: 'Compound',
-  link_pool: 'Link',
-  aave_pool: 'Aave',
-  snx_pool: 'Synthetix',
-  mkr_pool: 'Maker',
-}
-
-export const ICON_FOR_MARKET: { [key: string]: string } = {
-  yfi_pool: '',
-  eth_pool:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/1280px-Ethereum-icon-purple.svg.png',
-  sushi_pool:
-    'https://github.com/trustwallet/assets/blob/master/blockchains/ethereum/assets/0x6b3595068778dd592e39a122f4f5a5cf09c90fe2/logo.png',
-  comp_pool: '',
-  link_pool: '',
-  aave_pool: '',
-  snx_pool: '',
-  mkr_pool: '',
-  ycrv_pool: '',
+  yfi: 'Yearn',
+  eth: 'Weth',
+  sushi: 'Sushi',
+  uni: 'Uniswap',
+  comp: 'Compound',
+  link: 'Link',
+  aave: 'Aave',
+  snx: 'Synthetix',
+  mkr: 'Maker',
 }
 
 export const SORT_FOR_MARKET: { [key: string]: number } = {
-  yfi_pool: 0,
-  eth_pool: 1,
-  sushi_pool: 2,
-  comp_pool: 3,
-  ycrv_pool: 4,
-  link_pool: 5,
-  aave_pool: 6,
-  snx_pool: 7,
-  mkr_pool: 8,
+  yfi: 0,
+  eth: 1,
+  sushi: 2,
+  comp: 3,
+  uni: 4,
+  link: 5,
+  aave: 6,
+  snx: 7,
+  mkr: 8,
+}
+
+export const COINGECKO_ID_FOR_MARKET: { [key: string]: string } = {
+  yfi: 'yearn-finance',
+  eth: 'weth',
+  sushi: 'sushi',
+  comp: 'compound-governance-token',
+  uni: 'uniswap',
+  link: 'chainlink',
+  aave: 'aave',
+  snx: 'havven',
+  mkr: 'maker',
 }
 
 export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
-  yfi_pool: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
-  eth_pool: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  sushi_pool: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
-  comp_pool: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
-  ycrv_pool: '0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8',
-  link_pool: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-  aave_pool: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
-  snx_pool: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
-  mkr_pool: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+  yfi: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
+  eth: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  sushi: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
+  comp: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+  uni: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
+  link: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+  aave: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+  snx: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
+  mkr: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
 }
 
 export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
-  (key, index): Market => {
+  (key): Market => {
     return {
       name: NAME_FOR_MARKET[key],
       icon: `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${ADDRESS_FOR_MARKET[key]}/logo.png`,
@@ -90,6 +88,10 @@ export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
     }
   }
 )
+
+export const getIconForMarket = (key) => {
+  return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${ADDRESS_FOR_MARKET[key]}/logo.png`
+}
 
 export enum QueryParameters {
   INPUT = 'input',
