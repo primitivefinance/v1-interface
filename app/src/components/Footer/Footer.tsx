@@ -46,11 +46,12 @@ const Loader = styled.div`
 const StyledBlockNumber = styled.h5`
   align-items: center;
   background-color: ${(props) => props.theme.color.grey[800]};
-  padding: 10px;
+  padding: 4px;
   opacity: 90%;
   border-radius: 10px;
   color: ${(props) => props.theme.color.white};
   display: flex;
+  max-height: 0.1em;
   margin-right: ${(props) => props.theme.spacing[4]}px;
   padding: ${(props) => props.theme.spacing[4]}px;
 `
@@ -66,7 +67,7 @@ const StyledFooter = styled.footer`
 const StyledFooterInner = styled.div`
   align-items: center;
   display: flex;
-  height: ${(props) => props.theme.barHeight}px;
+  height: 2em;
   justify-content: center;
   max-width: ${(props) => props.theme.siteWidth}px;
   margin-right: ${(props) => props.theme.spacing[4]}px;
