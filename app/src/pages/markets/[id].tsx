@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { GetServerSideProps } from 'next'
 import { useWeb3React } from '@web3-react/core'
 
+import BetaBanner from '@/components/BetaBanner'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
@@ -68,6 +69,8 @@ const Market = ({ market }) => {
           <StyledSideBar>
             <PositionsCard asset="ethereum" />
             <OrderCard />
+            <Spacer />
+            <BetaBanner isOpen={true} />
             <Spacer />
             <TransactionCard />
           </StyledSideBar>

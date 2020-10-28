@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import EmptyTable from '../EmptyTable'
+import Spacer from '@/components/Spacer'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
@@ -13,6 +14,7 @@ import useOptions from '@/hooks/useOptions'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import ErrorIcon from '@material-ui/icons/Error'
 
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
@@ -51,7 +53,15 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', '']
+  const headers = [
+    'Strike Price',
+    'Break Even',
+    'Price',
+    'Long Reserve',
+    'Short Reserve',
+    'Contract',
+    '',
+  ]
 
   return (
     <Table>
@@ -77,6 +87,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 breakEven,
                 price,
                 strike,
+                longReserve,
+                shortReserve,
                 address,
                 isActive,
                 expiry,
@@ -85,18 +97,19 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               if (!isActive) {
                 return (
                   <TableRow
+                    isActive
                     key={strike}
                     onClick={() => {
                       onAddItem(option, 'BUY')
                     }}
                   >
                     <TableCell key={strike}>${formatBalance(strike)}</TableCell>
-                    <TableCell key={breakEven}>---</TableCell>
-                    <TableCell key={price}>---</TableCell>
-                    <TableCell key={address}>---</TableCell>
-                    <StyledButtonCell key={'Open'}>
-                      <ArrowForwardIosIcon />
-                    </StyledButtonCell>
+                    <StyledButtonCellError key={'Open'}>
+                      <ErrorIcon />
+                      <Spacer size="sm" />
+                      Click to Initialize Market
+                    </StyledButtonCellError>
+                    <TableCell></TableCell>
                   </TableRow>
                 )
               }
@@ -112,6 +125,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     ${formatBalance(breakEven)}
                   </TableCell>
                   <TableCell key={price}>${formatBalance(price)}</TableCell>
+                  <TableCell key={longReserve}>
+                    {formatBalance(longReserve)}
+                  </TableCell>
+                  <TableCell key={shortReserve}>
+                    {formatBalance(shortReserve)}
+                  </TableCell>
                   <TableCell key={address}>
                     <StyledARef href={`${baseUrl}/${address}`}>
                       {formatAddress(address)}{' '}
@@ -150,6 +169,15 @@ const StyledTableHead = styled.div`
 const StyledButtonCell = styled.div`
   font-weight: inherit;
   flex: 0.25;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+  width: ${(props) => props.theme.buttonSize}px;
+`
+
+const StyledButtonCellError = styled.div`
+  font-weight: inherit;
+  display: flex;
+  flex: 1;
+  color: ${(props) => props.theme.color.white};
   margin-right: ${(props) => props.theme.spacing[2]}px;
   width: ${(props) => props.theme.buttonSize}px;
 `

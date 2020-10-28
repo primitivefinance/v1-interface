@@ -14,7 +14,6 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
-import BetaBanner from '@/components/BetaBanner'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 import EmptyTable from '../EmptyTable'
@@ -96,8 +95,6 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   }
   return (
     <>
-      <BetaBanner isOpen={true} />
-      <Spacer />
       <Card>
         <CardTitle>Your Positions</CardTitle>
         <CardContent>

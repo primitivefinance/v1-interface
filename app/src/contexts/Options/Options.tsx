@@ -86,6 +86,7 @@ const Options: React.FC = (props) => {
 
     const reserveDAI =
       Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
+
     premium = executionPrice > midPrice ? executionPrice : midPrice
     return { premium, reserveDAI }
   }, [])
@@ -140,6 +141,8 @@ const Options: React.FC = (props) => {
         const { premium, reserveDAI } = await getPairData(provider, address)
         price = premium
         /* price = 1 */
+        const reserveS = reserveDAI / 2
+        const reserveL = reserveDAI / 2
         pairReserveTotal += reserveDAI
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
         // If a call, set the strike to the quote. If a put, set the strike to the base.
@@ -166,6 +169,8 @@ const Options: React.FC = (props) => {
           price: price,
           strike: strike,
           volume: volume,
+          longReserve: reserveL,
+          shortReserve: reserveS,
           address: address,
           id: id,
           expiry: expiry,
@@ -179,6 +184,8 @@ const Options: React.FC = (props) => {
           change: 0,
           price: 0,
           strike: spotPrice,
+          longReserve: 0,
+          shortReserve: 0,
           volume: 0,
           address: '',
           id: '',
@@ -195,6 +202,8 @@ const Options: React.FC = (props) => {
           change: 0,
           price: 0,
           strike: spotPrice,
+          longReserve: 0,
+          shortReserve: 0,
           volume: 0,
           address: '',
           id: '',
