@@ -17,7 +17,7 @@ const useTokenBalance = (tokenAddress: string) => {
   useEffect(() => {
     if (account && library) {
       fetchBalance()
-      let refreshInterval = setInterval(fetchBalance, 10000)
+      const refreshInterval = setInterval(fetchBalance, 10000)
       return () => clearInterval(refreshInterval)
     }
   }, [account, library, setBalance, tokenAddress, fetchBalance])
