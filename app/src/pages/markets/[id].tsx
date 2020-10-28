@@ -34,13 +34,17 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
+  const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
   const { marketId } = market
 
-  const handleFilter = () => {
+  const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
 
+  const handleFilterExpiry = (exp: number) => {
+    setExpiry(exp)
+  }
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Switch to Rinkeby or Mainnet</StyledText>
   }
@@ -50,10 +54,16 @@ const Market = ({ market }) => {
         <StyledMarket>
           <StyledMain>
             <MarketHeader marketId={marketId} />
-            <FilterBar active={callPutActive} setCallActive={handleFilter} />
+            <FilterBar
+              active={callPutActive}
+              setCallActive={handleFilterType}
+              expiry={expiry}
+              setExpiry={handleFilterExpiry}
+            />
             <OptionsTable
               options={mockOptions}
               asset="Ethereum"
+              optionExp={expiry}
               callActive={callPutActive}
             />
           </StyledMain>

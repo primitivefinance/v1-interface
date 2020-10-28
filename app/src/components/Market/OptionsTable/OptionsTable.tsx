@@ -29,6 +29,7 @@ export type FormattedOption = {
 
 export interface OptionsTableProps {
   options: FormattedOption[]
+  optionExp: number
   asset: string
   callActive: boolean
 }
@@ -37,7 +38,7 @@ const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-  const { callActive, asset } = props
+  const { callActive, asset, optionExp } = props
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
@@ -72,7 +73,15 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         {options[type].length > 1 ? (
           <TableBody>
             {options[type].map((option) => {
-              const { breakEven, price, strike, address, isActive } = option
+              const {
+                breakEven,
+                price,
+                strike,
+                address,
+                isActive,
+                expiry,
+              } = option
+              if (optionExp != expiry && expiry !== 0) return null
               if (!isActive) {
                 return (
                   <TableRow

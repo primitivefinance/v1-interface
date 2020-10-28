@@ -8,16 +8,21 @@ import Spacer from '@/components/Spacer'
 
 export interface FilterBarProps {
   active: boolean
-  setCallActive: Function
+  setCallActive: any
+  expiry: number
+  setExpiry: any
 }
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
-  const { active, setCallActive } = props
+  const { active, setCallActive, expiry, setExpiry } = props
 
   const handleToggleClick = useCallback(() => {
     setCallActive(!active)
   }, [active, setCallActive])
 
+  const handleFilter = (event: any) => {
+    setExpiry(event.target.value)
+  }
   return (
     <StyledFilterBar>
       <LitContainer>
@@ -35,8 +40,8 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
-          <StyledSelect>
-            <StyledOption>November 2</StyledOption>
+          <StyledSelect value={expiry} onChange={handleFilter}>
+            <StyledOption>December 30 2020</StyledOption>
           </StyledSelect>
         </StyledFilterBarInner>
       </LitContainer>
