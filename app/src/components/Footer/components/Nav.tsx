@@ -39,6 +39,9 @@ const Nav: React.FC = () => {
 
 const StyledNav = styled.nav`
   display: flex;
+  background-color: ${(props) => props.theme.color.grey[800]};
+  border-radius: 10px;
+  opacity: 90%;
 `
 
 const StyledLink = styled.a`

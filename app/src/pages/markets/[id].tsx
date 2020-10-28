@@ -79,13 +79,15 @@ const Market = ({ market }) => {
   )
 }
 
-const StyledMain = styled.div``
+const StyledMain = styled.div`
+  flex: 0.7;
+`
 
 const StyledMarket = styled.div`
-  width: auto;
-  position: relative;
-  overflow: auto;
   display: flex;
+  flex-direction: row;
+  justify-contet: center;
+  align-items: start;
   width: ${(props) => props.theme.tableWidth}%;
 `
 
@@ -93,6 +95,7 @@ const StyledSideBar = styled.div`
   background: ${(props) => props.theme.color.black};
   border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   box-sizing: border-box;
+  flex: 0.3;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
   width: ${(props) => props.theme.sidebarWidth}%;

@@ -7,15 +7,17 @@ import Nav from './components/Nav'
 const Footer: React.FC = () => {
   const { data } = useBlockNumber()
   return (
-    <StyledFooter>
-      <StyledFooterInner>
-        <Nav />
-      </StyledFooterInner>
-      <StyledBlockNumber>
-        {data}
-        <Loader />
-      </StyledBlockNumber>
-    </StyledFooter>
+    <StyledContainer>
+      <StyledFooter>
+        <StyledFooterInner>
+          <Nav />
+        </StyledFooterInner>
+        <StyledBlockNumber>
+          {data}
+          <Loader />
+        </StyledBlockNumber>
+      </StyledFooter>
+    </StyledContainer>
   )
 }
 
@@ -24,6 +26,13 @@ const breathe = keyframes`
   50% {opacity: 1; }
   100% { opacity: .5;}
 ;`
+
+const StyledContainer = styled.div`
+  position: fixed;
+  bottom: -1em;
+  width: 100%;
+`
+
 const Loader = styled.div`
   border-radius: 50%;
   width: 10px;
@@ -36,11 +45,14 @@ const Loader = styled.div`
 const StyledBlockNumber = styled.h5`
   display: flex;
   align-items: center;
+  background-color: ${(props) => props.theme.color.grey[800]};
+  padding: 10px;
+  opacity: 90%;
+  border-radius: 10px;
   color: ${(props) => props.theme.color.white};
 `
 const StyledFooter = styled.footer`
   align-items: center;
-  bottom: 1em;
   display: flex;
   padding-left: 1em;
   padding-right: 2em;
@@ -50,9 +62,7 @@ const StyledFooterInner = styled.div`
   align-items: center;
   display: flex;
   justify-content: center;
-  height: ${(props) => props.theme.topBarSize}px;
   max-width: ${(props) => props.theme.siteWidth}px;
-
   margin-right: ${(props) => props.theme.spacing[4]}px;
   padding: ${(props) => props.theme.spacing[4]}px;
 `
