@@ -42,6 +42,7 @@ const StyledNav = styled.nav`
   background-color: ${(props) => props.theme.color.grey[800]};
   border-radius: 10px;
   opacity: 90%;
+  pointer-events: all;
 `
 
 const StyledLink = styled.a`

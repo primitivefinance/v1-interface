@@ -31,6 +31,7 @@ const StyledContainer = styled.div`
   position: fixed;
   bottom: -1em;
   width: 100%;
+  pointer-events: none;
 `
 
 const Loader = styled.div`
@@ -57,6 +58,7 @@ const StyledFooter = styled.footer`
   padding-left: 1em;
   padding-right: 2em;
   justify-content: space-between;
+  pointer-events: none;
 `
 const StyledFooterInner = styled.div`
   align-items: center;
