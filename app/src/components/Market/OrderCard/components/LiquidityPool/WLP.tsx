@@ -12,7 +12,7 @@ import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
 
 import useOrders from '@/hooks/useOrders'
-import useTokenBalance from '@/hooks/useTokenBalance'
+import { useTokenBalance } from '@/hooks/data'
 
 import formatBalance from '@/utils/formatBalance'
 import { Operation } from '@/lib/constants'

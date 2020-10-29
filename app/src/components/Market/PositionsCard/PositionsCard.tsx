@@ -28,23 +28,23 @@ import { useBalance } from '@/hooks/data'
 import { OrderItem as Item } from '@/contexts/Order/types'
 
 export interface TokenProps {
-  token: Token
-  balance: any
+  option: any // replace with option type
 }
 export interface PositionsProp {
   asset: string
 }
-const Position: React.FC<TokenProps> = ({ token, balance }) => {
+const Position: React.FC<TokenProps> = ({ option }) => {
+  console.log(option)
   return (
     <StyledPosition>
-      <span>{token.name}</span>
-      <span>{balance}</span>
+      <span>{option.symbol}</span>
+      <span>{option.address}</span>
     </StyledPosition>
   )
 }
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options, getOptions } = useOptions()
-  const [positions, setPositions] = useState()
+  const { positions, getPositions } = usePositions()
   const { item } = useOrders()
   const { library, chainId, account } = useWeb3React()
   /*
@@ -81,13 +81,13 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   }, [getOptions, library, asset])
 
   if (item.id) return null
-  if (positions !== undefined) {
+  if (positions.calls || positions.puts) {
     return (
       <Card>
         <CardTitle>Your Positions</CardTitle>
         <CardContent>
-          {positions.map((pos, i) => (
-            <Position key={i} token={pos.token} balance={pos.balance} />
+          {positions.calls.map((pos, i) => (
+            <Position key={i} option={pos} />
           ))}
         </CardContent>
       </Card>
@@ -115,6 +115,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
 const StyledPosition = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};
+  min-height: 2em;
 `
 
 const StyledEmptyContent = styled.div`

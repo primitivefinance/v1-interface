@@ -14,7 +14,7 @@ import useOptions from '@/hooks/useOptions'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
-import ErrorIcon from '@material-ui/icons/Error'
+import AddIcon from '@material-ui/icons/Add'
 
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
@@ -100,14 +100,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     isActive
                     key={strike}
                     onClick={() => {
-                      onAddItem(option, 'BUY')
+                      onAddItem(option, 'NEW')
                     }}
                   >
-                    <TableCell key={strike}>${formatBalance(strike)}</TableCell>
+                    <TableCell key={strike}></TableCell>
                     <StyledButtonCellError key={'Open'}>
-                      <ErrorIcon />
-                      <Spacer size="sm" />
-                      Click to Initialize Market
+                      <AddIcon />
+                      <Spacer size="md" />
+                      Add a New Option Market
                     </StyledButtonCellError>
                     <TableCell></TableCell>
                   </TableRow>

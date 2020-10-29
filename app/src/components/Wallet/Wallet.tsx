@@ -82,7 +82,7 @@ export const Wallet = () => {
             setENSName(name)
           }
         })
-        .catch(() => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+        .catch((error) => console.log(error)) // eslint-disable-line @typescript-eslint/no-empty-function
       return (): void => {
         stale = true
         setENSName('')
@@ -106,7 +106,7 @@ export const Wallet = () => {
   }
   if (typeof account !== 'string') {
     return (
-      <StyledBox row>
+      <Box row alignItems="center" justifyContent="flex-end">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {MetaMaskOnboarding.isMetaMaskInstalled() ||
         (window as any)?.ethereum ||
@@ -142,7 +142,7 @@ export const Wallet = () => {
             Install Metamask
           </Button>
         )}
-      </StyledBox>
+      </Box>
     )
   }
 
@@ -155,7 +155,7 @@ export const Wallet = () => {
   }
 
   return (
-    <StyledBox row alignItems="center" justifyContent="flex-end">
+    <Box row alignItems="center" justifyContent="flex-end">
       <Network id={chainId} />
       <Spacer size="md" />
       <Suspense fallback={null}>
@@ -167,8 +167,6 @@ export const Wallet = () => {
         address={ENSName || account}
         method={connector}
       />
-    </StyledBox>
+    </Box>
   )
 }
-
-const StyledBox = styled(Box)``

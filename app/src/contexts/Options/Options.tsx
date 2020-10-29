@@ -4,6 +4,7 @@ import { parseEther } from 'ethers/lib/utils'
 import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import Option from '@primitivefi/contracts/artifacts/Option.json'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -13,6 +14,7 @@ import { EmptyAttributes, OptionsAttributes } from './types'
 
 import OptionDeployments from './options_deployments.json'
 import AssetAddresses from './assets.json'
+import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(optionsReducer, initialState)
@@ -84,11 +86,33 @@ const Options: React.FC = (props) => {
 
     const executionPrice = Number(trade.executionPrice.toSignificant(6))
 
+    // SHORT RESERVES
+    const option = new ethers.Contract(optionAddress, Option.abi, provider)
+
+    const redeemAddress = await option.redeemToken()
+    const redeem = new Token(chain, redeemAddress, 18)
+    const redeemPair = Pair.getAddress(tokenA, redeem)
+
     const reserveDAI =
       Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
 
     premium = executionPrice > midPrice ? executionPrice : midPrice
-    return { premium, reserveDAI }
+
+    try {
+      const [reserve, redeemR] = await new ethers.Contract(
+        redeemPair,
+        IUniswapV2Pair.abi,
+        signer
+      ).getReserves()
+
+      const shortR = Number(redeemR.numerator) / Number(redeemR.denominator)
+
+      return { premium, reserveDAI, shortR }
+    } catch {
+      const shortR = 0
+
+      return { premium, reserveDAI, shortR }
+    }
   }, [])
   // FIX
   const handleOptions = useCallback(
@@ -138,10 +162,13 @@ const Options: React.FC = (props) => {
         let isCall
 
         // Get the option price data from uniswap pair.
-        const { premium, reserveDAI } = await getPairData(provider, address)
+        const { premium, reserveDAI, shortR } = await getPairData(
+          provider,
+          address
+        )
         price = premium
         /* price = 1 */
-        const reserveS = reserveDAI / 2
+        const reserveS = shortR
         const reserveL = reserveDAI / 2
         pairReserveTotal += reserveDAI
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
@@ -177,7 +204,9 @@ const Options: React.FC = (props) => {
           isActive: true,
         })
       }
-
+      calls.sort((a, b) => {
+        return a.strike - b.strike
+      })
       if (calls.length < 4) {
         calls.push({
           breakEven: 0,
@@ -193,7 +222,7 @@ const Options: React.FC = (props) => {
           isActive: false,
         })
       }
-      calls.sort((a, b) => {
+      puts.sort((a, b) => {
         return a.strike - b.strike
       })
       if (puts.length < 4) {
@@ -211,9 +240,7 @@ const Options: React.FC = (props) => {
           isActive: false,
         })
       }
-      puts.sort((a, b) => {
-        return a.strike - b.strike
-      })
+
       // Get the final options object and dispatch it to set its state for the hook.
       Object.assign(optionsObject, {
         calls: calls,
