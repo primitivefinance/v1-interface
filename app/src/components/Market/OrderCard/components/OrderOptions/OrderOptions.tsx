@@ -79,7 +79,7 @@ const OrderOptions: React.FC = () => {
 
   return (
     <>
-      <Box row alignItems="flex-start" justifyContent="flex-start">
+      <Box row alignItems="flex-start" justifyContent="center">
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Long Tokens'} />
@@ -91,35 +91,13 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
+            disabled={longBalance ? true : false}
             size="sm"
             variant="secondary"
             onClick={() => change('BUY')}
           >
             Close Long
           </Button>
-          <Spacer />
-          <Box row justifyContent="flex-start" alignItems="center">
-            <Label text={'Long LP Tokens'} />
-            <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
-          </Box>
-          <Spacer size="sm" />
-          <Button size="sm" onClick={() => change('LP')}>
-            Provide Liquidity
-          </Button>
-          <Spacer size="sm" />
-          {!longLPBalance ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => change('W_LP')}
-            >
-              Withdraw Liquidity
-            </Button>
-          ) : (
-            <Button size="sm" variant="secondary" disabled>
-              Withdraw Liquidity
-            </Button>
-          )}
         </StyledColumn>
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
@@ -132,6 +110,7 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
+            disabled={shortBalance ? true : false}
             size="sm"
             variant="secondary"
             onClick={() => change('BUY')}
@@ -139,7 +118,8 @@ const OrderOptions: React.FC = () => {
             Close Short
           </Button>
           <Spacer />
-          <Box row justifyContent="flex-start" alignItems="center">
+          {/**
+           *  <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Short LP Tokens'} />
             <StyledBalance>{formatBalance(shortLPBalance)}</StyledBalance>
           </Box>
@@ -161,9 +141,40 @@ const OrderOptions: React.FC = () => {
               Withdraw Liquidity
             </Button>
           )}
+           * 
+           * 
+           */}
         </StyledColumn>
         <Spacer />
+
+        <Spacer />
       </Box>
+      <StyledBottom>
+        <Box row justifyContent="flex-start" alignItems="center">
+          <Label text={'LP Tokens'} />
+          <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
+        </Box>
+        <Spacer size="sm" />
+        <Box row justifyContent="flex-start" alignItems="center">
+          <Button size="sm" onClick={() => change('LP')}>
+            Provide Liquidity
+          </Button>
+          <Spacer size="md" />
+          {!longLPBalance ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => change('W_LP')}
+            >
+              Withdraw Liquidity
+            </Button>
+          ) : (
+            <Button size="sm" variant="secondary" disabled>
+              Withdraw Liquidity
+            </Button>
+          )}
+        </Box>
+      </StyledBottom>
     </>
   )
 }
@@ -179,6 +190,13 @@ const StyledColumn = styled.div`
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
   padding-left: 1em;
+`
+
+const StyledBottom = styled.div`
+  padding: 0 1em 0 1em;
+  border-width: 1px 0 0 0;
+  border-color: white;
+  border-style: solid;
 `
 
 export default OrderOptions

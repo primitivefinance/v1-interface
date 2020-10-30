@@ -121,9 +121,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           <ArrowBackIcon />
         </IconButton>
         <Spacer />
-        <StyledTitle>{`${
-          title ? title : capitalLabel
-        } Option Tokens`}</StyledTitle>
+        <StyledTitle>{`${title ? title : capitalLabel}`}</StyledTitle>
       </Box>
 
       {orderType === Operation.ADD_LIQUIDITY ? (
