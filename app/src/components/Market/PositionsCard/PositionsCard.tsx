@@ -1,11 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
+import ethers from 'ethers'
 
 import useOrders from '@/hooks/useOrders'
 import useOptions from '@/hooks/useOptions'
 import usePositions from '@/hooks/usePositions'
 import AddIcon from '@material-ui/icons/Add'
-import { Token } from '@uniswap/sdk'
+import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
+import useTokenBalance from '@/hooks/useTokenBalance'
+
+import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import Option from '@primitivefi/contracts/artifacts/Option.json'
+
 import { useWeb3React } from '@web3-react/core'
 
 import { OrderItem } from '@/contexts/Order/types'
@@ -24,7 +30,6 @@ import TableBody from '@/components/TableBody'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
-import { useBalance } from '@/hooks/data'
 import { OrderItem as Item } from '@/contexts/Order/types'
 
 export interface TokenProps {
@@ -34,11 +39,60 @@ export interface PositionsProp {
   asset: string
 }
 const Position: React.FC<TokenProps> = ({ option }) => {
-  console.log(option)
+  const { positions, getPositions } = usePositions()
+  const { chainId, library } = useWeb3React()
+  const [balanceAddress, setBalanceAddress] = useState({
+    longT: '',
+    shortT: '',
+    LP: '',
+  })
+
+  useEffect(() => {
+    const getAddresses = async () => {
+      const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2'
+      const tokenA = new Token(chainId, stablecoinAddress, 18)
+
+      const optionContract = new ethers.Contract(
+        option.address,
+        Option.abi,
+        library
+      )
+      const redeemAddress = await optionContract.redeemToken()
+      const redeem = new Token(chainId, redeemAddress, 18)
+      const redeemPair = Pair.getAddress(tokenA, redeem)
+
+      try {
+        const LPAddress = await new ethers.Contract(
+          redeemPair,
+          IUniswapV2Pair.abi,
+          library
+        )
+        return {
+          longT: option.address,
+          shortT: redeemAddress,
+          LP: LPAddress.liquidityToken,
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    if (option.address) {
+      getAddresses().then((add) => setBalanceAddress(add))
+    }
+  }, [getPositions, positions, balanceAddress, setBalanceAddress])
+
+  const longBalance = useTokenBalance(balanceAddress.longT)
+  const shortBalance = useTokenBalance(balanceAddress.shortT)
+  const LPBalance = useTokenBalance(balanceAddress.LP)
+
   return (
     <StyledPosition>
       <span>{option.symbol}</span>
       <span>{option.address}</span>
+      <span>Long Tokens {longBalance}</span>
+      <span>Short Tokens {shortBalance}</span>
+      <span>LP{LPBalance}</span>
     </StyledPosition>
   )
 }
@@ -47,32 +101,6 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { positions, getPositions } = usePositions()
   const { item } = useOrders()
   const { library, chainId, account } = useWeb3React()
-  /*
-  useEffect(() => {
-    let temp
-    let it = 0
-    for (let x = 0; x < options['calls'].length; x++) {
-      if (options['calls'][x].address) {
-        const token = new Token(chainId, options['calls'][x].address, 18)
-        const { data } = useBalance(library, account, token, account, true)
-        if (data) {
-          temp[it] = { token: token, balance: data }
-          it++
-        }
-      }
-    }
-    for (let y = 0; y < options['puts'].length; y++) {
-      if (options['puts'][y].address) {
-        const token = new Token(chainId, options['puts'][y].address, 18)
-        const { data } = useBalance(library, account, token, account, true)
-        if (data) {
-          temp[it] = { token: token, balance: data }
-          it++
-        }
-      }
-    }
-    setPositions(temp)
-  }, [options, useBalance, account, setPositions, chainId]) */
 
   useEffect(() => {
     if (library) {
@@ -80,15 +108,22 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     }
   }, [getOptions, library, asset])
 
+  useEffect(() => {
+    if (positions.calls[0].address || positions.puts[0].address) {
+      getPositions(asset.toLowerCase(), options)
+    }
+  }, [getPositions, library])
+
   if (item.id) return null
-  if (positions.calls || positions.puts) {
+  if (positions.calls[0].address || positions.puts[0].address) {
     return (
       <Card>
         <CardTitle>Your Positions</CardTitle>
         <CardContent>
-          {positions.calls.map((pos, i) => (
-            <Position key={i} option={pos} />
-          ))}
+          {positions.calls.map((pos, i) => {
+            console.log(pos)
+            return <Position key={i} option={pos} />
+          })}
         </CardContent>
       </Card>
     )

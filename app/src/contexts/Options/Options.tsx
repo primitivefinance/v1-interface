@@ -15,6 +15,7 @@ import { EmptyAttributes, OptionsAttributes } from './types'
 import OptionDeployments from './options_deployments.json'
 import AssetAddresses from './assets.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
+import { showThrottleMessage } from '@ethersproject/providers'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(optionsReducer, initialState)
@@ -43,77 +44,57 @@ const Options: React.FC = (props) => {
    * @dev Gets the execution price for 1 unit of option tokens and returns it.
    * @param optionAddress The address of the option token to get a uniswap pair of.
    */
-  const getPairData = useCallback(async (provider, optionAddress) => {
-    let premium = 0
+  const getPairData = useCallback(
+    async (provider, optionAddress, underlyingAddress) => {
+      let premium = 0
 
-    // Check to make sure we are connected to a web3 provider.
-    if (!provider) {
-      console.error('No connected connectedProvider')
-      return { premium }
-    }
-    const signer = await provider.getSigner()
-    const chain = await signer.getChainId()
-    const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2'
+      // Check to make sure we are connected to a web3 provider.
+      if (!provider) {
+        console.error('No connected connectedProvider')
+        return { premium }
+      }
+      const chain = chainId
 
-    const OPTION = new Token(chain, optionAddress, 18)
-    const STABLECOIN = new Token(chain, stablecoinAddress, 18)
+      const OPTION = new Token(chain, optionAddress, 18)
+      const UNDERLYING = new Token(chain, underlyingAddress, 18)
 
-    // Fetcher currently calls default provider, which leads to post errors.
-    //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
+      // Fetcher currently calls default provider, which leads to post errors.
+      //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
 
-    const tokenA = STABLECOIN
-    const tokenB = OPTION
-    const address = Pair.getAddress(tokenA, tokenB)
-    const [reserves0, reserves1] = await new ethers.Contract(
-      address,
-      IUniswapV2Pair.abi,
-      provider
-    ).getReserves()
-    const balances = tokenA.sortsBefore(tokenB)
-      ? [reserves0, reserves1]
-      : [reserves1, reserves0]
-    const pair = new Pair(
-      new TokenAmount(tokenA, balances[0]),
-      new TokenAmount(tokenB, balances[1])
-    )
-
-    const route = new Route([pair], STABLECOIN, OPTION)
-    const midPrice = Number(route.midPrice.toSignificant(6))
-
-    const unit = parseEther('1').toString()
-    const tokenAmount = new TokenAmount(OPTION, unit)
-    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
-
-    const executionPrice = Number(trade.executionPrice.toSignificant(6))
-
-    // SHORT RESERVES
-    const option = new ethers.Contract(optionAddress, Option.abi, provider)
-
-    const redeemAddress = await option.redeemToken()
-    const redeem = new Token(chain, redeemAddress, 18)
-    const redeemPair = Pair.getAddress(tokenA, redeem)
-
-    const reserveDAI =
-      Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
-
-    premium = executionPrice > midPrice ? executionPrice : midPrice
-
-    try {
-      const [reserve, redeemR] = await new ethers.Contract(
-        redeemPair,
+      const tokenA = UNDERLYING
+      const tokenB = OPTION
+      const address = Pair.getAddress(tokenA, tokenB)
+      const [reserves0, reserves1] = await new ethers.Contract(
+        address,
         IUniswapV2Pair.abi,
-        signer
+        provider
       ).getReserves()
+      const balances = tokenA.sortsBefore(tokenB)
+        ? [reserves0, reserves1]
+        : [reserves1, reserves0]
+      const pair = new Pair(
+        new TokenAmount(tokenA, balances[0]),
+        new TokenAmount(tokenB, balances[1])
+      )
 
-      const shortR = Number(redeemR.numerator) / Number(redeemR.denominator)
+      const route = new Route([pair], UNDERLYING, OPTION)
+      const midPrice = Number(route.midPrice.toSignificant(6))
 
-      return { premium, reserveDAI, shortR }
-    } catch {
-      const shortR = 0
+      const unit = parseEther('1').toString()
+      const tokenAmount = new TokenAmount(OPTION, unit)
+      const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
 
-      return { premium, reserveDAI, shortR }
-    }
-  }, [])
+      const executionPrice = Number(trade.executionPrice.toSignificant(6))
+
+      const reserve =
+        Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
+
+      premium = executionPrice > midPrice ? executionPrice : midPrice
+
+      return { premium, reserve }
+    },
+    []
+  )
   // FIX
   const handleOptions = useCallback(
     async (assetName) => {
@@ -162,21 +143,22 @@ const Options: React.FC = (props) => {
         let isCall
 
         // Get the option price data from uniswap pair.
-        const { premium, reserveDAI, shortR } = await getPairData(
+        const { premium, reserve } = await getPairData(
           provider,
-          address
+          address,
+          underlyingToken
         )
         price = premium
         /* price = 1 */
-        const reserveS = shortR
-        const reserveL = reserveDAI / 2
-        pairReserveTotal += reserveDAI
+        const reserveS = reserve
+        const reserveL = reserve
+        pairReserveTotal += reserve
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
         // If a call, set the strike to the quote. If a put, set the strike to the base.
         let arrayToPushTo: OptionsAttributes[] = []
         if (base === '1') {
-          console.log(reserveDAI)
-          pairReserveTotal += reserveDAI
+          console.log(reserve)
+          pairReserveTotal += reserve
           isCall = true
           strike = Number(quote)
           arrayToPushTo = calls
