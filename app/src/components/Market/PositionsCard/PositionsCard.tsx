@@ -86,14 +86,22 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const shortBalance = useTokenBalance(balanceAddress.shortT)
   const LPBalance = useTokenBalance(balanceAddress.LP)
 
+  if (longBalance || shortBalance || LPBalance) {
+    return (
+      <StyledPosition>
+        <span>{option.symbol}</span>
+        <span>{option.address}</span>
+        <span>Long Tokens {longBalance}</span>
+        <span>Short Tokens {shortBalance}</span>
+        <span>LP{LPBalance}</span>
+      </StyledPosition>
+    )
+  }
   return (
-    <StyledPosition>
-      <span>{option.symbol}</span>
-      <span>{option.address}</span>
-      <span>Long Tokens {longBalance}</span>
-      <span>Short Tokens {shortBalance}</span>
-      <span>LP{LPBalance}</span>
-    </StyledPosition>
+    <Card>
+      <CardTitle>Your Positions</CardTitle>
+      <CardContent>Loading...</CardContent>
+    </Card>
   )
 }
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
@@ -114,7 +122,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     }
   }, [getPositions, library])
 
-  if (item.id) return null
+  if (item.id || item.asset) return null
   if (positions.calls[0].address || positions.puts[0].address) {
     return (
       <Card>

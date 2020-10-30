@@ -1,4 +1,4 @@
-import { OrderItem, OrderState } from './types'
+import { OrderItem, OrderState, NewOptionItem } from './types'
 import { EmptyAttributes } from '../Options/types'
 
 const ADD_ITEM = 'ADD_ITEM'
@@ -10,10 +10,9 @@ export interface AddItemAction {
   item: OrderItem
   orderType: string
 }
-
 export interface RemoveItemAction {
   type: typeof REMOVE_ITEM
-  item: OrderItem
+  item: OrderItem | NewOptionItem
 }
 
 export interface ChangeItemAction {
@@ -24,13 +23,18 @@ export interface ChangeItemAction {
 
 export type OrderAction = AddItemAction | ChangeItemAction | RemoveItemAction
 
-export const addItem = (item: OrderItem, orderType: string): AddItemAction => ({
+export const addItem = (
+  item: OrderItem | NewOptionItem,
+  orderType: string
+): AddItemAction => ({
   type: ADD_ITEM,
   item,
   orderType,
 })
 
-export const removeItem = (item: OrderItem): RemoveItemAction => ({
+export const removeItem = (
+  item: OrderItem | NewOptionItem
+): RemoveItemAction => ({
   type: REMOVE_ITEM,
   item,
 })

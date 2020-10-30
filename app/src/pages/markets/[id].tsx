@@ -17,6 +17,7 @@ import {
   TransactionCard,
   OrderCard,
   PositionsCard,
+  NewMarketCard,
 } from '../../components/Market'
 
 const mockOptions = [
@@ -69,6 +70,7 @@ const Market = ({ market }) => {
           <StyledSideBar>
             <PositionsCard asset="ethereum" />
             <OrderCard />
+            <NewMarketCard />
             <Spacer />
             <BetaBanner isOpen={true} />
             <Spacer />

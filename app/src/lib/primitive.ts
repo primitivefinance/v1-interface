@@ -258,6 +258,7 @@ export {
   redeem,
   close,
   create,
+  getRegistry,
   mintTestToken,
   getOptionMarkets,
 }

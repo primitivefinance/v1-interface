@@ -90,29 +90,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 longReserve,
                 shortReserve,
                 address,
-                isActive,
                 expiry,
               } = option
               if (optionExp != expiry && expiry !== 0) return null
-              if (!isActive) {
-                return (
-                  <TableRow
-                    isActive
-                    key={strike}
-                    onClick={() => {
-                      onAddItem(option, 'NEW')
-                    }}
-                  >
-                    <TableCell key={strike}></TableCell>
-                    <StyledButtonCellError key={'Open'}>
-                      <AddIcon />
-                      <Spacer size="md" />
-                      Add a New Option Market
-                    </StyledButtonCellError>
-                    <TableCell></TableCell>
-                  </TableRow>
-                )
-              }
               return (
                 <TableRow
                   key={address}
@@ -143,6 +123,20 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 </TableRow>
               )
             })}
+            <TableRow
+              isActive
+              onClick={() => {
+                onAddItem({ expiry: optionExp, asset: asset }, '')
+              }}
+            >
+              <TableCell></TableCell>
+              <StyledButtonCellError key={'Open'}>
+                <AddIcon />
+                <Spacer size="md" />
+                Add a New Option Market
+              </StyledButtonCellError>
+              <TableCell></TableCell>
+            </TableRow>
           </TableBody>
         ) : (
           <>

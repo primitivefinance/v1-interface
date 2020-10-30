@@ -6,6 +6,7 @@ import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
 
+import { getOptionMarkets, getRegistry } from '@/lib/primitive'
 import { useWeb3React } from '@web3-react/core'
 
 import OptionsContext from './context'
@@ -64,34 +65,40 @@ const Options: React.FC = (props) => {
       const tokenA = UNDERLYING
       const tokenB = OPTION
       const address = Pair.getAddress(tokenA, tokenB)
-      const [reserves0, reserves1] = await new ethers.Contract(
-        address,
-        IUniswapV2Pair.abi,
-        provider
-      ).getReserves()
-      const balances = tokenA.sortsBefore(tokenB)
-        ? [reserves0, reserves1]
-        : [reserves1, reserves0]
-      const pair = new Pair(
-        new TokenAmount(tokenA, balances[0]),
-        new TokenAmount(tokenB, balances[1])
-      )
+      try {
+        const [reserves0, reserves1] = await new ethers.Contract(
+          address,
+          IUniswapV2Pair.abi,
+          provider
+        ).getReserves()
+        const balances = tokenA.sortsBefore(tokenB)
+          ? [reserves0, reserves1]
+          : [reserves1, reserves0]
+        const pair = new Pair(
+          new TokenAmount(tokenA, balances[0]),
+          new TokenAmount(tokenB, balances[1])
+        )
 
-      const route = new Route([pair], UNDERLYING, OPTION)
-      const midPrice = Number(route.midPrice.toSignificant(6))
+        const route = new Route([pair], UNDERLYING, OPTION)
+        const midPrice = Number(route.midPrice.toSignificant(6))
 
-      const unit = parseEther('1').toString()
-      const tokenAmount = new TokenAmount(OPTION, unit)
-      const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
+        const unit = parseEther('1').toString()
+        const tokenAmount = new TokenAmount(OPTION, unit)
+        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
 
-      const executionPrice = Number(trade.executionPrice.toSignificant(6))
+        const executionPrice = Number(trade.executionPrice.toSignificant(6))
 
-      const reserve =
-        Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
+        const reserve =
+          Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
 
-      premium = executionPrice > midPrice ? executionPrice : midPrice
+        premium = executionPrice > midPrice ? executionPrice : midPrice
 
-      return { premium, reserve }
+        return { premium, reserve }
+      } catch {
+        const pre = 0
+        const def = 0
+        return { pre, def }
+      }
     },
     []
   )
@@ -100,12 +107,12 @@ const Options: React.FC = (props) => {
     async (assetName) => {
       // Asset address and quantity of options
       const assetAddress = AssetAddresses[assetName][chainId]
-      const optionsLength = Object.keys(OptionDeployments).length
-      const priceData = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${assetName}&vs_currencies=usd`
-      )
-      const price = await priceData.json()
-      const spotPrice = Math.ceil(price[assetName].usd / 10) * 10
+
+      const signer = await provider.getSigner()
+      const { registryAddress, registry } = await getRegistry(signer)
+
+      const optionsLength = await registry.getAllOptionClonesLength()
+
       // Objects and arrays to populate
       const optionsObject = {
         calls: [EmptyAttributes],
@@ -117,20 +124,23 @@ const Options: React.FC = (props) => {
 
       let pairReserveTotal = 0
       // For each option in the option deployments file...
-      for (let i = 0; i < optionsLength; i++) {
+      for (let i = 0; i < Object.keys(OptionDeployments).length; i++) {
         // Get the parameters for the option object in the option_deployments json file.
         const key = Object.keys(OptionDeployments)[i]
         const id = key
         const parameters = OptionDeployments[key].optionParameters
         const address = OptionDeployments[key].address
-        const underlyingToken = parameters[0]
+        const underlyingAddress = parameters[0]
         const strikeToken = parameters[1]
         const base = parameters[2]
         const quote = parameters[3]
         const expiry = parameters[4]
 
         // If the selected asset is not one of the assets in the option, skip it.
-        if (assetAddress !== underlyingToken && assetAddress !== strikeToken) {
+        if (
+          underlyingAddress !== assetAddress &&
+          assetAddress !== strikeToken
+        ) {
           return
         }
 
@@ -146,7 +156,7 @@ const Options: React.FC = (props) => {
         const { premium, reserve } = await getPairData(
           provider,
           address,
-          underlyingToken
+          underlyingAddress
         )
         price = premium
         /* price = 1 */
@@ -183,9 +193,9 @@ const Options: React.FC = (props) => {
           address: address,
           id: id,
           expiry: expiry,
-          isActive: true,
         })
       }
+      /* removing default options for debug
       calls.sort((a, b) => {
         return a.strike - b.strike
       })
@@ -221,7 +231,7 @@ const Options: React.FC = (props) => {
           expiry: 0,
           isActive: false,
         })
-      }
+      } */
 
       // Get the final options object and dispatch it to set its state for the hook.
       Object.assign(optionsObject, {
