@@ -9,6 +9,7 @@ import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
+import { ADDRESS_FOR_MARKET } from '@/constants/index'
 
 import {
   FilterBar,
@@ -63,6 +64,7 @@ const Market = ({ market }) => {
             <OptionsTable
               options={mockOptions}
               asset="Ethereum"
+              assetAddress={ADDRESS_FOR_MARKET[market]}
               optionExp={expiry}
               callActive={callPutActive}
             />

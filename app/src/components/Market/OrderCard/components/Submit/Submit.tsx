@@ -147,10 +147,8 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           />
         </>
       )}
-
       <Spacer />
       <LineItem label={`${capitalLabel} Power`} data={tokenBalance} units="$" />
-
       <Spacer />
       {orderType === Operation.EXERCISE ? (
         <Exercise
@@ -169,7 +167,6 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           <Spacer />
         </>
       )}
-
       <Button
         disabled={!quantity}
         full

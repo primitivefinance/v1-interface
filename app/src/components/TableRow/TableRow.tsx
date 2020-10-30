@@ -26,8 +26,7 @@ interface StyleProps {
 
 const StyledTableRow = styled.div<StyleProps>`
   align-items: center;
-  background-color: ${(props) =>
-    props.isActive ? props.theme.color.grey[800] : 'transparent'};
+  background-color: transparent;
   border-bottom: 1px solid
     ${(props) =>
       props.isHead || props.isActive

@@ -15,7 +15,6 @@ import useOptions from '@/hooks/useOptions'
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import AddIcon from '@material-ui/icons/Add'
-
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 
@@ -33,6 +32,7 @@ export interface OptionsTableProps {
   options: FormattedOption[]
   optionExp: number
   asset: string
+  assetAddress: string
   callActive: boolean
 }
 
@@ -40,7 +40,7 @@ const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-  const { callActive, asset, optionExp } = props
+  const { callActive, asset, assetAddress, optionExp } = props
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
@@ -126,7 +126,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableRow
               isActive
               onClick={() => {
-                onAddItem({ expiry: optionExp, asset: asset }, '')
+                onAddItem(
+                  {
+                    expiry: optionExp,
+                    asset: asset,
+                    tokenAddress: assetAddress,
+                  },
+                  ''
+                )
               }}
             >
               <TableCell></TableCell>

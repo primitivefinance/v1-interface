@@ -53,6 +53,7 @@ export interface OrderItem {
 export interface NewOptionItem {
   expiry: number
   asset: string
+  tokenAddress: string
 }
 export interface OrderState {
   item: OrderItem
