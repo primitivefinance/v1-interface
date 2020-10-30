@@ -2,7 +2,7 @@ import ethers from 'ethers'
 import { Operation } from './constants'
 import { Trade } from './entities'
 import TraderArtifact from '@primitivefi/contracts/artifacts/Trader.json'
-//import WethConnector from '@primitivefi/contracts/artifacts/'
+import WethConnector from '@primitivefi/contracts/artifacts/WethConnector'
 
 export interface TradeSettings {
   slippage: string
