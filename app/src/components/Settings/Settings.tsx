@@ -10,7 +10,7 @@ import { useSlippage } from '@/hooks/user'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
-  const [slippage, setSlippage] = useSlippage()
+  const [slippage, setSlippage] = useSlippage('0.01')
 
   const onClick = () => {
     setOpen(true)
@@ -37,48 +37,48 @@ export const Settings = () => {
               <StyledSetting>Slippage tolerance</StyledSetting>
               <Spacer size="sm" />
               <StyledRow>
-                {slippage === '0.10%' ? (
+                {slippage === '0.001' ? (
                   <Button
                     size="sm"
                     text="0.10%"
                     disabled
-                    onClick={() => handleSlip('0.10%')}
+                    onClick={() => handleSlip('0.001')}
                   ></Button>
                 ) : (
                   <Button
                     size="sm"
                     text="0.10%"
-                    onClick={() => handleSlip('0.10%')}
+                    onClick={() => handleSlip('0.001')}
                   ></Button>
                 )}
                 <Spacer size="sm" />
-                {slippage === '0.50%' ? (
+                {slippage === '0.005' ? (
                   <Button
                     size="sm"
                     text="0.50%"
                     disabled
-                    onClick={() => handleSlip('0.50%')}
+                    onClick={() => handleSlip('0.005')}
                   ></Button>
                 ) : (
                   <Button
                     size="sm"
                     text="0.50%"
-                    onClick={() => handleSlip('0.50%')}
+                    onClick={() => handleSlip('0.005')}
                   ></Button>
                 )}
                 <Spacer size="sm" />
-                {slippage === '1.00%' ? (
+                {slippage === '0.01' ? (
                   <Button
                     size="sm"
                     text="1.00%"
                     disabled
-                    onClick={() => handleSlip('1.00%')}
+                    onClick={() => handleSlip('0.01')}
                   ></Button>
                 ) : (
                   <Button
                     size="sm"
                     text="1.00%"
-                    onClick={() => handleSlip('1.00%')}
+                    onClick={() => handleSlip('0.01')}
                   ></Button>
                 )}
               </StyledRow>
