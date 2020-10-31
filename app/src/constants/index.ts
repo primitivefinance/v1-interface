@@ -125,5 +125,5 @@ export const DEFAULT_STRIKE_HIGH = 1.1
 export const CURRENT_VERSION = 1.0
 export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20
-export const DEFAULT_SLIPPAGE = '50'
+export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
