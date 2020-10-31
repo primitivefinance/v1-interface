@@ -4,7 +4,9 @@ import { parseEther } from 'ethers/lib/utils'
 import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import Option from '@primitivefi/contracts/artifacts/Option.json'
 
+import { getOptionMarkets, getRegistry } from '@/lib/primitive'
 import { useWeb3React } from '@web3-react/core'
 
 import OptionsContext from './context'
@@ -13,6 +15,8 @@ import { EmptyAttributes, OptionsAttributes } from './types'
 
 import OptionDeployments from './options_deployments.json'
 import AssetAddresses from './assets.json'
+import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
+import { showThrottleMessage } from '@ethersproject/providers'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(optionsReducer, initialState)
@@ -41,65 +45,74 @@ const Options: React.FC = (props) => {
    * @dev Gets the execution price for 1 unit of option tokens and returns it.
    * @param optionAddress The address of the option token to get a uniswap pair of.
    */
-  const getPairData = useCallback(async (provider, optionAddress) => {
-    let premium = 0
+  const getPairData = useCallback(
+    async (provider, optionAddress, underlyingAddress) => {
+      let premium = 0
 
-    // Check to make sure we are connected to a web3 provider.
-    if (!provider) {
-      console.error('No connected connectedProvider')
-      return { premium }
-    }
-    const signer = await provider.getSigner()
-    const chain = await signer.getChainId()
-    const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2'
+      // Check to make sure we are connected to a web3 provider.
+      if (!provider) {
+        console.error('No connected connectedProvider')
+        return { premium }
+      }
+      const chain = chainId
 
-    const OPTION = new Token(chain, optionAddress, 18)
-    const STABLECOIN = new Token(chain, stablecoinAddress, 18)
+      const OPTION = new Token(chain, optionAddress, 18)
+      const UNDERLYING = new Token(chain, underlyingAddress, 18)
 
-    // Fetcher currently calls default provider, which leads to post errors.
-    //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
+      // Fetcher currently calls default provider, which leads to post errors.
+      //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
 
-    const tokenA = STABLECOIN
-    const tokenB = OPTION
-    const address = Pair.getAddress(tokenA, tokenB)
-    const [reserves0, reserves1] = await new ethers.Contract(
-      address,
-      IUniswapV2Pair.abi,
-      provider
-    ).getReserves()
-    const balances = tokenA.sortsBefore(tokenB)
-      ? [reserves0, reserves1]
-      : [reserves1, reserves0]
-    const pair = new Pair(
-      new TokenAmount(tokenA, balances[0]),
-      new TokenAmount(tokenB, balances[1])
-    )
+      const tokenA = UNDERLYING
+      const tokenB = OPTION
+      const address = Pair.getAddress(tokenA, tokenB)
+      try {
+        const [reserves0, reserves1] = await new ethers.Contract(
+          address,
+          IUniswapV2Pair.abi,
+          provider
+        ).getReserves()
+        const balances = tokenA.sortsBefore(tokenB)
+          ? [reserves0, reserves1]
+          : [reserves1, reserves0]
+        const pair = new Pair(
+          new TokenAmount(tokenA, balances[0]),
+          new TokenAmount(tokenB, balances[1])
+        )
 
-    const route = new Route([pair], STABLECOIN, OPTION)
-    const midPrice = Number(route.midPrice.toSignificant(6))
+        const route = new Route([pair], UNDERLYING, OPTION)
+        const midPrice = Number(route.midPrice.toSignificant(6))
 
-    const unit = parseEther('1').toString()
-    const tokenAmount = new TokenAmount(OPTION, unit)
-    const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
+        const unit = parseEther('1').toString()
+        const tokenAmount = new TokenAmount(OPTION, unit)
+        const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
 
-    const executionPrice = Number(trade.executionPrice.toSignificant(6))
+        const executionPrice = Number(trade.executionPrice.toSignificant(6))
 
-    const reserveDAI =
-      Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
-    premium = executionPrice > midPrice ? executionPrice : midPrice
-    return { premium, reserveDAI }
-  }, [])
+        const reserve =
+          Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
+
+        premium = executionPrice > midPrice ? executionPrice : midPrice
+
+        return { premium, reserve }
+      } catch {
+        const pre = 0
+        const def = 0
+        return { pre, def }
+      }
+    },
+    []
+  )
   // FIX
   const handleOptions = useCallback(
     async (assetName) => {
       // Asset address and quantity of options
       const assetAddress = AssetAddresses[assetName][chainId]
-      const optionsLength = Object.keys(OptionDeployments).length
-      const priceData = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${assetName}&vs_currencies=usd`
-      )
-      const price = await priceData.json()
-      const spotPrice = Math.ceil(price[assetName].usd / 10) * 10
+
+      const signer = await provider.getSigner()
+      const { registryAddress, registry } = await getRegistry(signer)
+
+      const optionsLength = await registry.getAllOptionClonesLength()
+
       // Objects and arrays to populate
       const optionsObject = {
         calls: [EmptyAttributes],
@@ -111,20 +124,23 @@ const Options: React.FC = (props) => {
 
       let pairReserveTotal = 0
       // For each option in the option deployments file...
-      for (let i = 0; i < optionsLength; i++) {
+      for (let i = 0; i < Object.keys(OptionDeployments).length; i++) {
         // Get the parameters for the option object in the option_deployments json file.
         const key = Object.keys(OptionDeployments)[i]
         const id = key
         const parameters = OptionDeployments[key].optionParameters
         const address = OptionDeployments[key].address
-        const underlyingToken = parameters[0]
+        const underlyingAddress = parameters[0]
         const strikeToken = parameters[1]
         const base = parameters[2]
         const quote = parameters[3]
         const expiry = parameters[4]
 
         // If the selected asset is not one of the assets in the option, skip it.
-        if (assetAddress !== underlyingToken && assetAddress !== strikeToken) {
+        if (
+          underlyingAddress !== assetAddress &&
+          assetAddress !== strikeToken
+        ) {
           return
         }
 
@@ -137,16 +153,22 @@ const Options: React.FC = (props) => {
         let isCall
 
         // Get the option price data from uniswap pair.
-        const { premium, reserveDAI } = await getPairData(provider, address)
+        const { premium, reserve } = await getPairData(
+          provider,
+          address,
+          underlyingAddress
+        )
         price = premium
         /* price = 1 */
-        pairReserveTotal += reserveDAI
+        const reserveS = reserve
+        const reserveL = reserve
+        pairReserveTotal += reserve
         // If the base is 1, push to calls array. If quote is 1, push to puts array.
         // If a call, set the strike to the quote. If a put, set the strike to the base.
         let arrayToPushTo: OptionsAttributes[] = []
         if (base === '1') {
-          console.log(reserveDAI)
-          pairReserveTotal += reserveDAI
+          console.log(reserve)
+          pairReserveTotal += reserve
           isCall = true
           strike = Number(quote)
           arrayToPushTo = calls
@@ -166,35 +188,25 @@ const Options: React.FC = (props) => {
           price: price,
           strike: strike,
           volume: volume,
+          longReserve: reserveL,
+          shortReserve: reserveS,
           address: address,
           id: id,
           expiry: expiry,
-          isActive: true,
         })
       }
-
+      /* removing default options for debug
+      calls.sort((a, b) => {
+        return a.strike - b.strike
+      })
       if (calls.length < 4) {
         calls.push({
           breakEven: 0,
           change: 0,
           price: 0,
           strike: spotPrice,
-          volume: 0,
-          address: '',
-          id: '',
-          expiry: 0,
-          isActive: false,
-        })
-      }
-      calls.sort((a, b) => {
-        return a.strike - b.strike
-      })
-      if (puts.length < 4) {
-        puts.push({
-          breakEven: 0,
-          change: 0,
-          price: 0,
-          strike: spotPrice,
+          longReserve: 0,
+          shortReserve: 0,
           volume: 0,
           address: '',
           id: '',
@@ -205,6 +217,22 @@ const Options: React.FC = (props) => {
       puts.sort((a, b) => {
         return a.strike - b.strike
       })
+      if (puts.length < 4) {
+        puts.push({
+          breakEven: 0,
+          change: 0,
+          price: 0,
+          strike: spotPrice,
+          longReserve: 0,
+          shortReserve: 0,
+          volume: 0,
+          address: '',
+          id: '',
+          expiry: 0,
+          isActive: false,
+        })
+      } */
+
       // Get the final options object and dispatch it to set its state for the hook.
       Object.assign(optionsObject, {
         calls: calls,

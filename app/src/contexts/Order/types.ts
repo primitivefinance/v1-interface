@@ -2,11 +2,11 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Operation } from '@/lib/constants'
 
 export interface OrderContextValues {
-  item: OrderItem
+  item: OrderItem | NewOptionItem
   orderType: string
-  onAddItem: (item: OrderItem, orderType: string) => void
+  onAddItem: (item: OrderItem | NewOptionItem, orderType: string) => void
   onChangeItem: (item: OrderItem, orderType: string) => void
-  onRemoveItem: (item: OrderItem) => void
+  onRemoveItem: (item: OrderItem | NewOptionItem) => void
   submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
@@ -50,6 +50,11 @@ export interface OrderItem {
   expiry: number
 }
 
+export interface NewOptionItem {
+  expiry: number
+  asset: string
+  tokenAddress: string
+}
 export interface OrderState {
   item: OrderItem
   orderType?: string

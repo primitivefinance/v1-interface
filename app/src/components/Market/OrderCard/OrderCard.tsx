@@ -48,12 +48,12 @@ const OrderContent: React.FC = () => {
 
 const OrderCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
+  if (!item.id) {
+    return null
+  }
   const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
   const clear = () => {
     onRemoveItem(item)
-  }
-  if (!item.id) {
-    return null
   }
   return (
     <Card>

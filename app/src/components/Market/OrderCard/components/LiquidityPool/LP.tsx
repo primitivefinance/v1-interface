@@ -31,7 +31,7 @@ const LP: React.FC<LPProps> = ({
         onClick={onClick}
       />
       <Spacer />
-      <Label text="Quantity (DAI)" />
+      <Label text={`Quantity (${title.substr(10, 3)})`} />
       <Spacer size="sm" />
       <Input placeholder="0.00" onChange={onChange} value={`${quantity}`} />
       <Spacer />

@@ -59,7 +59,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             </CardIcon>
             <StyledTitle>{market.name}</StyledTitle>
             <StyledDetails>
-              <StyledDetail>{market.id.toUpperCase()} / USD</StyledDetail>
+              <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
             </StyledDetails>
             <Spacer />
             <Link href={`/markets/${encodeURIComponent(market.id)}`}>

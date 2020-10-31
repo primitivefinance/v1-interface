@@ -1,5 +1,5 @@
-const formatAddress = (address: string) => {
-  return address.slice(0, 6) + '...' + address.slice(-6)
+const formatAddress = (address: string): string => {
+  return address.slice(0, 5) + '...'
 }
 
 export default formatAddress

@@ -14,10 +14,11 @@ export type OptionsAttributes = {
   price: number
   strike: number
   volume: number
+  longReserve: number
+  shortReserve: number
   address: string
   id: string
   expiry: number
-  isActive: boolean
 }
 
 export const EmptyAttributes = {
@@ -26,10 +27,11 @@ export const EmptyAttributes = {
   price: 0,
   strike: 0,
   volume: 0,
+  longReserve: 0,
+  shortReserve: 0,
   address: '',
   id: '',
   expiry: 0,
-  isActive: false,
 }
 
 export interface OptionsState {

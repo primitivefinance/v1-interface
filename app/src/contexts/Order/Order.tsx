@@ -5,12 +5,13 @@ import { Web3Provider } from '@ethersproject/providers'
 
 import { Transaction } from '@/contexts/Transactions/types'
 import OrderContext from './context'
-import { OrderItem } from './types'
+import { OrderItem, NewOptionItem } from './types'
 import reducer, {
   addItem,
   initialState,
   changeItem,
   removeItem,
+  newOption,
 } from './reducer'
 
 import { DEFAULT_DEADLINE, DEFAULT_TIMELIMIT } from '@/constants/index'
@@ -38,7 +39,7 @@ const Order: React.FC = (props) => {
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem | NewOptionItem, orderType: string) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
@@ -52,7 +53,7 @@ const Order: React.FC = (props) => {
   )
 
   const handleRemoveItem = useCallback(
-    (item: OrderItem) => {
+    (item: OrderItem | NewOptionItem) => {
       dispatch(removeItem(item))
     },
     [dispatch]

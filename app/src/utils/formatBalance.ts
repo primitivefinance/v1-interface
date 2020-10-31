@@ -1,4 +1,4 @@
-const formatBalance = (tokenBalance: string | number) => {
+const formatBalance = (tokenBalance: string | number): string => {
   if (typeof tokenBalance === 'number') {
     tokenBalance = tokenBalance.toString()
   }

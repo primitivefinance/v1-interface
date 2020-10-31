@@ -32,7 +32,7 @@ export const WALLETS: { [key: string]: Wallet } = {
 
 export const NAME_FOR_MARKET: { [key: string]: string } = {
   yfi: 'Yearn',
-  eth: 'Weth',
+  eth: 'Wrapped ETH',
   sushi: 'Sushi',
   uni: 'Uniswap',
   comp: 'Compound',

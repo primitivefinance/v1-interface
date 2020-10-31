@@ -4,10 +4,12 @@ import styled from 'styled-components'
 import { GetServerSideProps } from 'next'
 import { useWeb3React } from '@web3-react/core'
 
+import BetaBanner from '@/components/BetaBanner'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
+import { ADDRESS_FOR_MARKET } from '@/constants/index'
 
 import {
   FilterBar,
@@ -16,6 +18,7 @@ import {
   TransactionCard,
   OrderCard,
   PositionsCard,
+  NewMarketCard,
 } from '../../components/Market'
 
 const mockOptions = [
@@ -61,6 +64,7 @@ const Market = ({ market }) => {
             <OptionsTable
               options={mockOptions}
               asset="Ethereum"
+              assetAddress={ADDRESS_FOR_MARKET[market]}
               optionExp={expiry}
               callActive={callPutActive}
             />
@@ -68,6 +72,9 @@ const Market = ({ market }) => {
           <StyledSideBar>
             <PositionsCard asset="ethereum" />
             <OrderCard />
+            <NewMarketCard />
+            <Spacer />
+            <BetaBanner isOpen={true} />
             <Spacer />
             <TransactionCard />
           </StyledSideBar>

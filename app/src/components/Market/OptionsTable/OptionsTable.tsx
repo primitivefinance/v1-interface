@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import EmptyTable from '../EmptyTable'
+import Spacer from '@/components/Spacer'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
@@ -13,7 +14,7 @@ import useOptions from '@/hooks/useOptions'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
-
+import AddIcon from '@material-ui/icons/Add'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 
@@ -31,6 +32,7 @@ export interface OptionsTableProps {
   options: FormattedOption[]
   optionExp: number
   asset: string
+  assetAddress: string
   callActive: boolean
 }
 
@@ -38,7 +40,7 @@ const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
-  const { callActive, asset, optionExp } = props
+  const { callActive, asset, assetAddress, optionExp } = props
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
@@ -51,7 +53,15 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = ['Strike Price', 'Break Even', 'Price', 'Contract', '']
+  const headers = [
+    'Strike Price',
+    'Break Even',
+    'Price',
+    'Long Reserve',
+    'Short Reserve',
+    'Contract',
+    '',
+  ]
 
   return (
     <Table>
@@ -77,29 +87,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 breakEven,
                 price,
                 strike,
+                longReserve,
+                shortReserve,
                 address,
-                isActive,
                 expiry,
               } = option
               if (optionExp != expiry && expiry !== 0) return null
-              if (!isActive) {
-                return (
-                  <TableRow
-                    key={strike}
-                    onClick={() => {
-                      onAddItem(option, 'BUY')
-                    }}
-                  >
-                    <TableCell key={strike}>${formatBalance(strike)}</TableCell>
-                    <TableCell key={breakEven}>---</TableCell>
-                    <TableCell key={price}>---</TableCell>
-                    <TableCell key={address}>---</TableCell>
-                    <StyledButtonCell key={'Open'}>
-                      <ArrowForwardIosIcon />
-                    </StyledButtonCell>
-                  </TableRow>
-                )
-              }
               return (
                 <TableRow
                   key={address}
@@ -112,6 +105,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     ${formatBalance(breakEven)}
                   </TableCell>
                   <TableCell key={price}>${formatBalance(price)}</TableCell>
+                  <TableCell key={longReserve}>
+                    {formatBalance(longReserve)}
+                  </TableCell>
+                  <TableCell key={shortReserve}>
+                    {formatBalance(shortReserve)}
+                  </TableCell>
                   <TableCell key={address}>
                     <StyledARef href={`${baseUrl}/${address}`}>
                       {formatAddress(address)}{' '}
@@ -124,6 +123,27 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 </TableRow>
               )
             })}
+            <TableRow
+              isActive
+              onClick={() => {
+                onAddItem(
+                  {
+                    expiry: optionExp,
+                    asset: asset,
+                    tokenAddress: assetAddress,
+                  },
+                  ''
+                )
+              }}
+            >
+              <TableCell></TableCell>
+              <StyledButtonCellError key={'Open'}>
+                <AddIcon />
+                <Spacer size="md" />
+                Add a New Option Market
+              </StyledButtonCellError>
+              <TableCell></TableCell>
+            </TableRow>
           </TableBody>
         ) : (
           <>
@@ -150,6 +170,15 @@ const StyledTableHead = styled.div`
 const StyledButtonCell = styled.div`
   font-weight: inherit;
   flex: 0.25;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+  width: ${(props) => props.theme.buttonSize}px;
+`
+
+const StyledButtonCellError = styled.div`
+  font-weight: inherit;
+  display: flex;
+  flex: 1;
+  color: ${(props) => props.theme.color.white};
   margin-right: ${(props) => props.theme.spacing[2]}px;
   width: ${(props) => props.theme.buttonSize}px;
 `
