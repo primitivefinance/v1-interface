@@ -1,7 +1,7 @@
 import { STABLECOIN_ADDRESS, Operation } from './constants'
 import { Trade } from './entities'
 import ethers from 'ethers'
-import UniswapTrader from '@primitivefi/contracts/artifacts/UniswapTrader.json'
+import UniswapTrader from '@primitivefi/contracts/artifacts/UniswapConnector02.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2 } from './constants'
 import UniswapTraderMainnet from '@primitivefi/contracts/deployments/rinkeby/UniswapTrader.json'
