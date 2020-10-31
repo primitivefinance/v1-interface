@@ -6,11 +6,12 @@ import { SinglePositionParameters } from '../uniswap'
 const MIN_ALLOWANCE: ethers.BigNumber = parseEther('10000000')
 
 const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
-  console.log(`Checking allowance: ${tokenAddress} ${spenderAddress}`)
   const token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
   const owner = await signer.getAddress()
   const allowance = await token.allowance(owner, spenderAddress)
-  console.log(`Allowance for: ${tokenAddress} is ${allowance}`)
+  console.log(
+    `Allowance of token ${tokenAddress} of account ${owner} for ${spenderAddress} is ${allowance}`
+  )
   if (allowance < MIN_ALLOWANCE) {
     await token.approve(spenderAddress, MIN_ALLOWANCE)
   }
@@ -21,24 +22,25 @@ const executeTransaction = async (
   transaction: SinglePositionParameters
 ): Promise<any> => {
   let tx: any = {}
-  console.log(transaction)
   const args = transaction.args
   const path = args[2]
   let token0 = path ? path[0] : null
 
   if (transaction.methodName === 'openFlashLong') {
-    let option: string = args[0]
-    let token: string = option
-    let optionToken = new ethers.Contract(token, Option.abi, signer)
-    let underlying = await optionToken.getUnderlyingTokenAddress()
-    await checkAllowance(signer, underlying, transaction.contract.address)
-    console.log(`Contract name: ${await transaction.contract.getName()}`)
+    // for each contract
+    for (let i = 0; i < transaction.contractsToApprove.length; i++) {
+      let contractAddress = transaction.contractsToApprove[i]
+      // for each token check allowance
+      for (let t = 0; t < transaction.tokensToApprove.length; t++) {
+        let tokenAddress = transaction.tokensToApprove[t]
+        await checkAllowance(signer, tokenAddress, contractAddress)
+      }
+    }
   } else {
     await checkAllowance(signer, token0, transaction.contract.address)
   }
 
   console.log(`Executing transaction:`, transaction)
-
   try {
     tx = await transaction.contract[transaction.methodName](...args, {
       value: transaction.value,

@@ -18,13 +18,18 @@ import { DEFAULT_DEADLINE, DEFAULT_TIMELIMIT } from '@/constants/index'
 
 import { Asset } from '@/lib/entities'
 import { create, mintTestToken } from '@/lib/primitive'
-import { Operation } from '@/lib/constants'
+import {
+  Operation,
+  STABLECOIN_ADDRESS,
+  UNISWAP_FACTORY_V2,
+} from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
-import { parseEther } from 'ethers/lib/utils'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { Quantity } from '@/lib/entities'
 import { Trade } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
 import { Uniswap, TradeSettings, SinglePositionParameters } from '@/lib/uniswap'
+import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 
 import executeTransaction from '@/lib/utils/executeTransaction'
 import UniswapPairs from './uniswap_pairs.json'
@@ -80,18 +85,53 @@ const Order: React.FC = (props) => {
       chainId,
       optionAddress
     )
+    const optionInstance: ethers.Contract = optionEntity.optionInstance(signer)
+    const assetAddresses: string[] = await optionInstance.getAssetAddresses()
+    optionEntity.setAssetAddresses(assetAddresses)
     const inputAmount: Quantity = new Quantity(
       new Asset(18), // fix with actual metadata
       parseEther(quantity.toString())
     )
-    const trade: Trade = new Trade(optionEntity, inputAmount, operation, signer)
+    let path: string[] = []
+    let amountsOut: string[] = []
+    const trade: Trade = new Trade(
+      optionEntity,
+      inputAmount,
+      path,
+      amountsOut,
+      operation,
+      signer
+    )
 
     let transaction: SinglePositionParameters
     switch (operation) {
       case Operation.LONG:
+        trade.path = [
+          assetAddresses[2], // redeem
+          assetAddresses[0], // underlying
+        ]
+        trade.amountsOut = await trade.getAmountsOut(
+          signer,
+          new ethers.Contract(UNISWAP_FACTORY_V2, UniswapV2Factory.abi, signer),
+          inputAmount.quantity,
+          trade.path
+        )
+        trade.amountsOut.map((amount) => {
+          console.log(amount.toString())
+        })
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       case Operation.SHORT:
+        trade.path = [
+          optionEntity.address,
+          tradeSettings.stablecoin || STABLECOIN_ADDRESS,
+        ]
+        trade.amountsOut = await trade.getAmountsOut(
+          signer,
+          new ethers.Contract(UNISWAP_FACTORY_V2, UniswapV2Factory.abi, signer),
+          inputAmount.quantity,
+          trade.path
+        )
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       default:

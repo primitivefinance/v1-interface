@@ -104,7 +104,7 @@ const OrderOptions: React.FC = () => {
             <Label text={'Short Tokens'} />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('BUY')}>
+          <Button full size="sm" onClick={() => change('SELL')}>
             Open Short
           </Button>
           <Spacer size="sm" />

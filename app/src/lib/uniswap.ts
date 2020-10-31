@@ -21,6 +21,8 @@ export interface SinglePositionParameters {
   methodName: string
   args: string[]
   value: string
+  contractsToApprove?: string[]
+  tokensToApprove?: string[]
 }
 
 /**
@@ -37,27 +39,14 @@ export class Uniswap {
       trade.option.chainId === 1
         ? UniswapConnectorTestnet.address
         : UniswapConnectorTestnet.address
+
     let contract: ethers.Contract
     let methodName: string
     let args: (string | string[])[]
     let value: string
-    let amountIn: string = trade
-      .maximumAmountIn(tradeSettings.slippage)
-      .quantity.toString()
-    let amountOut: string = trade
-      .minimumAmountOut(tradeSettings.slippage)
-      .quantity.toString()
-    let path: string[] = [
-      tradeSettings.stablecoin || STABLECOIN_ADDRESS,
-      trade.option.address,
-    ]
-    const deadline =
-      tradeSettings.timeLimit > 0
-        ? (
-            Math.floor(new Date().getTime() / 1000) + tradeSettings.timeLimit
-          ).toString()
-        : tradeSettings.deadline.toString()
-    const to: string = tradeSettings.receiver
+
+    let contractsToApprove: string[]
+    let tokensToApprove: string[]
 
     switch (trade.operation) {
       case Operation.LONG:
@@ -72,16 +61,13 @@ export class Uniswap {
     "underlyingAddress": "0xc45c339313533a6c9B05184CD8B5486BC53F75Fb",
     "pairAddress": "0x3269931d3108603ba63BDD401Fd6e3E0C6b90eb7"
          */
-        let tradePath = [
-          '0x2d069584c648B953D1589dB3396ACE52b2826426', // redeem
-          '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb', // underlying
-        ]
-        let amounts = trade
-          .getAmountsOut(trade.signer, factory, amountIn, tradePath)
-          .then((amounts) => {
-            return amounts
-          })
-        let amountOut = amounts[1]
+
+        let orderQuantity: string = trade.inputAmount.quantity.toString()
+        let amountsOut = trade.amountsOut
+        let maxPremimum = trade.calcMinimumOutSlippage(
+          amountsOut[1],
+          tradeSettings.slippage
+        )
         contract = new ethers.Contract(
           uniswapConnectorAddress,
           UniswapConnector.abi,
@@ -89,22 +75,43 @@ export class Uniswap {
         )
         methodName = 'openFlashLong'
         console.log(trade.option.address)
-        args = ['0x05b8dAD398d12d2bd36e1a38e97c3692e7fAFcec', '1000000', '0']
+        args = [trade.option.address, orderQuantity, maxPremimum.toString()]
         value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
+        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.SHORT:
         // Mint options then swap on Uniswap V2 in same transaction for stablecoin
-        path = [
-          trade.option.address,
-          tradeSettings.stablecoin || STABLECOIN_ADDRESS,
-        ]
+        const amountIn: string = trade
+          .maximumAmountIn(tradeSettings.slippage)
+          .quantity.toString()
+        const amountOut: string = trade
+          .minimumAmountOut(tradeSettings.slippage)
+          .quantity.toString()
+        const deadline =
+          tradeSettings.timeLimit > 0
+            ? (
+                Math.floor(new Date().getTime() / 1000) +
+                tradeSettings.timeLimit
+              ).toString()
+            : tradeSettings.deadline.toString()
+        const to: string = tradeSettings.receiver
+
         contract = new ethers.Contract(
           uniswapConnectorAddress,
           UniswapConnector.abi,
           trade.signer
         )
         methodName = 'mintLongOptionsThenSwapToTokens'
-        args = [trade.option.address, amountIn, amountOut, path, to, deadline]
+        args = [
+          trade.option.address,
+          amountIn,
+          amountOut,
+          trade.path,
+          to,
+          deadline,
+        ]
         value = '0'
         break
     }
@@ -114,6 +121,8 @@ export class Uniswap {
       methodName,
       args,
       value,
+      contractsToApprove,
+      tokensToApprove,
     }
   }
 }
