@@ -339,9 +339,9 @@
     "@ethersproject/properties" "^5.0.3"
     "@ethersproject/strings" "^5.0.4"
 
-"@primitivefi/contracts@https://github.com/raymondpulver/primitive-contracts#develop":
+"@primitivefi/contracts@https://github.com/primitivefinance/primitive-contracts#develop":
   version "0.4.1"
-  resolved "https://github.com/raymondpulver/primitive-contracts#7149edcef5ebbc7743f4d09e3877c821b1bca146"
+  resolved "https://github.com/primitivefinance/primitive-contracts#fb16aa182eb57a4dcd311582a04405b8d0f5bead"
 
 "@ungap/promise-all-settled@1.1.2":
   version "1.1.2"
