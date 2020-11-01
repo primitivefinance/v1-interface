@@ -1,14 +1,27 @@
 {
   "name": "@primitivefi/interface",
   "version": "1.0.0",
+  "scripts": {
+    "test": "mocha --timeout 0"
+  },
   "description": "Static website and protocol interface for Primitive.",
-  "main": "index.js",
+  "main": "sdk/index.js",
   "repository": "https://github.com/primitivefinance/primitive-interface.git",
   "author": "Primitive",
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "eslint-import-resolver-alias": "^1.1.2"
+    "chai": "^4.2.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "ethers": "^5.0.19",
+    "local-repl": "^4.0.0",
+    "mocha": "^8.2.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@primitivefi/contracts": "https://github.com/primitivefinance/primitive-contracts#develop",
+    "ethers-base": "^0.3.5"
+  },
+  "repl": {
+    "enableAwait": true
+  }
 }
