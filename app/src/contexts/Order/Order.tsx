@@ -155,7 +155,7 @@ const Order: React.FC = (props) => {
           assetAddresses[0], // underlying
           assetAddresses[2], // redeem
         ]
-        let amountsOut = await trade.getAmountsOut(
+        amountsOut = await trade.getAmountsOut(
           signer,
           factory,
           trade.inputAmount.quantity,
