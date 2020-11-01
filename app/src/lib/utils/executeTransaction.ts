@@ -23,13 +23,8 @@ const executeTransaction = async (
 ): Promise<any> => {
   let tx: any = {}
   const args = transaction.args
-  const path = args[2]
-  let token0 = path ? path[0] : null
 
-  if (
-    transaction.methodName === 'openFlashLong' ||
-    transaction.methodName === 'closeFlashLong'
-  ) {
+  if (transaction.tokensToApprove.length > 0) {
     // for each contract
     for (let i = 0; i < transaction.contractsToApprove.length; i++) {
       let contractAddress = transaction.contractsToApprove[i]
@@ -39,10 +34,7 @@ const executeTransaction = async (
         await checkAllowance(signer, tokenAddress, contractAddress)
       }
     }
-  } else {
-    await checkAllowance(signer, token0, transaction.contract.address)
   }
-
   console.log(`Executing transaction:`, transaction)
   try {
     tx = await transaction.contract[transaction.methodName](...args, {

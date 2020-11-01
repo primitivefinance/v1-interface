@@ -155,6 +155,49 @@ export class Uniswap {
         contractsToApprove = [uniswapConnectorAddress]
         tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
+      case Operation.ADD_LIQUIDITY:
+        let amountOptions = trade.inputAmount.quantity
+        // amount of redeems that will be minted and added to the pool
+        let amountADesired = ethers.BigNumber.from(amountOptions)
+          .mul(trade.option.optionParameters.quote.quantity)
+          .div(trade.option.optionParameters.base.quantity)
+        console.log(`amount a des ${amountADesired.toString()}`)
+        let amountBDesired = trade.quote(
+          amountADesired,
+          trade.reserves[0],
+          trade.reserves[1]
+        )
+        console.log(`amount b des ${amountBDesired.toString()}`)
+        let amountAMin = trade.calcMinimumOutSlippage(
+          amountADesired,
+          tradeSettings.slippage
+        )
+        console.log(amountAMin)
+        let amountBMin = trade.calcMinimumOutSlippage(
+          amountBDesired,
+          tradeSettings.slippage
+        )
+        contract = new ethers.Contract(
+          uniswapConnectorAddress,
+          UniswapConnector.abi,
+          trade.signer
+        )
+        methodName = 'addShortLiquidityWithUnderlying'
+        args = [
+          trade.option.address,
+          trade.option.assetAddresses[0],
+          trade.inputAmount.quantity.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
+          amountBDesired.toString(),
+          amountAMin.toString(),
+          amountBMin.toString(),
+          to,
+          deadline,
+        ]
+        value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
+        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
     }
 
     return {

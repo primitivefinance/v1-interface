@@ -213,6 +213,31 @@ const Order: React.FC = (props) => {
         trade.outputAmount.quantity = trade.amountsOut[1]
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
+      case Operation.ADD_LIQUIDITY:
+        // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
+        // with the path of underlyingTokens to redeemTokens.
+        trade.path = [
+          assetAddresses[2], // redeem
+          assetAddresses[0], // underlying
+        ]
+        // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
+        trade.amountsOut = await trade.getAmountsOut(
+          signer,
+          factory,
+          trade.inputAmount.quantity,
+          trade.path
+        )
+        // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
+        trade.reserves = await trade.getReserves(
+          signer,
+          factory,
+          trade.path[0],
+          trade.path[1]
+        )
+        // The actual function will take the redeemQuantity rather than the optionQuantity.
+        trade.outputAmount.quantity = trade.amountsOut[1]
+        transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+        break
       default:
         transaction = Trader.singleOperationCallParameters(trade, tradeSettings)
         break

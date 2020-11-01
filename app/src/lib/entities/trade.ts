@@ -56,7 +56,10 @@ export class Trade {
     amount: any,
     slippagePercent: string
   ): ethers.ethers.BigNumber {
-    if (this.operation === Operation.SHORT) {
+    if (
+      this.operation === Operation.SHORT ||
+      this.operation === Operation.ADD_LIQUIDITY
+    ) {
       return amount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
@@ -207,5 +210,10 @@ export class Trade {
     )
     let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
     return premium
+  }
+
+  public quote = (amountA, reserveA, reserveB) => {
+    let amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    return amountB
   }
 }
