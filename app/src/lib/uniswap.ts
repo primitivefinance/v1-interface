@@ -48,6 +48,16 @@ export class Uniswap {
     let contractsToApprove: string[]
     let tokensToApprove: string[]
 
+    let amountIn: string
+    let amountOut: string
+    const deadline =
+      tradeSettings.timeLimit > 0
+        ? (
+            Math.floor(new Date().getTime() / 1000) + tradeSettings.timeLimit
+          ).toString()
+        : tradeSettings.deadline.toString()
+    const to: string = tradeSettings.receiver
+
     switch (trade.operation) {
       case Operation.LONG:
         let orderQuantity: string = trade.inputAmount.quantity.toString()
@@ -75,20 +85,12 @@ export class Uniswap {
         break
       case Operation.SHORT:
         // Just purchase redeemTokens from a redeem<>underlying token pair
-        const amountIn: string = trade
+        amountIn = trade
           .maximumAmountIn(tradeSettings.slippage)
           .quantity.toString()
-        const amountOut: string = trade
+        amountOut = trade
           .minimumAmountOut(tradeSettings.slippage)
           .quantity.toString()
-        const deadline =
-          tradeSettings.timeLimit > 0
-            ? (
-                Math.floor(new Date().getTime() / 1000) +
-                tradeSettings.timeLimit
-              ).toString()
-            : tradeSettings.deadline.toString()
-        const to: string = tradeSettings.receiver
         contract = new ethers.Contract(
           UNISWAP_ROUTER02_V2,
           UniswapV2Router02.abi,
@@ -128,6 +130,26 @@ export class Uniswap {
         tokensToApprove = payout.gt(0) //if payout is negative, need to approve underlying
           ? [trade.option.address]
           : [trade.option.address, trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
+      case Operation.CLOSE_SHORT:
+        // Just purchase redeemTokens from a redeem<>underlying token pair
+        amountIn = trade
+          .maximumAmountIn(tradeSettings.slippage)
+          .quantity.toString()
+        let amountOutMin = trade
+          .minimumAmountOut(tradeSettings.slippage)
+          .quantity.toString()
+        contract = new ethers.Contract(
+          UNISWAP_ROUTER02_V2,
+          UniswapV2Router02.abi,
+          trade.signer
+        )
+        methodName = 'swapExactTokensForTokens'
+        args = [amountIn, amountOutMin, trade.path, to, deadline]
+        value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
+        tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
     }
 

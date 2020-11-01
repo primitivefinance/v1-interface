@@ -161,7 +161,6 @@ const Order: React.FC = (props) => {
           trade.inputAmount.quantity,
           trade.path
         )
-        console.log(amountsOut)
         trade.outputAmount.quantity = amountsOut[1]
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
@@ -194,6 +193,24 @@ const Order: React.FC = (props) => {
         )
         // The actual function will take the redeemQuantity rather than the optionQuantity.
         trade.inputAmount.quantity = redeemAmount
+        transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+        break
+      case Operation.CLOSE_SHORT:
+        // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
+        // with the path of underlyingTokens to redeemTokens.
+        trade.path = [
+          assetAddresses[2], // redeem
+          assetAddresses[0], // underlying
+        ]
+        // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
+        trade.amountsOut = await trade.getAmountsOut(
+          signer,
+          factory,
+          trade.inputAmount.quantity,
+          trade.path
+        )
+        // The actual function will take the redeemQuantity rather than the optionQuantity.
+        trade.outputAmount.quantity = amountsOut[1]
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       default:
