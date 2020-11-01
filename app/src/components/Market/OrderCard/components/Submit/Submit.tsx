@@ -77,6 +77,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       break
     case Operation.REMOVE_LIQUIDITY:
       title = 'Remove Liquidity'
+      capitalLabel = 'LP Token'
       tokenAddress = stablecoinAddress
       break
     case Operation.CLOSE_LONG:

@@ -10,6 +10,7 @@ export class Trade {
   public outputAmount: Quantity
   public path: string[]
   public reserves: string[] | ethers.BigNumber[]
+  public totalSupply: string
   public amountsIn: string[]
   public amountsOut: string[]
   public readonly operation: Operation
@@ -21,6 +22,7 @@ export class Trade {
     outputAmount: Quantity,
     path: string[],
     reserves: string[] | ethers.BigNumber[],
+    totalSupply: string,
     amountsIn: string[],
     amountsOut: string[],
     operation: Operation,
@@ -31,6 +33,7 @@ export class Trade {
     this.outputAmount = outputAmount
     this.path = path
     this.reserves = reserves
+    this.totalSupply = totalSupply
     this.amountsIn = amountsIn
     this.amountsOut = amountsOut
     this.operation = operation ? operation : null
@@ -100,6 +103,14 @@ export class Trade {
   public sortTokens = (tokenA, tokenB) => {
     let tokens = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     return tokens
+  }
+
+  public getTotalSupply = async (signer, factory, tokenA, tokenB) => {
+    let tokens = this.sortTokens(tokenA, tokenB)
+    let pairAddress = await factory.getPair(tokens[0], tokens[1])
+    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    let totalSupply = await pair.totalSupply()
+    return totalSupply
   }
 
   public getReserves = async (signer, factory, tokenA, tokenB) => {

@@ -35,7 +35,7 @@ const OrderContent: React.FC = () => {
   if (orderType === 'LP') {
     return <Submit orderType={Operation.ADD_LIQUIDITY} />
   }
-  if (orderType === 'W_LP') {
+  if (orderType === 'REMOVE_LIQUIDITY') {
     return <Submit orderType={Operation.REMOVE_LIQUIDITY} />
   }
   if (orderType === 'EXEC') {

@@ -17,6 +17,7 @@ export enum Operation {
   NEUTRAL,
   ADD_LIQUIDITY,
   REMOVE_LIQUIDITY,
+  REMOVE_LIQUIDITY_CLOSE,
 }
 
 export const STABLECOIN_ADDRESS = ''

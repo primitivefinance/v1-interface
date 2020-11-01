@@ -161,15 +161,15 @@ const OrderOptions: React.FC = () => {
           </Button>
           <Spacer size="md" />
           {!longLPBalance ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => change('W_LP')}
-            >
+            <Button size="sm" variant="secondary" disabled>
               Withdraw Liquidity
             </Button>
           ) : (
-            <Button size="sm" variant="secondary" disabled>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => change('REMOVE_LIQUIDITY')}
+            >
               Withdraw Liquidity
             </Button>
           )}
