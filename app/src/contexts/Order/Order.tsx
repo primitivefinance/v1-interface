@@ -86,53 +86,83 @@ const Order: React.FC = (props) => {
       optionAddress
     )
     const optionInstance: ethers.Contract = optionEntity.optionInstance(signer)
+    const base: ethers.BigNumber = await optionInstance.getBaseValue()
+    const quote: ethers.BigNumber = await optionInstance.getQuoteValue()
     const assetAddresses: string[] = await optionInstance.getAssetAddresses()
     optionEntity.setAssetAddresses(assetAddresses)
+    optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
+    optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
     const inputAmount: Quantity = new Quantity(
       new Asset(18), // fix with actual metadata
       parseEther(quantity.toString())
     )
     let path: string[] = []
+    let amountsIn: string[] = []
     let amountsOut: string[] = []
+    let reserves: string[] = []
     const trade: Trade = new Trade(
       optionEntity,
       inputAmount,
       path,
+      reserves,
+      amountsIn,
       amountsOut,
       operation,
+      signer
+    )
+
+    let factory = new ethers.Contract(
+      UNISWAP_FACTORY_V2,
+      UniswapV2Factory.abi,
       signer
     )
 
     let transaction: SinglePositionParameters
     switch (operation) {
       case Operation.LONG:
+        console.log('LONG')
         trade.path = [
           assetAddresses[2], // redeem
           assetAddresses[0], // underlying
         ]
         trade.amountsOut = await trade.getAmountsOut(
           signer,
-          new ethers.Contract(UNISWAP_FACTORY_V2, UniswapV2Factory.abi, signer),
+          factory,
           inputAmount.quantity,
           trade.path
         )
-        trade.amountsOut.map((amount) => {
-          console.log(amount.toString())
-        })
+        trade.reserves = await trade.getReserves(
+          signer,
+          factory,
+          trade.path[0],
+          trade.path[1]
+        )
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       case Operation.SHORT:
+        let redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
+          .mul(quote)
+          .div(base)
         trade.path = [
-          optionEntity.address,
-          tradeSettings.stablecoin || STABLECOIN_ADDRESS,
+          assetAddresses[0], // underlying
+          assetAddresses[2], // redeem
         ]
-        trade.amountsOut = await trade.getAmountsOut(
+        trade.amountsIn = await trade.getAmountsIn(
           signer,
-          new ethers.Contract(UNISWAP_FACTORY_V2, UniswapV2Factory.abi, signer),
-          inputAmount.quantity,
+          factory,
+          redeemAmount,
           trade.path
         )
+        trade.reserves = await trade.getReserves(
+          signer,
+          factory,
+          trade.path[0],
+          trade.path[1]
+        )
+        trade.inputAmount.quantity = redeemAmount
+        console.log(`short trade order`)
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+        console.log({ transaction })
         break
       default:
         transaction = Trader.singleOperationCallParameters(trade, tradeSettings)

@@ -4,9 +4,9 @@ import ethers from 'ethers'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
-import UniswapConnector from '@primitivefi/contracts/artifacts/UniswapConnector02.json'
-import UniswapConnectorTestnet from '@primitivefi/contracts/deployments/rinkeby/UniswapConnector02.json'
-//import UniswapConnectorMainnet from '@primitivefi/contracts/deployments/live_1/UniswapConnector02.json'
+import UniswapConnector from '@primitivefi/contracts/artifacts/UniswapConnector03.json'
+import UniswapConnectorTestnet from '@primitivefi/contracts/deployments/rinkeby/UniswapConnector03.json'
+//import UniswapConnectorMainnet from '@primitivefi/contracts/deployments/live_1/UniswapConnector03.json'
 
 export interface TradeSettings {
   slippage: string
@@ -50,69 +50,58 @@ export class Uniswap {
 
     switch (trade.operation) {
       case Operation.LONG:
-        // Standard swap from stablecoin to option through the Uniswap V2 Router.
-        let factory = new ethers.Contract(
-          UNISWAP_FACTORY_V2,
-          UniswapV2Factory.abi,
-          trade.signer
-        )
-        /* "optionAddress": "0x05b8dAD398d12d2bd36e1a38e97c3692e7fAFcec",
-    "redeemAddress": "0x2d069584c648B953D1589dB3396ACE52b2826426",
-    "underlyingAddress": "0xc45c339313533a6c9B05184CD8B5486BC53F75Fb",
-    "pairAddress": "0x3269931d3108603ba63BDD401Fd6e3E0C6b90eb7"
-         */
-
         let orderQuantity: string = trade.inputAmount.quantity.toString()
-        let amountsOut = trade.amountsOut
-        let maxPremimum = trade.calcMinimumOutSlippage(
-          amountsOut[1],
-          tradeSettings.slippage
+        let premium = trade.getPremium(
+          orderQuantity,
+          trade.option.optionParameters.base.quantity,
+          trade.option.optionParameters.quote.quantity,
+          trade.path,
+          trade.reserves
         )
+        premium = trade.calcMaximumInSlippage(premium, tradeSettings.slippage)
+        premium = premium > 0 ? premium : '0'
+
         contract = new ethers.Contract(
           uniswapConnectorAddress,
           UniswapConnector.abi,
           trade.signer
         )
         methodName = 'openFlashLong'
-        console.log(trade.option.address)
-        args = [trade.option.address, orderQuantity, maxPremimum.toString()]
+        args = [trade.option.address, orderQuantity, premium]
         value = '0'
 
         contractsToApprove = [uniswapConnectorAddress]
         tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.SHORT:
-        // Mint options then swap on Uniswap V2 in same transaction for stablecoin
-        const amountIn: string = trade
-          .maximumAmountIn(tradeSettings.slippage)
-          .quantity.toString()
-        const amountOut: string = trade
-          .minimumAmountOut(tradeSettings.slippage)
-          .quantity.toString()
-        const deadline =
-          tradeSettings.timeLimit > 0
-            ? (
-                Math.floor(new Date().getTime() / 1000) +
-                tradeSettings.timeLimit
-              ).toString()
-            : tradeSettings.deadline.toString()
-        const to: string = tradeSettings.receiver
-
+        console.log('short')
+        let underlyingsRequired = trade.amountsIn[0]
+        let outputUnderlyings = ethers.BigNumber.from(
+          trade.inputAmount.quantity
+        )
+          .mul(trade.option.optionParameters.base.quantity)
+          .div(trade.option.optionParameters.quote.quantity)
+        let payout = outputUnderlyings.sub(underlyingsRequired)
+        payout = trade.calcMinimumOutSlippage(payout, tradeSettings.slippage)
+        payout = payout.gt(0) ? payout : ethers.BigNumber.from('1')
+        console.log(`payout ${payout.toString()}`)
         contract = new ethers.Contract(
           uniswapConnectorAddress,
           UniswapConnector.abi,
           trade.signer
         )
-        methodName = 'mintLongOptionsThenSwapToTokens'
+        methodName = 'closeFlashLong'
         args = [
           trade.option.address,
-          amountIn,
-          amountOut,
-          trade.path,
-          to,
-          deadline,
+          trade.inputAmount.quantity.toString(),
+          '0', //payout.toString(),
         ]
         value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
+        tokensToApprove = payout.gt(0) //if payout is negative, need to approve underlying
+          ? [trade.option.address]
+          : [trade.option.address, trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
     }
 

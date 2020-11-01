@@ -26,7 +26,10 @@ const executeTransaction = async (
   const path = args[2]
   let token0 = path ? path[0] : null
 
-  if (transaction.methodName === 'openFlashLong') {
+  if (
+    transaction.methodName === 'openFlashLong' ||
+    transaction.methodName === 'closeFlashLong'
+  ) {
     // for each contract
     for (let i = 0; i < transaction.contractsToApprove.length; i++) {
       let contractAddress = transaction.contractsToApprove[i]
