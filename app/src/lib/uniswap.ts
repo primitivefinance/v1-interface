@@ -74,7 +74,34 @@ export class Uniswap {
         tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.SHORT:
-        console.log('short')
+        // Just purchase redeemTokens from a redeem<>underlying token pair
+        const amountIn: string = trade
+          .maximumAmountIn(tradeSettings.slippage)
+          .quantity.toString()
+        const amountOut: string = trade
+          .minimumAmountOut(tradeSettings.slippage)
+          .quantity.toString()
+        const deadline =
+          tradeSettings.timeLimit > 0
+            ? (
+                Math.floor(new Date().getTime() / 1000) +
+                tradeSettings.timeLimit
+              ).toString()
+            : tradeSettings.deadline.toString()
+        const to: string = tradeSettings.receiver
+        contract = new ethers.Contract(
+          UNISWAP_ROUTER02_V2,
+          UniswapV2Router02.abi,
+          trade.signer
+        )
+        methodName = 'swapTokensForExactTokens'
+        args = [amountOut, amountIn, trade.path, to, deadline]
+        value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
+        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
+      case Operation.CLOSE_LONG:
         let underlyingsRequired = trade.amountsIn[0]
         let outputUnderlyings = ethers.BigNumber.from(
           trade.inputAmount.quantity
@@ -84,7 +111,6 @@ export class Uniswap {
         let payout = outputUnderlyings.sub(underlyingsRequired)
         payout = trade.calcMinimumOutSlippage(payout, tradeSettings.slippage)
         payout = payout.gt(0) ? payout : ethers.BigNumber.from('1')
-        console.log(`payout ${payout.toString()}`)
         contract = new ethers.Contract(
           uniswapConnectorAddress,
           UniswapConnector.abi,
@@ -94,7 +120,7 @@ export class Uniswap {
         args = [
           trade.option.address,
           trade.inputAmount.quantity.toString(),
-          '0', //payout.toString(),
+          payout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
         ]
         value = '0'
 

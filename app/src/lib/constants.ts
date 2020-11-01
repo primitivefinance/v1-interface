@@ -12,6 +12,8 @@ export enum Operation {
   UNWIND,
   LONG,
   SHORT,
+  CLOSE_LONG,
+  CLOSE_SHORT,
   NEUTRAL,
   ADD_LIQUIDITY,
   REMOVE_LIQUIDITY,

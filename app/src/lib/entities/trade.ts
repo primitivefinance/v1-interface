@@ -7,6 +7,7 @@ import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 export class Trade {
   public readonly option: Option
   public inputAmount: Quantity
+  public outputAmount: Quantity
   public path: string[]
   public reserves: string[] | ethers.BigNumber[]
   public amountsIn: string[]
@@ -17,6 +18,7 @@ export class Trade {
   public constructor(
     option: Option,
     inputAmount: Quantity,
+    outputAmount: Quantity,
     path: string[],
     reserves: string[] | ethers.BigNumber[],
     amountsIn: string[],
@@ -26,6 +28,7 @@ export class Trade {
   ) {
     this.option = option
     this.inputAmount = inputAmount
+    this.outputAmount = outputAmount
     this.path = path
     this.reserves = reserves
     this.amountsIn = amountsIn
@@ -78,14 +81,14 @@ export class Trade {
 
   public minimumAmountOut(slippagePercent: string): Quantity {
     if (this.operation === Operation.LONG) {
-      return this.inputAmount
+      return this.outputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
-    const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
+    const amountIn = ethers.BigNumber.from(this.outputAmount.quantity)
     const one = ethers.BigNumber.from(1000)
     const slippageAdjustedValue = amountIn.mul(one.sub(slippage)).div(1000)
     const formattedValue = slippageAdjustedValue
-    return new Quantity(this.inputAmount.asset, formattedValue)
+    return new Quantity(this.outputAmount.asset, formattedValue)
   }
 
   public sortTokens = (tokenA, tokenB) => {

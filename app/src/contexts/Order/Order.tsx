@@ -85,6 +85,14 @@ const Order: React.FC = (props) => {
       chainId,
       optionAddress
     )
+    const inputAmount: Quantity = new Quantity(
+      new Asset(18), // fix with actual metadata
+      parseEther(quantity.toString())
+    )
+    const outputAmount: Quantity = new Quantity(
+      new Asset(18), // fix with actual metadata
+      '0'
+    )
     const optionInstance: ethers.Contract = optionEntity.optionInstance(signer)
     const base: ethers.BigNumber = await optionInstance.getBaseValue()
     const quote: ethers.BigNumber = await optionInstance.getQuoteValue()
@@ -92,10 +100,7 @@ const Order: React.FC = (props) => {
     optionEntity.setAssetAddresses(assetAddresses)
     optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
     optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
-    const inputAmount: Quantity = new Quantity(
-      new Asset(18), // fix with actual metadata
-      parseEther(quantity.toString())
-    )
+
     let path: string[] = []
     let amountsIn: string[] = []
     let amountsOut: string[] = []
@@ -103,6 +108,7 @@ const Order: React.FC = (props) => {
     const trade: Trade = new Trade(
       optionEntity,
       inputAmount,
+      outputAmount,
       path,
       reserves,
       amountsIn,
@@ -120,17 +126,20 @@ const Order: React.FC = (props) => {
     let transaction: SinglePositionParameters
     switch (operation) {
       case Operation.LONG:
-        console.log('LONG')
+        // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
+        // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
         trade.path = [
           assetAddresses[2], // redeem
           assetAddresses[0], // underlying
         ]
+        // The amountsOut[1] will tell us how much of the flash loan of underlyingTokens is outstanding.
         trade.amountsOut = await trade.getAmountsOut(
           signer,
           factory,
           inputAmount.quantity,
           trade.path
         )
+        // With the Pair's reserves, we can calculate all values using pure functions, including the premium.
         trade.reserves = await trade.getReserves(
           signer,
           factory,
@@ -140,29 +149,52 @@ const Order: React.FC = (props) => {
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       case Operation.SHORT:
-        let redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
-          .mul(quote)
-          .div(base)
+        // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
+        // Purchase them for underlyingTokens from the underlying<>redeem UniswapV2Pair.
         trade.path = [
           assetAddresses[0], // underlying
           assetAddresses[2], // redeem
         ]
+        let amountsOut = await trade.getAmountsOut(
+          signer,
+          factory,
+          trade.inputAmount.quantity,
+          trade.path
+        )
+        console.log(amountsOut)
+        trade.outputAmount.quantity = amountsOut[1]
+        transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+        break
+      case Operation.CLOSE_LONG:
+        // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
+        // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
+        // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
+        let redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
+          .mul(quote)
+          .div(base)
+        // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
+        // with the path of underlyingTokens to redeemTokens.
+        trade.path = [
+          assetAddresses[0], // underlying
+          assetAddresses[2], // redeem
+        ]
+        // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
         trade.amountsIn = await trade.getAmountsIn(
           signer,
           factory,
           redeemAmount,
           trade.path
         )
+        // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
         trade.reserves = await trade.getReserves(
           signer,
           factory,
           trade.path[0],
           trade.path[1]
         )
+        // The actual function will take the redeemQuantity rather than the optionQuantity.
         trade.inputAmount.quantity = redeemAmount
-        console.log(`short trade order`)
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
-        console.log({ transaction })
         break
       default:
         transaction = Trader.singleOperationCallParameters(trade, tradeSettings)
