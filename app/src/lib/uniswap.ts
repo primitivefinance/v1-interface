@@ -133,12 +133,16 @@ export class Uniswap {
         break
       case Operation.CLOSE_SHORT:
         // Just purchase redeemTokens from a redeem<>underlying token pair
+        console.log('calculating amountin')
         amountIn = trade
           .maximumAmountIn(tradeSettings.slippage)
           .quantity.toString()
+        console.log('calculating amountout min')
         let amountOutMin = trade
           .minimumAmountOut(tradeSettings.slippage)
           .quantity.toString()
+
+        console.log('calculated amounts')
         contract = new ethers.Contract(
           UNISWAP_ROUTER02_V2,
           UniswapV2Router02.abi,

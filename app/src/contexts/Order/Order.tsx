@@ -210,7 +210,7 @@ const Order: React.FC = (props) => {
           trade.path
         )
         // The actual function will take the redeemQuantity rather than the optionQuantity.
-        trade.outputAmount.quantity = amountsOut[1]
+        trade.outputAmount.quantity = trade.amountsOut[1]
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       default:

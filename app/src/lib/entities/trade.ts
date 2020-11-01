@@ -68,7 +68,10 @@ export class Trade {
   }
 
   public maximumAmountIn(slippagePercent: string): Quantity {
-    if (this.operation === Operation.SHORT) {
+    if (
+      this.operation === Operation.SHORT ||
+      this.operation === Operation.CLOSE_SHORT
+    ) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
@@ -118,8 +121,10 @@ export class Trade {
         path[i],
         path[i + 1]
       )
+      console.log(reserveIn, reserveOut)
       amounts.push(this.getAmountOut(amounts[i], reserveIn, reserveOut))
     }
+    console.log(amounts)
     return amounts
   }
 
