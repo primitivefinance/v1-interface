@@ -109,7 +109,6 @@ export enum LocalStorageKeys {
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export const UNI_ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
-
 export const DAI = new Token(
   ChainId.MAINNET,
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -117,6 +116,17 @@ export const DAI = new Token(
   'DAI',
   'Dai Stablecoin'
 )
+export const DAI_RINKEBY = new Token(
+  ChainId.RINKEBY,
+  '0x95b58a6bff3d14b7db2f5cb5f0ad413dc2940658',
+  18,
+  'DAI',
+  'Dai Stablecoin'
+)
+export const STABLECOINS: { [key: number]: Token } = {
+  1: DAI,
+  4: DAI_RINKEBY,
+}
 
 export const DEFAULT_STRIKE_LOW = 0.9
 export const DEFAULT_STRIKE_MID = 1.0

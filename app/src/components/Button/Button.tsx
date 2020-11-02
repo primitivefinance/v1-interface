@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import Link from 'next/link'
+import Loader from '@/components/Loader'
 
 export interface ButtonProps {
   children?: React.ReactNode
@@ -94,7 +95,7 @@ const Button: React.FC<ButtonProps> = ({
       )
     }
     if (isLoading) {
-      return <p>LOADING</p>
+      return <Loader />
     } else {
       return text
     }
@@ -190,7 +191,6 @@ const StyledButton = styled.button<StyledButtonProps>`
     color: ${(props) => props.hoverColor};
   }
 `
-
 const StyledExternalLink = styled.a`
   align-items: center;
   color: inherit;

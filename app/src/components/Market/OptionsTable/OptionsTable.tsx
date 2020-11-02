@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import EmptyTable from '../EmptyTable'
@@ -44,10 +44,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
-
   useEffect(() => {
     if (library) {
-      getOptions(asset.toLowerCase())
+      if (asset === 'eth') {
+        getOptions('WETH')
+      } else {
+        getOptions(asset.toLowerCase().substr(0, 3))
+      }
     }
   }, [library, asset, getOptions])
 
@@ -62,7 +65,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     'Contract',
     '',
   ]
-
   return (
     <Table>
       <StyledTableHead>
@@ -80,19 +82,18 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {options[type].length > 1 ? (
+        {options[type].length >= 0 ? (
           <TableBody>
             {options[type].map((option) => {
               const {
                 breakEven,
                 price,
                 strike,
-                longReserve,
-                shortReserve,
+                reserve,
                 address,
                 expiry,
               } = option
-              if (optionExp != expiry && expiry !== 0) return null
+              if (optionExp != expiry && expiry === 0) return null
               return (
                 <TableRow
                   key={address}
@@ -100,20 +101,18 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     onAddItem(option, '')
                   }}
                 >
-                  <TableCell key={strike}>${formatBalance(strike)}</TableCell>
+                  <TableCell key={strike.toString()}>
+                    ${formatBalance(strike)}
+                  </TableCell>
                   <TableCell key={breakEven}>
                     ${formatBalance(breakEven)}
                   </TableCell>
                   <TableCell key={price}>${formatBalance(price)}</TableCell>
-                  <TableCell key={longReserve}>
-                    {formatBalance(longReserve)}
-                  </TableCell>
-                  <TableCell key={shortReserve}>
-                    {formatBalance(shortReserve)}
-                  </TableCell>
+                  <TableCell key={reserve}>{formatBalance(reserve)}</TableCell>
+                  <TableCell key={reserve}>{formatBalance(reserve)}</TableCell>
                   <TableCell key={address}>
-                    <StyledARef href={`${baseUrl}/${address}`}>
-                      {formatAddress(address)}{' '}
+                    <StyledARef href={`${baseUrl}/${option.address}`}>
+                      {formatAddress(option.address)}{' '}
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
                   </TableCell>
@@ -156,7 +155,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     </Table>
   )
 }
-
 const StyledARef = styled.a`
   color: ${(props) => props.theme.color.white};
   text-decoration: none;

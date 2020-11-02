@@ -11,7 +11,6 @@ import reducer, {
   initialState,
   changeItem,
   removeItem,
-  newOption,
 } from './reducer'
 
 import { DEFAULT_DEADLINE, DEFAULT_TIMELIMIT } from '@/constants/index'

@@ -4,6 +4,7 @@ import OptionContract from '@primitivefi/contracts/artifacts/Option.json'
 import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFactory.json'
 //import MainnetFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
+import TestERC20 from '@primitivefi/contracts/artifacts/TestERC20.json'
 import { Asset, Quantity, Token } from './entities'
 import {
   OPTION_SALT,
@@ -34,12 +35,12 @@ export class Protocol {
     ).getParameters()
     const underlying: ethers.Contract = new ethers.Contract(
       parameters._underlyingToken,
-      ERC20.abi,
+      TestERC20.abi,
       provider
     )
     const strike: ethers.Contract = new ethers.Contract(
       parameters._strikeToken,
-      ERC20.abi,
+      TestERC20.abi,
       provider
     )
 

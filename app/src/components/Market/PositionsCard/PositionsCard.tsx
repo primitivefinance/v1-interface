@@ -31,6 +31,7 @@ import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
 import { OrderItem as Item } from '@/contexts/Order/types'
+import { STABLECOINS } from '@/constants/index'
 
 export interface TokenProps {
   option: any // replace with option type
@@ -39,7 +40,6 @@ export interface PositionsProp {
   asset: string
 }
 const Position: React.FC<TokenProps> = ({ option }) => {
-  const { positions, getPositions } = usePositions()
   const { chainId, library } = useWeb3React()
   const [balanceAddress, setBalanceAddress] = useState({
     longT: '',
@@ -49,9 +49,6 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 
   useEffect(() => {
     const getAddresses = async () => {
-      const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2'
-      const tokenA = new Token(chainId, stablecoinAddress, 18)
-
       const optionContract = new ethers.Contract(
         option.address,
         Option.abi,
@@ -59,7 +56,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
       )
       const redeemAddress = await optionContract.redeemToken()
       const redeem = new Token(chainId, redeemAddress, 18)
-      const redeemPair = Pair.getAddress(tokenA, redeem)
+      const redeemPair = Pair.getAddress(STABLECOINS[chainId], redeem)
 
       try {
         const LPAddress = await new ethers.Contract(
@@ -73,14 +70,18 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           LP: LPAddress.liquidityToken,
         }
       } catch (error) {
-        console.error(error)
+        return {
+          longT: option.address,
+          shortT: redeemAddress,
+          LP: 0,
+        }
       }
     }
 
     if (option.address) {
       getAddresses().then((add) => setBalanceAddress(add))
     }
-  }, [getPositions, positions, balanceAddress, setBalanceAddress])
+  }, [balanceAddress, setBalanceAddress])
 
   const longBalance = useTokenBalance(balanceAddress.longT)
   const shortBalance = useTokenBalance(balanceAddress.shortT)
@@ -104,31 +105,36 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     </Card>
   )
 }
+
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options, getOptions } = useOptions()
-  const { positions, getPositions } = usePositions()
-  const { item } = useOrders()
-  const { library, chainId, account } = useWeb3React()
-
+  const { onAddItem, item } = useOrders()
+  const { library, chainId } = useWeb3React()
+  const [positions, setPos] = useState()
   useEffect(() => {
     if (library) {
-      getOptions(asset.toLowerCase())
+      if (asset === 'eth') {
+        getOptions('WETH')
+      } else {
+        getOptions(asset.toLowerCase().substr(0, 3))
+      }
     }
-  }, [getOptions, library, asset])
+  }, [library, asset, getOptions])
 
-  useEffect(() => {
-    if (positions.calls[0].address || positions.puts[0].address) {
-      getPositions(asset.toLowerCase(), options)
-    }
-  }, [getPositions, library])
-
-  if (item.id || item.asset) return null
-  if (positions.calls[0].address || positions.puts[0].address) {
+  if (item.expiry) return null
+  if (positions) {
     return (
       <Card>
         <CardTitle>Your Positions</CardTitle>
         <CardContent>
-          {positions.calls.map((pos, i) => {
+          <>
+            <h4>Calls</h4>
+            {options.calls.map((pos, i) => {
+              return <Position key={i} option={pos} />
+            })}
+          </>
+          <h4>Puts</h4>
+          {options.puts.map((pos, i) => {
             console.log(pos)
             return <Position key={i} option={pos} />
           })}
@@ -154,7 +160,6 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     </>
   )
 }
-
 const StyledPosition = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};

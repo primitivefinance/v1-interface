@@ -44,7 +44,6 @@ export function useEagerConnect() {
 
   useEffect(() => {
     if (active) {
-      console.log('tried')
       setTried(true)
     }
   }, [active])

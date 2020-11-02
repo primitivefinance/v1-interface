@@ -63,7 +63,7 @@ const Market = ({ market }) => {
             />
             <OptionsTable
               options={mockOptions}
-              asset="Ethereum"
+              asset={market}
               assetAddress={ADDRESS_FOR_MARKET[market]}
               optionExp={expiry}
               callActive={callPutActive}
