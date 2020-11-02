@@ -4,6 +4,7 @@ import { Asset } from './asset'
 import { Quantity } from './quantity'
 import ethers from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
+import { formatEther } from 'ethers/lib/utils'
 
 export interface OptionParameters {
   base: Quantity
@@ -105,7 +106,7 @@ export class Option extends Token {
   public get isCall(): boolean {
     let baseValue = this.optionParameters.base.quantity
     let isCall: boolean = false
-    if (baseValue === '1') {
+    if (+formatEther(baseValue) === 1) {
       isCall = true
     }
     return isCall
@@ -114,7 +115,7 @@ export class Option extends Token {
   public get isPut(): boolean {
     let quoteValue = this.optionParameters.quote.quantity
     let isPut: boolean = false
-    if (quoteValue === '1') {
+    if (+formatEther(quoteValue) === 1) {
       isPut = true
     }
     return isPut

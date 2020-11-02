@@ -23,7 +23,7 @@ import { useWeb3React } from '@web3-react/core'
 export type FormattedOption = {
   breakEven: number
   change: number
-  price: number
+  premium: number
   strike: number
   volume: number
 }
@@ -49,7 +49,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       if (asset === 'eth') {
         getOptions('WETH')
       } else {
-        getOptions(asset.toLowerCase().substr(0, 3))
+        getOptions(asset.toUpperCase().substr(0, 3))
       }
     }
   }, [library, asset, getOptions])
@@ -87,7 +87,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             {options[type].map((option) => {
               const {
                 breakEven,
-                price,
+                premium,
                 strike,
                 reserve,
                 address,
@@ -101,15 +101,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     onAddItem(option, '')
                   }}
                 >
-                  <TableCell key={strike.toString()}>
-                    ${formatBalance(strike)}
-                  </TableCell>
-                  <TableCell key={breakEven}>
-                    ${formatBalance(breakEven)}
-                  </TableCell>
-                  <TableCell key={price}>${formatBalance(price)}</TableCell>
-                  <TableCell key={reserve}>{formatBalance(reserve)}</TableCell>
-                  <TableCell key={reserve}>{formatBalance(reserve)}</TableCell>
+                  <TableCell>${formatBalance(strike)}</TableCell>
+                  <TableCell>${formatBalance(breakEven)}</TableCell>
+                  <TableCell>${formatBalance(premium)}</TableCell>
+                  <TableCell>{formatBalance(reserve)}</TableCell>
+                  <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell key={address}>
                     <StyledARef href={`${baseUrl}/${option.address}`}>
                       {formatAddress(option.address)}{' '}

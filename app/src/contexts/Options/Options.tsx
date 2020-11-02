@@ -102,9 +102,9 @@ const Options: React.FC = (props) => {
 
       return { premium, reserve }
     } catch {
-      const pre = 0
-      const def = 0
-      return { pre, def }
+      const premium = 0
+      const reserve = 0
+      return { premium, reserve }
     }
   }, [])
   // FIX
@@ -138,9 +138,21 @@ const Options: React.FC = (props) => {
               registry.interface.parseLog(log).args.optionAddress,
               provider
             )
-            if (option.optionParameters.base.asset.symbol !== assetName) return
+            let baseAssetSymbol = option.optionParameters.base.asset.symbol
+            switch (assetName.toLowerCase()) {
+              case 'eth':
+                assetName = 'WETH'
+                break
+              case 'ether':
+                assetName = 'WETH'
+                break
+              case 'ethereum':
+                assetName = 'WETH'
+                break
+            }
+            if (baseAssetSymbol !== assetName) return
             const { premium, reserve } = await getPairData(provider, option)
-            BigNumber.from(pairReserveTotal).add(reserve)
+            if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
             if (option.isCall) {
               breakEven = calculateBreakeven(
                 option.strikePrice.quantity,
