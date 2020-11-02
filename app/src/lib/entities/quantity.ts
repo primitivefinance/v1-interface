@@ -6,7 +6,7 @@ import { BigNumber, BigNumberish } from 'ethers'
  */
 export class Quantity {
   public readonly asset: Asset
-  public readonly quantity: BigNumberish | BigNumber
+  public quantity: BigNumberish | BigNumber
   public constructor(asset: Asset, quantity: BigNumberish | BigNumber) {
     this.asset = asset
     this.quantity = quantity

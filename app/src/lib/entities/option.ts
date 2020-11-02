@@ -3,6 +3,7 @@ import { Token } from './token'
 import { Asset } from './asset'
 import { Quantity } from './quantity'
 import ethers from 'ethers'
+import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 
 export interface OptionParameters {
   base: Quantity
@@ -37,6 +38,7 @@ export const createOptionEntityWithAddress = (
  */
 export class Option extends Token {
   public readonly optionParameters: OptionParameters
+  public assetAddresses: string[]
   public constructor(
     optionParameters: OptionParameters,
     chainId: number,
@@ -47,6 +49,14 @@ export class Option extends Token {
   ) {
     super(chainId, address, decimals, name, symbol)
     this.optionParameters = optionParameters
+  }
+
+  public setAssetAddresses(assets) {
+    this.assetAddresses = assets
+  }
+
+  public optionInstance(signer): ethers.Contract {
+    return new ethers.Contract(this.address, OptionArtifact.abi, signer)
   }
 
   public get underlying(): Asset {
