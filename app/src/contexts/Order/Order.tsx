@@ -13,25 +13,21 @@ import reducer, {
   removeItem,
 } from './reducer'
 
-import { DEFAULT_DEADLINE, DEFAULT_TIMELIMIT } from '@/constants/index'
-
-import { Asset } from '@/lib/entities'
-import { create, mintTestToken } from '@/lib/primitive'
 import {
-  Operation,
-  STABLECOIN_ADDRESS,
-  UNISWAP_FACTORY_V2,
-} from '@/lib/constants'
+  DEFAULT_DEADLINE,
+  DEFAULT_TIMELIMIT,
+  STABLECOINS,
+} from '@/constants/index'
+
+import { Operation, UNISWAP_FACTORY_V2 } from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
-import { formatEther, parseEther } from 'ethers/lib/utils'
-import { Quantity } from '@/lib/entities'
-import { Trade } from '@/lib/entities'
+import { parseEther } from 'ethers/lib/utils'
+import { Asset, Trade, Quantity } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
 import { Uniswap, TradeSettings, SinglePositionParameters } from '@/lib/uniswap'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 
 import executeTransaction from '@/lib/utils/executeTransaction'
-import UniswapPairs from './uniswap_pairs.json'
 import useTransactions from '@/hooks/transactions/index'
 import { useSlippage } from '@/hooks/user'
 
@@ -69,7 +65,6 @@ const Order: React.FC = (props) => {
     quantity: number,
     operation: Operation
   ) => {
-    const stablecoinAddress = UniswapPairs[state.item.id].stablecoinAddress
     const signer: ethers.Signer = await provider.getSigner()
     const receiver: string = await signer.getAddress()
     const tradeSettings: TradeSettings = {
@@ -77,7 +72,7 @@ const Order: React.FC = (props) => {
       timeLimit: DEFAULT_TIMELIMIT,
       receiver: receiver,
       deadline: DEFAULT_DEADLINE,
-      stablecoin: stablecoinAddress,
+      stablecoin: STABLECOINS[chainId].address,
     }
 
     const optionEntity: Option = createOptionEntityWithAddress(
@@ -315,7 +310,8 @@ const Order: React.FC = (props) => {
   ) => {
     const signer = await provider.getSigner()
 
-    const tx = await create(signer, asset, isCallType, expiry, strike)
+    //const tx = await create(signer, asset, isCallType, expiry, strike)
+    let tx
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
@@ -332,7 +328,8 @@ const Order: React.FC = (props) => {
   ) => {
     const signer = await provider.getSigner()
 
-    const tx = await mintTestToken(signer, optionAddress, quantity)
+    //const tx = await mintTestToken(signer, optionAddress, quantity)
+    let tx
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
@@ -350,7 +347,8 @@ const Order: React.FC = (props) => {
   ) => {
     const signer = await provider.getSigner()
 
-    const tx = await mintTestToken(signer, optionAddress, quantity)
+    //const tx = await mintTestToken(signer, optionAddress, quantity)
+    let tx
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
@@ -368,7 +366,8 @@ const Order: React.FC = (props) => {
   ) => {
     const signer = await provider.getSigner()
 
-    const tx = await mintTestToken(signer, optionAddress, quantity)
+    //const tx = await mintTestToken(signer, optionAddress, quantity)
+    let tx
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,

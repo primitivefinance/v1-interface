@@ -6,14 +6,12 @@ import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
 
-import { getOptionMarkets, getRegistry } from '@/lib/primitive'
 import { useWeb3React } from '@web3-react/core'
 
 import OptionsContext from './context'
 import optionsReducer, { initialState, setOptions } from './reducer'
 import { EmptyAttributes, OptionsAttributes } from './types'
 
-import OptionDeployments from './options_deployments.json'
 import AssetAddresses from './assets.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { showThrottleMessage } from '@ethersproject/providers'
@@ -107,7 +105,7 @@ const Options: React.FC = (props) => {
     async (assetName) => {
       // Asset address and quantity of options
       const signer = await provider.getSigner()
-      const { registryAddress, registry, IRegistry } = await getRegistry(signer)
+      const registry = await Protocol.getRegistry(signer)
 
       const filter = registry.filters.DeployedOptionClone(null, null, null)
       filter.fromBlock = 7200000 // we can set a better start block later

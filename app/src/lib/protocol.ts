@@ -1,5 +1,8 @@
 import ethers from 'ethers'
 import { Option, OptionParameters } from './entities/option'
+import Registry from '@primitivefi/contracts/artifacts/Registry.json'
+import RegistryRinkeby from '@primitivefi/contracts/deployments/rinkeby/Registry.json'
+import RegistryMainnet from '@primitivefi/contracts/deployments/live_1/Registry.json'
 import OptionContract from '@primitivefi/contracts/artifacts/Option.json'
 import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFactory.json'
 //import MainnetFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
@@ -19,6 +22,27 @@ import computeClone2Clone from './utils/computeCreate2Clone'
  */
 export class Protocol {
   private constructor() {}
+
+  public static getRegistryAddress = (chainId: number): string => {
+    let address: string
+    if (chainId === 4) {
+      address = RegistryRinkeby.address
+    } else if (chainId === 1) {
+      address = RegistryMainnet.address
+    } else {
+      throw Error(
+        `Error: getRegistryAddress cannot be found on unidentified chain ${chainId}`
+      )
+    }
+    return address
+  }
+
+  public static async getRegistry(signer): Promise<ethers.Contract> {
+    const chain = await signer.getChainId()
+    const registryAddress = this.getRegistryAddress(chain)
+    const registry = new ethers.Contract(registryAddress, Registry.abi, signer)
+    return registry
+  }
 
   /**
    * Gets an on-chain option's parameters using an option address and returns an option class using the data.
