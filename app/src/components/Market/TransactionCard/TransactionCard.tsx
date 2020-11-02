@@ -6,6 +6,7 @@ import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import Spacer from '@/components/Spacer'
+import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
 import useTransactions from '@/hooks/transactions'
 import { useWeb3React } from '@web3-react/core'
@@ -34,11 +35,7 @@ const TransactionCard: React.FC = () => {
               <li key={i}>
                 <span>{txs[hash].addedTime}</span>
                 <span>{txs[hash].hash.substr(0, 3)}</span>
-                {!txs[hash].receipt ? (
-                  <span>Pending...</span>
-                ) : (
-                  <span>Confirmed</span>
-                )}
+                {!txs[hash].receipt ? <Loader /> : <span>Confirmed</span>}
               </li>
             ))}
           </CardContent>

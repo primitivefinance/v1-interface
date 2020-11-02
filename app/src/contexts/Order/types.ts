@@ -1,5 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { Operation } from '@/lib/constants'
+import { BigNumberish } from 'ethers'
 
 export interface OrderContextValues {
   item: OrderItem | NewOptionItem
@@ -40,14 +41,14 @@ export interface OrderContextValues {
 }
 
 export interface OrderItem {
+  address: string
   breakEven: number
   change: number
+  expiry: BigNumberish
   price: number
-  strike: number
+  strike: BigNumberish
   volume: number
-  address: string
   id: string
-  expiry: number
 }
 
 export interface NewOptionItem {

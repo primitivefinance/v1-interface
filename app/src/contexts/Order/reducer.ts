@@ -7,7 +7,7 @@ const CHANGE_ITEM = 'CHANGE_ITEM'
 
 export interface AddItemAction {
   type: typeof ADD_ITEM
-  item: OrderItem
+  item: OrderItem | NewOptionItem
   orderType: string
 }
 export interface RemoveItemAction {

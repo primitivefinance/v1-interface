@@ -34,7 +34,6 @@ const Markets: React.FC = ({ children }) => {
   const fetchMarkets = useCallback(async () => {
     const marketsArr: Market[] = []
     const marketKeys = ['eth_market', 'soon_market', 'future_market']
-    console.log(marketKeys)
     for (let i = 0; i < marketKeys.length; i++) {
       const marketKey = marketKeys[i]
       let tokenKey = marketKey.replace('_market', '')

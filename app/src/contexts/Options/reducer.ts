@@ -26,9 +26,7 @@ const reducer = (state: OptionsState, action: OptionsActions) => {
   switch (action.type) {
     case SET_OPTIONS:
       return {
-        ...state,
         options: {
-          ...state.options,
           ...action.options,
         },
       }

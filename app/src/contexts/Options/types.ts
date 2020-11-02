@@ -1,3 +1,4 @@
+import { BigNumberish } from 'ethers'
 export interface OptionsContextValues {
   options: OptionsData
   getOptions: (assetName: string) => void
@@ -12,10 +13,9 @@ export type OptionsAttributes = {
   breakEven: number
   change: number
   price: number
-  strike: number
+  strike: BigNumberish
   volume: number
-  longReserve: number
-  shortReserve: number
+  reserve: number
   address: string
   id: string
   expiry: number
@@ -27,8 +27,7 @@ export const EmptyAttributes = {
   price: 0,
   strike: 0,
   volume: 0,
-  longReserve: 0,
-  shortReserve: 0,
+  reserve: 0,
   address: '',
   id: '',
   expiry: 0,

@@ -76,7 +76,8 @@ const getRegistry = async (signer) => {
   const chain = await signer.getChainId()
   const registryAddress = getRegistryAddress(chain)
   const registry = new ethers.Contract(registryAddress, Registry.abi, signer)
-  return { registryAddress, registry }
+  const IRegistry = new ethers.utils.Interface(Registry.abi)
+  return { registryAddress, registry, IRegistry }
 }
 
 const mint = async (signer, quantity, optionAddress) => {
