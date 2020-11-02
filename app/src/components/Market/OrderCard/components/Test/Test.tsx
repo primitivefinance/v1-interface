@@ -19,18 +19,18 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import { Operation } from '@/lib/constants'
 
 const Test: React.FC = () => {
-  const { mintTestTokens, item, onChangeItem, onRemoveItem } = useOrders()
+  const { item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const { library } = useWeb3React()
 
   const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb' // Fix - should not be hardcode
   const tokenBalance = useTokenBalance(testEthAddress)
-
+  /*
   const handleMintClick = useCallback(() => {
     mintTestTokens(library, item?.address, Number(quantity))
     onRemoveItem(item)
   }, [mintTestTokens, onRemoveItem, item, library, quantity])
-
+  */
   const handleQuantityChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
@@ -64,7 +64,7 @@ const Test: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
-        <span>${item.price.toFixed(2)}</span>
+        <span>${item.price.toString()}</span>
       </Box>
       <Spacer />
       <Box row justifyContent="flex-start"></Box>
@@ -89,12 +89,7 @@ const Test: React.FC = () => {
         </span>
       </Box>
       <Spacer />
-      <Button
-        disabled={!quantity}
-        full
-        onClick={handleMintClick}
-        text="Continue to Review"
-      />
+      <Button disabled={!quantity} full text="Continue to Review" />
     </>
   )
 }

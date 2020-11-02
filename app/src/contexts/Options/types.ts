@@ -11,6 +11,7 @@ export interface OptionsData {
 }
 
 export type OptionsAttributes = {
+  asset: string
   breakEven: BigNumberish
   change: BigNumberish
   premium: BigNumberish
@@ -23,6 +24,7 @@ export type OptionsAttributes = {
 }
 
 export const EmptyAttributes = {
+  asset: '',
   breakEven: 0,
   change: 0,
   premium: 0,

@@ -143,7 +143,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       {orderType === Operation.ADD_LIQUIDITY ? (
         <LP
           title={`Quantity (${item.id})`}
-          balance={formatBalance(tokenBalance)}
+          balance={formatBalance(tokenBalance).toString()}
           quantity={quantity}
           onChange={handleQuantityChange}
           onClick={handleSetMax}
@@ -151,7 +151,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.price} units="$" />
+          <LineItem label="Price" data={item.price.toString()} units="$" />
           <Spacer />
           <PriceInput
             title="Quantity"

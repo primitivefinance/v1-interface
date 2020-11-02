@@ -114,7 +114,7 @@ const Options: React.FC = (props) => {
       const signer = await provider.getSigner()
       const registry = await Protocol.getRegistry(signer)
 
-      const filter = registry.filters.DeployedOptionClone(null, null, null)
+      const filter: any = registry.filters.DeployedOptionClone(null, null, null)
       filter.fromBlock = 7200000 // we can set a better start block later
       filter.toBlock = 'latest'
 
@@ -122,6 +122,7 @@ const Options: React.FC = (props) => {
       const optionsObject = {
         calls: [EmptyAttributes],
         puts: [EmptyAttributes],
+        loading: true,
         reservesTotal: 0,
       }
       const calls: OptionsAttributes[] = []
@@ -160,6 +161,7 @@ const Options: React.FC = (props) => {
                 true
               )
               calls.push({
+                asset: '',
                 breakEven: breakEven,
                 change: 0,
                 premium: premium,
@@ -178,6 +180,7 @@ const Options: React.FC = (props) => {
                 false
               )
               puts.push({
+                asset: '',
                 breakEven: breakEven,
                 change: 0,
                 premium: premium,

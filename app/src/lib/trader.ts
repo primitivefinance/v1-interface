@@ -8,14 +8,14 @@ import WethConnectorArtifact from '@primitivefi/contracts/artifacts/WethConnecto
 //import MainnetWethConnector from '@primitivefi/contracts/deployments/live_1/WethConnector01.json'
 import TestnetWethConnector from '@primitivefi/contracts/deployments/rinkeby/WethConnector01.json'
 
-export interface TradeSettings {
+export interface CustomTradeSettings {
   slippage: string
   timeLimit: number
   receiver: string
   deadline: number
 }
 
-export interface SinglePositionParameters {
+export interface CustomSinglePositionParameters {
   contract: ethers.Contract
   methodName: string
   args: (string | string[])[]
@@ -30,8 +30,8 @@ export class Trader {
 
   public static singleOperationCallParameters(
     trade: Trade,
-    tradeSettings: TradeSettings
-  ): SinglePositionParameters {
+    tradeSettings: CustomTradeSettings
+  ): CustomSinglePositionParameters {
     const traderAddress =
       trade.option.chainId == 1 ? MainnetTrader.address : TestnetTrader.address
     const wethConnectorAddress =

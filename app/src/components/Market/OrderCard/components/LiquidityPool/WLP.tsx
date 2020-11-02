@@ -66,7 +66,7 @@ const WLP: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
-        <span>${item.price.toFixed(2)}</span>
+        <span>${item.price.toString()}</span>
       </Box>
 
       <Spacer />
