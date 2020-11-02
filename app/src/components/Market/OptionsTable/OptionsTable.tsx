@@ -29,7 +29,6 @@ export type FormattedOption = {
 }
 
 export interface OptionsTableProps {
-  options: FormattedOption[]
   optionExp: number
   asset: string
   assetAddress: string
@@ -82,7 +81,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {options[type].length >= 0 ? (
+        {!options.loading ? (
           <TableBody>
             {options[type].map((option) => {
               const {
@@ -125,7 +124,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   {
                     expiry: optionExp,
                     asset: asset,
-                    tokenAddress: assetAddress,
+                    address: assetAddress,
                   },
                   ''
                 )

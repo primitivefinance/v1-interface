@@ -25,9 +25,9 @@ const NewMarketCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const [long, setLong] = useState(true)
-  const [price, setPrice] = useState()
+  const [price, setPrice] = useState('0.00')
   const { library } = useWeb3React()
-  const tokenBalance = useTokenBalance(item.tokenAddress)
+  const tokenBalance = useTokenBalance(item.address)
 
   const clear = () => {
     onRemoveItem(item)
@@ -55,7 +55,7 @@ const NewMarketCard: React.FC = () => {
   const handleChangePrice = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
-        setPrice(null)
+        setPrice('0.00')
       }
       if (Number(e.currentTarget.value)) {
         setPrice(e.currentTarget.value)
@@ -68,7 +68,7 @@ const NewMarketCard: React.FC = () => {
       Math.round((+tokenBalance / +price + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
-  const exp = new Date(item.expiry * 1000)
+  // const exp = new Date(item.expiry.toFixed() * 1000)
   const isOrderItem = (x: OrderItem | NewOptionItem): x is OrderItem => {
     if (!(x as OrderItem).id) {
       return true
@@ -82,7 +82,7 @@ const NewMarketCard: React.FC = () => {
     <Card>
       <CardTitle>
         <StyledTitle>
-          {`Create an ${item.asset} Option`}
+          {`Create an ${item.asset.toUpperCase()} Option`}
           <></>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>
@@ -106,11 +106,7 @@ const NewMarketCard: React.FC = () => {
         <Spacer />
         <Label text={`Opening Price (LP token / ${item.asset})`} />
         <Spacer size="sm" />
-        <Input
-          quantity={price}
-          placeholder="0.00"
-          onChange={handleChangePrice}
-        />
+        <Input value={price} placeholder="0.00" onChange={handleChangePrice} />
         <Spacer />
         <PriceInput
           title={`Total ${item.asset} Deposit`}

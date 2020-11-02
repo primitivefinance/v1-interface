@@ -8,7 +8,7 @@ const OrderContext = createContext<OrderContextValues>({
   item: EmptyAttributes,
   orderType: '',
   onAddItem: (item: OrderItem | NewOptionItem, orderType: string) => {},
-  onChangeItem: (item: OrderItem, orderType: string) => {},
+  onChangeItem: (item: OrderItem | NewOptionItem, orderType: string) => {},
   onRemoveItem: (item: OrderItem | NewOptionItem) => {},
   submitOrder: async (
     provider: Web3Provider,
