@@ -10,7 +10,7 @@ export class Token extends Asset {
   public constructor(
     chainId: number,
     address: string,
-    decimals: number,
+    decimals?: number,
     name?: string,
     symbol?: string
   ) {
