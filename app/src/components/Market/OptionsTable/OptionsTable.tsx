@@ -82,7 +82,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {options[type].length >= 0 ? (
+        {!options.loading ? (
           <TableBody>
             {options[type].map((option) => {
               const {
