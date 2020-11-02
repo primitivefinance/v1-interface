@@ -228,7 +228,41 @@ export class Uniswap {
         value = '0'
 
         contractsToApprove = [uniswapConnectorAddress]
-        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
+      case Operation.REMOVE_LIQUIDITY_CLOSE:
+        amountAMin = ethers.BigNumber.from(trade.inputAmount.quantity)
+          .mul(trade.reserves[0])
+          .div(trade.totalSupply)
+        amountBMin = ethers.BigNumber.from(trade.inputAmount.quantity)
+          .mul(trade.reserves[1])
+          .div(trade.totalSupply)
+
+        amountAMin = trade.calcMinimumOutSlippage(
+          amountAMin.toString(),
+          tradeSettings.slippage
+        )
+        amountBMin = trade.calcMinimumOutSlippage(
+          amountBMin.toString(),
+          tradeSettings.slippage
+        )
+        contract = new ethers.Contract(
+          UNISWAP_ROUTER02_V2,
+          UniswapV2Router02.abi,
+          trade.signer
+        )
+        methodName = 'removeShortLiquidityThenCloseOptions'
+        args = [
+          trade.option.address,
+          trade.path[1],
+          trade.inputAmount.quantity.toString(),
+          amountAMin.toString(),
+          amountBMin.toString(),
+          to,
+          deadline,
+        ]
+        value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
         break
     }
 

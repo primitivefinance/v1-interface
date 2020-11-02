@@ -80,6 +80,11 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       capitalLabel = 'LP Token'
       tokenAddress = stablecoinAddress
       break
+    case Operation.REMOVE_LIQUIDITY:
+      title = 'Remove Liquidity and Close Options'
+      capitalLabel = 'LP Token'
+      tokenAddress = stablecoinAddress
+      break
     case Operation.CLOSE_LONG:
       title = 'Close Long'
       capitalLabel = ''
