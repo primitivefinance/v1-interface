@@ -127,7 +127,7 @@ const Options: React.FC = (props) => {
           try {
             const option = await Protocol.getOption(
               chainId,
-              IRegistry.parseLog(log).args.optionAddress,
+              registry.interface.parseLog(log).args.optionAddress,
               provider
             )
             if (option.optionParameters.base.asset.symbol !== assetName) return
