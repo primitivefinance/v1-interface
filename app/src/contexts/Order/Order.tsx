@@ -300,83 +300,6 @@ const Order: React.FC = (props) => {
     }
   }
 
-  // Needs to be updated
-  const handleCreateOption = async (
-    provider: Web3Provider,
-    asset,
-    isCallType,
-    expiry,
-    strike
-  ) => {
-    const signer = await provider.getSigner()
-
-    //const tx = await create(signer, asset, isCallType, expiry, strike)
-    let tx
-    if (tx.hash) {
-      addTransaction(chainId, {
-        hash: tx.hash,
-        addedTime: now(),
-        from: account,
-      })
-    }
-  }
-
-  const handleMintTestTokens = async (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => {
-    const signer = await provider.getSigner()
-
-    //const tx = await mintTestToken(signer, optionAddress, quantity)
-    let tx
-    if (tx.hash) {
-      addTransaction(chainId, {
-        hash: tx.hash,
-        addedTime: now(),
-        from: account,
-      })
-    }
-  }
-
-  const handleProvideLiquidity = async (
-    provider: Web3Provider,
-    optionAddress: string,
-    min_l: number,
-    max_tokens: number
-  ) => {
-    const signer = await provider.getSigner()
-
-    //const tx = await mintTestToken(signer, optionAddress, quantity)
-    let tx
-    if (tx.hash) {
-      addTransaction(chainId, {
-        hash: tx.hash,
-        addedTime: now(),
-        from: account,
-      })
-    }
-  }
-
-  const handleWithdrawLiquidity = async (
-    provider: Web3Provider,
-    optionAddress: string,
-    min_l: number,
-    min_tokens: number
-  ) => {
-    const signer = await provider.getSigner()
-
-    //const tx = await mintTestToken(signer, optionAddress, quantity)
-    let tx
-    if (tx.hash) {
-      addTransaction(chainId, {
-        hash: tx.hash,
-        addedTime: now(),
-        from: account,
-      })
-    }
-  }
-
   return (
     <OrderContext.Provider
       value={{
@@ -386,10 +309,6 @@ const Order: React.FC = (props) => {
         onChangeItem: handleChangeItem,
         onRemoveItem: handleRemoveItem,
         submitOrder: handleSubmitOrder,
-        createOption: handleCreateOption,
-        mintTestTokens: handleMintTestTokens,
-        provideLiquidity: handleProvideLiquidity,
-        withdrawLiquidity: handleWithdrawLiquidity,
       }}
     >
       {props.children}
