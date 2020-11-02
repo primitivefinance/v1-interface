@@ -246,8 +246,8 @@ export class Uniswap {
           tradeSettings.slippage
         )
         contract = new ethers.Contract(
-          UNISWAP_ROUTER02_V2,
-          UniswapV2Router02.abi,
+          uniswapConnectorAddress,
+          UniswapConnector.abi,
           trade.signer
         )
         methodName = 'removeShortLiquidityThenCloseOptions'
@@ -263,6 +263,7 @@ export class Uniswap {
         value = '0'
 
         contractsToApprove = [uniswapConnectorAddress]
+        transaction.tokensToApprove = [trade.option.address]
         break
     }
 
