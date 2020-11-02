@@ -26,17 +26,17 @@ const OrderContent: React.FC = () => {
   if (orderType === 'SHORT') {
     return <Submit orderType={Operation.SHORT} />
   }
-  if (orderType === 'M_SELL') {
-    return <Submit orderType={Operation.EXERCISE} />
-  }
   if (orderType === 'TEST') {
     return <Test />
   }
-  if (orderType === 'LP') {
+  if (orderType === 'ADD_LIQUIDITY') {
     return <Submit orderType={Operation.ADD_LIQUIDITY} />
   }
   if (orderType === 'REMOVE_LIQUIDITY') {
     return <Submit orderType={Operation.REMOVE_LIQUIDITY} />
+  }
+  if (orderType === 'REMOVE_LIQUIDITY_CLOSE') {
+    return <Submit orderType={Operation.REMOVE_LIQUIDITY_CLOSE} />
   }
   if (orderType === 'EXEC') {
     return <Submit orderType={Operation.EXERCISE} />

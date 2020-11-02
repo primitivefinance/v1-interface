@@ -247,13 +247,31 @@ const Order: React.FC = (props) => {
           assetAddresses[2], // redeem
           assetAddresses[0], // underlying
         ]
-        // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-        trade.amountsOut = await trade.getAmountsOut(
+        // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
+        trade.reserves = await trade.getReserves(
           signer,
           factory,
-          trade.inputAmount.quantity,
-          trade.path
+          trade.path[0],
+          trade.path[1]
         )
+        trade.totalSupply = await trade.getTotalSupply(
+          signer,
+          factory,
+          trade.path[0],
+          trade.path[1]
+        )
+        transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+        transaction.tokensToApprove = [
+          await factory.getPair(trade.path[0], trade.path[1]),
+        ] // need to approve LP token
+        break
+      case Operation.REMOVE_LIQUIDITY_CLOSE:
+        // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
+        // with the path of underlyingTokens to redeemTokens.
+        trade.path = [
+          assetAddresses[2], // redeem
+          assetAddresses[0], // underlying
+        ]
         // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
         trade.reserves = await trade.getReserves(
           signer,

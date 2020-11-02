@@ -156,7 +156,7 @@ const OrderOptions: React.FC = () => {
         </Box>
         <Spacer size="sm" />
         <Box row justifyContent="flex-start" alignItems="center">
-          <Button size="sm" onClick={() => change('LP')}>
+          <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
             Provide Liquidity
           </Button>
           <Spacer size="md" />
