@@ -102,35 +102,35 @@ export class Trade {
   }
 
   public sortTokens = (tokenA, tokenB) => {
-    let tokens = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
+    const tokens = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     return tokens
   }
 
   public getTotalSupply = async (signer, factory, tokenA, tokenB) => {
-    let tokens = this.sortTokens(tokenA, tokenB)
-    let pairAddress = await factory.getPair(tokens[0], tokens[1])
-    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
-    let totalSupply = await pair.totalSupply()
+    const tokens = this.sortTokens(tokenA, tokenB)
+    const pairAddress = await factory.getPair(tokens[0], tokens[1])
+    const pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    const totalSupply = await pair.totalSupply()
     return totalSupply
   }
 
   public getReserves = async (signer, factory, tokenA, tokenB) => {
-    let tokens = this.sortTokens(tokenA, tokenB)
-    let token0 = tokens[0]
-    let pairAddress = await factory.getPair(tokens[0], tokens[1])
-    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    const tokens = this.sortTokens(tokenA, tokenB)
+    const token0 = tokens[0]
+    const pairAddress = await factory.getPair(tokens[0], tokens[1])
+    const pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
     let reserves = await pair.getReserves()
-    let _reserve0 = reserves._reserve0
-    let _reserve1 = reserves._reserve1
+    const _reserve0 = reserves._reserve0
+    const _reserve1 = reserves._reserve1
     reserves =
       tokenA == token0 ? [_reserve0, _reserve1] : [_reserve1, _reserve0]
     return [reserves[0], reserves[1]]
   }
 
   public getAmountsOut = async (signer, factory, amountIn, path) => {
-    let amounts = [amountIn]
+    const amounts = [amountIn]
     for (let i = 0; i < path.length - 1; i++) {
-      let [reserveIn, reserveOut] = await this.getReserves(
+      const [reserveIn, reserveOut] = await this.getReserves(
         signer,
         factory,
         path[i],
@@ -144,19 +144,19 @@ export class Trade {
   }
 
   public static getAmountOut = (amountIn, reserveIn, reserveOut) => {
-    let amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
-    let numerator = amountInWithFee.mul(
+    const amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
+    const numerator = amountInWithFee.mul(
       ethers.BigNumber.from(reserveOut.toString())
     )
-    let denominator = ethers.BigNumber.from(reserveIn.toString())
+    const denominator = ethers.BigNumber.from(reserveIn.toString())
       .mul(1000)
       .add(amountInWithFee)
-    let amountOut = numerator.div(denominator)
+    const amountOut = numerator.div(denominator)
     return amountOut
   }
 
   public static getAmountsOutPure = (amountIn, path, reserveIn, reserveOut) => {
-    let amounts = [amountIn]
+    const amounts = [amountIn]
     for (let i = 0; i < path.length; i++) {
       amounts[i + 1] = Trade.getAmountOut(amounts[i], reserveIn, reserveOut)
     }
@@ -164,9 +164,9 @@ export class Trade {
   }
 
   public getAmountsIn = async (signer, factory, amountOut, path) => {
-    let amounts = ['', amountOut]
+    const amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
-      let [reserveIn, reserveOut] = await this.getReserves(
+      const [reserveIn, reserveOut] = await this.getReserves(
         signer,
         factory,
         path[i - 1],
@@ -179,14 +179,14 @@ export class Trade {
   }
 
   public static getAmountIn = (amountOut, reserveIn, reserveOut) => {
-    let numerator = reserveIn.mul(amountOut).mul(1000)
-    let denominator = reserveOut.sub(amountOut).mul(997)
-    let amountIn = numerator.div(denominator).add(1)
+    const numerator = reserveIn.mul(amountOut).mul(1000)
+    const denominator = reserveOut.sub(amountOut).mul(997)
+    const amountIn = numerator.div(denominator).add(1)
     return amountIn
   }
 
   public static getAmountsInPure = (amountOut, path, reserveIn, reserveOut) => {
-    let amounts = ['', amountOut]
+    const amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
       amounts[i - 1] = Trade.getAmountIn(amounts[i], reserveIn, reserveOut)
     }
@@ -194,7 +194,7 @@ export class Trade {
     return amounts
   }
 
-  public static getPremium = (
+  public getPremium = (
     quantityOptions,
     base,
     quote,
@@ -202,25 +202,25 @@ export class Trade {
     reserves
   ) => {
     // PREMIUM MATH
-    let redeemsMinted = ethers.BigNumber.from(quantityOptions)
+    const redeemsMinted = ethers.BigNumber.from(quantityOptions)
       .mul(quote)
       .div(base)
-    let amountsIn = Trade.getAmountsInPure(
+    const amountsIn = Trade.getAmountsInPure(
       quantityOptions,
       path,
       reserves[0],
       reserves[1]
     )
-    let redeemsRequired = amountsIn[0]
-    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
+    const redeemsRequired = amountsIn[0]
+    const redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
     // if redeemCost > 0
-    let amountsOut = Trade.getAmountsOutPure(
+    const amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
       path,
       reserves[0],
       reserves[1]
     )
-    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    const premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
     return premium
   }
 
@@ -231,29 +231,29 @@ export class Trade {
     reserves
   ) => {
     // PREMIUM MATH
-    let quantity = parseEther('1')
-    let redeemsMinted = ethers.BigNumber.from(quantity).mul(quote).div(base)
-    let amountsIn = Trade.getAmountsInPure(
+    const quantity = parseEther('1')
+    const redeemsMinted = ethers.BigNumber.from(quantity).mul(quote).div(base)
+    const amountsIn = Trade.getAmountsInPure(
       quantity,
       path,
       reserves[0],
       reserves[1]
     )
-    let redeemsRequired = amountsIn[0]
-    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
+    const redeemsRequired = amountsIn[0]
+    const redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
     // if redeemCost > 0
-    let amountsOut = Trade.getAmountsOutPure(
+    const amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
       path,
       reserves[0],
       reserves[1]
     )
-    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    const premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
     return premium
   }
 
   public quote = (amountA, reserveA, reserveB) => {
-    let amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    const amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
     return amountB
   }
 }
