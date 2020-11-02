@@ -20,10 +20,10 @@ const OrderContent: React.FC = () => {
   const { orderType } = useOrders()
 
   // I know this should be a switch -> yes
-  if (orderType === 'BUY') {
+  if (orderType === 'LONG') {
     return <Submit orderType={Operation.LONG} />
   }
-  if (orderType === 'SELL') {
+  if (orderType === 'SHORT') {
     return <Submit orderType={Operation.SHORT} />
   }
   if (orderType === 'M_SELL') {
@@ -35,11 +35,17 @@ const OrderContent: React.FC = () => {
   if (orderType === 'LP') {
     return <Submit orderType={Operation.ADD_LIQUIDITY} />
   }
-  if (orderType === 'W_LP') {
+  if (orderType === 'REMOVE_LIQUIDITY') {
     return <Submit orderType={Operation.REMOVE_LIQUIDITY} />
   }
   if (orderType === 'EXEC') {
     return <Submit orderType={Operation.EXERCISE} />
+  }
+  if (orderType === 'CLOSE_LONG') {
+    return <Submit orderType={Operation.CLOSE_LONG} />
+  }
+  if (orderType === 'CLOSE_SHORT') {
+    return <Submit orderType={Operation.CLOSE_SHORT} />
   }
   if (orderType === '') {
     return <OrderOptions />

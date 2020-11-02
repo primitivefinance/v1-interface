@@ -85,16 +85,16 @@ const OrderOptions: React.FC = () => {
             <Label text={'Long Tokens'} />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('BUY')}>
+          <Button full size="sm" onClick={() => change('LONG')}>
             Open Long
           </Button>
           <Spacer size="sm" />
           <Button
             full
-            disabled={longBalance ? true : false}
+            disabled={longBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('BUY')}
+            onClick={() => change('CLOSE_LONG')}
           >
             Close Long
           </Button>
@@ -104,16 +104,16 @@ const OrderOptions: React.FC = () => {
             <Label text={'Short Tokens'} />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('BUY')}>
+          <Button full size="sm" onClick={() => change('SHORT')}>
             Open Short
           </Button>
           <Spacer size="sm" />
           <Button
             full
-            disabled={shortBalance ? true : false}
+            disabled={shortBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('BUY')}
+            onClick={() => change('CLOSE_SHORT')}
           >
             Close Short
           </Button>
@@ -161,15 +161,15 @@ const OrderOptions: React.FC = () => {
           </Button>
           <Spacer size="md" />
           {!longLPBalance ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => change('W_LP')}
-            >
+            <Button size="sm" variant="secondary" disabled>
               Withdraw Liquidity
             </Button>
           ) : (
-            <Button size="sm" variant="secondary" disabled>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => change('REMOVE_LIQUIDITY')}
+            >
               Withdraw Liquidity
             </Button>
           )}

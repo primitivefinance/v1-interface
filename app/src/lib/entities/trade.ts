@@ -6,49 +6,98 @@ import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 
 export class Trade {
   public readonly option: Option
-  public readonly inputAmount: Quantity
+  public inputAmount: Quantity
+  public outputAmount: Quantity
+  public path: string[]
+  public reserves: string[] | ethers.BigNumber[]
+  public totalSupply: string
+  public amountsIn: string[]
+  public amountsOut: string[]
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
     inputAmount: Quantity,
+    outputAmount: Quantity,
+    path: string[],
+    reserves: string[] | ethers.BigNumber[],
+    totalSupply: string,
+    amountsIn: string[],
+    amountsOut: string[],
     operation: Operation,
     signer: ethers.Signer
   ) {
     this.option = option
     this.inputAmount = inputAmount
+    this.outputAmount = outputAmount
+    this.path = path
+    this.reserves = reserves
+    this.totalSupply = totalSupply
+    this.amountsIn = amountsIn
+    this.amountsOut = amountsOut
     this.operation = operation ? operation : null
     this.signer = signer
   }
 
-  public maximumAmountIn(slippagePercent: string): Quantity {
+  public calcMaximumInSlippage(
+    amount: any,
+    slippagePercent: string
+  ): ethers.ethers.BigNumber {
     if (this.operation === Operation.SHORT) {
+      return amount
+    }
+    const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
+    const amountIn = ethers.BigNumber.from(amount)
+    const one = ethers.BigNumber.from(1000)
+    const slippageAdjustedValue = amountIn.mul(one.add(slippage)).div(1000)
+    const formattedValue = slippageAdjustedValue
+    return formattedValue
+  }
+
+  public calcMinimumOutSlippage(
+    amount: any,
+    slippagePercent: string
+  ): ethers.ethers.BigNumber {
+    if (
+      this.operation === Operation.SHORT ||
+      this.operation === Operation.ADD_LIQUIDITY
+    ) {
+      return amount
+    }
+    const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
+    const amountIn = ethers.BigNumber.from(amount)
+    const one = ethers.BigNumber.from(1000)
+    const slippageAdjustedValue = amountIn.mul(one.sub(slippage)).div(1000)
+    const formattedValue = slippageAdjustedValue
+    return formattedValue
+  }
+
+  public maximumAmountIn(slippagePercent: string): Quantity {
+    if (
+      this.operation === Operation.SHORT ||
+      this.operation === Operation.CLOSE_SHORT
+    ) {
       return this.inputAmount
     }
-    console.log(ethers.BigNumber.isBigNumber(slippagePercent), slippagePercent)
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
     const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
     const one = ethers.BigNumber.from(1000)
     const slippageAdjustedValue = amountIn.mul(one.add(slippage)).div(1000)
     const formattedValue = slippageAdjustedValue
-    console.log(`max amount in: ${formattedValue.toString()}`)
     return new Quantity(this.inputAmount.asset, formattedValue)
   }
 
   public minimumAmountOut(slippagePercent: string): Quantity {
     if (this.operation === Operation.LONG) {
-      console.log(`min amount out: ${this.inputAmount.quantity.toString()}`)
-      return this.inputAmount
+      return this.outputAmount
     }
-    console.log(ethers.BigNumber.isBigNumber(slippagePercent))
-    const slippage = ethers.BigNumber.from(slippagePercent.toString())
-    const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
-    const one = ethers.BigNumber.from(1)
-    const slippageAdjustedValue = amountIn.mul(one.add(slippage))
+    const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
+    const amountIn = ethers.BigNumber.from(this.outputAmount.quantity)
+    const one = ethers.BigNumber.from(1000)
+    const slippageAdjustedValue = amountIn.mul(one.sub(slippage)).div(1000)
     const formattedValue = slippageAdjustedValue
-    console.log(`min amount out: ${formattedValue.toString()}`)
-    return new Quantity(this.inputAmount.asset, formattedValue)
+    return new Quantity(this.outputAmount.asset, formattedValue)
   }
 
   public sortTokens = (tokenA, tokenB) => {
@@ -56,14 +105,19 @@ export class Trade {
     return tokens
   }
 
+  public getTotalSupply = async (signer, factory, tokenA, tokenB) => {
+    let tokens = this.sortTokens(tokenA, tokenB)
+    let pairAddress = await factory.getPair(tokens[0], tokens[1])
+    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    let totalSupply = await pair.totalSupply()
+    return totalSupply
+  }
+
   public getReserves = async (signer, factory, tokenA, tokenB) => {
     let tokens = this.sortTokens(tokenA, tokenB)
     let token0 = tokens[0]
-    let pair = new ethers.Contract(
-      '0x3269931d3108603ba63BDD401Fd6e3E0C6b90eb7',
-      UniswapV2Pair.abi,
-      signer
-    )
+    let pairAddress = await factory.getPair(tokens[0], tokens[1])
+    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
     let reserves = await pair.getReserves()
     let _reserve0 = reserves._reserve0
     let _reserve1 = reserves._reserve1
@@ -74,19 +128,17 @@ export class Trade {
 
   public getAmountsOut = async (signer, factory, amountIn, path) => {
     let amounts = [amountIn]
-    console.log('getting amounts')
-    for (let i = 0; i < path.length; i++) {
-      console.log(path[0], path[1])
+    for (let i = 0; i < path.length - 1; i++) {
       let [reserveIn, reserveOut] = await this.getReserves(
         signer,
         factory,
-        path[0],
-        path[1]
+        path[i],
+        path[i + 1]
       )
       console.log(reserveIn, reserveOut)
       amounts.push(this.getAmountOut(amounts[i], reserveIn, reserveOut))
     }
-    console.log('got maounts')
+    console.log(amounts)
     return amounts
   }
 
@@ -100,5 +152,79 @@ export class Trade {
       .add(amountInWithFee)
     let amountOut = numerator.div(denominator)
     return amountOut
+  }
+
+  public getAmountsOutPure = (amountIn, path, reserveIn, reserveOut) => {
+    let amounts = [amountIn]
+    for (let i = 0; i < path.length; i++) {
+      amounts[i + 1] = this.getAmountOut(amounts[i], reserveIn, reserveOut)
+    }
+    return amounts
+  }
+
+  public getAmountsIn = async (signer, factory, amountOut, path) => {
+    let amounts = ['', amountOut]
+    for (let i = path.length - 1; i > 0; i--) {
+      let [reserveIn, reserveOut] = await this.getReserves(
+        signer,
+        factory,
+        path[i - 1],
+        path[i]
+      )
+      amounts[i - 1] = this.getAmountIn(amounts[i], reserveIn, reserveOut)
+    }
+
+    return amounts
+  }
+
+  public getAmountIn = (amountOut, reserveIn, reserveOut) => {
+    let numerator = reserveIn.mul(amountOut).mul(1000)
+    let denominator = reserveOut.sub(amountOut).mul(997)
+    let amountIn = numerator.div(denominator).add(1)
+    return amountIn
+  }
+
+  public getAmountsInPure = (amountOut, path, reserveIn, reserveOut) => {
+    let amounts = ['', amountOut]
+    for (let i = path.length - 1; i > 0; i--) {
+      amounts[i - 1] = this.getAmountIn(amounts[i], reserveIn, reserveOut)
+    }
+
+    return amounts
+  }
+
+  public getPremium = (
+    quantityOptions,
+    base,
+    quote,
+    path, // redeem -> underlying
+    reserves
+  ) => {
+    // PREMIUM MATH
+    let redeemsMinted = ethers.BigNumber.from(quantityOptions)
+      .mul(quote)
+      .div(base)
+    let amountsIn = this.getAmountsInPure(
+      quantityOptions,
+      path,
+      reserves[0],
+      reserves[1]
+    )
+    let redeemsRequired = amountsIn[0]
+    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
+    // if redeemCost > 0
+    let amountsOut = this.getAmountsOutPure(
+      redeemCostRemaining,
+      path,
+      reserves[0],
+      reserves[1]
+    )
+    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    return premium
+  }
+
+  public quote = (amountA, reserveA, reserveB) => {
+    let amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    return amountB
   }
 }

@@ -77,6 +77,17 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       break
     case Operation.REMOVE_LIQUIDITY:
       title = 'Remove Liquidity'
+      capitalLabel = 'LP Token'
+      tokenAddress = stablecoinAddress
+      break
+    case Operation.CLOSE_LONG:
+      title = 'Close Long'
+      capitalLabel = ''
+      tokenAddress = stablecoinAddress
+      break
+    case Operation.CLOSE_SHORT:
+      title = 'Close Short'
+      capitalLabel = ''
       tokenAddress = stablecoinAddress
       break
     default:
@@ -146,7 +157,17 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         </>
       )}
       <Spacer />
-      <LineItem label={`${capitalLabel} Power`} data={tokenBalance} units="$" />
+
+      {capitalLabel.length > 0 ? (
+        <LineItem
+          label={`${capitalLabel} Power`}
+          data={tokenBalance}
+          units="$"
+        />
+      ) : (
+        <> </>
+      )}
+
       <Spacer />
       {orderType === Operation.EXERCISE ? (
         <Exercise
@@ -159,7 +180,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <>
           <LineItem
             label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
-            data={+item.price * +quantity}
+            data={+item?.price * +quantity}
             units={`${sign ? sign : ''} $`}
           />
           <Spacer />
