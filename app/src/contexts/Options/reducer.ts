@@ -11,6 +11,7 @@ export const initialState: OptionsState = {
   options: {
     calls: [EmptyAttributes],
     puts: [EmptyAttributes],
+    loading: true,
     reservesTotal: 0,
   },
 }

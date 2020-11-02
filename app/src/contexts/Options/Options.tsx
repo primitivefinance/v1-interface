@@ -55,10 +55,10 @@ const Options: React.FC = (props) => {
    * @param option The address of the option token to get a uniswap pair of.
    */
   const getPairData = useCallback(async (provider, option: Option) => {
-    let optionAddress = option.address
-    let parameters = option.optionParameters
-    let base = parameters.base.quantity
-    let quote = parameters.quote.quantity
+    const optionAddress = option.address
+    const parameters = option.optionParameters
+    const base = parameters.base.quantity
+    const quote = parameters.quote.quantity
     let premium = 0
 
     // Check to make sure we are connected to a web3 provider.
@@ -79,7 +79,7 @@ const Options: React.FC = (props) => {
         IUniswapV2Pair.abi,
         provider
       ).getReserves()
-      let path = [option.assetAddresses[2], option.assetAddresses[0]] // 0 = underlying, 1 = strike ,2 = redeem
+      const path = [option.assetAddresses[2], option.assetAddresses[0]] // 0 = underlying, 1 = strike ,2 = redeem
       premium = Trade.getSpotPremium(base, quote, path, [reserves0, reserves1])
       const balances = tokenA.sortsBefore(tokenB)
         ? [reserves0, reserves1]
@@ -127,7 +127,7 @@ const Options: React.FC = (props) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
-      let pairReserveTotal: BigNumberish = 0
+      const pairReserveTotal: BigNumberish = 0
       let breakEven: BigNumberish
 
       provider.getLogs(filter).then((logs) => {
@@ -138,7 +138,7 @@ const Options: React.FC = (props) => {
               registry.interface.parseLog(log).args.optionAddress,
               provider
             )
-            let baseAssetSymbol = option.optionParameters.base.asset.symbol
+            const baseAssetSymbol = option.optionParameters.base.asset.symbol
             switch (assetName.toLowerCase()) {
               case 'eth':
                 assetName = 'WETH'
@@ -201,6 +201,7 @@ const Options: React.FC = (props) => {
             Object.assign(optionsObject, {
               calls: calls,
               puts: puts,
+              loading: false,
               reservesTotal: pairReserveTotal,
             })
 
