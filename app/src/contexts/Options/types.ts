@@ -6,25 +6,25 @@ export interface OptionsContextValues {
 export interface OptionsData {
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
-  reservesTotal: number
+  reservesTotal: BigNumberish
 }
 
 export type OptionsAttributes = {
-  breakEven: number
-  change: number
-  price: number
+  breakEven: BigNumberish
+  change: BigNumberish
+  premium: BigNumberish
   strike: BigNumberish
-  volume: number
-  reserve: number
+  volume: BigNumberish
+  reserve: BigNumberish
   address: string
   id: string
-  expiry: number
+  expiry: BigNumberish
 }
 
 export const EmptyAttributes = {
   breakEven: 0,
   change: 0,
-  price: 0,
+  premium: 0,
   strike: 0,
   volume: 0,
   reserve: 0,

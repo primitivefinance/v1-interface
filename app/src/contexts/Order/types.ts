@@ -42,12 +42,12 @@ export interface OrderContextValues {
 
 export interface OrderItem {
   address: string
-  breakEven: number
-  change: number
+  breakEven: BigNumberish
+  change: BigNumberish
   expiry: BigNumberish
-  price: number
+  premium: BigNumberish
   strike: BigNumberish
-  volume: number
+  volume: BigNumberish
   id: string
 }
 
