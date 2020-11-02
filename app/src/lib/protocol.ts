@@ -88,7 +88,7 @@ export class Protocol {
       expiry: parameters._expiry,
     }
 
-    return new Option(
+    let optionEntity: Option = new Option(
       optionParameters,
       chainId,
       address,
@@ -96,6 +96,14 @@ export class Protocol {
       'Primitive V1 Option',
       'PRM'
     )
+
+    optionEntity.assetAddresses = await new ethers.Contract(
+      address,
+      OptionContract.abi,
+      provider
+    ).getAssetAddresses()
+
+    return optionEntity
   }
 
   public static getOptionAddressFromCreate2(

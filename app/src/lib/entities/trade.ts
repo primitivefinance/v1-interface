@@ -3,6 +3,7 @@ import { Option } from './option'
 import { Operation } from '../constants'
 import { Quantity } from './quantity'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import { parseEther } from 'ethers/lib/utils'
 
 export class Trade {
   public readonly option: Option
@@ -136,13 +137,13 @@ export class Trade {
         path[i + 1]
       )
       console.log(reserveIn, reserveOut)
-      amounts.push(this.getAmountOut(amounts[i], reserveIn, reserveOut))
+      amounts.push(Trade.getAmountOut(amounts[i], reserveIn, reserveOut))
     }
     console.log(amounts)
     return amounts
   }
 
-  public getAmountOut = (amountIn, reserveIn, reserveOut) => {
+  public static getAmountOut = (amountIn, reserveIn, reserveOut) => {
     let amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
     let numerator = amountInWithFee.mul(
       ethers.BigNumber.from(reserveOut.toString())
@@ -154,10 +155,10 @@ export class Trade {
     return amountOut
   }
 
-  public getAmountsOutPure = (amountIn, path, reserveIn, reserveOut) => {
+  public static getAmountsOutPure = (amountIn, path, reserveIn, reserveOut) => {
     let amounts = [amountIn]
     for (let i = 0; i < path.length; i++) {
-      amounts[i + 1] = this.getAmountOut(amounts[i], reserveIn, reserveOut)
+      amounts[i + 1] = Trade.getAmountOut(amounts[i], reserveIn, reserveOut)
     }
     return amounts
   }
@@ -171,29 +172,29 @@ export class Trade {
         path[i - 1],
         path[i]
       )
-      amounts[i - 1] = this.getAmountIn(amounts[i], reserveIn, reserveOut)
+      amounts[i - 1] = Trade.getAmountIn(amounts[i], reserveIn, reserveOut)
     }
 
     return amounts
   }
 
-  public getAmountIn = (amountOut, reserveIn, reserveOut) => {
+  public static getAmountIn = (amountOut, reserveIn, reserveOut) => {
     let numerator = reserveIn.mul(amountOut).mul(1000)
     let denominator = reserveOut.sub(amountOut).mul(997)
     let amountIn = numerator.div(denominator).add(1)
     return amountIn
   }
 
-  public getAmountsInPure = (amountOut, path, reserveIn, reserveOut) => {
+  public static getAmountsInPure = (amountOut, path, reserveIn, reserveOut) => {
     let amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
-      amounts[i - 1] = this.getAmountIn(amounts[i], reserveIn, reserveOut)
+      amounts[i - 1] = Trade.getAmountIn(amounts[i], reserveIn, reserveOut)
     }
 
     return amounts
   }
 
-  public getPremium = (
+  public static getPremium = (
     quantityOptions,
     base,
     quote,
@@ -204,7 +205,7 @@ export class Trade {
     let redeemsMinted = ethers.BigNumber.from(quantityOptions)
       .mul(quote)
       .div(base)
-    let amountsIn = this.getAmountsInPure(
+    let amountsIn = Trade.getAmountsInPure(
       quantityOptions,
       path,
       reserves[0],
@@ -213,7 +214,35 @@ export class Trade {
     let redeemsRequired = amountsIn[0]
     let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
     // if redeemCost > 0
-    let amountsOut = this.getAmountsOutPure(
+    let amountsOut = Trade.getAmountsOutPure(
+      redeemCostRemaining,
+      path,
+      reserves[0],
+      reserves[1]
+    )
+    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    return premium
+  }
+
+  public static getSpotPremium = (
+    base,
+    quote,
+    path, // redeem -> underlying
+    reserves
+  ) => {
+    // PREMIUM MATH
+    let quantity = parseEther('1')
+    let redeemsMinted = ethers.BigNumber.from(quantity).mul(quote).div(base)
+    let amountsIn = Trade.getAmountsInPure(
+      quantity,
+      path,
+      reserves[0],
+      reserves[1]
+    )
+    let redeemsRequired = amountsIn[0]
+    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
+    // if redeemCost > 0
+    let amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
       path,
       reserves[0],

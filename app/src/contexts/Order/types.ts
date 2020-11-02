@@ -14,40 +14,16 @@ export interface OrderContextValues {
     quantity: number,
     operation: Operation
   ) => Promise<void>
-  createOption: (
-    provider: Web3Provider,
-    asset: string,
-    isCallType: boolean,
-    expiry: string,
-    strike: number
-  ) => Promise<void>
-  mintTestTokens: (
-    provider: Web3Provider,
-    optionAddress: string,
-    quantity: number
-  ) => Promise<void>
-  provideLiquidity: (
-    provider: Web3Provider,
-    optionAddress: string,
-    min_l: number,
-    max_tokens: number
-  ) => Promise<void>
-  withdrawLiquidity: (
-    provider: Web3Provider,
-    optionAddress: string,
-    min_l: number,
-    min_tokens: number
-  ) => Promise<void>
 }
 
 export interface OrderItem {
   address: string
-  breakEven: number
-  change: number
+  breakEven: BigNumberish
+  change: BigNumberish
   expiry: BigNumberish
-  price: number
+  premium: BigNumberish
   strike: BigNumberish
-  volume: number
+  volume: BigNumberish
   id: string
 }
 

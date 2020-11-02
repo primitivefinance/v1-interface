@@ -1,10 +1,15 @@
 import React, { useCallback, useReducer } from 'react'
-import ethers from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
+import {
+  Pair,
+  Token,
+  TokenAmount,
+  /* Trade,  */ TradeType,
+  Route,
+} from '@uniswap/sdk'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import Option from '@primitivefi/contracts/artifacts/Option.json'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -12,11 +17,11 @@ import OptionsContext from './context'
 import optionsReducer, { initialState, setOptions } from './reducer'
 import { EmptyAttributes, OptionsAttributes } from './types'
 
-import AssetAddresses from './assets.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { showThrottleMessage } from '@ethersproject/providers'
 import { Protocol } from '@/lib/protocol'
 import { STABLECOINS } from '@/constants/index'
+import { Trade, Option } from '@/lib/entities'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(optionsReducer, initialState)
@@ -26,26 +31,34 @@ const Options: React.FC = (props) => {
   const provider = library
 
   /**
-   * @dev Calculates the breakeven asset price depending on if the option is a call or put.
-   * @param strike The strike price of the option.
-   * @param price The current price of the option.
+   * @dev Calculates the breakeven asset premium depending on if the option is a call or put.
+   * @param strike The strike premium of the option.
+   * @param premium The current premium of the option.
    * @param isCall If the option is a call, if not a call, its a put.
    */
-  const calculateBreakeven = (strike, price, isCall) => {
+  const calculateBreakeven = (
+    strike: BigNumberish,
+    premium: BigNumberish,
+    isCall: boolean
+  ): BigNumberish => {
     let breakeven
     if (isCall) {
-      breakeven = price + strike
+      breakeven = BigNumber.from(premium).add(strike)
     } else {
-      breakeven = price + strike
+      breakeven = BigNumber.from(strike).sub(premium)
     }
     return Number(breakeven)
   }
 
   /**
-   * @dev Gets the execution price for 1 unit of option tokens and returns it.
-   * @param optionAddress The address of the option token to get a uniswap pair of.
+   * @dev Gets the execution premium for 1 unit of option tokens and returns it.
+   * @param option The address of the option token to get a uniswap pair of.
    */
-  const getPairData = useCallback(async (provider, optionAddress) => {
+  const getPairData = useCallback(async (provider, option: Option) => {
+    let optionAddress = option.address
+    let parameters = option.optionParameters
+    let base = parameters.base.quantity
+    let quote = parameters.quote.quantity
     let premium = 0
 
     // Check to make sure we are connected to a web3 provider.
@@ -57,20 +70,17 @@ const Options: React.FC = (props) => {
 
     const OPTION = new Token(chain, optionAddress, 18)
     const UNDERLYING = STABLECOINS[chainId]
-
-    // Fetcher currently calls default provider, which leads to post errors.
-    //const pair = await Fetcher.fetchPairData(STABLECOIN, OPTION)
-
     const tokenA = UNDERLYING
     const tokenB = OPTION
     try {
       const address = Pair.getAddress(tokenA, tokenB)
-
       const [reserves0, reserves1] = await new ethers.Contract(
         address,
         IUniswapV2Pair.abi,
         provider
       ).getReserves()
+      let path = [option.assetAddresses[2], option.assetAddresses[0]] // 0 = underlying, 1 = strike ,2 = redeem
+      premium = Trade.getSpotPremium(base, quote, path, [reserves0, reserves1])
       const balances = tokenA.sortsBefore(tokenB)
         ? [reserves0, reserves1]
         : [reserves1, reserves0]
@@ -79,25 +89,22 @@ const Options: React.FC = (props) => {
         new TokenAmount(tokenB, balances[1])
       )
 
-      const route = new Route([pair], UNDERLYING, OPTION)
-      const midPrice = Number(route.midPrice.toSignificant(6))
-
-      const unit = parseEther('1').toString()
-      const tokenAmount = new TokenAmount(OPTION, unit)
-      const trade = new Trade(route, tokenAmount, TradeType.EXACT_OUTPUT)
-
-      const executionPrice = Number(trade.executionPrice.toSignificant(6))
-
-      const reserve =
+      let reserve =
         Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
 
-      premium = executionPrice > midPrice ? executionPrice : midPrice
+      if (ethers.BigNumber.from(reserve).isZero()) {
+        reserve = 0
+      }
+
+      if (ethers.BigNumber.from(premium).isZero()) {
+        premium = 0
+      }
 
       return { premium, reserve }
     } catch {
-      const pre = 0
-      const def = 0
-      return { pre, def }
+      const premium = 0
+      const reserve = 0
+      return { premium, reserve }
     }
   }, [])
   // FIX
@@ -120,7 +127,8 @@ const Options: React.FC = (props) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
-      let pairReserveTotal = 0
+      let pairReserveTotal: BigNumberish = 0
+      let breakEven: BigNumberish
 
       provider.getLogs(filter).then((logs) => {
         const promises = logs.map(async (log) => {
@@ -130,33 +138,52 @@ const Options: React.FC = (props) => {
               registry.interface.parseLog(log).args.optionAddress,
               provider
             )
-            if (option.optionParameters.base.asset.symbol !== assetName) return
-            const { premium, reserve } = await getPairData(
-              provider,
-              option.address
-            )
-            pairReserveTotal += reserve
-            if (!option.isCall) {
+            let baseAssetSymbol = option.optionParameters.base.asset.symbol
+            switch (assetName.toLowerCase()) {
+              case 'eth':
+                assetName = 'WETH'
+                break
+              case 'ether':
+                assetName = 'WETH'
+                break
+              case 'ethereum':
+                assetName = 'WETH'
+                break
+            }
+            if (baseAssetSymbol !== assetName) return
+            const { premium, reserve } = await getPairData(provider, option)
+            if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
+            if (option.isCall) {
+              breakEven = calculateBreakeven(
+                option.strikePrice.quantity,
+                premium,
+                true
+              )
               calls.push({
-                breakEven: 0,
+                breakEven: breakEven,
                 change: 0,
-                price: 0,
+                premium: premium,
                 strike: option.strikePrice.quantity,
                 volume: 0,
-                reserve: 0,
+                reserve: reserve,
                 address: option.address,
                 expiry: option.expiry,
                 id: option.name,
               })
             }
-            if (!option.isPut) {
+            if (option.isPut) {
+              breakEven = calculateBreakeven(
+                option.strikePrice.quantity,
+                premium,
+                false
+              )
               puts.push({
-                breakEven: 0,
+                breakEven: breakEven,
                 change: 0,
-                price: 0,
+                premium: premium,
                 strike: option.strikePrice.quantity,
                 volume: 0,
-                reserve: 0,
+                reserve: reserve,
                 address: option.address,
                 expiry: option.expiry,
                 id: option.name,
@@ -205,17 +232,17 @@ const Options: React.FC = (props) => {
         // Initialize the values we need to grab.
         let breakEven = 0
         const change = 0
-        let price = 0
+        let premium = 0
         const strikePrice = 0
         const volume = 0
 
-        // Get the option price data from uniswap pair.
+        // Get the option premium data from uniswap pair.
         const { premium, reserve } = await getPairData(
           provider,
           address,
           underlying
         )
-        price = premium
+        premium = premium
         const reserveS = reserve
         const reserveL = reserve
         pairReserveTotal += reserve
@@ -229,13 +256,13 @@ const Options: React.FC = (props) => {
           arrayToPushTo = puts
         }
 
-        breakEven = calculateBreakeven(strike, price, isCall)
+        breakEven = calculateBreakeven(strike, premium, isCall)
 
         // Push the option object with the parsed data to the options call or puts array.
         arrayToPushTo.push({
           breakEven: breakEven,
           change: change,
-          price: price,
+          premium: premium,
           strike: strikePrice,
           volume: volume,
           longReserve: reserveL,

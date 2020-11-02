@@ -4,6 +4,7 @@ import { Asset } from './asset'
 import { Quantity } from './quantity'
 import ethers from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
+import { formatEther } from 'ethers/lib/utils'
 
 export interface OptionParameters {
   base: Quantity
@@ -83,9 +84,9 @@ export class Option extends Token {
     let baseValue = this.optionParameters.base.quantity
     let quoteValue = this.optionParameters.quote.quantity
     let strikePrice: Quantity
-    if (baseValue === '0') {
+    if (baseValue === '1') {
       strikePrice = this.optionParameters.quote
-    } else if (quoteValue === '0') {
+    } else if (quoteValue === '1') {
       strikePrice = this.optionParameters.base
     } else {
       let numerator = ethers.BigNumber.from(
@@ -104,30 +105,20 @@ export class Option extends Token {
 
   public get isCall(): boolean {
     let baseValue = this.optionParameters.base.quantity
-    let quoteValue = this.optionParameters.quote.quantity
-    let isCall: boolean
-    if (baseValue === '0') {
+    let isCall: boolean = false
+    if (+formatEther(baseValue) === 1) {
       isCall = true
-    } else if (quoteValue === '0') {
-      isCall = false
-    } else {
-      return null
     }
     return isCall
   }
 
   public get isPut(): boolean {
-    let baseValue = this.optionParameters.base.quantity
     let quoteValue = this.optionParameters.quote.quantity
-    let isCall: boolean
-    if (baseValue === '0') {
-      isCall = true
-    } else if (quoteValue === '0') {
-      isCall = false
-    } else {
-      return null
+    let isPut: boolean = false
+    if (+formatEther(quoteValue) === 1) {
+      isPut = true
     }
-    return isCall
+    return isPut
   }
 
   public getTimeToExpiry(): number {
