@@ -10,10 +10,10 @@ export class Trade {
   public inputAmount: Quantity
   public outputAmount: Quantity
   public path: string[]
-  public reserves: string[] | ethers.BigNumber[]
-  public totalSupply: string
-  public amountsIn: string[]
-  public amountsOut: string[]
+  public reserves: BigNumberish[] | ethers.BigNumber[]
+  public totalSupply: BigNumberish
+  public amountsIn: BigNumberish[]
+  public amountsOut: BigNumberish[]
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
@@ -22,10 +22,10 @@ export class Trade {
     inputAmount: Quantity,
     outputAmount: Quantity,
     path: string[],
-    reserves: string[] | ethers.BigNumber[],
-    totalSupply: string,
-    amountsIn: string[],
-    amountsOut: string[],
+    reserves: BigNumberish[] | ethers.BigNumber[],
+    totalSupply: BigNumberish,
+    amountsIn: BigNumberish[],
+    amountsOut: BigNumberish[],
     operation: Operation,
     signer: ethers.Signer
   ) {

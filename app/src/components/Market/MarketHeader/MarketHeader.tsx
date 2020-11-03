@@ -120,7 +120,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
             <Spacer size="sm" />
             <StyledPrice>
               {options?.reservesTotal !== 0 ? (
-                `$ ${formatBalance(options?.reservesTotal)}`
+                `$ ${formatBalance(options.reservesTotal)}`
               ) : (
                 <StyledLoadingBlock />
               )}

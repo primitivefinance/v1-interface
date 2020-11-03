@@ -7,20 +7,7 @@ import TestnetTrader from '@primitivefi/contracts/deployments/rinkeby/Trader.jso
 import WethConnectorArtifact from '@primitivefi/contracts/artifacts/WethConnector01.json'
 //import MainnetWethConnector from '@primitivefi/contracts/deployments/live_1/WethConnector01.json'
 import TestnetWethConnector from '@primitivefi/contracts/deployments/rinkeby/WethConnector01.json'
-
-export interface TradeSettings {
-  slippage: string
-  timeLimit: number
-  receiver: string
-  deadline: number
-}
-
-export interface SinglePositionParameters {
-  contract: ethers.Contract
-  methodName: string
-  args: (string | string[])[]
-  value: string
-}
+import { TradeSettings, SinglePositionParameters } from './types'
 
 /**
  * Represents the Primitive V1 Trader contract.

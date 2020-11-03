@@ -25,7 +25,7 @@ const NewMarketCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const [long, setLong] = useState(true)
-  const [price, setPrice] = useState()
+  const [premium, setPrice] = useState(0)
   const { library } = useWeb3React()
   const tokenBalance = useTokenBalance(item.tokenAddress)
 
@@ -58,17 +58,17 @@ const NewMarketCard: React.FC = () => {
         setPrice(null)
       }
       if (Number(e.currentTarget.value)) {
-        setPrice(e.currentTarget.value)
+        setPrice(Number(e.currentTarget.value))
       }
     },
     [setPrice]
   )
   const handleSetMax = () => {
     const max =
-      Math.round((+tokenBalance / +price + Number.EPSILON) * 100) / 100
+      Math.round((+tokenBalance / +premium + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
-  const exp = new Date(item.expiry * 1000)
+  const exp = new Date(+item.expiry * 1000)
   const isOrderItem = (x: OrderItem | NewOptionItem): x is OrderItem => {
     if (!(x as OrderItem).id) {
       return true
@@ -107,7 +107,7 @@ const NewMarketCard: React.FC = () => {
         <Label text={`Opening Price (LP token / ${item.asset})`} />
         <Spacer size="sm" />
         <Input
-          quantity={price}
+          quantity={premium}
           placeholder="0.00"
           onChange={handleChangePrice}
         />

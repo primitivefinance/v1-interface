@@ -45,7 +45,7 @@ const Test: React.FC = () => {
 
   const handleSetMax = () => {
     const max =
-      Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((+tokenBalance / +item.premium + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
   return (
@@ -64,7 +64,7 @@ const Test: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
-        <span>${item.price.toFixed(2)}</span>
+        <span>${item.premium.toFixed(2)}</span>
       </Box>
       <Spacer />
       <Box row justifyContent="flex-start"></Box>
@@ -85,7 +85,7 @@ const Test: React.FC = () => {
       <Box row justifyContent="space-between">
         <Label text="Total Credit" />
         <span>
-          {+quantity ? '+' : ''}${(+item.price * +quantity).toFixed(2)}
+          {+quantity ? '+' : ''}${(+item.premium * +quantity).toFixed(2)}
         </span>
       </Box>
       <Spacer />

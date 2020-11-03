@@ -7,23 +7,7 @@ import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
 import UniswapConnector from '@primitivefi/contracts/artifacts/UniswapConnector03.json'
 import UniswapConnectorTestnet from '@primitivefi/contracts/deployments/rinkeby/UniswapConnector03.json'
 //import UniswapConnectorMainnet from '@primitivefi/contracts/deployments/live_1/UniswapConnector03.json'
-
-export interface TradeSettings {
-  slippage: string
-  timeLimit: number
-  receiver: string
-  deadline: number
-  stablecoin?: string
-}
-
-export interface SinglePositionParameters {
-  contract: ethers.Contract
-  methodName: string
-  args: string[]
-  value: string
-  contractsToApprove?: string[]
-  tokensToApprove?: string[]
-}
+import { TradeSettings, SinglePositionParameters } from './types'
 
 /**
  * Represents the UniswapConnector contract.
@@ -63,7 +47,7 @@ export class Uniswap {
     switch (trade.operation) {
       case Operation.LONG:
         let orderQuantity: string = trade.inputAmount.quantity.toString()
-        let premium = trade.getPremium(
+        let premium = Trade.getPremium(
           orderQuantity,
           trade.option.optionParameters.base.quantity,
           trade.option.optionParameters.quote.quantity,
@@ -71,7 +55,7 @@ export class Uniswap {
           trade.reserves
         )
         premium = trade.calcMaximumInSlippage(premium, tradeSettings.slippage)
-        premium = premium > 0 ? premium : '0'
+        premium = premium.gt(0) ? premium.toString() : '0'
 
         contract = new ethers.Contract(
           uniswapConnectorAddress,
@@ -263,7 +247,7 @@ export class Uniswap {
         value = '0'
 
         contractsToApprove = [uniswapConnectorAddress]
-        transaction.tokensToApprove = [trade.option.address]
+        tokensToApprove = [trade.option.address]
         break
     }
 

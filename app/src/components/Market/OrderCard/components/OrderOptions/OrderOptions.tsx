@@ -118,32 +118,6 @@ const OrderOptions: React.FC = () => {
             Close Short
           </Button>
           <Spacer />
-          {/**
-           *  <Box row justifyContent="flex-start" alignItems="center">
-            <Label text={'Short LP Tokens'} />
-            <StyledBalance>{formatBalance(shortLPBalance)}</StyledBalance>
-          </Box>
-          <Spacer size="sm" />
-          <Button size="sm" onClick={() => change('LP')}>
-            Provide Liquidity
-          </Button>
-          <Spacer size="sm" />
-          {!shortLPBalance ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => change('W_LP')}
-            >
-              Withdraw Liquidity
-            </Button>
-          ) : (
-            <Button size="sm" variant="secondary" disabled>
-              Withdraw Liquidity
-            </Button>
-          )}
-           * 
-           * 
-           */}
         </StyledColumn>
         <Spacer />
 
