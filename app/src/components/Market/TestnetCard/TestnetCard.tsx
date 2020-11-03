@@ -13,17 +13,13 @@ import { useWeb3React } from '@web3-react/core'
 interface TestnetCardProps {}
 
 const TestnetCard: React.FC<TestnetCardProps> = () => {
-  const { item, mintTestTokens } = useOrders()
+  const { item } = useOrders()
   const { transactions } = useTransactions()
   const { library } = useWeb3React()
   useEffect(() => {}, [item])
 
   const handleMintTestTokens = async () => {
-    await mintTestTokens(
-      library,
-      '0xBa8980CA505E7f48a177BBfA3AB90c9F01699110',
-      100
-    )
+    return null
   }
 
   return (

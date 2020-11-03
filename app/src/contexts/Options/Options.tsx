@@ -59,7 +59,7 @@ const Options: React.FC = (props) => {
     let parameters = option.optionParameters
     let base = parameters.base.quantity
     let quote = parameters.quote.quantity
-    let premium = 0
+    let premium: BigNumberish = 0
 
     // Check to make sure we are connected to a web3 provider.
     if (!provider) {
@@ -92,11 +92,11 @@ const Options: React.FC = (props) => {
       let reserve =
         Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
 
-      if (ethers.BigNumber.from(reserve).isZero()) {
+      if (typeof reserve === 'undefined') {
         reserve = 0
       }
 
-      if (ethers.BigNumber.from(premium).isZero()) {
+      if (typeof premium === 'undefined') {
         premium = 0
       }
 

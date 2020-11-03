@@ -22,7 +22,7 @@ import {
 } from '../../components/Market'
 
 const mockOptions = [
-  { breakEven: 550, change: 0.075, price: 10, strike: 500, volume: 1000000 },
+  { breakEven: 550, change: 0.075, premium: 10, strike: 500, volume: 1000000 },
 ]
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {

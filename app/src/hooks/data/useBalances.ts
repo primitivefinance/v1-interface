@@ -34,7 +34,7 @@ export function useBalance(
   suspense = false
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): responseInterface<TokenAmount, any> {
-  const contract = useContract(library, account, token?.address, IERC20.abi)
+  const contract = useContract(token?.address, IERC20.abi)
 
   const result = useSWR(
     typeof address === 'string' && token && contract

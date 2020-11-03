@@ -1,5 +1,5 @@
 import React, { useCallback, useReducer } from 'react'
-import ethers from 'ethers'
+import ethers, { BigNumberish } from 'ethers'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -24,7 +24,8 @@ import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
 import { parseEther } from 'ethers/lib/utils'
 import { Asset, Trade, Quantity } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
-import { Uniswap, TradeSettings, SinglePositionParameters } from '@/lib/uniswap'
+import { Uniswap } from '@/lib/uniswap'
+import { TradeSettings, SinglePositionParameters } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 
 import executeTransaction from '@/lib/utils/executeTransaction'
@@ -96,10 +97,10 @@ const Order: React.FC = (props) => {
     optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
 
     let path: string[] = []
-    let amountsIn: string[] = []
-    let amountsOut: string[] = []
-    let reserves: string[] = []
-    let totalSupply: string
+    let amountsIn: BigNumberish[] = []
+    let amountsOut: BigNumberish[] = []
+    let reserves: BigNumberish[] = []
+    let totalSupply: BigNumberish
     const trade: Trade = new Trade(
       optionEntity,
       inputAmount,

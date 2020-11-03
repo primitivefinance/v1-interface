@@ -4,10 +4,11 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
+import { BigNumberish } from 'ethers'
 
 export interface PriceInputProps {
   title: string
-  quantity: string
+  quantity: BigNumberish
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
   onClick: () => void
 }

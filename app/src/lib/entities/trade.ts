@@ -1,4 +1,4 @@
-import ethers from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { Option } from './option'
 import { Operation } from '../constants'
 import { Quantity } from './quantity'
@@ -10,10 +10,10 @@ export class Trade {
   public inputAmount: Quantity
   public outputAmount: Quantity
   public path: string[]
-  public reserves: string[] | ethers.BigNumber[]
-  public totalSupply: string
-  public amountsIn: string[]
-  public amountsOut: string[]
+  public reserves: BigNumberish[] | ethers.BigNumber[]
+  public totalSupply: BigNumberish
+  public amountsIn: BigNumberish[]
+  public amountsOut: BigNumberish[]
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
@@ -22,10 +22,10 @@ export class Trade {
     inputAmount: Quantity,
     outputAmount: Quantity,
     path: string[],
-    reserves: string[] | ethers.BigNumber[],
-    totalSupply: string,
-    amountsIn: string[],
-    amountsOut: string[],
+    reserves: BigNumberish[] | ethers.BigNumber[],
+    totalSupply: BigNumberish,
+    amountsIn: BigNumberish[],
+    amountsOut: BigNumberish[],
     operation: Operation,
     signer: ethers.Signer
   ) {
@@ -101,12 +101,17 @@ export class Trade {
     return new Quantity(this.outputAmount.asset, formattedValue)
   }
 
-  public sortTokens = (tokenA, tokenB) => {
-    let tokens = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
+  public sortTokens = (tokenA: string, tokenB: string): string[] => {
+    let tokens: string[] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     return tokens
   }
 
-  public getTotalSupply = async (signer, factory, tokenA, tokenB) => {
+  public getTotalSupply = async (
+    signer: ethers.Signer,
+    factory: ethers.Contract,
+    tokenA: string,
+    tokenB: string
+  ): Promise<BigNumberish> => {
     let tokens = this.sortTokens(tokenA, tokenB)
     let pairAddress = await factory.getPair(tokens[0], tokens[1])
     let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
@@ -114,10 +119,18 @@ export class Trade {
     return totalSupply
   }
 
-  public getReserves = async (signer, factory, tokenA, tokenB) => {
+  public getReserves = async (
+    signer: ethers.Signer,
+    factory: ethers.Contract,
+    tokenA: string,
+    tokenB: string
+  ): Promise<BigNumberish[]> => {
     let tokens = this.sortTokens(tokenA, tokenB)
     let token0 = tokens[0]
     let pairAddress = await factory.getPair(tokens[0], tokens[1])
+    if (pairAddress === ethers.constants.AddressZero) {
+      return [0, 0]
+    }
     let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
     let reserves = await pair.getReserves()
     let _reserve0 = reserves._reserve0
@@ -127,8 +140,13 @@ export class Trade {
     return [reserves[0], reserves[1]]
   }
 
-  public getAmountsOut = async (signer, factory, amountIn, path) => {
-    let amounts = [amountIn]
+  public getAmountsOut = async (
+    signer: ethers.Signer,
+    factory: ethers.Contract,
+    amountIn: BigNumberish,
+    path: string[]
+  ): Promise<BigNumberish[]> => {
+    let amounts: BigNumberish[] = [amountIn]
     for (let i = 0; i < path.length - 1; i++) {
       let [reserveIn, reserveOut] = await this.getReserves(
         signer,
@@ -136,14 +154,16 @@ export class Trade {
         path[i],
         path[i + 1]
       )
-      console.log(reserveIn, reserveOut)
       amounts.push(Trade.getAmountOut(amounts[i], reserveIn, reserveOut))
     }
-    console.log(amounts)
     return amounts
   }
 
-  public static getAmountOut = (amountIn, reserveIn, reserveOut) => {
+  public static getAmountOut = (
+    amountIn: BigNumberish,
+    reserveIn: BigNumberish,
+    reserveOut: BigNumberish
+  ): BigNumberish => {
     let amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
     let numerator = amountInWithFee.mul(
       ethers.BigNumber.from(reserveOut.toString())
@@ -155,7 +175,12 @@ export class Trade {
     return amountOut
   }
 
-  public static getAmountsOutPure = (amountIn, path, reserveIn, reserveOut) => {
+  public static getAmountsOutPure = (
+    amountIn: BigNumberish,
+    path: string[],
+    reserveIn: BigNumberish,
+    reserveOut: BigNumberish
+  ): BigNumberish[] => {
     let amounts = [amountIn]
     for (let i = 0; i < path.length; i++) {
       amounts[i + 1] = Trade.getAmountOut(amounts[i], reserveIn, reserveOut)
@@ -163,7 +188,12 @@ export class Trade {
     return amounts
   }
 
-  public getAmountsIn = async (signer, factory, amountOut, path) => {
+  public getAmountsIn = async (
+    signer: ethers.Signer,
+    factory: ethers.Contract,
+    amountOut: BigNumberish,
+    path: string[]
+  ): Promise<BigNumberish[]> => {
     let amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
       let [reserveIn, reserveOut] = await this.getReserves(
@@ -178,14 +208,23 @@ export class Trade {
     return amounts
   }
 
-  public static getAmountIn = (amountOut, reserveIn, reserveOut) => {
-    let numerator = reserveIn.mul(amountOut).mul(1000)
-    let denominator = reserveOut.sub(amountOut).mul(997)
+  public static getAmountIn = (
+    amountOut: BigNumberish,
+    reserveIn: BigNumberish,
+    reserveOut: BigNumberish
+  ): BigNumberish => {
+    let numerator = BigNumber.from(reserveIn).mul(amountOut).mul(1000)
+    let denominator = BigNumber.from(reserveOut).sub(amountOut).mul(997)
     let amountIn = numerator.div(denominator).add(1)
     return amountIn
   }
 
-  public static getAmountsInPure = (amountOut, path, reserveIn, reserveOut) => {
+  public static getAmountsInPure = (
+    amountOut: BigNumberish,
+    path: string[],
+    reserveIn: BigNumberish,
+    reserveOut: BigNumberish
+  ): BigNumberish[] => {
     let amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
       amounts[i - 1] = Trade.getAmountIn(amounts[i], reserveIn, reserveOut)
@@ -195,12 +234,15 @@ export class Trade {
   }
 
   public static getPremium = (
-    quantityOptions,
-    base,
-    quote,
-    path, // redeem -> underlying
-    reserves
-  ) => {
+    quantityOptions: BigNumberish,
+    base: BigNumberish,
+    quote: BigNumberish,
+    path: string[], // redeem -> underlying
+    reserves: BigNumberish[]
+  ): BigNumberish => {
+    if (BigNumber.from(reserves[0]).isZero()) {
+      return 0
+    }
     // PREMIUM MATH
     let redeemsMinted = ethers.BigNumber.from(quantityOptions)
       .mul(quote)
@@ -212,7 +254,7 @@ export class Trade {
       reserves[1]
     )
     let redeemsRequired = amountsIn[0]
-    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
+    let redeemCostRemaining = BigNumber.from(redeemsRequired).sub(redeemsMinted)
     // if redeemCost > 0
     let amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
@@ -220,39 +262,29 @@ export class Trade {
       reserves[0],
       reserves[1]
     )
-    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    let premium = BigNumber.from(amountsOut[1])
+      .mul(100101)
+      .add(amountsOut[1])
+      .div(100000)
     return premium
   }
 
   public static getSpotPremium = (
-    base,
-    quote,
-    path, // redeem -> underlying
-    reserves
-  ) => {
-    // PREMIUM MATH
+    base: BigNumberish,
+    quote: BigNumberish,
+    path: string[], // redeem -> underlying
+    reserves: BigNumberish[]
+  ): BigNumberish => {
     let quantity = parseEther('1')
-    let redeemsMinted = ethers.BigNumber.from(quantity).mul(quote).div(base)
-    let amountsIn = Trade.getAmountsInPure(
-      quantity,
-      path,
-      reserves[0],
-      reserves[1]
-    )
-    let redeemsRequired = amountsIn[0]
-    let redeemCostRemaining = redeemsRequired.sub(redeemsMinted)
-    // if redeemCost > 0
-    let amountsOut = Trade.getAmountsOutPure(
-      redeemCostRemaining,
-      path,
-      reserves[0],
-      reserves[1]
-    )
-    let premium = amountsOut[1].mul(100101).add(amountsOut[1]).div(100000)
+    let premium = Trade.getPremium(quantity, base, quote, path, reserves)
     return premium
   }
 
-  public quote = (amountA, reserveA, reserveB) => {
+  public quote = (
+    amountA: BigNumberish,
+    reserveA: BigNumberish,
+    reserveB: BigNumberish
+  ): BigNumberish => {
     let amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
     return amountB
   }

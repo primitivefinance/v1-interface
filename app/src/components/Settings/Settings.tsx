@@ -10,7 +10,7 @@ import { useSlippage } from '@/hooks/user'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
-  const [slippage, setSlippage] = useSlippage('0.01')
+  const [slippage, setSlippage] = useSlippage()
 
   const onClick = () => {
     setOpen(true)

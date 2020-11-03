@@ -2,7 +2,7 @@ import ethers from 'ethers'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
 import { parseEther } from 'ethers/lib/utils'
-import { SinglePositionParameters } from '../uniswap'
+import { SinglePositionParameters } from '../types'
 const MIN_ALLOWANCE: ethers.BigNumber = parseEther('10000000')
 
 const checkAllowance = async (signer, tokenAddress, spenderAddress) => {

@@ -122,7 +122,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
 
   const handleSetMax = () => {
     const max =
-      Math.round((+tokenBalance / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((+tokenBalance / +item.premium + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
 
@@ -151,7 +151,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.price} units="$" />
+          <LineItem label="Price" data={item.premium} units="$" />
           <Spacer />
           <PriceInput
             title="Quantity"
@@ -185,7 +185,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <>
           <LineItem
             label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
-            data={+item?.price * +quantity}
+            data={+item?.premium * +quantity}
             units={`${sign ? sign : ''} $`}
           />
           <Spacer />

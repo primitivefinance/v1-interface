@@ -5,11 +5,12 @@ import Input from '@/components/Input'
 import Label from '@/components/Label'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
+import { BigNumberish } from 'ethers'
 
 export interface LPProps {
   title: string
-  balance: string
-  quantity: string
+  balance: BigNumberish
+  quantity: BigNumberish
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
   onClick: () => void
 }
