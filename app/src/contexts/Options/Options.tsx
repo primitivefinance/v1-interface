@@ -151,7 +151,11 @@ const Options: React.FC = (props) => {
                 assetName = 'WETH'
                 break
             }
-            if (baseAssetSymbol !== assetName) return
+            if (baseAssetSymbol !== assetName) {
+              console.log(baseAssetSymbol)
+              return
+            }
+            console.log(baseAssetSymbol)
             const { premium, reserve } = await getPairData(provider, option)
             if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
             if (option.isCall) {

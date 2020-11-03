@@ -55,7 +55,7 @@ const NewMarketCard: React.FC = () => {
   const handleChangePrice = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
-        setPrice('0.00')
+        setPrice(null)
       }
       if (Number(e.currentTarget.value)) {
         setPrice(Number(e.currentTarget.value))
