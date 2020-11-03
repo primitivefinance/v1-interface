@@ -27,7 +27,7 @@ const NewMarketCard: React.FC = () => {
   const [long, setLong] = useState(true)
   const [premium, setPrice] = useState(0)
   const { library } = useWeb3React()
-  const tokenBalance = useTokenBalance(item.tokenAddress)
+  const tokenBalance = useTokenBalance(item.address)
 
   const clear = () => {
     onRemoveItem(item)
@@ -55,7 +55,7 @@ const NewMarketCard: React.FC = () => {
   const handleChangePrice = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
-        setPrice(null)
+        setPrice('0.00')
       }
       if (Number(e.currentTarget.value)) {
         setPrice(Number(e.currentTarget.value))
@@ -82,7 +82,7 @@ const NewMarketCard: React.FC = () => {
     <Card>
       <CardTitle>
         <StyledTitle>
-          {`Create an ${item.asset} Option`}
+          {`Create an ${item.asset.toUpperCase()} Option`}
           <></>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>

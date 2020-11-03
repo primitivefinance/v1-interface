@@ -62,7 +62,6 @@ const Market = ({ market }) => {
               setExpiry={handleFilterExpiry}
             />
             <OptionsTable
-              options={mockOptions}
               asset={market}
               assetAddress={ADDRESS_FOR_MARKET[market]}
               optionExp={expiry}

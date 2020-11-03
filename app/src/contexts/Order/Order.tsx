@@ -47,7 +47,7 @@ const Order: React.FC = (props) => {
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem | NewOptionItem, orderType: string) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]
@@ -114,13 +114,13 @@ const Order: React.FC = (props) => {
       signer
     )
 
-    let factory = new ethers.Contract(
+    const factory = new ethers.Contract(
       UNISWAP_FACTORY_V2,
       UniswapV2Factory.abi,
       signer
     )
-
-    let transaction: SinglePositionParameters
+    // type SinglePositionParameters fails due to difference in Trader and Uniswap type
+    let transaction: any
     switch (operation) {
       case Operation.LONG:
         // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
@@ -165,7 +165,7 @@ const Order: React.FC = (props) => {
         // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
         // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
         // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
-        let redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
+        const redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
           .mul(quote)
           .div(base)
         // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap

@@ -25,6 +25,7 @@
     "ethers": "^5.0.2",
     "next": "9.5.2",
     "next-images": "^1.6.0",
+    "next-on-netlify": "^2.6.0",
     "numeral": "^2.0.6",
     "prettier": "^2.1.2",
     "react": "^16.13.1",
@@ -41,7 +42,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postbuild": "next-on-netlify"
   },
   "browserslist": {
     "production": [

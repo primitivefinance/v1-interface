@@ -133,8 +133,8 @@ export class Trade {
     }
     let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
     let reserves = await pair.getReserves()
-    let _reserve0 = reserves._reserve0
-    let _reserve1 = reserves._reserve1
+    const _reserve0 = reserves._reserve0
+    const _reserve1 = reserves._reserve1
     reserves =
       tokenA == token0 ? [_reserve0, _reserve1] : [_reserve1, _reserve0]
     return [reserves[0], reserves[1]]
@@ -148,7 +148,7 @@ export class Trade {
   ): Promise<BigNumberish[]> => {
     let amounts: BigNumberish[] = [amountIn]
     for (let i = 0; i < path.length - 1; i++) {
-      let [reserveIn, reserveOut] = await this.getReserves(
+      const [reserveIn, reserveOut] = await this.getReserves(
         signer,
         factory,
         path[i],
@@ -168,10 +168,10 @@ export class Trade {
     let numerator = amountInWithFee.mul(
       ethers.BigNumber.from(reserveOut.toString())
     )
-    let denominator = ethers.BigNumber.from(reserveIn.toString())
+    const denominator = ethers.BigNumber.from(reserveIn.toString())
       .mul(1000)
       .add(amountInWithFee)
-    let amountOut = numerator.div(denominator)
+    const amountOut = numerator.div(denominator)
     return amountOut
   }
 
@@ -196,7 +196,7 @@ export class Trade {
   ): Promise<BigNumberish[]> => {
     let amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
-      let [reserveIn, reserveOut] = await this.getReserves(
+      const [reserveIn, reserveOut] = await this.getReserves(
         signer,
         factory,
         path[i - 1],
@@ -244,10 +244,10 @@ export class Trade {
       return 0
     }
     // PREMIUM MATH
-    let redeemsMinted = ethers.BigNumber.from(quantityOptions)
+    const redeemsMinted = ethers.BigNumber.from(quantityOptions)
       .mul(quote)
       .div(base)
-    let amountsIn = Trade.getAmountsInPure(
+    const amountsIn = Trade.getAmountsInPure(
       quantityOptions,
       path,
       reserves[0],
@@ -256,7 +256,7 @@ export class Trade {
     let redeemsRequired = amountsIn[0]
     let redeemCostRemaining = BigNumber.from(redeemsRequired).sub(redeemsMinted)
     // if redeemCost > 0
-    let amountsOut = Trade.getAmountsOutPure(
+    const amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
       path,
       reserves[0],

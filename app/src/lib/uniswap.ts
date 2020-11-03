@@ -24,6 +24,7 @@ export class Uniswap {
         ? UniswapConnectorTestnet.address
         : UniswapConnectorTestnet.address
 
+    let transaction: any
     let contract: ethers.Contract
     let methodName: string
     let args: (string | string[])[]
@@ -90,8 +91,8 @@ export class Uniswap {
         tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.CLOSE_LONG:
-        let underlyingsRequired = trade.amountsIn[0]
-        let outputUnderlyings = ethers.BigNumber.from(
+        const underlyingsRequired = trade.amountsIn[0]
+        const outputUnderlyings = ethers.BigNumber.from(
           trade.inputAmount.quantity
         )
           .mul(trade.option.optionParameters.base.quantity)
@@ -122,7 +123,7 @@ export class Uniswap {
         amountIn = trade
           .maximumAmountIn(tradeSettings.slippage)
           .quantity.toString()
-        let amountOutMin = trade
+        const amountOutMin = trade
           .minimumAmountOut(tradeSettings.slippage)
           .quantity.toString()
 
@@ -139,12 +140,12 @@ export class Uniswap {
         tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
       case Operation.ADD_LIQUIDITY:
-        let amountOptions = trade.inputAmount.quantity
+        const amountOptions = trade.inputAmount.quantity
         // amount of redeems that will be minted and added to the pool
-        let amountADesired = ethers.BigNumber.from(amountOptions)
+        const amountADesired = ethers.BigNumber.from(amountOptions)
           .mul(trade.option.optionParameters.quote.quantity)
           .div(trade.option.optionParameters.base.quantity)
-        let amountBDesired = trade.quote(
+        const amountBDesired = trade.quote(
           amountADesired,
           trade.reserves[0],
           trade.reserves[1]
