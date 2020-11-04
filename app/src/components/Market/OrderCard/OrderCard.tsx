@@ -57,18 +57,19 @@ const OrderCard: React.FC = () => {
   if (!item.id) {
     return null
   }
-  const { asset, month, day, type, strike } = destructureOptionSymbol(item.id)
+  const exp = new Date(parseInt(item.expiry.toString()) * 1000)
   const clear = () => {
     onRemoveItem(item)
   }
+  console.log(item.id)
   return (
     <Card>
       <CardTitle>
         <StyledTitle>
           <>
-            {`${asset} ${
-              type === 'C' ? 'Call' : 'Put'
-            } $${strike} ${month}/${day}`}
+            {`${item.asset} ${item.isCall ? 'Call' : 'Put'} $${
+              item.strike
+            } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
           </>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>

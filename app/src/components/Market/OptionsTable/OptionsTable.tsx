@@ -93,6 +93,38 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 expiry,
               } = option
               if (optionExp != expiry && expiry === 0) return null
+              if (reserve === 0) {
+                return (
+                  <TableRow
+                    key={address}
+                    onClick={() => {
+                      onAddItem(
+                        {
+                          ...option,
+                          asset: asset.toUpperCase(),
+                          isCall: type === 'calls',
+                        },
+                        ''
+                      )
+                    }}
+                  >
+                    <TableCell>${formatBalance(strike)}</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell key={address}>
+                      <StyledARef href={`${baseUrl}/${option.address}`}>
+                        {formatAddress(option.address)}{' '}
+                        <LaunchIcon style={{ fontSize: '14px' }} />
+                      </StyledARef>
+                    </TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <ArrowForwardIosIcon />
+                    </StyledButtonCell>
+                  </TableRow>
+                )
+              }
               return (
                 <TableRow
                   key={address}
@@ -124,9 +156,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   {
                     expiry: optionExp,
                     asset: asset,
-                    address: assetAddress,
+                    underlyingAddress: assetAddress,
                   },
-                  ''
+                  'NEW_MARKET'
                 )
               }}
             >

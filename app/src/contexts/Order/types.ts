@@ -3,11 +3,11 @@ import { Operation } from '@/lib/constants'
 import { BigNumberish } from 'ethers'
 
 export interface OrderContextValues {
-  item: OrderItem | NewOptionItem
+  item: OrderItem
   orderType: string
-  onAddItem: (item: OrderItem | NewOptionItem, orderType: string) => void
-  onChangeItem: (item: OrderItem | NewOptionItem, orderType: string) => void
-  onRemoveItem: (item: OrderItem | NewOptionItem) => void
+  onAddItem: (item: OrderItem, orderType: string) => void
+  onChangeItem: (item: OrderItem, orderType: string) => void
+  onRemoveItem: (item: OrderItem) => void
   submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
@@ -18,29 +18,21 @@ export interface OrderContextValues {
 
 export interface OrderItem {
   asset?: string
+  isCall?: boolean
+  underlyingAddress?: string
   price?: BigNumberish
-  address: string
+  address?: string
+  pairAddress?: string
   breakEven?: BigNumberish
   change?: BigNumberish
   expiry?: BigNumberish
   premium?: BigNumberish
+  reserve?: BigNumberish
   strike?: BigNumberish
   volume?: BigNumberish
   id?: string
 }
 
-export interface NewOptionItem {
-  asset?: string
-  address: string
-  price?: BigNumberish
-  breakEven?: BigNumberish
-  change?: BigNumberish
-  expiry: BigNumberish
-  premium?: BigNumberish
-  strike?: BigNumberish
-  volume?: BigNumberish
-  id?: string
-}
 export interface OrderState {
   item: OrderItem
   orderType?: string

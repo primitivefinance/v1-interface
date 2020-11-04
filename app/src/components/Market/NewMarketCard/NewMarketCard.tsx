@@ -16,18 +16,20 @@ import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
+import Slider from '@/components/Slider'
 import { destructureOptionSymbol } from '@/lib/utils'
-import { OrderItem, NewOptionItem } from '@/contexts/Order/types'
+import { OrderItem } from '@/contexts/Order/types'
 import { Operation } from '@/lib/constants'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 const NewMarketCard: React.FC = () => {
-  const { item, onRemoveItem } = useOrders()
-  const [quantity, setQuantity] = useState(null)
+  const { item, orderType, onRemoveItem } = useOrders()
+  const [quantity, setQuantity] = useState('')
+  const [strike, setStrike] = useState('')
   const [long, setLong] = useState(true)
-  const [premium, setPrice] = useState(null)
+  const [ratio, setRatio] = useState(100)
   const { library } = useWeb3React()
-  const tokenBalance = useTokenBalance(item.address)
+  const tokenBalance = useTokenBalance(item.underlyingAddress)
 
   const clear = () => {
     onRemoveItem(item)
@@ -41,49 +43,46 @@ const NewMarketCard: React.FC = () => {
     onRemoveItem(item)
   }, [onRemoveItem, item, library, quantity])
 
+  const handleStrikeChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.value) {
+        setStrike('')
+      } else {
+        setStrike(e.currentTarget.value)
+      }
+    },
+    [setStrike]
+  )
   const handleChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
-        setQuantity(null)
-      }
-      if (Number(e.currentTarget.value)) {
+        setQuantity('')
+      } else {
         setQuantity(e.currentTarget.value)
       }
     },
     [setQuantity]
   )
-  const handleChangePrice = useCallback(
+  const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
-      if (!e.currentTarget.value) {
-        setPrice(null)
-      }
-      if (Number(e.currentTarget.value)) {
-        setPrice(Number(e.currentTarget.value))
-      }
+      setRatio(Number(e.currentTarget.value))
     },
-    [setPrice]
+    [setRatio]
   )
   const handleSetMax = () => {
-    const max =
-      Math.round((+tokenBalance / +premium + Number.EPSILON) * 100) / 100
+    const max = Math.round(+tokenBalance * ratio) / 100
     setQuantity(max.toString())
   }
   // parseInt->toString removes syntax error
   const exp = new Date(parseInt(item.expiry.toString()) * 1000)
-  const isOrderItem = (x: OrderItem | NewOptionItem): x is OrderItem => {
-    if (!(x as OrderItem).id) {
-      return true
-    }
-    return false
-  }
-  if (!item.asset) {
+  if (orderType !== 'NEW_MARKET') {
     return null
   }
   return (
     <Card>
       <CardTitle>
         <StyledTitle>
-          {`Create an ${item.asset.toUpperCase()} Option`}
+          {`Create an ${item.asset.toUpperCase()} ${item.expiry} Option`}
           <></>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>
@@ -92,49 +91,59 @@ const NewMarketCard: React.FC = () => {
         </StyledTitle>
       </CardTitle>
       <CardContent>
-        <Toggle>
-          <ToggleButton
-            active={long}
-            onClick={handleToggleClick}
-            text="Open Long"
-          />
-          <ToggleButton
-            active={!long}
-            onClick={handleToggleClick}
-            text="Open Short"
-          />
-        </Toggle>
-        <Spacer />
-        <Label text={`Opening Price (LP token / ${item.asset})`} />
+        <Label text={'Strike (DAI)'} />
         <Spacer size="sm" />
         <Input
-          value={premium}
+          startAdornment={<StyledP>$</StyledP>}
+          value={strike}
           placeholder="0.00"
-          onChange={handleChangePrice}
+          onChange={handleStrikeChange}
         />
         <Spacer />
         <PriceInput
           title={`Total ${item.asset} Deposit`}
+          startAdornment={<StyledP></StyledP>}
           quantity={quantity}
           onChange={handleChange}
           onClick={handleSetMax}
         />
         <Spacer />
-        <Box row justifyContent="space-between">
-          <Label text="Price per LP Token" />
+        <Box row alignItems="center">
+          <Label text={`Opening LP token / ${item.asset}  Ratio `} />
+          <Spacer size="md" />
+          <StyledRatio>{Math.round(10 * (ratio / 10)) / 10 + '%'}</StyledRatio>
         </Box>
+        <Slider
+          min={1}
+          max={1000}
+          step={0.1}
+          value={ratio}
+          onChange={handleRatioChange}
+        />
         <Spacer />
+        <Box row alignItems="center" justifyContent="space-between">
+          <Label text={`Opening Premium in ${item.asset}`} />
+          <StyledRatio>{(ratio * +quantity) / 1000}</StyledRatio>
+          <Spacer size="sm" />
+        </Box>
         <Button
           disabled={!quantity}
           full
           size="sm"
           onClick={handleSubmitClick}
-          text="Review Transaction"
+          text="Confirm Transaction"
         />
       </CardContent>
     </Card>
   )
 }
+
+const StyledP = styled.p`
+  color: ${(props) => props.theme.color.white};
+`
+const StyledRatio = styled.h4`
+  color: ${(props) => props.theme.color.white};
+`
 const StyledTitle = styled(Box)`
   align-items: center;
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};

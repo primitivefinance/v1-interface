@@ -8,9 +8,10 @@ import { BigNumberish } from 'ethers'
 
 export interface PriceInputProps {
   title: string
-  quantity: BigNumberish
+  quantity: BigNumberish | number
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
   onClick: () => void
+  startAdornment?: React.ReactNode
 }
 
 const PriceInput: React.FC<PriceInputProps> = ({
@@ -18,15 +19,17 @@ const PriceInput: React.FC<PriceInputProps> = ({
   quantity,
   onChange,
   onClick,
+  startAdornment,
 }) => {
   return (
     <>
       <Label text={title} />
       <Spacer size="sm" />
       <Input
-        placeholder="0.00"
+        placeholder={'0.00'}
+        startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
-        value={`${quantity}`}
+        value={`${quantity ? quantity.toString() : ''}`}
         endAdornment={<Button size="sm" text="Max" onClick={onClick} />}
       />
     </>

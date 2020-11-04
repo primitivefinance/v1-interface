@@ -124,9 +124,11 @@ const OrderOptions: React.FC = () => {
         <Spacer />
       </Box>
       <StyledBottom>
-        <Box row justifyContent="flex-start" alignItems="baseline">
-          <Label text={'LP Tokens'} />
-          <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
+        <Box row justifyContent="flex-start" alignItems="center">
+          <StyledColumn>
+            <Label text={'LP Tokens'} />
+            <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
+          </StyledColumn>
           <Spacer size="md" />
           <Box column justifyContent="center" alignItems="flex-start">
             <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
@@ -167,8 +169,10 @@ const StyledBalance = styled.h5`
 `
 
 const StyledBottom = styled.div`
-  padding: 0 1em 0 1em;
-  border-width: 0px 0 0 0;
+  padding: 1em;
+  background: black;
+  border-width: 1px;
+  border-radius: 10px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
 `

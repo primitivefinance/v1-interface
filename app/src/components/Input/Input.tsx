@@ -10,7 +10,7 @@ export interface InputProps {
   placeholder?: string
   size?: 'sm' | 'md' | 'lg'
   startAdornment?: React.ReactNode
-  value?: BigNumberish
+  value?: string
 }
 
 const Input: React.FC<InputProps> = ({
@@ -40,7 +40,7 @@ const Input: React.FC<InputProps> = ({
         height={height}
         onChange={onChange}
         placeholder={placeholder}
-        value={value.toString()}
+        value={value}
       />
       {!!endAdornment && (
         <Fragment>
