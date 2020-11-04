@@ -55,10 +55,10 @@ const Options: React.FC = (props) => {
    * @param option The address of the option token to get a uniswap pair of.
    */
   const getPairData = useCallback(async (provider, option: Option) => {
-    let optionAddress = option.address
-    let parameters = option.optionParameters
-    let base = parameters.base.quantity
-    let quote = parameters.quote.quantity
+    const optionAddress = option.address
+    const parameters = option.optionParameters
+    const base = parameters.base.quantity
+    const quote = parameters.quote.quantity
     let premium: BigNumberish = 0
 
     // Check to make sure we are connected to a web3 provider.
@@ -140,6 +140,7 @@ const Options: React.FC = (props) => {
               provider
             )
             const baseAssetSymbol = option.optionParameters.base.asset.symbol
+            const quoteAssetSymbol = option.optionParameters.quote.asset.symbol
             switch (assetName.toLowerCase()) {
               case 'eth':
                 assetName = 'WETH'
@@ -151,11 +152,12 @@ const Options: React.FC = (props) => {
                 assetName = 'WETH'
                 break
             }
-            if (baseAssetSymbol !== assetName) {
-              console.log(baseAssetSymbol)
+            if (
+              baseAssetSymbol !== assetName &&
+              quoteAssetSymbol !== assetName
+            ) {
               return
             }
-            console.log(baseAssetSymbol)
             const { premium, reserve } = await getPairData(provider, option)
             if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
             if (option.isCall) {

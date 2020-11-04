@@ -23,9 +23,9 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 const NewMarketCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
-  const [quantity, setQuantity] = useState('')
+  const [quantity, setQuantity] = useState(null)
   const [long, setLong] = useState(true)
-  const [premium, setPrice] = useState(0)
+  const [premium, setPrice] = useState(null)
   const { library } = useWeb3React()
   const tokenBalance = useTokenBalance(item.address)
 
@@ -44,7 +44,7 @@ const NewMarketCard: React.FC = () => {
   const handleChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
-        setQuantity('')
+        setQuantity(null)
       }
       if (Number(e.currentTarget.value)) {
         setQuantity(e.currentTarget.value)
@@ -68,7 +68,8 @@ const NewMarketCard: React.FC = () => {
       Math.round((+tokenBalance / +premium + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
-  const exp = new Date(+item.expiry * 1000)
+  // parseInt->toString removes syntax error
+  const exp = new Date(parseInt(item.expiry.toString()) * 1000)
   const isOrderItem = (x: OrderItem | NewOptionItem): x is OrderItem => {
     if (!(x as OrderItem).id) {
       return true
@@ -107,7 +108,7 @@ const NewMarketCard: React.FC = () => {
         <Label text={`Opening Price (LP token / ${item.asset})`} />
         <Spacer size="sm" />
         <Input
-          quantity={premium}
+          value={premium}
           placeholder="0.00"
           onChange={handleChangePrice}
         />
