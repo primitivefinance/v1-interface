@@ -64,7 +64,7 @@ const Test: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
-        <span>${item.premium.toFixed(2)}</span>
+        <span>${item.premium.toString().substr(0, 4)}</span>
       </Box>
       <Spacer />
       <Box row justifyContent="flex-start"></Box>

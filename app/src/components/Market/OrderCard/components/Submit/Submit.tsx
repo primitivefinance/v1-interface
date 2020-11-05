@@ -146,7 +146,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.premium} units="$" />
+          <LineItem label="Price" data={item.premium.toString()} units="$" />
           <Spacer />
           <PriceInput
             title="Quantity"

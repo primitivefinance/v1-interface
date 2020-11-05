@@ -81,18 +81,18 @@ export class Option extends Token {
   }
 
   public get strikePrice(): Quantity {
-    let baseValue = this.optionParameters.base.quantity
-    let quoteValue = this.optionParameters.quote.quantity
+    const baseValue = this.optionParameters.base.quantity
+    const quoteValue = this.optionParameters.quote.quantity
     let strikePrice: Quantity
     if (baseValue === '1') {
       strikePrice = this.optionParameters.quote
     } else if (quoteValue === '1') {
       strikePrice = this.optionParameters.base
     } else {
-      let numerator = ethers.BigNumber.from(
+      const numerator = ethers.BigNumber.from(
         this.optionParameters.quote.quantity
       )
-      let denominator = ethers.BigNumber.from(
+      const denominator = ethers.BigNumber.from(
         this.optionParameters.base.quantity
       )
       strikePrice = new Quantity(
@@ -104,8 +104,8 @@ export class Option extends Token {
   }
 
   public get isCall(): boolean {
-    let baseValue = this.optionParameters.base.quantity
-    let isCall: boolean = false
+    const baseValue = this.optionParameters.base.quantity
+    let isCall = false
     if (+formatEther(baseValue) === 1) {
       isCall = true
     }
@@ -113,8 +113,8 @@ export class Option extends Token {
   }
 
   public get isPut(): boolean {
-    let quoteValue = this.optionParameters.quote.quantity
-    let isPut: boolean = false
+    const quoteValue = this.optionParameters.quote.quantity
+    let isPut = false
     if (+formatEther(quoteValue) === 1) {
       isPut = true
     }
@@ -124,7 +124,7 @@ export class Option extends Token {
   public getTimeToExpiry(): number {
     const expiry: number = this.optionParameters.expiry
     const now: number = new Date().valueOf()
-    let timeLeft: number = expiry - now
+    const timeLeft: number = expiry - now
     return timeLeft
   }
 }

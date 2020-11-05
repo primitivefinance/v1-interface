@@ -48,7 +48,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       if (asset === 'eth') {
         getOptions('WETH')
       } else {
-        getOptions(asset.toUpperCase().substr(0, 3))
+        getOptions(asset.toUpperCase())
       }
     }
   }, [library, asset, getOptions])
@@ -81,7 +81,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {!options.loading ? (
+        {options[type][0] ? (
           <TableBody>
             {options[type].map((option) => {
               const {
@@ -114,7 +114,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableCell>---</TableCell>
                     <TableCell>---</TableCell>
                     <TableCell key={address}>
-                      <StyledARef href={`${baseUrl}/${option.address}`}>
+                      <StyledARef
+                        href={`${baseUrl}/${option.address}`}
+                        target="__blank"
+                      >
                         {formatAddress(option.address)}{' '}
                         <LaunchIcon style={{ fontSize: '14px' }} />
                       </StyledARef>
@@ -138,7 +141,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell key={address}>
-                    <StyledARef href={`${baseUrl}/${option.address}`}>
+                    <StyledARef
+                      href={`${baseUrl}/${option.address}`}
+                      target="__blank"
+                    >
                       {formatAddress(option.address)}{' '}
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>

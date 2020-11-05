@@ -42,7 +42,6 @@ const Market = ({ market }) => {
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
-
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
   }

@@ -11,7 +11,6 @@ export const initialState: OptionsState = {
   options: {
     calls: [EmptyAttributes],
     puts: [EmptyAttributes],
-    loading: true,
     reservesTotal: 0,
   },
 }
@@ -24,12 +23,13 @@ export const setOptions = (optionsData: OptionsData): SetOptionsAction => {
 }
 
 const reducer = (state: OptionsState, action: OptionsActions) => {
+  console.log(action)
+  console.log(state)
   switch (action.type) {
     case SET_OPTIONS:
       return {
-        options: {
-          ...action.options,
-        },
+        ...state,
+        options: action.options,
       }
     default:
       return state

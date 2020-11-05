@@ -6,7 +6,6 @@ export interface OptionsContextValues {
 export interface OptionsData {
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
-  loading: boolean
   reservesTotal: BigNumberish
 }
 

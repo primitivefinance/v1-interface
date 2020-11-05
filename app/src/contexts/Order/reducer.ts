@@ -1,4 +1,4 @@
-import { OrderItem, OrderState, NewOptionItem } from './types'
+import { OrderItem, OrderState } from './types'
 import { EmptyAttributes } from '../Options/types'
 
 const ADD_ITEM = 'ADD_ITEM'
