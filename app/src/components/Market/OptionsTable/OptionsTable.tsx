@@ -81,65 +81,37 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {options[type][0] ? (
-          <TableBody>
-            {options[type].map((option) => {
-              const {
-                breakEven,
-                premium,
-                strike,
-                reserve,
-                address,
-                expiry,
-              } = option
-              if (optionExp != expiry && expiry === 0) return null
-              if (reserve === 0) {
-                return (
-                  <TableRow
-                    key={address}
-                    onClick={() => {
-                      onAddItem(
-                        {
-                          ...option,
-                          asset: asset.toUpperCase(),
-                          isCall: type === 'calls',
-                        },
-                        ''
-                      )
-                    }}
-                  >
-                    <TableCell>${formatBalance(strike)}</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell key={address}>
-                      <StyledARef
-                        href={`${baseUrl}/${option.address}`}
-                        target="__blank"
-                      >
-                        {formatAddress(option.address)}{' '}
-                        <LaunchIcon style={{ fontSize: '14px' }} />
-                      </StyledARef>
-                    </TableCell>
-                    <StyledButtonCell key={'Open'}>
-                      <ArrowForwardIosIcon />
-                    </StyledButtonCell>
-                  </TableRow>
-                )
-              }
+        <TableBody>
+          {options[type].map((option) => {
+            const {
+              breakEven,
+              premium,
+              strike,
+              reserve,
+              address,
+              expiry,
+            } = option
+            if (optionExp != expiry && expiry === 0) return null
+            if (reserve === 0) {
               return (
                 <TableRow
                   key={address}
                   onClick={() => {
-                    onAddItem(option, '')
+                    onAddItem(
+                      {
+                        ...option,
+                        asset: asset.toUpperCase(),
+                        isCall: type === 'calls',
+                      },
+                      ''
+                    )
                   }}
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
-                  <TableCell>${formatBalance(breakEven)}</TableCell>
-                  <TableCell>${formatBalance(premium)}</TableCell>
-                  <TableCell>{formatBalance(reserve)}</TableCell>
-                  <TableCell>{formatBalance(reserve)}</TableCell>
+                  <TableCell>---</TableCell>
+                  <TableCell>---</TableCell>
+                  <TableCell>---</TableCell>
+                  <TableCell>---</TableCell>
                   <TableCell key={address}>
                     <StyledARef
                       href={`${baseUrl}/${option.address}`}
@@ -154,36 +126,64 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   </StyledButtonCell>
                 </TableRow>
               )
-            })}
-            <TableRow
-              isActive
-              onClick={() => {
-                onAddItem(
-                  {
-                    expiry: optionExp,
-                    asset: asset,
-                    underlyingAddress: assetAddress,
-                  },
-                  'NEW_MARKET'
-                )
-              }}
-            >
-              <TableCell></TableCell>
-              <StyledButtonCellError key={'Open'}>
-                <AddIcon />
-                <Spacer size="md" />
-                Add a New Option Market
-              </StyledButtonCellError>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableBody>
-        ) : (
-          <>
+            }
+            return (
+              <TableRow
+                key={address}
+                onClick={() => {
+                  onAddItem(option, '')
+                }}
+              >
+                <TableCell>${formatBalance(strike)}</TableCell>
+                <TableCell>${formatBalance(breakEven)}</TableCell>
+                <TableCell>${formatBalance(premium)}</TableCell>
+                <TableCell>{formatBalance(reserve)}</TableCell>
+                <TableCell>{formatBalance(reserve)}</TableCell>
+                <TableCell key={address}>
+                  <StyledARef
+                    href={`${baseUrl}/${option.address}`}
+                    target="__blank"
+                  >
+                    {formatAddress(option.address)}{' '}
+                    <LaunchIcon style={{ fontSize: '14px' }} />
+                  </StyledARef>
+                </TableCell>
+                <StyledButtonCell key={'Open'}>
+                  <ArrowForwardIosIcon />
+                </StyledButtonCell>
+              </TableRow>
+            )
+          })}
+          <TableRow
+            isActive
+            onClick={() => {
+              onAddItem(
+                {
+                  expiry: optionExp,
+                  asset: asset,
+                  underlyingAddress: assetAddress,
+                },
+                'NEW_MARKET'
+              )
+            }}
+          >
+            <TableCell></TableCell>
+            <StyledButtonCellError key={'Open'}>
+              <AddIcon />
+              <Spacer size="md" />
+              Add a New Option Market
+            </StyledButtonCellError>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableBody>
+        {/**
+           *           <>
             <EmptyTable columns={headers} />
             <EmptyTable columns={headers} />
             <EmptyTable columns={headers} />
           </>
-        )}
+           * 
+           */}
       </LitContainer>
     </Table>
   )
