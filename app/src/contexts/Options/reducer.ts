@@ -23,8 +23,8 @@ export const setOptions = (optionsData: OptionsData): SetOptionsAction => {
 }
 
 const reducer = (state: OptionsState, action: OptionsActions) => {
-  console.log(action)
-  console.log(state)
+  console.log({ action })
+  console.log({ state })
   switch (action.type) {
     case SET_OPTIONS:
       return {
