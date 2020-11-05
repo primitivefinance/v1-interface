@@ -38,37 +38,61 @@ export class Protocol {
     return address
   }
 
+  public static async getTokensMetadataFromMultiCall(
+    provider,
+    tokenAddresses
+  ): Promise<any> {
+    const multi = new MultiCall(provider)
+    const inputs = []
+    const methodNames = ['name', 'symbol', 'decimals']
+    for (let token of tokenAddresses) {
+      for (let method of methodNames) {
+        inputs.push({
+          target: token,
+          function: method,
+          args: [],
+        })
+      }
+    }
+    const tokenDatas = await multi.multiCall(TestERC20.abi, inputs)
+    return tokenDatas
+  }
+
   public static async getOptionParametersFromMultiCall(
     provider,
     optionAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
     const inputs = []
-    const methodNames = [
-      'getUnderlyingTokenAddress',
-      'getStrikeTokenAddress',
-      'redeemToken',
-      'getBaseValue',
-      'getQuoteValue',
-      'getExpiryTime',
-    ]
     for (let option of optionAddresses) {
-      /* for (let method of methodNames) {
-        inputs.push({
-          target: option,
-          function: method,
-          args: [],
-        })
-      } */
       inputs.push({
         target: option,
-        function: 'optionParameters',
+        function: 'getParameters',
         args: [],
       })
     }
+    // optionDatas[i] = optionParameters
+    // optionParameters = [underlying, strike, redeem, base, quote, expiry]
     const optionDatas = await multi.multiCall(OptionContract.abi, inputs)
-    console.log({ optionDatas })
     return optionDatas
+  }
+
+  public static async getAllOptionClones(provider): Promise<any> {
+    const signer = await provider.getSigner()
+    const registry = await Protocol.getRegistry(signer)
+    const filter: any = registry.filters.DeployedOptionClone(null, null, null)
+    filter.fromBlock = 7200000 // we can set a better start block later
+    filter.toBlock = 'latest'
+
+    let optionAddresses: string[] = []
+    let logs = await provider.getLogs(filter)
+    for (let i = 0; i < logs.length; i++) {
+      const log = logs[i]
+      const optionAddress = registry.interface.parseLog(log).args.optionAddress
+      optionAddresses.push(optionAddress)
+    }
+
+    return optionAddresses
   }
 
   public static async getRegistry(signer): Promise<ethers.Contract> {
@@ -76,6 +100,65 @@ export class Protocol {
     const registryAddress = this.getRegistryAddress(chain)
     const registry = new ethers.Contract(registryAddress, Registry.abi, signer)
     return registry
+  }
+
+  public static async getOptionsUsingMultiCall(
+    chainId: number,
+    optionAddresses: string[],
+    provider: ethers.providers.Provider
+  ): Promise<any> {
+    const parameters = await Protocol.getOptionParametersFromMultiCall(
+      provider,
+      optionAddresses
+    )
+    let optionsEntityObject: any = {}
+
+    // parameters = [array of option's parameters]
+    for (let i = 0; i < parameters.length; i++) {
+      const parameter = parameters[i]
+      // parameter = [optionParameters]
+      const tokens = [parameter[0], parameter[1], parameter[2]]
+      // metadata for each token in tokens
+      const tokensData = await Protocol.getTokensMetadataFromMultiCall(
+        provider,
+        tokens
+      )
+      // assets = [Underlying, Strike, Redeem]
+      let assets: Asset[] = []
+      // tokenData = [name, symbol, decimals] for each token
+      // for each set of tokens (tokensData[0-2]), grab the details.
+      for (let t = 0; t < tokensData.length / 3; t++) {
+        let startIndex = t * 3
+        assets.push(
+          new Asset(
+            tokensData[startIndex + 2],
+            tokensData[startIndex],
+            tokensData[startIndex + 1]
+          )
+        )
+      }
+      const optionParams: OptionParameters = {
+        base: new Quantity(assets[0], parameter[3]),
+        quote: new Quantity(assets[1], parameter[4]),
+        expiry: parameter[5],
+      }
+
+      const optionEntity: Option = new Option(
+        optionParams,
+        chainId,
+        optionAddresses[i],
+        18,
+        'Primitive V1 Option',
+        'PRM'
+      )
+
+      optionEntity.assetAddresses = tokens
+      Object.assign(optionsEntityObject, {
+        [optionAddresses[i]]: optionEntity,
+      })
+    }
+
+    return optionsEntityObject
   }
 
   /**

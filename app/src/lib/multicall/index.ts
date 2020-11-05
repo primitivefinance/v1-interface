@@ -94,9 +94,12 @@ export class MultiCall {
         result = interfaces[i].decodeFunctionResult(
           inputs[i].function,
           returndata
-        )[0]
+        )
+        if (Array.isArray(result) && result.length == 1) {
+          result = result[0]
+        }
+        results.push(result)
       }
-      results.push(result)
     }
     return results
   }

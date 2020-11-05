@@ -138,13 +138,6 @@ const Options: React.FC = (props) => {
   // FIX
   const handleOptions = useCallback(
     async (assetName) => {
-      // Asset address and quantity of options
-      const signer = await provider.getSigner()
-      const registry = await Protocol.getRegistry(signer)
-
-      const filter: any = registry.filters.DeployedOptionClone(null, null, null)
-      filter.fromBlock = 7200000 // we can set a better start block later
-      filter.toBlock = 'latest'
       // Objects and arrays to populate
       const optionsObject = {
         calls: [EmptyAttributes],
@@ -156,85 +149,78 @@ const Options: React.FC = (props) => {
 
       const pairReserveTotal: BigNumberish = 0
 
-      await Protocol.getOptionParametersFromMultiCall(provider, [
-        '0xCA90CC281Ce55074488914Bee921FE7d3D29A17d',
-      ])
+      const optionAddresses: string[] = await Protocol.getAllOptionClones(
+        provider
+      )
+      let optionEntitiesObject = await Protocol.getOptionsUsingMultiCall(
+        chainId,
+        optionAddresses,
+        provider
+      )
+
       let breakEven: BigNumberish
-      provider.getLogs(filter).then((logs) => {
-        const promises = logs.map(async (log) => {
-          try {
-            const option = await Protocol.getOption(
-              chainId,
-              registry.interface.parseLog(log).args.optionAddress,
-              provider
+
+      let allKeys: string[] = Object.keys(optionEntitiesObject)
+      for (let i = 0; i < allKeys.length; i++) {
+        const key = allKeys[i]
+        const option = optionEntitiesObject[key]
+        const baseAssetSymbol = option.optionParameters.base.asset.symbol
+        const quoteAssetSymbol = option.optionParameters.quote.asset.symbol
+
+        const { premium, reserve } = await getPairData(provider, option)
+        if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
+        if (option.isCall) {
+          if (baseAssetSymbol === assetName) {
+            breakEven = calculateBreakeven(
+              option.strikePrice.quantity,
+              premium,
+              true
             )
-            const baseAssetSymbol = option.optionParameters.base.asset.symbol
-            const quoteAssetSymbol = option.optionParameters.quote.asset.symbol
-
-            const { premium, reserve } = await getPairData(provider, option)
-            if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
-            if (option.isCall) {
-              if (baseAssetSymbol === assetName) {
-                breakEven = calculateBreakeven(
-                  option.strikePrice.quantity,
-                  premium,
-                  true
-                )
-                calls.push({
-                  asset: assetName,
-                  breakEven: breakEven,
-                  change: 0,
-                  premium: premium,
-                  strike: option.strikePrice.quantity,
-                  volume: 0,
-                  reserve: reserve,
-                  address: option.address,
-                  expiry: option.expiry,
-                  id: option.name,
-                })
-                return
-              }
-            }
-            if (option.isPut) {
-              if (quoteAssetSymbol === assetName) {
-                breakEven = calculateBreakeven(
-                  option.strikePrice.quantity,
-                  premium,
-                  false
-                )
-                puts.push({
-                  asset: assetName,
-                  breakEven: breakEven,
-                  change: 0,
-                  premium: premium,
-                  strike: option.strikePrice.quantity,
-                  volume: 0,
-                  reserve: reserve,
-                  address: option.address,
-                  expiry: option.expiry,
-                  id: option.name,
-                })
-                return
-              }
-            }
-          } catch (error) {
-            console.error(error)
-            return
-          }
-        })
-        Promise.all(promises)
-          .then(() => {
-            console.log(calls)
-            Object.assign(optionsObject, {
-              calls: calls,
-              puts: puts,
-              reservesTotal: pairReserveTotal,
+            calls.push({
+              asset: assetName,
+              breakEven: breakEven,
+              change: 0,
+              premium: premium,
+              strike: option.strikePrice.quantity,
+              volume: 0,
+              reserve: reserve,
+              address: option.address,
+              expiry: option.expiry,
+              id: option.name,
             })
+          }
+        }
 
-            dispatch(setOptions(optionsObject))
-          })
-          .catch((error) => console.error(error))
+        if (option.isPut) {
+          if (quoteAssetSymbol === assetName) {
+            breakEven = calculateBreakeven(
+              option.strikePrice.quantity,
+              premium,
+              false
+            )
+            puts.push({
+              asset: assetName,
+              breakEven: breakEven,
+              change: 0,
+              premium: premium,
+              strike: option.strikePrice.quantity,
+              volume: 0,
+              reserve: reserve,
+              address: option.address,
+              expiry: option.expiry,
+              id: option.name,
+            })
+          }
+        }
+      }
+
+      Object.assign(optionsObject, {
+        calls: calls,
+        puts: puts,
+        reservesTotal: pairReserveTotal,
       })
+
+      dispatch(setOptions(optionsObject))
     },
     [dispatch, provider, chainId, setOptions, getPairData]
   )

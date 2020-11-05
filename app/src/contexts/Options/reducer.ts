@@ -29,7 +29,7 @@ const reducer = (state: OptionsState, action: OptionsActions) => {
     case SET_OPTIONS:
       return {
         ...state,
-        options: action.options,
+        options: { ...state.options, ...action.options },
       }
     default:
       return state
