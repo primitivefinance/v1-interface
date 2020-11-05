@@ -139,11 +139,7 @@ const Options: React.FC = (props) => {
   const handleOptions = useCallback(
     async (assetName) => {
       // Objects and arrays to populate
-      const optionsObject = {
-        calls: [EmptyAttributes],
-        puts: [EmptyAttributes],
-        reservesTotal: 0,
-      }
+
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
@@ -211,12 +207,13 @@ const Options: React.FC = (props) => {
                   })
                   .catch((error) => console.log(error))
               }
-              Object.assign(optionsObject, {
-                calls: calls,
-                puts: puts,
-                reservesTotal: pairReserveTotal,
-              })
-              dispatch(setOptions(optionsObject))
+              dispatch(
+                setOptions({
+                  calls: calls,
+                  puts: puts,
+                  reservesTotal: pairReserveTotal,
+                })
+              )
             })
             .catch((error) => console.log(error))
         })
