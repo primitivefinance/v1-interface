@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node.js
+        working-directory: ./app
         uses: actions/setup-node@v1
         with:
           node-version: 12
