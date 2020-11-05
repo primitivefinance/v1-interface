@@ -45,8 +45,8 @@ export class Protocol {
     const multi = new MultiCall(provider)
     const inputs = []
     const methodNames = ['name', 'symbol', 'decimals']
-    for (let token of tokenAddresses) {
-      for (let method of methodNames) {
+    for (const token of tokenAddresses) {
+      for (const method of methodNames) {
         inputs.push({
           target: token,
           function: method,
@@ -64,7 +64,7 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
     const inputs = []
-    for (let option of optionAddresses) {
+    for (const option of optionAddresses) {
       inputs.push({
         target: option,
         function: 'getParameters',
@@ -84,8 +84,8 @@ export class Protocol {
     filter.fromBlock = 7200000 // we can set a better start block later
     filter.toBlock = 'latest'
 
-    let optionAddresses: string[] = []
-    let logs = await provider.getLogs(filter)
+    const optionAddresses: string[] = []
+    const logs = await provider.getLogs(filter)
     for (let i = 0; i < logs.length; i++) {
       const log = logs[i]
       const optionAddress = registry.interface.parseLog(log).args.optionAddress
@@ -111,7 +111,7 @@ export class Protocol {
       provider,
       optionAddresses
     )
-    let optionsEntityObject: any = {}
+    const optionsEntityObject: any = {}
 
     // parameters = [array of option's parameters]
     for (let i = 0; i < parameters.length; i++) {
@@ -119,43 +119,45 @@ export class Protocol {
       // parameter = [optionParameters]
       const tokens = [parameter[0], parameter[1], parameter[2]]
       // metadata for each token in tokens
-      const tokensData = await Protocol.getTokensMetadataFromMultiCall(
-        provider,
-        tokens
-      )
-      // assets = [Underlying, Strike, Redeem]
-      let assets: Asset[] = []
-      // tokenData = [name, symbol, decimals] for each token
-      // for each set of tokens (tokensData[0-2]), grab the details.
-      for (let t = 0; t < tokensData.length / 3; t++) {
-        let startIndex = t * 3
-        assets.push(
-          new Asset(
-            tokensData[startIndex + 2],
-            tokensData[startIndex],
-            tokensData[startIndex + 1]
-          )
+      try {
+        const tokensData = await Protocol.getTokensMetadataFromMultiCall(
+          provider,
+          tokens
         )
-      }
-      const optionParams: OptionParameters = {
-        base: new Quantity(assets[0], parameter[3]),
-        quote: new Quantity(assets[1], parameter[4]),
-        expiry: parameter[5],
-      }
+        // assets = [Underlying, Strike, Redeem]
+        const assets: Asset[] = []
+        // tokenData = [name, symbol, decimals] for each token
+        // for each set of tokens (tokensData[0-2]), grab the details.
+        for (let t = 0; t < tokensData.length / 3; t++) {
+          const startIndex = t * 3
+          assets.push(
+            new Asset(
+              tokensData[startIndex + 2],
+              tokensData[startIndex],
+              tokensData[startIndex + 1]
+            )
+          )
+        }
+        const optionParams: OptionParameters = {
+          base: new Quantity(assets[0], parameter[3]),
+          quote: new Quantity(assets[1], parameter[4]),
+          expiry: parameter[5],
+        }
 
-      const optionEntity: Option = new Option(
-        optionParams,
-        chainId,
-        optionAddresses[i],
-        18,
-        'Primitive V1 Option',
-        'PRM'
-      )
+        const optionEntity: Option = new Option(
+          optionParams,
+          chainId,
+          optionAddresses[i],
+          18,
+          'Primitive V1 Option',
+          'PRM'
+        )
 
-      optionEntity.assetAddresses = tokens
-      Object.assign(optionsEntityObject, {
-        [optionAddresses[i]]: optionEntity,
-      })
+        optionEntity.assetAddresses = tokens
+        Object.assign(optionsEntityObject, {
+          [optionAddresses[i]]: optionEntity,
+        })
+      } catch {}
     }
 
     return optionsEntityObject
@@ -205,7 +207,7 @@ export class Protocol {
       expiry: parameters._expiry,
     }
 
-    let optionEntity: Option = new Option(
+    const optionEntity: Option = new Option(
       optionParameters,
       chainId,
       address,
