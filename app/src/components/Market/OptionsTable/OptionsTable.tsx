@@ -48,7 +48,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       if (asset === 'eth') {
         getOptions('WETH')
       } else {
-        getOptions(asset.toUpperCase().substr(0, 3))
+        getOptions(asset.toUpperCase())
       }
     }
   }, [library, asset, getOptions])
@@ -81,7 +81,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        {!options.loading ? (
+        {options[type][0] ? (
           <TableBody>
             {options[type].map((option) => {
               const {
@@ -93,6 +93,41 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 expiry,
               } = option
               if (optionExp != expiry && expiry === 0) return null
+              if (reserve === 0) {
+                return (
+                  <TableRow
+                    key={address}
+                    onClick={() => {
+                      onAddItem(
+                        {
+                          ...option,
+                          asset: asset.toUpperCase(),
+                          isCall: type === 'calls',
+                        },
+                        ''
+                      )
+                    }}
+                  >
+                    <TableCell>${formatBalance(strike)}</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell key={address}>
+                      <StyledARef
+                        href={`${baseUrl}/${option.address}`}
+                        target="__blank"
+                      >
+                        {formatAddress(option.address)}{' '}
+                        <LaunchIcon style={{ fontSize: '14px' }} />
+                      </StyledARef>
+                    </TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <ArrowForwardIosIcon />
+                    </StyledButtonCell>
+                  </TableRow>
+                )
+              }
               return (
                 <TableRow
                   key={address}
@@ -106,7 +141,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell key={address}>
-                    <StyledARef href={`${baseUrl}/${option.address}`}>
+                    <StyledARef
+                      href={`${baseUrl}/${option.address}`}
+                      target="__blank"
+                    >
                       {formatAddress(option.address)}{' '}
                       <LaunchIcon style={{ fontSize: '14px' }} />
                     </StyledARef>
@@ -124,9 +162,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   {
                     expiry: optionExp,
                     asset: asset,
-                    address: assetAddress,
+                    underlyingAddress: assetAddress,
                   },
-                  ''
+                  'NEW_MARKET'
                 )
               }}
             >

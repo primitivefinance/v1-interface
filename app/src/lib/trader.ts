@@ -17,8 +17,8 @@ export class Trader {
 
   public static singleOperationCallParameters(
     trade: Trade,
-    tradeSettings: CustomTradeSettings
-  ): CustomSinglePositionParameters {
+    tradeSettings: TradeSettings
+  ): SinglePositionParameters {
     const traderAddress =
       trade.option.chainId == 1 ? MainnetTrader.address : TestnetTrader.address
     const wethConnectorAddress =

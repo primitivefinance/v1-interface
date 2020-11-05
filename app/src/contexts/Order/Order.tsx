@@ -5,7 +5,7 @@ import { Web3Provider } from '@ethersproject/providers'
 
 import { Transaction } from '@/contexts/Transactions/types'
 import OrderContext from './context'
-import { OrderItem, NewOptionItem } from './types'
+import { OrderItem } from './types'
 import reducer, {
   addItem,
   initialState,
@@ -40,21 +40,21 @@ const Order: React.FC = (props) => {
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
-    (item: OrderItem | NewOptionItem, orderType: string) => {
+    (item: OrderItem, orderType: string) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem | NewOptionItem, orderType: string) => {
+    (item: OrderItem, orderType: string) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleRemoveItem = useCallback(
-    (item: OrderItem | NewOptionItem) => {
+    (item: OrderItem) => {
       dispatch(removeItem(item))
     },
     [dispatch]
@@ -96,10 +96,10 @@ const Order: React.FC = (props) => {
     optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
     optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
 
-    let path: string[] = []
-    let amountsIn: BigNumberish[] = []
+    const path: string[] = []
+    const amountsIn: BigNumberish[] = []
     let amountsOut: BigNumberish[] = []
-    let reserves: BigNumberish[] = []
+    const reserves: BigNumberish[] = []
     let totalSupply: BigNumberish
     const trade: Trade = new Trade(
       optionEntity,

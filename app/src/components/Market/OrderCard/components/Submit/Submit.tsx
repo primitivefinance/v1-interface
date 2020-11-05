@@ -39,14 +39,14 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   let sign: string
   switch (orderType) {
     case Operation.LONG:
-      title = 'Buy Long'
+      title = 'Buy Long Tokens'
       capitalLabel = 'Buying'
       isDebit = true
       sign = '-'
       tokenAddress = stablecoinAddress
       break
     case Operation.SHORT:
-      title = 'Sell Short'
+      title = 'Sell Short Tokens'
       capitalLabel = 'Minting'
       isDebit = false
       sign = '+'
@@ -80,18 +80,13 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       capitalLabel = 'LP Token'
       tokenAddress = stablecoinAddress
       break
-    case Operation.REMOVE_LIQUIDITY:
-      title = 'Remove Liquidity and Close Options'
-      capitalLabel = 'LP Token'
-      tokenAddress = stablecoinAddress
-      break
     case Operation.CLOSE_LONG:
-      title = 'Close Long'
+      title = 'Close Long Position'
       capitalLabel = ''
       tokenAddress = stablecoinAddress
       break
     case Operation.CLOSE_SHORT:
-      title = 'Close Short'
+      title = 'Close Short Position'
       capitalLabel = ''
       tokenAddress = stablecoinAddress
       break
@@ -151,7 +146,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.premium} units="$" />
+          <LineItem label="Price" data={item.premium.toString()} units="$" />
           <Spacer />
           <PriceInput
             title="Quantity"

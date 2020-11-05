@@ -45,7 +45,6 @@ const Loader = styled.div`
 `
 const StyledBlockNumber = styled.h5`
   align-items: center;
-  background-color: ${(props) => props.theme.color.grey[800]};
   padding: 4px;
   opacity: 90%;
   border-radius: 10px;
@@ -60,7 +59,7 @@ const StyledFooter = styled.footer`
   display: flex;
   justify-content: flex-end;
   padding-left: 1em;
-  padding-right: 2em;
+  padding-right: 1em;
   justify-content: space-between;
   pointer-events: none;
 `
