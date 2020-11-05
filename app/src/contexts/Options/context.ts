@@ -6,7 +6,6 @@ const OptionsContext = createContext<OptionsContextValues>({
   options: {
     calls: [EmptyAttributes],
     puts: [EmptyAttributes],
-    loading: true,
     reservesTotal: 0,
   },
   getOptions: (assetName: string) => {},
