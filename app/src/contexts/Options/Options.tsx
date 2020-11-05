@@ -144,7 +144,7 @@ const Options: React.FC = (props) => {
       const puts: OptionsAttributes[] = []
 
       const pairReserveTotal: BigNumberish = 0
-      const promises = Protocol.getAllOptionClones(provider)
+      Protocol.getAllOptionClones(provider)
         .then((optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
             .then((optionEntitiesObject) => {
