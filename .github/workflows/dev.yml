@@ -13,11 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node.js
-        working-directory: ./app
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         with:
-          node-version: 12
+          node-version: '12'
       - name: Install dependencies
         working-directory: ./app
         run: yarn install
