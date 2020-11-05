@@ -22,6 +22,7 @@ import { showThrottleMessage } from '@ethersproject/providers'
 import { Protocol } from '@/lib/protocol'
 import { STABLECOINS } from '@/constants/index'
 import { Trade, Option } from '@/lib/entities'
+import MultiCall from '@/lib/multicall'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -49,6 +50,33 @@ const Options: React.FC = (props) => {
     }
     return Number(breakeven)
   }
+
+  /* const getOptionParametersFromMulticall = useCallback(
+    async (provider, optionMapAddresses) => {
+      // Check to make sure we are connected to a web3 provider.
+      if (!provider) {
+        console.error('No connected connectedProvider')
+        return { 0 }
+      }
+
+      const multi = new MultiCall(provider);
+  const inputs = [];
+  for (let option of tokens) {
+    inputs.push({ target: tokenMapAddress, function: 'getTokenData', args: [token] });
+  }
+  const tokenDatas = await multi.multiCall(abi, inputs);
+      const chain = chainId
+
+      const parameters = {}
+
+      try {
+        return { parameters }
+      } catch {
+        return { parameters }
+      }
+    },
+    []
+  ) */
 
   /**
    * @dev Gets the execution premium for 1 unit of option tokens and returns it.
@@ -127,6 +155,10 @@ const Options: React.FC = (props) => {
       const puts: OptionsAttributes[] = []
 
       const pairReserveTotal: BigNumberish = 0
+
+      await Protocol.getOptionParametersFromMultiCall(provider, [
+        '0xCA90CC281Ce55074488914Bee921FE7d3D29A17d',
+      ])
       let breakEven: BigNumberish
       provider.getLogs(filter).then((logs) => {
         const promises = logs.map(async (log) => {

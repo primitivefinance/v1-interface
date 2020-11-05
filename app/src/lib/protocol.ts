@@ -16,6 +16,7 @@ import {
   STABLECOIN_ADDRESS,
 } from './constants'
 import computeClone2Clone from './utils/computeCreate2Clone'
+import MultiCall from './multicall'
 
 /**
  * Methods for asyncronously getting on-chain data and returning SDK classes using the data.
@@ -35,6 +36,39 @@ export class Protocol {
       )
     }
     return address
+  }
+
+  public static async getOptionParametersFromMultiCall(
+    provider,
+    optionAddresses
+  ): Promise<any> {
+    const multi = new MultiCall(provider)
+    const inputs = []
+    const methodNames = [
+      'getUnderlyingTokenAddress',
+      'getStrikeTokenAddress',
+      'redeemToken',
+      'getBaseValue',
+      'getQuoteValue',
+      'getExpiryTime',
+    ]
+    for (let option of optionAddresses) {
+      /* for (let method of methodNames) {
+        inputs.push({
+          target: option,
+          function: method,
+          args: [],
+        })
+      } */
+      inputs.push({
+        target: option,
+        function: 'optionParameters',
+        args: [],
+      })
+    }
+    const optionDatas = await multi.multiCall(OptionContract.abi, inputs)
+    console.log({ optionDatas })
+    return optionDatas
   }
 
   public static async getRegistry(signer): Promise<ethers.Contract> {
