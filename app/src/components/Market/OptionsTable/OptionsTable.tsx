@@ -43,6 +43,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
+  console.log({ asset })
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {

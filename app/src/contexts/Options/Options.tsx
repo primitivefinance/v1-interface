@@ -104,7 +104,10 @@ const Options: React.FC = (props) => {
 
                   if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
                   if (option.isCall) {
-                    if (Base.asset.symbol === assetName) {
+                    if (
+                      Base.asset.symbol.toUpperCase() ===
+                      assetName.toUpperCase()
+                    ) {
                       breakEven = calculateBreakeven(
                         option.strikePrice.quantity,
                         premium,
@@ -125,7 +128,10 @@ const Options: React.FC = (props) => {
                     }
                   }
                   if (option.isPut) {
-                    if (Quote.asset.symbol === assetName) {
+                    if (
+                      Quote.asset.symbol.toUpperCase() ===
+                      assetName.toUpperCase()
+                    ) {
                       breakEven = calculateBreakeven(
                         option.strikePrice.quantity,
                         premium,
