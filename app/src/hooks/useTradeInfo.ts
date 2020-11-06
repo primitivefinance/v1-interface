@@ -16,7 +16,6 @@ import { useCallback } from 'react'
 import executeTransaction from '@/lib/utils/executeTransaction'
 import useOptionEntities from '@/hooks/useOptionEntities'
 import useSWR, { responseInterface } from 'swr'
-import { ChainId } from '@uniswap/sdk'
 import { addTransaction } from '@/contexts/Transactions/reducer'
 
 const getTrade = (
@@ -24,12 +23,14 @@ const getTrade = (
   optionAddress: string,
   quantity: number,
   operation: Operation,
-  secondaryQuantity?: number
-): Promise<[Trade, (signer: ethers.Signer, transaction) => Promise<void>]> => {
-  return new Promise(async () => {
-    const chainId = await (await provider.getSigner()).getChainId()
+  secondaryQuantity?: number,
+  addTransaction: any,
+  tradeSettings: TradeSettings
+): (() => Promise<Trade>) => {
+  return async (): Promise<Trade> => {
     const signer: ethers.Signer = await provider.getSigner()
-    const tradeSettings: TradeSettings = useTradeSettings()
+    const account = await signer.getAddress()
+    const chainId = await signer.getChainId()
 
     const inputAmount: Quantity = new Quantity(
       new Asset(18), // fix with actual metadata
@@ -237,8 +238,6 @@ const getTrade = (
 
     const useTradeExecutionCallback = useCallback(
       async (signer: ethers.Signer, transaction): Promise<void> => {
-        const { addTransaction, checkTransaction } = useTransactions()
-        const { chainId, account } = useWeb3React()
         const now = () => new Date().getTime()
         executeTransaction(signer, transaction)
           .then((tx) => {
@@ -257,8 +256,8 @@ const getTrade = (
       [addTransaction]
     )
 
-    return [trade, useTradeExecutionCallback]
-  })
+    return trade
+  }
 }
 
 const useTradeInfo = (
@@ -269,16 +268,24 @@ const useTradeInfo = (
   secondaryQuantity?: number
 ): any /* [Trade, (signer: ethers.Signer, transaction) => Promise<void>] */ => {
   let trade, transaction
-  const suspense = false
+  const tradeSettings: TradeSettings = useTradeSettings()
+  const suspense = true
   const result = useSWR(
     [trade, transaction],
-    () =>
-      getTrade(provider, optionAddress, quantity, operation, secondaryQuantity),
+    getTrade(
+      provider,
+      optionAddress,
+      quantity,
+      operation,
+      secondaryQuantity,
+      addTransaction,
+      tradeSettings
+    ),
     {
       suspense,
     }
   )
-  console.log({ result })
+  console.log(result.data)
   return result
 }
 
