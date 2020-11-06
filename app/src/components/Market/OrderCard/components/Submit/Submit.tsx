@@ -156,7 +156,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
 
       {orderType === Operation.ADD_LIQUIDITY ? (
         <LP
-          titles={[`Quantity Underlying`, `Quantity Short`]}
+          titles={[`Quantity Options`, `Quantity Underlying`]}
           balance={formatBalance(tokenBalance).toString()}
           quantities={[quantity, secondaryQuantity]}
           onPrimaryChange={handleQuantityChange}
