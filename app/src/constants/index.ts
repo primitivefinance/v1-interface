@@ -1,6 +1,7 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { Asset } from '../lib/entities/asset'
 import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
+import { parseEther } from 'ethers/lib/utils'
 
 import { injected, walletconnect } from '../connectors'
 
@@ -144,3 +145,5 @@ export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20
 export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
+
+export const DEFAULT_ALLOWANCE = parseEther('10000000')
