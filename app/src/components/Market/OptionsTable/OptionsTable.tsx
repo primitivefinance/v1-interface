@@ -53,6 +53,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     }
   }, [library, asset, getOptions])
 
+  console.log({ options })
+
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   const headers = [
