@@ -96,7 +96,7 @@ export class Protocol {
     return optionAddresses
   }
 
-  public static async getReservesFromMulticall(
+  public static async getReservesFromMultiCall(
     provider,
     pairAddresses
   ): Promise<any> {
