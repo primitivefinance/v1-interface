@@ -115,7 +115,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       if (!e.currentTarget.value) {
         setQuantity('')
       }
-      if (Number(e.currentTarget.value)) {
+      if (e.currentTarget.value) {
         setQuantity(e.currentTarget.value)
       }
     },
@@ -127,7 +127,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       if (!e.currentTarget.value) {
         setSecondaryQuantity('')
       }
-      if (Number(e.currentTarget.value)) {
+      if (e.currentTarget.value) {
         setSecondaryQuantity(e.currentTarget.value)
       }
     },
