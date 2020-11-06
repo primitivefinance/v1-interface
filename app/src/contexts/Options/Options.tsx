@@ -17,12 +17,9 @@ import OptionsContext from './context'
 import reducer, { initialState, setOptions } from './reducer'
 import { EmptyAttributes, OptionsAttributes } from './types'
 
-import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
-import { showThrottleMessage } from '@ethersproject/providers'
 import { Protocol } from '@/lib/protocol'
 import { STABLECOINS } from '@/constants/index'
 import { Trade, Option } from '@/lib/entities'
-import MultiCall from '@/lib/multicall'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -51,32 +48,89 @@ const Options: React.FC = (props) => {
     return Number(breakeven)
   }
 
-  /* const getOptionParametersFromMulticall = useCallback(
-    async (provider, optionMapAddresses) => {
-      // Check to make sure we are connected to a web3 provider.
-      if (!provider) {
-        console.error('No connected connectedProvider')
-        return { 0 }
+  /**
+   * @dev Gets the execution premium for 1 unit of option tokens and returns it.
+   * @param option The address of the option token to get a uniswap pair of.
+   */
+  const getPairsData = useCallback(
+    async (provider, optionEntities: Option[]) => {
+      let allPairAddresses: string[] = []
+      for (let i = 0; i < optionEntities.length; i++) {
+        const SHORT_OPTION = new Token(
+          chainId,
+          optionEntities[i].assetAddresses[2],
+          18
+        )
+        const UNDERLYING = STABLECOINS[chainId]
+        const address = Pair.getAddress(UNDERLYING, SHORT_OPTION)
+        allPairAddresses.push(address)
       }
 
-      const multi = new MultiCall(provider);
-  const inputs = [];
-  for (let option of tokens) {
-    inputs.push({ target: tokenMapAddress, function: 'getTokenData', args: [token] });
-  }
-  const tokenDatas = await multi.multiCall(abi, inputs);
-      const chain = chainId
+      let allPairReserves = await Protocol.getReservesFromMulticall(
+        provider,
+        allPairAddresses
+      )
 
-      const parameters = {}
+      for (let i = 0; i < optionEntities.length; i++) {
+        const option = optionEntities[i]
+        const optionAddress = option.address
+        const parameters = option.optionParameters
+        const base = parameters.base.quantity
+        const quote = parameters.quote.quantity
+        let premium: BigNumberish = 0
 
-      try {
-        return { parameters }
-      } catch {
-        return { parameters }
+        // Check to make sure we are connected to a web3 provider.
+        if (!provider) {
+          console.error('No connected connectedProvider')
+          return { premium }
+        }
+        const chain = chainId
+
+        const OPTION = new Token(chain, optionAddress, 18)
+        const UNDERLYING = STABLECOINS[chainId]
+        const tokenA = UNDERLYING
+        const tokenB = OPTION
+        try {
+          const address = Pair.getAddress(tokenA, tokenB)
+          const [reserves0, reserves1] = await new ethers.Contract(
+            address,
+            IUniswapV2Pair.abi,
+            provider
+          ).getReserves()
+          const path = [option.assetAddresses[2], option.assetAddresses[0]] // 0 = underlying, 1 = strike ,2 = redeem
+          premium = Trade.getSpotPremium(base, quote, path, [
+            reserves0,
+            reserves1,
+          ])
+          const balances = tokenA.sortsBefore(tokenB)
+            ? [reserves0, reserves1]
+            : [reserves1, reserves0]
+          const pair = new Pair(
+            new TokenAmount(tokenA, balances[0]),
+            new TokenAmount(tokenB, balances[1])
+          )
+
+          let reserve =
+            Number(pair.reserve1.numerator) / Number(pair.reserve1.denominator)
+
+          if (typeof reserve === 'undefined') {
+            reserve = 0
+          }
+
+          if (typeof premium === 'undefined') {
+            premium = 0
+          }
+
+          return { premium, reserve }
+        } catch {
+          const premium = 0
+          const reserve = 0
+          return { premium, reserve }
+        }
       }
     },
     []
-  ) */
+  )
 
   /**
    * @dev Gets the execution premium for 1 unit of option tokens and returns it.
@@ -151,75 +205,137 @@ const Options: React.FC = (props) => {
               console.log(optionEntitiesObject)
               let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
-
+              let allPairAddresses: string[] = []
               for (let i = 0; i < allKeys.length; i++) {
                 const key = allKeys[i]
                 const option = optionEntitiesObject[key]
-                const baseAssetSymbol =
-                  option.optionParameters.base.asset.symbol
-                const quoteAssetSymbol =
-                  option.optionParameters.quote.asset.symbol
-                getPairData(provider, option)
-                  .then(({ premium, reserve }) => {
-                    if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
-                    if (option.isCall) {
-                      if (baseAssetSymbol === assetName) {
-                        breakEven = calculateBreakeven(
-                          option.strikePrice.quantity,
-                          premium,
-                          true
-                        )
-                        calls.push({
-                          asset: assetName,
-                          breakEven: breakEven,
-                          change: 0,
-                          premium: premium,
-                          strike: option.strikePrice.quantity,
-                          volume: 0,
-                          reserve: reserve,
-                          address: option.address,
-                          expiry: option.expiry,
-                          id: option.name,
-                        })
-                      }
-                    }
-                    if (option.isPut) {
-                      if (quoteAssetSymbol === assetName) {
-                        breakEven = calculateBreakeven(
-                          option.strikePrice.quantity,
-                          premium,
-                          false
-                        )
-                        puts.push({
-                          asset: assetName,
-                          breakEven: breakEven,
-                          change: 0,
-                          premium: premium,
-                          strike: option.strikePrice.quantity,
-                          volume: 0,
-                          reserve: reserve,
-                          address: option.address,
-                          expiry: option.expiry,
-                          id: option.name,
-                        })
-                      }
-                    }
-                  })
-                  .catch((error) => console.log(error))
+                const SHORT_OPTION = new Token(
+                  chainId,
+                  option.assetAddresses[2],
+                  18
+                )
+                const UNDERLYING = new Token(
+                  chainId,
+                  option.assetAddresses[0],
+                  18
+                )
+                const address = Pair.getAddress(UNDERLYING, SHORT_OPTION)
+                allPairAddresses.push(address)
               }
-              dispatch(
-                setOptions({
-                  calls: calls,
-                  puts: puts,
-                  reservesTotal: pairReserveTotal,
-                })
-              )
+              Protocol.getReservesFromMulticall(
+                provider,
+                allPairAddresses
+              ).then((allReservesData) => {
+                for (let i = 0; i < allKeys.length; i++) {
+                  const key = allKeys[i]
+                  const option = optionEntitiesObject[key]
+
+                  let reserves = allReservesData[i]
+                  const path = [
+                    option.assetAddresses[2],
+                    option.assetAddresses[0],
+                  ]
+                  const parameters = option.optionParameters
+                  const base = parameters.base.quantity
+                  const quote = parameters.quote.quantity
+                  if (typeof reserves === 'undefined') reserves = ['0', '0']
+                  const reserves0 = reserves[0]
+                  const reserves1 = reserves[1]
+                  let premium = Trade.getSpotPremium(base, quote, path, [
+                    reserves0,
+                    reserves1,
+                  ])
+
+                  const OPTION = new Token(
+                    chainId,
+                    option.assetAddresses[2],
+                    18
+                  ) // short
+                  const UNDERLYING = new Token(
+                    chainId,
+                    option.assetAddresses[0],
+                    18
+                  ) // underlying
+                  const tokenA = UNDERLYING
+                  const tokenB = OPTION
+                  const balances = tokenA.sortsBefore(tokenB)
+                    ? [reserves0, reserves1]
+                    : [reserves1, reserves0]
+                  const pair = new Pair(
+                    new TokenAmount(tokenA, balances[0]),
+                    new TokenAmount(tokenB, balances[1])
+                  )
+
+                  let reserve =
+                    Number(pair.reserve1.numerator) /
+                    Number(pair.reserve1.denominator)
+
+                  if (typeof reserve === 'undefined') reserve = 0
+                  if (typeof premium === 'undefined') premium = 0
+
+                  const baseAssetSymbol =
+                    option.optionParameters.base.asset.symbol
+                  const quoteAssetSymbol =
+                    option.optionParameters.quote.asset.symbol
+
+                  if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
+                  if (option.isCall) {
+                    if (baseAssetSymbol === assetName) {
+                      breakEven = calculateBreakeven(
+                        option.strikePrice.quantity,
+                        premium,
+                        true
+                      )
+                      calls.push({
+                        asset: assetName,
+                        breakEven: breakEven,
+                        change: 0,
+                        premium: premium,
+                        strike: option.strikePrice.quantity,
+                        volume: 0,
+                        reserve: reserve,
+                        address: option.address,
+                        expiry: option.expiry,
+                        id: option.name,
+                      })
+                    }
+                  }
+                  if (option.isPut) {
+                    if (quoteAssetSymbol === assetName) {
+                      breakEven = calculateBreakeven(
+                        option.strikePrice.quantity,
+                        premium,
+                        false
+                      )
+                      puts.push({
+                        asset: assetName,
+                        breakEven: breakEven,
+                        change: 0,
+                        premium: premium,
+                        strike: option.strikePrice.quantity,
+                        volume: 0,
+                        reserve: reserve,
+                        address: option.address,
+                        expiry: option.expiry,
+                        id: option.name,
+                      })
+                    }
+                  }
+                }
+                dispatch(
+                  setOptions({
+                    calls: calls,
+                    puts: puts,
+                    reservesTotal: pairReserveTotal,
+                  })
+                )
+              })
             })
             .catch((error) => console.log(error))
         })
         .catch((error) => console.log(error))
     },
-    [dispatch, provider, chainId, setOptions, getPairData]
+    [dispatch, provider, chainId, setOptions]
   )
 
   return (

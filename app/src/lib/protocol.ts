@@ -8,6 +8,7 @@ import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFac
 //import MainnetFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import TestERC20 from '@primitivefi/contracts/artifacts/TestERC20.json'
+import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { Asset, Quantity, Token } from './entities'
 import {
   OPTION_SALT,
@@ -93,6 +94,25 @@ export class Protocol {
     }
 
     return optionAddresses
+  }
+
+  public static async getReservesFromMulticall(
+    provider,
+    pairAddresses
+  ): Promise<any> {
+    const multi = new MultiCall(provider)
+    const inputs = []
+    for (const pair of pairAddresses) {
+      inputs.push({
+        target: pair,
+        function: 'getReserves',
+        args: [],
+      })
+    }
+    // pairDatas[i] = pair reserves
+    // pair reserves = [reserve0, reserve1]
+    const pairDatas = await multi.multiCall(UniswapV2Pair.abi, inputs)
+    return pairDatas
   }
 
   public static async getRegistry(signer): Promise<ethers.Contract> {
