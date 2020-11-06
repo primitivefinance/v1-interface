@@ -83,6 +83,7 @@ const OrderOptions: React.FC = () => {
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Long Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change('LONG')}>
@@ -99,9 +100,11 @@ const OrderOptions: React.FC = () => {
             Close Long
           </Button>
         </StyledColumn>
+
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Short Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change('SHORT')}>
@@ -129,9 +132,9 @@ const OrderOptions: React.FC = () => {
             <Label text={'LP Tokens'} />
             <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
           </StyledColumn>
-          <Spacer size="md" />
-          <Box column justifyContent="center" alignItems="flex-start">
-            <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
+
+          <StyledColumn>
+            <Button full size="sm" onClick={() => change('ADD_LIQUIDITY')}>
               Provide Liquidity
             </Button>
             <Spacer size="sm" />
@@ -149,7 +152,8 @@ const OrderOptions: React.FC = () => {
                 Withdraw Liquidity
               </Button>
             )}
-          </Box>
+          </StyledColumn>
+          <Spacer />
         </Box>
       </StyledBottom>
     </>
@@ -166,11 +170,12 @@ const StyledColumn = styled.div`
 
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
-  padding-left: 1em;
+  //padding-left: 1em;
 `
 
 const StyledBottom = styled.div`
-  padding: 1em;
+  padding-top: 1em;
+  padding-bottom: 1em;
   background: ${(props) => props.theme.color.black};
   border-width: 1px;
   border-radius: ${(props) => props.theme.borderRadius}px;

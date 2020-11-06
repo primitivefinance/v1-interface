@@ -61,8 +61,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     'Strike Price',
     'Break Even',
     'Price',
-    'Long Reserve',
     'Short Reserve',
+    '2% Depth',
     'Contract',
     '',
   ]
@@ -133,14 +133,21 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               <TableRow
                 key={address}
                 onClick={() => {
-                  onAddItem(option, '')
+                  onAddItem(
+                    {
+                      ...option,
+                      asset: asset.toUpperCase(),
+                      isCall: type === 'calls',
+                    },
+                    ''
+                  )
                 }}
               >
                 <TableCell>${formatBalance(strike)}</TableCell>
                 <TableCell>${formatBalance(breakEven)}</TableCell>
                 <TableCell>${formatBalance(premium)}</TableCell>
                 <TableCell>{formatBalance(reserve)}</TableCell>
-                <TableCell>{formatBalance(reserve)}</TableCell>
+                <TableCell>{'depth'}</TableCell>
                 <TableCell key={address}>
                   <StyledARef
                     href={`${baseUrl}/${option.address}`}
