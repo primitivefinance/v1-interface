@@ -58,7 +58,7 @@ const Button: React.FC<ButtonProps> = ({
   let border = ''
   let buttonColor: string
   let hoverBackgroundColor = 'transparent'
-  const hoverBorderColor = color.white
+  let hoverBorderColor = color.white
   let hoverColor = color.white
   switch (variant) {
     case 'secondary':
@@ -80,10 +80,11 @@ const Button: React.FC<ButtonProps> = ({
     case 'default':
     default:
       background = color.white
-      buttonColor = color.grey[600]
-      border = ''
-      hoverBackgroundColor = color.white
-      hoverColor = color.black
+      buttonColor = color.grey[800]
+      border = `1px solid ${color.grey[800]}`
+      hoverBackgroundColor = color.black
+      hoverBorderColor = color.white
+      hoverColor = color.white
   }
 
   const ButtonChild = useMemo(() => {
@@ -187,7 +188,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   &:hover {
     background: ${(props) => props.hoverBackgroundColor};
     border-color: ${(props) => props.hoverBorderColor};
-    box-shadow: rgba(231, 221, 222, 0.1) 0px 8px 40px;
+    box-shadow: rgba(231, 221, 222, 0.05) 0px 8px 40px;
     color: ${(props) => props.hoverColor};
   }
 `

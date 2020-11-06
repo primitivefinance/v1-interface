@@ -136,11 +136,12 @@ const OrderOptions: React.FC = () => {
             </Button>
             <Spacer size="sm" />
             {!longLPBalance ? (
-              <Button size="sm" variant="secondary" disabled>
+              <Button full size="sm" variant="secondary" disabled>
                 Withdraw Liquidity
               </Button>
             ) : (
               <Button
+                full
                 size="sm"
                 variant="secondary"
                 onClick={() => change('REMOVE_LIQUIDITY')}
@@ -170,9 +171,9 @@ const StyledBalance = styled.h5`
 
 const StyledBottom = styled.div`
   padding: 1em;
-  background: black;
+  background: ${(props) => props.theme.color.black};
   border-width: 1px;
-  border-radius: 10px;
+  border-radius: ${(props) => props.theme.borderRadius}px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
 `
