@@ -14,7 +14,8 @@ const OrderContext = createContext<OrderContextValues>({
     provider: Web3Provider,
     optionAddress: string,
     quantity: number,
-    operation: Operation
+    operation: Operation,
+    secondaryQuantity?: number
   ) => {},
 })
 

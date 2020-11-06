@@ -27,6 +27,7 @@ export interface SubmitProps {
 const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
+  const [secondaryQuantity, setSecondaryQuantity] = useState('')
   const { library } = useWeb3React()
 
   const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
@@ -99,7 +100,13 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const tokenBalance = useTokenBalance(tokenAddress)
 
   const handleSubmitClick = useCallback(() => {
-    submitOrder(library, item?.address, Number(quantity), orderType)
+    submitOrder(
+      library,
+      item?.address,
+      Number(quantity),
+      orderType,
+      Number(secondaryQuantity)
+    )
     onRemoveItem(item)
   }, [submitOrder, onRemoveItem, item, library, quantity])
 
@@ -113,6 +120,18 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       }
     },
     [setQuantity]
+  )
+
+  const handleSecondaryQuantityChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      if (!e.currentTarget.value) {
+        setSecondaryQuantity('')
+      }
+      if (Number(e.currentTarget.value)) {
+        setSecondaryQuantity(e.currentTarget.value)
+      }
+    },
+    [setSecondaryQuantity]
   )
 
   const handleSetMax = () => {
@@ -137,11 +156,13 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
 
       {orderType === Operation.ADD_LIQUIDITY ? (
         <LP
-          title={`Quantity (${item.id})`}
+          titles={[`Quantity Underlying`, `Quantity Short`]}
           balance={formatBalance(tokenBalance).toString()}
-          quantity={quantity}
-          onChange={handleQuantityChange}
-          onClick={handleSetMax}
+          quantities={[quantity, secondaryQuantity]}
+          onPrimaryChange={handleQuantityChange}
+          onPrimaryClick={handleSetMax}
+          onSecondaryChange={handleSecondaryQuantityChange}
+          onSecondaryClick={handleSetMax}
         />
       ) : (
         <>

@@ -64,7 +64,8 @@ const Order: React.FC = (props) => {
     provider: Web3Provider,
     optionAddress: string,
     quantity: number,
-    operation: Operation
+    operation: Operation,
+    secondaryQuantity?: number
   ) => {
     const signer: ethers.Signer = await provider.getSigner()
     const receiver: string = await signer.getAddress()
@@ -217,13 +218,6 @@ const Order: React.FC = (props) => {
           assetAddresses[2], // redeem
           assetAddresses[0], // underlying
         ]
-        // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-        trade.amountsOut = await trade.getAmountsOut(
-          signer,
-          factory,
-          trade.inputAmount.quantity,
-          trade.path
-        )
         // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
         trade.reserves = await trade.getReserves(
           signer,
@@ -233,7 +227,11 @@ const Order: React.FC = (props) => {
         )
 
         // The actual function will take the redeemQuantity rather than the optionQuantity.
-        trade.outputAmount.quantity = trade.amountsOut[1]
+        trade.outputAmount = new Quantity(
+          new Asset(18), // fix with actual metadata
+          parseEther(secondaryQuantity ? secondaryQuantity.toString() : '0')
+        )
+        console.log({ secondaryQuantity })
         transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
         break
       case Operation.REMOVE_LIQUIDITY:
