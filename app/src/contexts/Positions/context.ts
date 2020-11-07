@@ -1,15 +1,15 @@
 import { createContext } from 'react'
+import { OptionsAttributes } from '../Options/types'
 
-import { PositionsContextValues } from './types'
+import { PositionsContextValues, EmptyPositionAttributes } from './types'
 
 const PositionsContext = createContext<PositionsContextValues>({
-  position: {
+  positions: {
     loading: true,
-    long: '',
-    short: '',
-    LP: '',
+    exists: false,
+    options: [EmptyPositionAttributes],
   },
-  getPosition: (optionAddress: string) => {},
+  getPositions: (options: OptionsAttributes[]) => {},
 })
 
 export default PositionsContext

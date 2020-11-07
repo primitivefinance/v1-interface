@@ -1,11 +1,11 @@
 import { BigNumberish } from 'ethers'
-import { Token } from './token'
+// import { Token } from './token' breaks Pair types
 import { Asset } from './asset'
 import { Quantity } from './quantity'
 import ethers from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 import { formatEther } from 'ethers/lib/utils'
-import { Pair } from '@uniswap/sdk'
+import { Pair, Token } from '@uniswap/sdk'
 
 export interface OptionParameters {
   base: Quantity

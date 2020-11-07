@@ -18,7 +18,6 @@ import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Slider from '@/components/Slider'
 import { destructureOptionSymbol } from '@/lib/utils'
-import { OrderItem } from '@/contexts/Order/types'
 import { Operation } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
@@ -29,7 +28,6 @@ const NewMarketCard: React.FC = () => {
   const [long, setLong] = useState(true)
   const [ratio, setRatio] = useState(100)
   const { library } = useWeb3React()
-  const tokenBalance = useTokenBalance(item.underlyingAddress)
 
   const clear = () => {
     onRemoveItem(item)

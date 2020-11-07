@@ -1,23 +1,18 @@
-import {
-  PositionsData,
-  PositionsState,
-  EmptyPositionsAttributes,
-} from './types'
+import { PositionsData, PositionsState, EmptyPositionAttributes } from './types'
 
 export const SET_POSITIONS = 'SET_POSITIONS'
 
 export interface SetPositionsAction {
   type: typeof SET_POSITIONS
-  position: PositionsData
+  positions: PositionsData
 }
 
 export type PositionsActions = SetPositionsAction
 export const initialState: PositionsState = {
-  position: {
+  positions: {
     loading: true,
-    long: '',
-    short: '',
-    LP: '',
+    exists: false,
+    options: [EmptyPositionAttributes],
   },
 }
 
@@ -26,7 +21,7 @@ export const setPositions = (
 ): SetPositionsAction => {
   return {
     type: SET_POSITIONS,
-    position: positionsData,
+    positions: positionsData,
   }
 }
 
@@ -34,17 +29,18 @@ const reducer = (state: PositionsState, action: PositionsActions) => {
   switch (action.type) {
     case SET_POSITIONS:
       console.log(action)
-      if (state.position.long === `` && !state.position.loading) {
+      if (state.positions.exists || !state.positions.loading) {
         return {
-          position: { ...state.position },
+          positions: { ...state.positions },
         }
       }
       return {
-        position: {
-          ...action.position,
+        positions: {
+          ...action.positions,
         },
       }
     default:
+      return state
   }
 }
 
