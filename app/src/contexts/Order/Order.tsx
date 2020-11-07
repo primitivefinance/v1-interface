@@ -294,14 +294,14 @@ const Order: React.FC = (props) => {
         break
     }
 
-    let approvalTxs: any[] = []
+    const approvalTxs: any[] = []
     if (transaction.tokensToApprove.length > 0) {
       // for each contract
       for (let i = 0; i < transaction.contractsToApprove.length; i++) {
-        let contractAddress = transaction.contractsToApprove[i]
+        const contractAddress = transaction.contractsToApprove[i]
         // for each token check allowance
         for (let t = 0; t < transaction.tokensToApprove.length; t++) {
-          let tokenAddress = transaction.tokensToApprove[t]
+          const tokenAddress = transaction.tokensToApprove[t]
           checkAllowance(signer, tokenAddress, contractAddress).then(
             (allowance) => {
               if (BigNumber.from(allowance).lt(DEFAULT_ALLOWANCE)) {

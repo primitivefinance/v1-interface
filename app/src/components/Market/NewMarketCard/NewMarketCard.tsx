@@ -18,7 +18,6 @@ import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Slider from '@/components/Slider'
 import { destructureOptionSymbol } from '@/lib/utils'
-import { OrderItem } from '@/contexts/Order/types'
 import { Operation } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
 

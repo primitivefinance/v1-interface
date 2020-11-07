@@ -5,7 +5,7 @@ import { Pair, Token } from '@uniswap/sdk'
 import { useWeb3React } from '@web3-react/core'
 import OptionsContext from './context'
 import reducer, { initialState, setOptions } from './reducer'
-import { OptionsAttributes } from './types'
+import { OptionsAttributes } from '../Options/types'
 
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
