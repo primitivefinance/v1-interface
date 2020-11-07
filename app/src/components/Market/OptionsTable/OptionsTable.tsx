@@ -116,17 +116,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   {premium > 0 ? (
                     <TableCell>${formatBalance(premium)}</TableCell>
                   ) : (
-                    <TableCell>---</TableCell>
+                    <TableCell>-</TableCell>
                   )}
                   {depth > 0 ? (
                     <TableCell>{depth}</TableCell>
                   ) : (
-                    <TableCell>---</TableCell>
+                    <TableCell>-</TableCell>
                   )}
                   {reserve > 0 ? (
                     <TableCell>{formatBalance(reserve)}</TableCell>
                   ) : (
-                    <TableCell>---</TableCell>
+                    <TableCell>-</TableCell>
                   )}
                   <TableCell key={address}>
                     <StyledARef

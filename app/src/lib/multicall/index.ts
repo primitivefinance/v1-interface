@@ -98,7 +98,6 @@ export class MultiCall {
         if (Array.isArray(result) && result.length == 1) {
           result = result[0]
         }
-        console.log(result)
         results.push(result)
       }
     }

@@ -11,7 +11,7 @@ import Spacer from '@/components/Spacer'
 import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
-import { Operation } from '@/lib/constants'
+import { Operation } from '@/constants/index'
 import formatBalance from '@/utils/formatBalance'
 
 import Exercise from '../Exercise/Exercise'
