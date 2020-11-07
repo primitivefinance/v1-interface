@@ -1,4 +1,4 @@
-import ethers, { BigNumberish } from 'ethers'
+import ethers, { BigNumberish, Transaction } from 'ethers'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -7,7 +7,7 @@ import { Option } from '@/lib/entities/option'
 import { parseEther } from 'ethers/lib/utils'
 import { Asset, Trade, Quantity } from '@/lib/entities'
 import { Uniswap, Trader, Protocol } from '@/lib/index'
-import { TradeSettings } from '@/lib/types'
+import { SinglePositionParameters, TradeSettings } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
 import useTransactions from '@/hooks/transactions'
@@ -237,51 +237,20 @@ const getTrade = async (
   return trade
 }
 
-const useTradeInfo = () => {
-  const [trade, setTrade] = useState<Trade>()
+const useTradeExecution = (
+  trade: Trade,
+  tradeSettings: TradeSettings
+): [
+  SinglePositionParameters,
+  (signer, transaction) => Promise<Transaction>
+] => {
   const { library } = useWeb3React()
-  const { item, orderType } = useOrders()
-  const optionEntities = useOptionEntities([item.address])
-  const tradeSettings = useTradeSettings()
-
-  const fetchTrade = useCallback(async () => {
-    if (
-      library &&
-      typeof optionEntities !== 'undefined' &&
-      item &&
-      orderType &&
-      tradeSettings
-    ) {
-      const tradeInfo = await getTrade(
-        library,
-        item.address,
-        1,
-        orderType,
-        1,
-        tradeSettings,
-        optionEntities[item.address]
-      )
-      if (tradeInfo) {
-        setTrade(tradeInfo)
-      }
-    }
-  }, [library, orderType, item, tradeSettings, optionEntities, getTrade])
-
-  useEffect(() => {
-    if (
-      library &&
-      typeof optionEntities !== 'undefined' &&
-      item &&
-      orderType &&
-      tradeSettings
-    ) {
-      fetchTrade()
-      const refreshInterval = setInterval(fetchTrade, 10000000000)
-      return () => clearInterval(refreshInterval)
-    }
-  }, [library, orderType, setTrade, item, tradeSettings, fetchTrade])
-
-  return trade
+  const transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+  const handleExecution = useCallback(async (): Promise<Transaction> => {
+    let tx = await executeTransaction(await library.getSigner(), transaction)
+    return tx
+  }, [executeTransaction, library, transaction, trade, tradeSettings])
+  return [transaction, handleExecution]
 }
 
-export default useTradeInfo
+export default useTradeExecution

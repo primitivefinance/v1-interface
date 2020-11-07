@@ -150,7 +150,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <IconButton
           variant="tertiary"
           size="sm"
-          onClick={() => onChangeItem(item, '')}
+          onClick={() => onChangeItem(item, null)}
         >
           <ArrowBackIcon />
         </IconButton>
