@@ -16,6 +16,7 @@ export interface Market {
   icon: string
   id: string
   sort: number
+  address: string
 }
 
 export const WALLETS: { [key: string]: Wallet } = {
@@ -87,6 +88,7 @@ export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
       icon: `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${ADDRESS_FOR_MARKET[key]}/logo.png`,
       id: key,
       sort: SORT_FOR_MARKET[key],
+      address: ADDRESS_FOR_MARKET[key],
     }
   }
 )
@@ -166,4 +168,5 @@ export enum Operation {
   ADD_LIQUIDITY,
   REMOVE_LIQUIDITY,
   REMOVE_LIQUIDITY_CLOSE,
+  NEW_MARKET,
 }

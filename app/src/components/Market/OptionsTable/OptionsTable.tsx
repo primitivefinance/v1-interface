@@ -17,6 +17,7 @@ import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
 import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
+import { Operation } from '@/constants/index'
 
 export type FormattedOption = {
   breakEven: number
@@ -151,7 +152,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     asset: asset,
                     underlyingAddress: assetAddress,
                   },
-                  'NEW_MARKET'
+                  Operation.NEW_MARKET
                 )
               }}
             >
