@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import EmptyTable from '../EmptyTable'
 import Spacer from '@/components/Spacer'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
@@ -17,7 +16,6 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import AddIcon from '@material-ui/icons/Add'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
-
 import { useWeb3React } from '@web3-react/core'
 
 export type FormattedOption = {
@@ -52,8 +50,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       }
     }
   }, [library, asset, getOptions])
-
-  console.log({ options })
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -185,14 +181,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableCell></TableCell>
           </TableRow>
         </TableBody>
-        {/**
-           *           <>
-            <EmptyTable columns={headers} />
-            <EmptyTable columns={headers} />
-            <EmptyTable columns={headers} />
-          </>
-           * 
-           */}
       </LitContainer>
     </Table>
   )

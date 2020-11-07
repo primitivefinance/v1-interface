@@ -76,7 +76,6 @@ const OrderOptions: React.FC = () => {
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
-    console.log(`change to ${t}`)
   }
 
   return (

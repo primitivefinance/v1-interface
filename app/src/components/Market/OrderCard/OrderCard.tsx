@@ -18,7 +18,6 @@ const OrderContent: React.FC = () => {
   const { orderType } = useOrders()
 
   if (orderType !== null) {
-    console.log(orderType)
     return <Submit orderType={orderType} />
   }
   if (orderType === null) {

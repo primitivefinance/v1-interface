@@ -5,7 +5,6 @@ import { GetServerSideProps } from 'next'
 import { useWeb3React } from '@web3-react/core'
 
 import BetaBanner from '@/components/BetaBanner'
-import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
@@ -20,10 +19,6 @@ import {
   PositionsCard,
   NewMarketCard,
 } from '../../components/Market'
-
-const mockOptions = [
-  { breakEven: 550, change: 0.075, premium: 10, strike: 500, volume: 1000000 },
-]
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -46,7 +41,7 @@ const Market = ({ market }) => {
     setExpiry(exp)
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <StyledText>Switch to Rinkeby or Mainnet</StyledText>
+    return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
   return (
     <OrderProvider>
@@ -89,7 +84,7 @@ const StyledMain = styled.div`
 const StyledMarket = styled.div`
   display: flex;
   flex-direction: row;
-  justify-contet: center;
+  justify-content: center;
   align-items: start;
   width: ${(props) => props.theme.tableWidth}%;
 `

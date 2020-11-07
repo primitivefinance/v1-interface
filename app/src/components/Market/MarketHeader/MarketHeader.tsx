@@ -25,10 +25,9 @@ export interface MarketHeaderProps {
   marketId: string
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
-  const { marketId } = props
   const { options, getOptions } = useOptions()
   const { library } = useWeb3React()
 
