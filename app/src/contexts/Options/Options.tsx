@@ -185,6 +185,7 @@ const Options: React.FC = (props) => {
                           premium: premium,
                           strike: option.strikePrice.quantity,
                           volume: 0,
+                          depth: 0,
                           reserve: reserve,
                           address: option.address,
                           underlyingAddress: option.assetAddresses[0],
@@ -219,6 +220,7 @@ const Options: React.FC = (props) => {
                           strike: strikePrice.quantity, //strikePrice does not properly return put strike
                           volume: 0,
                           reserve: reserve,
+                          depth: 0,
                           address: option.address,
                           underlyingAddress: option.assetAddresses[0],
                           expiry: option.expiry,

@@ -27,23 +27,23 @@ interface LPOptionProps {
 const LPOptions: React.FC<LPOptionProps> = ({ tokenA, tokenB, LPAddress }) => {
   const { chainId, library } = useWeb3React()
   const { data: pair } = useReserves(tokenA, tokenB)
+  useEffect(() => {
+    console.log(pair)
+  })
   const balance = false
   const { item, onChangeItem } = useOrders()
-  console.log(pair.reserve0)
   const change = (t: string) => {
     onChangeItem(item, t)
   }
   return (
     <StyledBottom>
-      <StyledSubtitle>
-        Liquidity Provision {pair ? pair.reserve0.denominator : null}
-      </StyledSubtitle>
+      <StyledSubtitle>Liquidity Provision</StyledSubtitle>
       <Spacer size="sm" />
       <LineItem label={'Reserves'} data={0} />
       <Spacer />
       <LineItem label={'LP Token Balance'} data={0} />
       <Spacer />
-      <Box row justifyContent="space-around" alignItems="center">
+      <Box row justifyContent="space-between" alignItems="center">
         <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
           Provide Liquidity
         </Button>

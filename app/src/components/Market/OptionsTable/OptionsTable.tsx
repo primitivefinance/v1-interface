@@ -59,8 +59,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     'Strike Price',
     'Break Even',
     'Price',
-    'Long Reserve',
-    'Short Reserve',
+    '2% Depth',
+    'Reserve',
     'Contract',
     '',
   ]
@@ -91,46 +91,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 premium,
                 strike,
                 reserve,
+                depth,
                 address,
                 expiry,
               } = option
 
               if (optionExp != expiry && expiry === 0) return null
-              if (reserve === 0) {
-                return (
-                  <TableRow
-                    key={address}
-                    onClick={() => {
-                      onAddItem(
-                        {
-                          ...option,
-                          asset: asset.toUpperCase(),
-                          isCall: type === 'calls',
-                        },
-                        ''
-                      )
-                    }}
-                  >
-                    <TableCell>${formatBalance(strike)}</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell>---</TableCell>
-                    <TableCell key={address}>
-                      <StyledARef
-                        href={`${baseUrl}/${option.address}`}
-                        target="__blank"
-                      >
-                        {formatAddress(option.address)}{' '}
-                        <LaunchIcon style={{ fontSize: '14px' }} />
-                      </StyledARef>
-                    </TableCell>
-                    <StyledButtonCell key={'Open'}>
-                      <ArrowForwardIosIcon />
-                    </StyledButtonCell>
-                  </TableRow>
-                )
-              }
               return (
                 <TableRow
                   key={address}
@@ -140,9 +106,21 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
                   <TableCell>${formatBalance(breakEven)}</TableCell>
-                  <TableCell>${formatBalance(premium)}</TableCell>
-                  <TableCell>{formatBalance(reserve)}</TableCell>
-                  <TableCell>{formatBalance(reserve)}</TableCell>
+                  {premium > 0 ? (
+                    <TableCell>${formatBalance(premium)}</TableCell>
+                  ) : (
+                    <TableCell>---</TableCell>
+                  )}
+                  {depth > 0 ? (
+                    <TableCell>{depth}</TableCell>
+                  ) : (
+                    <TableCell>---</TableCell>
+                  )}{' '}
+                  {reserve > 0 ? (
+                    <TableCell>{formatBalance(reserve)}</TableCell>
+                  ) : (
+                    <TableCell>---</TableCell>
+                  )}
                   <TableCell key={address}>
                     <StyledARef
                       href={`${baseUrl}/${option.address}`}

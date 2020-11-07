@@ -18,6 +18,7 @@ export type OptionsAttributes = {
   strike: BigNumberish
   volume: BigNumberish
   reserve: BigNumberish
+  depth: number
   address: string
   underlyingAddress?: string
   id: string
@@ -32,6 +33,7 @@ export const EmptyAttributes = {
   strike: 0,
   volume: 0,
   reserve: 0,
+  depth: 0,
   address: '',
   underlyingAddress: '',
   id: '',

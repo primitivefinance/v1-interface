@@ -10,6 +10,7 @@ import Spacer from '@/components/Spacer'
 import OrderProvider from '@/contexts/Order'
 import OptionsProvider from '@/contexts/Options'
 import { ADDRESS_FOR_MARKET } from '@/constants/index'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 import {
   FilterBar,
@@ -49,36 +50,38 @@ const Market = ({ market }) => {
     return <StyledText>Switch to Rinkeby or Mainnet</StyledText>
   }
   return (
-    <OrderProvider>
-      <OptionsProvider>
-        <StyledMarket>
-          <StyledMain>
-            <MarketHeader marketId={market} />
-            <FilterBar
-              active={callPutActive}
-              setCallActive={handleFilterType}
-              expiry={expiry}
-              setExpiry={handleFilterExpiry}
-            />
-            <OptionsTable
-              asset={market}
-              assetAddress={ADDRESS_FOR_MARKET[market]}
-              optionExp={expiry}
-              callActive={callPutActive}
-            />
-          </StyledMain>
-          <StyledSideBar>
-            <PositionsCard asset="ethereum" />
-            <OrderCard />
-            <NewMarketCard />
-            <Spacer />
-            <BetaBanner isOpen={true} />
-            <Spacer />
-            <TransactionCard />
-          </StyledSideBar>
-        </StyledMarket>
-      </OptionsProvider>
-    </OrderProvider>
+    <ErrorBoundary>
+      <OrderProvider>
+        <OptionsProvider>
+          <StyledMarket>
+            <StyledMain>
+              <MarketHeader marketId={market} />
+              <FilterBar
+                active={callPutActive}
+                setCallActive={handleFilterType}
+                expiry={expiry}
+                setExpiry={handleFilterExpiry}
+              />
+              <OptionsTable
+                asset={market}
+                assetAddress={ADDRESS_FOR_MARKET[market]}
+                optionExp={expiry}
+                callActive={callPutActive}
+              />
+            </StyledMain>
+            <StyledSideBar>
+              <PositionsCard asset="ethereum" />
+              <OrderCard />
+              <NewMarketCard />
+              <Spacer />
+              <BetaBanner isOpen={true} />
+              <Spacer />
+              <TransactionCard />
+            </StyledSideBar>
+          </StyledMarket>
+        </OptionsProvider>
+      </OrderProvider>
+    </ErrorBoundary>
   )
 }
 

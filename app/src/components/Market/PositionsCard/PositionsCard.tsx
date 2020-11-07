@@ -53,7 +53,6 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   })
 
   useEffect(() => {
-    console.log(option)
     const getAddress = async () => {
       try {
         console.log(library)
@@ -102,7 +101,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const shortBalance = parseInt(useTokenBalance(params?._redeemToken))
   const LPBalance = parseInt(useTokenBalance(position.LP))
 
-  if (params === isNullOrUndefined) return null
+  if (!params) return null
   const exp = new Date(parseInt(option.expiry.toString()) * 1000)
 
   if (longBalance !== 0 && shortBalance === 0 && LPBalance === 0) {
@@ -112,7 +111,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
         <span>
-          {`${option.asset} ${option.isCall ? 'Call' : 'Put'} $${
+          {`${option.asset} ${params.isCall ? 'Call' : 'Put'} $${
             item.strike
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
