@@ -39,6 +39,7 @@ import {
 } from '@/constants/index'
 import { getBalance } from '../../../lib/erc20'
 import { OptionParameters } from '../../../lib/entities/option'
+import formatBalance from '@/utils/formatBalance'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -53,29 +54,18 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     onAddItem(option.entity, Operation.NONE)
   }
 
-  const longBalance = useTokenBalance(option)
-  const shortBalance = useTokenBalance(option)
-  const LPBalance = useTokenBalance(option)
-
-  console.log(longBalance)
+  console.log(option.long)
   if (!option.entity.pair) return null
   const exp = new Date(parseInt(option.expiry.toString()) * 1000)
 
-  if (
-    longBalance !== '0.00' &&
-    shortBalance !== '0.00' &&
-    LPBalance !== '0.00'
-  ) {
-    return null
-  }
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   return (
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
         <span>
-          {`${option.asset} ${option.isCall ? 'Call' : 'Put'} $${
-            item.strike
+          {`${option.asset} ${option.entity.isCall ? 'Call' : 'Put'} $${
+            option.strike
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
@@ -85,9 +75,9 @@ const Position: React.FC<TokenProps> = ({ option }) => {
       </Box>
       <Spacer size="sm" />
       <Box row justifyContent="space-between" alignItems="center">
-        <span>Long {longBalance}</span>
-        <span>Short {shortBalance}</span>
-        <span>LP {LPBalance}</span>
+        <span>Long {formatBalance(option.long)}</span>
+        <span>Short {formatBalance(option.short)}</span>
+        <span>LP {formatBalance(option.lp)}</span>
       </Box>
     </StyledPosition>
   )
@@ -115,6 +105,23 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
         <CardTitle>Your Positions</CardTitle>
         <CardContent>
           <Loader />
+        </CardContent>
+      </Card>
+    )
+  }
+  if (!positions.loading && !positions.exists) {
+    return (
+      <Card>
+        <CardTitle>Your Positions</CardTitle>
+        <CardContent>
+          <StyledEmptyContent>
+            <StyledEmptyIcon>
+              <AddIcon />
+            </StyledEmptyIcon>
+            <StyledEmptyMessage>
+              Click an option to open a position
+            </StyledEmptyMessage>
+          </StyledEmptyContent>
         </CardContent>
       </Card>
     )
@@ -149,7 +156,6 @@ const StyledEmptyContent = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  position: absolute;
   justify-content: center;
 `
 

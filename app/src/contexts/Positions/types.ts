@@ -25,6 +25,7 @@ export type OptionPosition = {
   asset: string
   strike: BigNumberish
   address: string
+  expiry: BigNumberish
   long: BigNumberish
   redeem: BigNumberish
   lp: BigNumberish
@@ -35,6 +36,7 @@ export const EmptyPositionAttributes = {
   asset: '',
   strike: 0,
   address: '',
+  expiry: 0,
   long: 0,
   redeem: 0,
   lp: 0,
