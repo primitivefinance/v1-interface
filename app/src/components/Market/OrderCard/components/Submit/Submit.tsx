@@ -22,6 +22,7 @@ import { useWeb3React } from '@web3-react/core'
 import useTradeInfo from '@/hooks/useTradeInfo'
 import { useTradeSettings } from '@/hooks/user'
 import useOptionEntities from '@/hooks/useOptionEntities'
+import { STABLECOINS } from '@/constants/index'
 
 export interface SubmitProps {
   orderType: Operation
@@ -31,10 +32,10 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const [secondaryQuantity, setSecondaryQuantity] = useState('')
-  const { library } = useWeb3React()
-  //const tradeInfo = useTradeInfo()
+  const { library, chainId } = useWeb3React()
+  const tradeInfo = useTradeInfo()
 
-  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const stablecoinAddress = STABLECOINS[chainId].address
   const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb'
 
   let tokenAddress: string
@@ -96,8 +97,6 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       tokenAddress = stablecoinAddress
       break
     default:
-      capitalLabel = 'Buying'
-      tokenAddress = stablecoinAddress
       break
   }
 
@@ -154,10 +153,9 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         >
           <ArrowBackIcon />
         </IconButton>
-        <Spacer />
+        <Spacer size="sm" />
         <StyledTitle>{`${title ? title : capitalLabel}`}</StyledTitle>
       </Box>
-
       {orderType === Operation.ADD_LIQUIDITY ? (
         <LP
           titles={[`Quantity Options`, `Quantity Underlying`]}
@@ -171,7 +169,11 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.premium.toString()} units="$" />
+          <LineItem
+            label="Option Premium"
+            data={item.premium.toString()}
+            units="$"
+          />
           <Spacer />
           <PriceInput
             title="Quantity"

@@ -30,6 +30,7 @@ const StyledLabel = styled.div`
   flex: 1;
   letter-spacing: 1px;
   opacity: 0.66;
+  font-size: 14px;
   text-transform: uppercase;
 `
 

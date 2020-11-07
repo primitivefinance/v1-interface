@@ -43,12 +43,12 @@ const getTrade = async (
   const base = optionEntity.optionParameters.base.quantity
   const quote = optionEntity.optionParameters.quote.quantity
 
-  let path: string[] = []
-  let amountsIn: BigNumberish[] = []
+  const path: string[] = []
+  const amountsIn: BigNumberish[] = []
   let amountsOut: BigNumberish[] = []
-  let reserves: BigNumberish[] = []
+  const reserves: BigNumberish[] = []
   let totalSupply: BigNumberish
-  let trade: Trade = new Trade(
+  const trade: Trade = new Trade(
     optionEntity,
     inputAmount,
     outputAmount,

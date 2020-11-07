@@ -45,10 +45,11 @@ const Loader = styled.div`
 `
 const StyledBlockNumber = styled.h5`
   align-items: center;
-  padding: 4px;
+  padding: px;
   opacity: 90%;
   border-radius: 10px;
   color: ${(props) => props.theme.color.white};
+  background-color: ${(props) => props.theme.color.grey[800]};
   display: flex;
   max-height: 0.1em;
   margin-right: ${(props) => props.theme.spacing[4]}px;

@@ -107,6 +107,8 @@ export enum LocalStorageKeys {
   Slippage = 'slippage',
   Transactions = 'transactions',
   Stablecoin = 'stablecoin',
+  LoadingPositions = 'loadposition',
+  EmptyPositions = 'emptyposition',
 }
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -145,6 +147,8 @@ export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20
 export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
+export const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
+export const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 export const DEFAULT_ALLOWANCE = parseEther('10000000')
 

@@ -172,16 +172,14 @@ export class Protocol {
           'Primitive V1 Option',
           'PRM'
         )
-
         optionEntity.assetAddresses = tokens
         Object.assign(optionsEntityObject, {
           [optionAddresses[i]]: optionEntity,
         })
-      } catch {
-        return {}
+      } catch (e) {
+        console.log(e)
       }
     }
-
     return optionsEntityObject
   }
 

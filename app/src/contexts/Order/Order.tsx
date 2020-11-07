@@ -74,11 +74,10 @@ const Order: React.FC = (props) => {
     secondaryQuantity?: number
   ) => {
     const signer: ethers.Signer = await provider.getSigner()
-    const receiver: string = await signer.getAddress()
     const tradeSettings: TradeSettings = {
       slippage: slippage,
       timeLimit: DEFAULT_TIMELIMIT,
-      receiver: receiver,
+      receiver: account,
       deadline: DEFAULT_DEADLINE,
       stablecoin: STABLECOINS[chainId].address,
     }

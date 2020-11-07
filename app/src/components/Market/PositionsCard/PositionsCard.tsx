@@ -11,17 +11,19 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
+import LaunchIcon from '@material-ui/icons/Launch'
+
+import { Protocol } from '@/lib/protocol'
 
 import { useWeb3React } from '@web3-react/core'
-
-import { OrderItem } from '@/contexts/Order/types'
-import { destructureOptionSymbol } from '@/lib/utils'
 
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Spacer from '@/components/Spacer'
+import Box from '@/components/Box'
 import Button from '@/components/Button'
+import Loader from '@/components/Loader'
 import EmptyTable from '../EmptyTable'
 import FilledBar from '../FilledBar'
 import LitContainer from '@/components/LitContainer'
@@ -31,145 +33,150 @@ import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
 import { OrderItem as Item } from '@/contexts/Order/types'
-import { STABLECOINS } from '@/constants/index'
-
+import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
+import { getBalance } from '../../../lib/erc20'
 export interface TokenProps {
   option: any // replace with option type
+  adds: any
 }
 export interface PositionsProp {
   asset: string
 }
-const Position: React.FC<TokenProps> = ({ option }) => {
+const Position: React.FC<TokenProps> = ({ option, adds }) => {
   const { chainId, library } = useWeb3React()
-  const [balanceAddress, setBalanceAddress] = useState({
-    longT: '',
-    shortT: '',
+  const { onAddItem, item } = useOrders()
+  const [address, setAddress] = useState({
+    loading: true,
+    long: '',
+    short: '',
     LP: '',
   })
 
   useEffect(() => {
-    const getAddresses = async () => {
-      const optionContract = new ethers.Contract(
-        option.address,
-        Option.abi,
-        library
-      )
-      const redeemAddress = await optionContract.redeemToken()
-      const redeem = new Token(chainId, redeemAddress, 18)
-      const redeemPair = Pair.getAddress(STABLECOINS[chainId], redeem)
-
+    const getAddress = async () => {
       try {
-        const LPAddress = await new ethers.Contract(
-          redeemPair,
-          IUniswapV2Pair.abi,
+        console.log(library)
+
+        setAddress({
+          loading: false,
+          long: option.address,
+          short: redeemAddress,
+          LP: redeemPair,
+        })
+      } catch (e) {
+        const optionContract = new ethers.Contract(
+          option.address,
+          Option.abi,
           library
         )
-        return {
-          longT: option.address,
-          shortT: redeemAddress,
-          LP: LPAddress.liquidityToken,
-        }
-      } catch (error) {
-        return {
-          longT: option.address,
-          shortT: redeemAddress,
-          LP: 0,
-        }
+        const redeemAddress = await optionContract.redeemToken()
+        setAddress({
+          loading: false,
+          long: option.address,
+          short: redeemAddress,
+          LP: '',
+        })
       }
     }
+    getAddress()
+  }, [])
 
-    if (option.address) {
-      getAddresses().then((add) => setBalanceAddress(add))
-    }
-  }, [balanceAddress, setBalanceAddress])
-
-  const longBalance = useTokenBalance(balanceAddress.longT)
-  const shortBalance = useTokenBalance(balanceAddress.shortT)
-  const LPBalance = useTokenBalance(balanceAddress.LP)
-
-  if (longBalance || shortBalance || LPBalance) {
-    return (
-      <StyledPosition>
-        <span>{option.symbol}</span>
-        <span>{option.address}</span>
-        <span>Long Tokens {longBalance}</span>
-        <span>Short Tokens {shortBalance}</span>
-        <span>LP{LPBalance}</span>
-      </StyledPosition>
-    )
+  const handleClick = () => {
+    onAddItem(option, '')
   }
+  const longBalance = useTokenBalance(address.long)
+  const shortBalance = useTokenBalance(address.short)
+  const LPBalance = useTokenBalance(address.LP)
+
+  console.log(longBalance)
+  if (!address.long) return null
+  const exp = new Date(parseInt(option.expiry.toString()) * 1000)
+
+  if (longBalance !== 0 && shortBalance !== 0 && LPBalance !== 0) {
+    return null
+  }
+  const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
+
   return (
-    <Card>
-      <CardTitle>Your Positions</CardTitle>
-      <CardContent>Loading...</CardContent>
-    </Card>
+    <StyledPosition onClick={handleClick}>
+      <Box row justifyContent="space-between" alignItems="center">
+        <span>
+          {`${option.asset} ${option.isCall ? 'Call' : 'Put'} $${
+            item.strike
+          } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
+        </span>
+        <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
+          {option.address.substr(0, 4) + '...'}
+          <LaunchIcon style={{ fontSize: '14px' }} />
+        </StyledLink>
+      </Box>
+      <Spacer size="sm" />
+      <Box row justifyContent="space-between" alignItems="center">
+        <span>Long {longBalance}</span>
+        <span>Short {shortBalance}</span>
+        <span>LP {LPBalance}</span>
+      </Box>
+    </StyledPosition>
   )
 }
 
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
-  const { library, chainId } = useWeb3React()
-  const [positions, setPos] = useState()
+  const [positions, setPositions] = useState([])
+
+  const { library, chainId, account } = useWeb3React()
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {
         getOptions('WETH')
       } else {
-        getOptions(asset.toLowerCase().substr(0, 3))
+        getOptions(asset.toLowerCase())
       }
     }
   }, [library, asset, getOptions])
 
   if (item.expiry) return null
-  if (positions) {
+  if (options.loading)
     return (
       <Card>
         <CardTitle>Your Positions</CardTitle>
         <CardContent>
-          <>
-            <h4>Calls</h4>
-            {options.calls.map((pos, i) => {
-              return <Position key={i} option={pos} />
-            })}
-          </>
-          <h4>Puts</h4>
-          {options.puts.map((pos, i) => {
-            console.log(pos)
-            return <Position key={i} option={pos} />
-          })}
+          <Loader />
         </CardContent>
       </Card>
     )
-  }
   return (
-    <>
-      <Card>
-        <CardTitle>Your Positions</CardTitle>
-        <CardContent>
-          <StyledEmptyContent>
-            <StyledEmptyIcon>
-              <AddIcon />
-            </StyledEmptyIcon>
-            <StyledEmptyMessage>
-              Click an option to open an position
-            </StyledEmptyMessage>
-          </StyledEmptyContent>
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardTitle>Your Positions</CardTitle>
+      <CardContent>
+        {positions.map((pos, i) => {
+          return <Position key={i} option={pos} />
+        })}
+      </CardContent>
+    </Card>
   )
 }
-const StyledPosition = styled.div`
-  border: 1px solid ${(props) => props.theme.color.grey[400]};
+const StyledPosition = styled.a`
+  border: 0px solid ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};
   min-height: 2em;
+  border-radius: 4px;
+  padding: 0.8em;
+  cursor: pointer;
+  margin-bottom: 0.5em;
+`
+const StyledLink = styled.a`
+  text-decoration: none;
+  cursor: grab;
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const StyledEmptyContent = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
+  position: absolute;
   justify-content: center;
 `
 

@@ -19,60 +19,50 @@ import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 
+const LPOptions: React.FC = () => {
+  const { chainId, library } = useWeb3React()
+  const balance = false
+  const { item, onChangeItem } = useOrders()
+  const change = (t: Operation) => {
+    onChangeItem(item, t)
+    console.log(`change to ${t}`)
+  }
+  return (
+    <StyledBottom>
+      <StyledSubtitle>Liquidity Provision</StyledSubtitle>
+      <Spacer size="sm" />
+      <LineItem label={'Reserves'} data={0} />
+      <Spacer />
+      <LineItem label={'LP Token Balance'} data={0} />
+      <Spacer />
+      <Box row justifyContent="space-between" alignItems="center">
+        <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
+          Provide Liquidity
+        </Button>
+        <Spacer size="sm" />
+        {balance ? (
+          <Button size="sm" variant="secondary" disabled>
+            Withdraw
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => change(Operation.REMOVE_LIQUIDITY)}
+          >
+            Withdraw
+          </Button>
+        )}
+      </Box>
+    </StyledBottom>
+  )
+}
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
-  const { positions, getPositions } = usePositions()
   const { chainId, library } = useWeb3React()
-  const [balanceAddress, setBalanceAddress] = useState({
-    longT: '',
-    shortT: '',
-    longLP: '',
-    shortLP: '',
-  })
 
-  useEffect(() => {
-    const getAddresses = async () => {
-      const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2'
-      const tokenA = new Token(chainId, stablecoinAddress, 18)
-      // long side
-      const option = new ethers.Contract(item.address, Option.abi, library)
-      const optionToken = new Token(chainId, item.address, 18)
-      const longPair = Pair.getAddress(tokenA, optionToken)
-
-      // short side
-      const redeemAddress = await option.redeemToken()
-      const redeem = new Token(chainId, redeemAddress, 18)
-      const redeemPair = Pair.getAddress(tokenA, redeem)
-
-      try {
-        const longLPAddress = await new ethers.Contract(
-          longPair,
-          IUniswapV2Pair.abi,
-          library
-        ).liquidityToken
-        const shortLPAddress = await new ethers.Contract(
-          redeemPair,
-          IUniswapV2Pair.abi,
-          library
-        ).liquidityToken
-        return {
-          longT: item.address,
-          shortT: redeemAddress,
-          longLP: longLPAddress,
-          shortLP: shortLPAddress,
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    getAddresses().then((add) => setBalanceAddress(add))
-  }, [getPositions, positions, balanceAddress, setBalanceAddress])
-
-  const longBalance = useTokenBalance(balanceAddress.longT)
-  const shortBalance = useTokenBalance(balanceAddress.shortT)
-  const longLPBalance = useTokenBalance(balanceAddress.longLP)
-  const shortLPBalance = useTokenBalance(balanceAddress.shortLP)
+  const longBalance = useTokenBalance(item.address)
+  const shortBalance = useTokenBalance(item.underlyingAddress)
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -82,7 +72,7 @@ const OrderOptions: React.FC = () => {
     <>
       <Box row alignItems="flex-start" justifyContent="center">
         <StyledColumn>
-          <Box row justifyContent="flex-start" alignItems="center">
+          <Box row justifyContent="center" alignItems="center">
             <Label text={'Long Tokens'} />
             <Spacer />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
@@ -103,7 +93,7 @@ const OrderOptions: React.FC = () => {
         </StyledColumn>
 
         <StyledColumn>
-          <Box row justifyContent="flex-start" alignItems="center">
+          <Box row justifyContent="center" alignItems="center">
             <Label text={'Short Tokens'} />
             <Spacer />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
@@ -123,44 +113,8 @@ const OrderOptions: React.FC = () => {
           </Button>
           <Spacer />
         </StyledColumn>
-        <Spacer />
-
-        <Spacer />
       </Box>
-      <StyledBottom>
-        <Box row justifyContent="flex-start" alignItems="center">
-          <StyledColumn>
-            <Label text={'LP Tokens'} />
-            <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
-          </StyledColumn>
-
-          <StyledColumn>
-            <Button
-              full
-              size="sm"
-              onClick={() => change(Operation.ADD_LIQUIDITY)}
-            >
-              Provide Liquidity
-            </Button>
-            <Spacer size="sm" />
-            {!longLPBalance ? (
-              <Button full size="sm" variant="secondary" disabled>
-                Withdraw Liquidity
-              </Button>
-            ) : (
-              <Button
-                full
-                size="sm"
-                variant="secondary"
-                onClick={() => change(Operation.REMOVE_LIQUIDITY)}
-              >
-                Withdraw Liquidity
-              </Button>
-            )}
-          </StyledColumn>
-          <Spacer />
-        </Box>
-      </StyledBottom>
+      <LPOptions />
     </>
   )
 }
@@ -170,20 +124,20 @@ const StyledColumn = styled.div`
   padding-left: 1em;
   padding-right: 1em;
   flex-direction: column;
-  width: 42%;
+  width: 40%;
 `
-
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
   //padding-left: 1em;
 `
-
+const StyledSubtitle = styled.h3`
+  color: ${(props) => props.theme.color.white};
+`
 const StyledBottom = styled.div`
-  padding-top: 1em;
-  padding-bottom: 1em;
-  background: ${(props) => props.theme.color.black};
+  padding: 0 2em 1em 2em;
+  background: black;
   border-width: 1px;
-  border-radius: ${(props) => props.theme.borderRadius}px;
+  border-radius: 5px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
 `

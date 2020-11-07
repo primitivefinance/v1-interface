@@ -4,6 +4,7 @@ export interface OptionsContextValues {
   getOptions: (assetName: string) => void
 }
 export interface OptionsData {
+  loading: boolean
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
   reservesTotal: BigNumberish
@@ -17,8 +18,9 @@ export type OptionsAttributes = {
   strike: BigNumberish
   volume: BigNumberish
   reserve: BigNumberish
+  depth: number
   address: string
-  pairAddress?: string
+  underlyingAddress?: string
   id: string
   expiry: BigNumberish
 }
@@ -31,8 +33,9 @@ export const EmptyAttributes = {
   strike: 0,
   volume: 0,
   reserve: 0,
+  depth: 0,
   address: '',
-  pairAddress: '',
+  underlyingAddress: '',
   id: '',
   expiry: 0,
 }
