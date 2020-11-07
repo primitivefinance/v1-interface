@@ -45,16 +45,13 @@ const TransactionCard: React.FC = () => {
         </CardTitle>
         <CardContent>
           {Object.keys(txs).map((hash, i) => {
-            const date = new Date(txs[hash].addedTime * 1000)
-            const cr = Date.now()
-            const current = new Date(cr)
+            const date = new Date(txs[hash].confirmedTime)
+            console.log(date)
             return (
               <StyledTableRow isActive key={i}>
                 <TableCell>
                   <Box row justifyContent="space-between" alignItems="center">
-                    <StyledText>
-                      {date.getHours() + `:` + date.getMinutes()}{' '}
-                    </StyledText>
+                    <StyledText>{date.toUTCString().substr(16, 10)}</StyledText>
                     <Spacer />
                     <StyledLink
                       href={`${
