@@ -5,6 +5,7 @@ import { Quantity } from './quantity'
 import ethers from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 import { formatEther } from 'ethers/lib/utils'
+import { Pair } from '@uniswap/sdk'
 
 export interface OptionParameters {
   base: Quantity
@@ -58,6 +59,22 @@ export class Option extends Token {
 
   public optionInstance(signer): ethers.Contract {
     return new ethers.Contract(this.address, OptionArtifact.abi, signer)
+  }
+
+  public get pair(): string {
+    const SHORT_OPTION: Token = new Token(
+      this.chainId,
+      this.assetAddresses[2],
+      18
+    )
+    const UNDERLYING: Token = new Token(
+      this.chainId,
+      this.assetAddresses[0],
+      18
+    )
+    const address: string = Pair.getAddress(UNDERLYING, SHORT_OPTION)
+
+    return address
   }
 
   public get underlying(): Asset {

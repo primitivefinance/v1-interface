@@ -1,3 +1,4 @@
+import { Option } from '@/lib/entities'
 import { BigNumberish } from 'ethers'
 export interface OptionsContextValues {
   options: OptionsData
@@ -11,31 +12,33 @@ export interface OptionsData {
 }
 
 export type OptionsAttributes = {
+  entity: Option
   asset: string
   breakEven: BigNumberish
   change: BigNumberish
   premium: BigNumberish
   strike: BigNumberish
   volume: BigNumberish
+  reserves: BigNumberish[]
   reserve: BigNumberish
   depth: number
   address: string
-  underlyingAddress?: string
   id: string
   expiry: BigNumberish
 }
 
 export const EmptyAttributes = {
+  entity: null,
   asset: '',
   breakEven: 0,
   change: 0,
   premium: 0,
   strike: 0,
   volume: 0,
+  reserves: [0, 0],
   reserve: 0,
   depth: 0,
   address: '',
-  underlyingAddress: '',
   id: '',
   expiry: 0,
 }

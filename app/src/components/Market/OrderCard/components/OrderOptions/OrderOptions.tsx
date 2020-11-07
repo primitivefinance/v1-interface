@@ -10,30 +10,34 @@ import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
+import useOptions from '@/hooks/useOptions'
 import usePositions from '@/hooks/usePositions'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
 
 import LineItem from '@/components/LineItem'
+import MultiLineItem from '@/components/MultiLineItem'
 import TableRow from '../../../../TableRow/TableRow'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 
 const LPOptions: React.FC = () => {
-  const { chainId, library } = useWeb3React()
   const balance = false
   const { item, onChangeItem } = useOrders()
+  const pairBalance = useTokenBalance(item.entity.pair)
   const change = (t: Operation) => {
     onChangeItem(item, t)
-    console.log(`change to ${t}`)
   }
   return (
     <StyledBottom>
       <StyledSubtitle>Liquidity Provision</StyledSubtitle>
       <Spacer size="sm" />
-      <LineItem label={'Reserves'} data={0} />
+      <MultiLineItem label={'Reserves'}>
+        {' '}
+        {`${item.reserves[0].toString()} / ${item.reserves[1].toString()}`}
+      </MultiLineItem>
       <Spacer />
-      <LineItem label={'LP Token Balance'} data={0} />
+      <LineItem label={'LP Token Balance'} data={pairBalance.toString()} />
       <Spacer />
       <Box row justifyContent="space-between" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
@@ -59,10 +63,11 @@ const LPOptions: React.FC = () => {
 }
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
-  const { chainId, library } = useWeb3React()
 
   const longBalance = useTokenBalance(item.address)
-  const shortBalance = useTokenBalance(item.underlyingAddress)
+  const shortBalance = useTokenBalance(item.entity.assetAddresses[2])
+  const underlyingBalance = useTokenBalance(item.entity.assetAddresses[0])
+  const strikeBalance = useTokenBalance(item.entity.assetAddresses[1])
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -128,7 +133,6 @@ const StyledColumn = styled.div`
 `
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
-  //padding-left: 1em;
 `
 const StyledSubtitle = styled.h3`
   color: ${(props) => props.theme.color.white};

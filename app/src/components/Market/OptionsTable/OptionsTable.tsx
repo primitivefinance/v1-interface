@@ -104,8 +104,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     onAddItem(
                       {
                         ...option,
-                        asset: asset.toUpperCase(),
-                        isCall: type === 'calls',
                       },
                       null
                     )

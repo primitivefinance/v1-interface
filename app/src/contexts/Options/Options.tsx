@@ -76,6 +76,7 @@ const Options: React.FC = (props) => {
                   for (let i = 0; i < allKeys.length; i++) {
                     const key: string = allKeys[i]
                     const option: Option = optionEntitiesObject[key]
+                    const pair: string = allPairAddresses[i]
 
                     let reserves: string[] = allReservesData[i]
                     const path: string[] = [
@@ -111,12 +112,14 @@ const Options: React.FC = (props) => {
                           true
                         )
                         calls.push({
+                          entity: option,
                           asset: assetName,
                           breakEven: breakEven,
                           change: 0,
                           premium: premium,
                           strike: option.strikePrice.quantity,
                           volume: 0,
+                          reserves: reserves,
                           reserve: reserve,
                           depth: 0,
                           address: option.address,
@@ -146,12 +149,14 @@ const Options: React.FC = (props) => {
                           false
                         )
                         puts.push({
+                          entity: option,
                           asset: assetName,
                           breakEven: breakEven,
                           change: 0,
                           premium: premium,
                           strike: strikePrice.quantity,
                           volume: 0,
+                          reserves: reserves,
                           reserve: reserve,
                           depth: 0,
                           address: option.address,
