@@ -20,12 +20,12 @@ import TableRow from '../../../../TableRow/TableRow'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const LPOptions: React.FC = () => {
   const balance = false
   const { item, onChangeItem } = useOrders()
   const pairBalance = useTokenBalance(item.entity.pair)
-  console.log(item.entity.pair)
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }
@@ -35,7 +35,9 @@ const LPOptions: React.FC = () => {
       <Spacer size="sm" />
       <MultiLineItem label={'Reserves'}>
         {' '}
-        {`${item.reserves[0].toString()} / ${item.reserves[1].toString()}`}
+        {`${formatEtherBalance(item.reserves[0])} / ${formatEtherBalance(
+          item.reserves[1]
+        )}`}
       </MultiLineItem>
       <Spacer />
       <LineItem label={'LP Token Balance'} data={pairBalance.toString()} />

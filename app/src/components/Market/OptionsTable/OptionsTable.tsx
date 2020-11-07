@@ -15,9 +15,12 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import AddIcon from '@material-ui/icons/Add'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 import { useWeb3React } from '@web3-react/core'
 import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
 import { Operation } from '@/constants/index'
+
+import { BigNumber } from 'ethers'
 
 export type FormattedOption = {
   breakEven: number
@@ -95,7 +98,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 address,
                 expiry,
               } = option
-
               if (optionExp != expiry && expiry === 0) return null
               return (
                 <TableRow
@@ -110,9 +112,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   }}
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
-                  <TableCell>${formatBalance(breakEven)}</TableCell>
+                  <TableCell>${formatEtherBalance(breakEven)}</TableCell>
                   {premium > 0 ? (
-                    <TableCell>${formatBalance(premium)}</TableCell>
+                    <TableCell>${formatEtherBalance(premium)}</TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
@@ -121,8 +123,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   ) : (
                     <TableCell>-</TableCell>
                   )}
-                  {reserve > 0 ? (
-                    <TableCell>{formatBalance(reserve)}</TableCell>
+                  {BigNumber.from(reserve).gt(0) ? (
+                    <TableCell>{formatEtherBalance(reserve)}</TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}

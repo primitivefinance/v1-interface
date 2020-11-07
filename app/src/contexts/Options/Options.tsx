@@ -1,5 +1,6 @@
 import React, { useCallback, useReducer } from 'react'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { Pair, Token } from '@uniswap/sdk'
 
 import { useWeb3React } from '@web3-react/core'
@@ -44,7 +45,6 @@ const Options: React.FC = (props) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
-      const pairReserveTotal: BigNumberish = 0
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
@@ -52,6 +52,7 @@ const Options: React.FC = (props) => {
               let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
               const allPairAddresses: string[] = []
+              const allTokensArray: string[][] = []
               for (let i = 0; i < allKeys.length; i++) {
                 const key: string = allKeys[i]
                 const option: Option = optionEntitiesObject[key]
@@ -70,118 +71,159 @@ const Options: React.FC = (props) => {
                   SHORT_OPTION
                 )
                 allPairAddresses.push(address)
+                allTokensArray.push([
+                  option.assetAddresses[2],
+                  option.assetAddresses[0],
+                ])
               }
-              Protocol.getReservesFromMultiCall(provider, allPairAddresses)
-                .then((allReservesData) => {
-                  for (let i = 0; i < allKeys.length; i++) {
-                    const key: string = allKeys[i]
-                    const option: Option = optionEntitiesObject[key]
-                    const pair: string = allPairAddresses[i]
-
-                    let reserves: string[] = allReservesData[i]
-                    const path: string[] = [
-                      option.assetAddresses[2],
-                      option.assetAddresses[0],
-                    ]
-                    if (typeof reserves === 'undefined') reserves = ['0', '0']
-                    const reserves0: BigNumberish = reserves[0]
-                    const reserves1: BigNumberish = reserves[1]
-                    const Base: Quantity = option.optionParameters.base
-                    const Quote: Quantity = option.optionParameters.quote
-
-                    let premium: BigNumberish = Trade.getSpotPremium(
-                      Base.quantity,
-                      Quote.quantity,
-                      path,
-                      [reserves0, reserves1]
-                    )
-                    let reserve: BigNumberish = reserves1.toString()
-
-                    if (typeof reserve === 'undefined') reserve = 0
-                    if (typeof premium === 'undefined') premium = 0
-
-                    if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
-                    if (option.isCall) {
-                      if (
-                        Base.asset.symbol.toUpperCase() ===
-                        assetName.toUpperCase()
-                      ) {
-                        breakEven = calculateBreakeven(
-                          option.strikePrice.quantity,
-                          premium,
-                          true
-                        )
-                        calls.push({
-                          entity: option,
-                          asset: assetName,
-                          breakEven: breakEven,
-                          change: 0,
-                          premium: premium,
-                          strike: option.strikePrice.quantity,
-                          volume: 0,
-                          reserves: reserves,
-                          reserve: reserve,
-                          depth: 0,
-                          address: option.address,
-                          expiry: option.expiry,
-                          id: option.name,
-                        })
-                      }
-                    }
-                    if (option.isPut) {
-                      if (
-                        Quote.asset.symbol.toUpperCase() ===
-                        assetName.toUpperCase()
-                      ) {
-                        const denominator = ethers.BigNumber.from(
-                          option.optionParameters.quote.quantity
-                        )
-                        const numerator = ethers.BigNumber.from(
-                          option.optionParameters.base.quantity
-                        )
-                        const strikePrice = new Quantity(
-                          option.base.asset,
-                          numerator.div(denominator)
-                        )
-                        breakEven = calculateBreakeven(
-                          strikePrice.quantity,
-                          premium,
-                          false
-                        )
-                        puts.push({
-                          entity: option,
-                          asset: assetName,
-                          breakEven: breakEven,
-                          change: 0,
-                          premium: premium,
-                          strike: strikePrice.quantity,
-                          volume: 0,
-                          reserves: reserves,
-                          reserve: reserve,
-                          depth: 0,
-                          address: option.address,
-                          expiry: option.expiry,
-                          id: option.name,
-                        })
-                      }
+              Protocol.getPairsFromMultiCall(provider, allTokensArray)
+                .then((allPairsData) => {
+                  let actualPairs = []
+                  for (let pair of allPairsData) {
+                    if (pair !== ethers.constants.AddressZero) {
+                      actualPairs.push(pair)
                     }
                   }
-                  dispatch(
-                    setOptions({
-                      loading: false,
-                      calls: calls,
-                      puts: puts,
-                      reservesTotal: pairReserveTotal,
+                  Protocol.getReservesFromMultiCall(provider, actualPairs)
+                    .then((allReservesData) => {
+                      let allPackedReserves: any = []
+                      for (let t = 0; t < allReservesData.length / 3; t++) {
+                        const startIndex = t * 3
+                        const firstItem: string[] = allReservesData[startIndex]
+                        const secondItem: string =
+                          allReservesData[startIndex + 1]
+                        const thirdItem: string =
+                          allReservesData[startIndex + 2]
+                        allPackedReserves.push([
+                          firstItem,
+                          secondItem,
+                          thirdItem,
+                        ])
+                      }
+
+                      let pairReserveTotal: BigNumber = BigNumber.from(0)
+                      for (let i = 0; i < allKeys.length; i++) {
+                        const key: string = allKeys[i]
+                        const option: Option = optionEntitiesObject[key]
+                        let index: number = 0
+                        let reserves: string[] = ['0', '0']
+                        for (const packed of allPackedReserves) {
+                          index = packed.indexOf(option.assetAddresses[2])
+                          if (index !== -1) {
+                            reserves = packed[0]
+                          }
+                        }
+                        const path: string[] = [
+                          option.assetAddresses[2],
+                          option.assetAddresses[0],
+                        ]
+                        if (typeof reserves === 'undefined')
+                          reserves = ['0', '0']
+                        const reserves0: BigNumberish = reserves[0]
+                        const reserves1: BigNumberish = reserves[1]
+                        const Base: Quantity = option.optionParameters.base
+                        const Quote: Quantity = option.optionParameters.quote
+
+                        let premium: BigNumberish = Trade.getSpotPremium(
+                          Base.quantity,
+                          Quote.quantity,
+                          path,
+                          [reserves0, reserves1]
+                        )
+
+                        let reserve: BigNumberish = reserves1.toString()
+
+                        if (typeof reserve === 'undefined') reserve = 0
+                        if (typeof premium === 'undefined') premium = 0
+                        pairReserveTotal = pairReserveTotal.add(
+                          BigNumber.from(reserves1)
+                        )
+                        if (option.isCall) {
+                          if (
+                            Base.asset.symbol.toUpperCase() ===
+                            assetName.toUpperCase()
+                          ) {
+                            breakEven = calculateBreakeven(
+                              parseEther(
+                                option.strikePrice.quantity.toString()
+                              ),
+                              premium,
+                              true
+                            )
+                            calls.push({
+                              entity: option,
+                              asset: assetName,
+                              breakEven: breakEven,
+                              change: 0,
+                              premium: premium,
+                              strike: option.strikePrice.quantity,
+                              volume: 0,
+                              reserves: reserves,
+                              reserve: reserve,
+                              depth: 0,
+                              address: option.address,
+                              expiry: option.expiry,
+                              id: option.name,
+                            })
+                          }
+                        }
+                        if (option.isPut) {
+                          if (
+                            Quote.asset.symbol.toUpperCase() ===
+                            assetName.toUpperCase()
+                          ) {
+                            const denominator = ethers.BigNumber.from(
+                              option.optionParameters.quote.quantity
+                            )
+                            const numerator = ethers.BigNumber.from(
+                              option.optionParameters.base.quantity
+                            )
+                            const strikePrice = new Quantity(
+                              option.base.asset,
+                              numerator.div(denominator)
+                            )
+                            breakEven = calculateBreakeven(
+                              parseEther(strikePrice.quantity.toString()),
+                              premium,
+                              false
+                            )
+                            puts.push({
+                              entity: option,
+                              asset: assetName,
+                              breakEven: breakEven,
+                              change: 0,
+                              premium: premium,
+                              strike: strikePrice.quantity,
+                              volume: 0,
+                              reserves: reserves,
+                              reserve: reserve,
+                              depth: 0,
+                              address: option.address,
+                              expiry: option.expiry,
+                              id: option.name,
+                            })
+                          }
+                        }
+                        console.log(pairReserveTotal.toString())
+                      }
+                      dispatch(
+                        setOptions({
+                          loading: false,
+                          calls: calls,
+                          puts: puts,
+                          reservesTotal: pairReserveTotal,
+                        })
+                      )
                     })
-                  )
+                    .catch(() => {
+                      console.log(calls)
+                    })
                 })
-                .catch(() => {
-                  console.log(calls)
-                })
+                .catch((error) => console.log(`getReserves ${error}`))
             })
-            .catch((error) => console.log(error))
+            .catch((error) => console.log(`getOptions ${error}`))
         })
-        .catch((error) => console.log(error))
+        .catch((error) => console.log(`getClones ${error}`))
     },
     [dispatch, provider, chainId, setOptions]
   )
