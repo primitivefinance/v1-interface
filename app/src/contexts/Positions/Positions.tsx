@@ -19,9 +19,9 @@ import { STABLECOINS } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { Trade, Option, Quantity } from '@/lib/entities'
 import { getBalance } from '@/lib/erc20'
-
 import { ethers } from 'ethers'
 import { OptionsAttributes } from '../Options/types'
+import formatBalance from '@/utils/formatBalance'
 
 const Positions: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -50,8 +50,11 @@ const Positions: React.FC = (props) => {
           options[i].entity.assetAddresses[1],
           account
         )
-        console.log(long, redeem, lp)
-        if (long || redeem || lp) {
+        if (
+          formatBalance(long) === '0.00' &&
+          formatBalance(redeem) === '0.00' &&
+          formatBalance(lp) === '0.00'
+        ) {
           positionExists = true
           positionsArr.push({
             attributes: options[i],
@@ -61,7 +64,6 @@ const Positions: React.FC = (props) => {
           })
         }
       }
-      console.log(options)
       dispatch(
         setPositions({
           loading: false,
