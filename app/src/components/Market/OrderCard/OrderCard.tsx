@@ -34,7 +34,6 @@ const OrderCard: React.FC = () => {
   const clear = () => {
     onRemoveItem(item)
   }
-  console.log(item.id)
   return (
     <Card>
       <CardTitle>

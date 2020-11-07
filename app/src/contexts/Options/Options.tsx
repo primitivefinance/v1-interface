@@ -9,24 +9,21 @@ import {
   Route,
 } from '@uniswap/sdk'
 
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-
 import { useWeb3React } from '@web3-react/core'
 
 import OptionsContext from './context'
 import reducer, { initialState, setOptions } from './reducer'
 import { EmptyAttributes, OptionsAttributes } from './types'
 
-import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { showThrottleMessage } from '@ethersproject/providers'
 import { Protocol } from '@/lib/protocol'
-import { STABLECOINS } from '@/constants/index'
+import { STABLECOINS, UNI_ROUTER_ADDRESS } from '@/constants/index'
 import { Trade, Option } from '@/lib/entities'
 import MultiCall from '@/lib/multicall'
+import { Quantity } from '../../lib/entities/quantity'
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-
   // Web3 injection
   const { library, chainId } = useWeb3React()
   const provider = library
@@ -95,19 +92,31 @@ const Options: React.FC = (props) => {
       return { premium }
     }
     const chain = chainId
+    const signer = provider.getSigner()
+    const REDEEM = new Token(chain, option.assetAddresses[2], 18)
+    const UNDERLYING = new Token(chain, option.assetAddresses[0], 18)
 
-    const OPTION = new Token(chain, optionAddress, 18)
-    const UNDERLYING = STABLECOINS[chainId]
     const tokenA = UNDERLYING
-    const tokenB = OPTION
+    const tokenB = REDEEM
     try {
       const address = Pair.getAddress(tokenA, tokenB)
-      const [reserves0, reserves1] = await new ethers.Contract(
-        address,
-        IUniswapV2Pair.abi,
+      console.log(address)
+
+      const UniswapRouter = new ethers.Contract(
+        UNI_ROUTER_ADDRESS,
+        IUniswapV2Router.abi,
         provider
-      ).getReserves()
+      )
+      const Factory = new ethers.Contract(
+        await UniswapRouter.factory(),
+        IUniswapV2Factory.abi,
+        provider
+      )
+      const Pair = new ethers.Contract(address, IUniswapV2Pair.abi, provider)
       const path = [option.assetAddresses[2], option.assetAddresses[0]] // 0 = underlying, 1 = strike ,2 = redeem
+
+      const { reserves0, reserves1 } = await Pair.getReserves()
+      console.log(reserves0)
       premium = Trade.getSpotPremium(base, quote, path, [reserves0, reserves1])
       const balances = tokenA.sortsBefore(tokenB)
         ? [reserves0, reserves1]
@@ -148,7 +157,6 @@ const Options: React.FC = (props) => {
         .then((optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
             .then((optionEntitiesObject) => {
-              console.log(optionEntitiesObject)
               let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
 
@@ -161,7 +169,8 @@ const Options: React.FC = (props) => {
                   option.optionParameters.quote.asset.symbol
                 getPairData(provider, option)
                   .then(({ premium, reserve }) => {
-                    if (reserve) BigNumber.from(pairReserveTotal).add(reserve)
+                    if (reserve !== 0)
+                      BigNumber.from(pairReserveTotal).add(reserve)
                     if (option.isCall) {
                       if (baseAssetSymbol === assetName) {
                         breakEven = calculateBreakeven(
@@ -178,6 +187,7 @@ const Options: React.FC = (props) => {
                           volume: 0,
                           reserve: reserve,
                           address: option.address,
+                          underlyingAddress: option.assetAddresses[0],
                           expiry: option.expiry,
                           id: option.name,
                         })
@@ -190,15 +200,27 @@ const Options: React.FC = (props) => {
                           premium,
                           false
                         )
+
+                        const denominator = ethers.BigNumber.from(
+                          option.optionParameters.quote.quantity
+                        )
+                        const numerator = ethers.BigNumber.from(
+                          option.optionParameters.base.quantity
+                        )
+                        const strikePrice = new Quantity(
+                          option.base,
+                          numerator.div(denominator)
+                        )
                         puts.push({
                           asset: assetName,
                           breakEven: breakEven,
                           change: 0,
                           premium: premium,
-                          strike: option.strikePrice.quantity,
+                          strike: strikePrice.quantity, //strikePrice does not properly return put strike
                           volume: 0,
                           reserve: reserve,
                           address: option.address,
+                          underlyingAddress: option.assetAddresses[0],
                           expiry: option.expiry,
                           id: option.name,
                         })
@@ -209,6 +231,7 @@ const Options: React.FC = (props) => {
               }
               dispatch(
                 setOptions({
+                  loading: false,
                   calls: calls,
                   puts: puts,
                   reservesTotal: pairReserveTotal,

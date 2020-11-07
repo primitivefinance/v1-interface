@@ -11,7 +11,7 @@ export const useTokenBalance = (tokenAddress: string) => {
 
   const fetchBalance = useCallback(async () => {
     const balance = await getBalance(library, tokenAddress, account)
-    setBalance(formatEther(balance).toString())
+    setBalance((Math.ceil(parseInt(balance.toString()) * 100) / 100).toString())
   }, [account, library, tokenAddress])
 
   useEffect(() => {

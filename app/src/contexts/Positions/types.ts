@@ -1,10 +1,12 @@
 export interface PositionsContextValues {
-  positions: PositionsData
-  getPositions: (assetName: string, options: any) => void
+  position: PositionsData
+  getPosition: (optionAddress: string) => void
 }
 export interface PositionsData {
-  calls: PositionsAttributes[]
-  puts: PositionsAttributes[]
+  loading: boolean
+  long: string
+  short: string
+  LP: string
 }
 
 export type PositionsAttributes = {
@@ -22,5 +24,5 @@ export const EmptyPositionsAttributes = {
 }
 
 export interface PositionsState {
-  positions: PositionsData
+  position: PositionsData
 }

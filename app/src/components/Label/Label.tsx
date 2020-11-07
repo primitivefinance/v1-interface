@@ -13,6 +13,7 @@ const StyledLabel = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   letter-spacing: 1px;
   opacity: 0.66;
+  font-size: 14px;
   text-transform: uppercase;
 `
 

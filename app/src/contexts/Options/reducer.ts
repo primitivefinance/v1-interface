@@ -9,6 +9,7 @@ export interface SetOptionsAction {
 export type OptionsActions = SetOptionsAction
 export const initialState: OptionsState = {
   options: {
+    loading: true,
     calls: [EmptyAttributes],
     puts: [EmptyAttributes],
     reservesTotal: 0,

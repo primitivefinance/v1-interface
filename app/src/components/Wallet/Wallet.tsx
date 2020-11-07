@@ -158,9 +158,9 @@ export const Wallet = () => {
     <Box row alignItems="center" justifyContent="flex-end">
       <Network id={chainId} />
       <Spacer size="md" />
-      <Suspense fallback={null}>
+      {/*<Suspense fallback={null}>
         <Balance amount={balance} />
-      </Suspense>
+  </Suspense>*/}
       {balance ? <Spacer size="md" /> : <Spacer size="sm" />}
       <AddressButton
         network={chainId}

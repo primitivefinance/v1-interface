@@ -106,6 +106,8 @@ export enum LocalStorageKeys {
   Slippage = 'slippage',
   Transactions = 'transactions',
   Stablecoin = 'stablecoin',
+  LoadingPositions = 'loadposition',
+  EmptyPositions = 'emptyposition',
 }
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'

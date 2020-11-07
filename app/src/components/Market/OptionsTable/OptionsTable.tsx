@@ -8,10 +8,9 @@ import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
-
+import Loader from '@/components/Loader'
 import useOrders from '@/hooks/useOrders'
 import useOptions from '@/hooks/useOptions'
-
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import AddIcon from '@material-ui/icons/Add'
@@ -43,6 +42,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
+
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {
@@ -52,8 +52,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       }
     }
   }, [library, asset, getOptions])
-
-  console.log({ options })
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -83,37 +81,68 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         </LitContainer>
       </StyledTableHead>
       <LitContainer>
-        <TableBody>
-          {options[type].map((option) => {
-            const {
-              breakEven,
-              premium,
-              strike,
-              reserve,
-              address,
-              expiry,
-            } = option
-            if (optionExp != expiry && expiry === 0) return null
-            if (reserve === 0) {
+        {options.loading ? (
+          <Loader />
+        ) : (
+          <TableBody>
+            {options[type].map((option) => {
+              const {
+                breakEven,
+                premium,
+                strike,
+                reserve,
+                address,
+                expiry,
+              } = option
+
+              if (optionExp != expiry && expiry === 0) return null
+              if (reserve === 0) {
+                return (
+                  <TableRow
+                    key={address}
+                    onClick={() => {
+                      onAddItem(
+                        {
+                          ...option,
+                          asset: asset.toUpperCase(),
+                          isCall: type === 'calls',
+                        },
+                        ''
+                      )
+                    }}
+                  >
+                    <TableCell>${formatBalance(strike)}</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell>---</TableCell>
+                    <TableCell key={address}>
+                      <StyledARef
+                        href={`${baseUrl}/${option.address}`}
+                        target="__blank"
+                      >
+                        {formatAddress(option.address)}{' '}
+                        <LaunchIcon style={{ fontSize: '14px' }} />
+                      </StyledARef>
+                    </TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <ArrowForwardIosIcon />
+                    </StyledButtonCell>
+                  </TableRow>
+                )
+              }
               return (
                 <TableRow
                   key={address}
                   onClick={() => {
-                    onAddItem(
-                      {
-                        ...option,
-                        asset: asset.toUpperCase(),
-                        isCall: type === 'calls',
-                      },
-                      ''
-                    )
+                    onAddItem(option, '')
                   }}
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
-                  <TableCell>---</TableCell>
-                  <TableCell>---</TableCell>
-                  <TableCell>---</TableCell>
-                  <TableCell>---</TableCell>
+                  <TableCell>${formatBalance(breakEven)}</TableCell>
+                  <TableCell>${formatBalance(premium)}</TableCell>
+                  <TableCell>{formatBalance(reserve)}</TableCell>
+                  <TableCell>{formatBalance(reserve)}</TableCell>
                   <TableCell key={address}>
                     <StyledARef
                       href={`${baseUrl}/${option.address}`}
@@ -128,64 +157,30 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   </StyledButtonCell>
                 </TableRow>
               )
-            }
-            return (
-              <TableRow
-                key={address}
-                onClick={() => {
-                  onAddItem(option, '')
-                }}
-              >
-                <TableCell>${formatBalance(strike)}</TableCell>
-                <TableCell>${formatBalance(breakEven)}</TableCell>
-                <TableCell>${formatBalance(premium)}</TableCell>
-                <TableCell>{formatBalance(reserve)}</TableCell>
-                <TableCell>{formatBalance(reserve)}</TableCell>
-                <TableCell key={address}>
-                  <StyledARef
-                    href={`${baseUrl}/${option.address}`}
-                    target="__blank"
-                  >
-                    {formatAddress(option.address)}{' '}
-                    <LaunchIcon style={{ fontSize: '14px' }} />
-                  </StyledARef>
-                </TableCell>
-                <StyledButtonCell key={'Open'}>
-                  <ArrowForwardIosIcon />
-                </StyledButtonCell>
-              </TableRow>
-            )
-          })}
-          <TableRow
-            isActive
-            onClick={() => {
-              onAddItem(
-                {
-                  expiry: optionExp,
-                  asset: asset,
-                  underlyingAddress: assetAddress,
-                },
-                'NEW_MARKET'
-              )
-            }}
-          >
-            <TableCell></TableCell>
-            <StyledButtonCellError key={'Open'}>
-              <AddIcon />
-              <Spacer size="md" />
-              Add a New Option Market
-            </StyledButtonCellError>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableBody>
-        {/**
-           *           <>
-            <EmptyTable columns={headers} />
-            <EmptyTable columns={headers} />
-            <EmptyTable columns={headers} />
-          </>
-           * 
-           */}
+            })}
+            <TableRow
+              isActive
+              onClick={() => {
+                onAddItem(
+                  {
+                    expiry: optionExp,
+                    asset: asset,
+                    underlyingAddress: assetAddress,
+                  },
+                  'NEW_MARKET'
+                )
+              }}
+            >
+              <TableCell></TableCell>
+              <StyledButtonCellError key={'Open'}>
+                <AddIcon />
+                <Spacer size="md" />
+                Add a New Option Market
+              </StyledButtonCellError>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableBody>
+        )}
       </LitContainer>
     </Table>
   )

@@ -19,6 +19,7 @@ import LP from '../LiquidityPool/LP'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import { useWeb3React } from '@web3-react/core'
+import { STABLECOINS } from '@/constants/index'
 
 export interface SubmitProps {
   orderType: Operation
@@ -27,9 +28,9 @@ export interface SubmitProps {
 const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
-  const { library } = useWeb3React()
+  const { library, chainId } = useWeb3React()
 
-  const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
+  const stablecoinAddress = STABLECOINS[chainId].address
   const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb'
 
   let tokenAddress: string
@@ -107,8 +108,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
     (e: React.FormEvent<HTMLInputElement>) => {
       if (!e.currentTarget.value) {
         setQuantity('')
-      }
-      if (Number(e.currentTarget.value)) {
+      } else {
         setQuantity(e.currentTarget.value)
       }
     },
@@ -131,10 +131,9 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         >
           <ArrowBackIcon />
         </IconButton>
-        <Spacer />
+        <Spacer size="sm" />
         <StyledTitle>{`${title ? title : capitalLabel}`}</StyledTitle>
       </Box>
-
       {orderType === Operation.ADD_LIQUIDITY ? (
         <LP
           title={`Quantity (${item.id})`}
@@ -146,7 +145,11 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       ) : (
         <>
           <Spacer />
-          <LineItem label="Price" data={item.premium.toString()} units="$" />
+          <LineItem
+            label="Option Premium"
+            data={item.premium.toString()}
+            units="$"
+          />
           <Spacer />
           <PriceInput
             title="Quantity"
