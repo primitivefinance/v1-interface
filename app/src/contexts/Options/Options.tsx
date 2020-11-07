@@ -45,7 +45,6 @@ const Options: React.FC = (props) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
 
-      const pairReserveTotal: BigNumberish = 0
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
@@ -101,6 +100,8 @@ const Options: React.FC = (props) => {
                           thirdItem,
                         ])
                       }
+
+                      let pairReserveTotal: BigNumber = BigNumber.from(0)
                       for (let i = 0; i < allKeys.length; i++) {
                         const key: string = allKeys[i]
                         const option: Option = optionEntitiesObject[key]
@@ -111,9 +112,6 @@ const Options: React.FC = (props) => {
                           if (index !== -1) {
                             reserves = packed[0]
                           }
-                        }
-                        if (reserves[0] !== '0') {
-                          console.log({ reserves })
                         }
                         const path: string[] = [
                           option.assetAddresses[2],
@@ -137,9 +135,9 @@ const Options: React.FC = (props) => {
 
                         if (typeof reserve === 'undefined') reserve = 0
                         if (typeof premium === 'undefined') premium = 0
-
-                        if (reserve)
-                          BigNumber.from(pairReserveTotal).add(reserve)
+                        pairReserveTotal = pairReserveTotal.add(
+                          BigNumber.from(reserves1)
+                        )
                         if (option.isCall) {
                           if (
                             Base.asset.symbol.toUpperCase() ===
@@ -206,6 +204,7 @@ const Options: React.FC = (props) => {
                             })
                           }
                         }
+                        console.log(pairReserveTotal.toString())
                       }
                       dispatch(
                         setOptions({

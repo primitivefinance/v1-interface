@@ -8,8 +8,10 @@ import Spacer from '@/components/Spacer'
 import useSWR from 'swr'
 import useOptions from '@/hooks/useOptions'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 
 import formatBalance from '@/utils/formatBalance'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 import {
   COINGECKO_ID_FOR_MARKET,
@@ -120,8 +122,10 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             <Spacer size="sm" />
             <StyledPrice>
               {options.calls[0] ? (
-                options.reservesTotal !== 0 ? (
-                  `$ ${formatBalance(options.reservesTotal)}`
+                options.reservesTotal ? (
+                  `${formatEtherBalance(
+                    options.reservesTotal
+                  )}  ${symbol.toUpperCase()}`
                 ) : (
                   'N/A'
                 )

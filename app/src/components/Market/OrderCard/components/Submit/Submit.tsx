@@ -23,6 +23,7 @@ import useTradeInfo from '@/hooks/useTradeInfo'
 import { useTradeSettings } from '@/hooks/user'
 import useOptionEntities from '@/hooks/useOptionEntities'
 import { STABLECOINS } from '@/constants/index'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 export interface SubmitProps {
   orderType: Operation
@@ -171,7 +172,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           <Spacer />
           <LineItem
             label="Option Premium"
-            data={item.premium.toString()}
+            data={formatEtherBalance(item.premium).toString()}
             units="$"
           />
           <Spacer />

@@ -98,7 +98,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 address,
                 expiry,
               } = option
-              console.log({ premium, breakEven, reserve, depth })
               if (optionExp != expiry && expiry === 0) return null
               return (
                 <TableRow
