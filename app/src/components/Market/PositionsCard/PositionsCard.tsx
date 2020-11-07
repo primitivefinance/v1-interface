@@ -11,6 +11,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 import { Protocol } from '@/lib/protocol'
 
@@ -32,7 +33,7 @@ import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
 import { OrderItem as Item } from '@/contexts/Order/types'
-import { STABLECOINS } from '@/constants/index'
+import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
 import { isNullOrUndefined } from 'util'
 
 export interface TokenProps {
@@ -63,7 +64,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
         )
         const redeemAddress = await optionContract.redeemToken()
         const redeem = new Token(chainId, redeemAddress, 18)
-        const redeemPair = Pair.getAddress(STABLECOINS[chainId], redeem)
+        const redeemPair = Pair.getAddress(option.underlyingAddress, redeem)
         setPos({
           loading: false,
           long: option.address,
@@ -107,6 +108,8 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   if (longBalance !== 0 && shortBalance === 0 && LPBalance === 0) {
     return null
   }
+  const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
+
   return (
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
@@ -115,7 +118,10 @@ const Position: React.FC<TokenProps> = ({ option }) => {
             item.strike
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
-        <a href="https://google.com">{option.address.substr(0, 4) + '...'}</a>
+        <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
+          {option.address.substr(0, 4) + '...'}
+          <LaunchIcon style={{ fontSize: '14px' }} />
+        </StyledLink>
       </Box>
       <span>Long Tokens {longBalance}</span>
       <span>Short Tokens {shortBalance}</span>
@@ -127,6 +133,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
+  const [positions, setPositions] = useState()
 
   const { library, chainId } = useWeb3React()
   useEffect(() => {
@@ -138,47 +145,53 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
       }
     }
   }, [library, asset, getOptions])
-
+  useEffect(() => {
+    const getPositions = async () => {
+      options.calls.map((pos) => {
+        console.log('Put' + pos.address)
+      })
+      options.puts.map((pos) => {
+        console.log('Put' + pos.address)
+      })
+    }
+    getPositions()
+  }, [positions, setPositions])
   if (item.expiry) return null
+  if (options.loading) return <Loader />
   return (
     <Card>
       <CardTitle>Your Positions</CardTitle>
       <CardContent>
-        <>
-          {options.calls.map((pos, i) => {
-            return <Position key={i} option={pos} />
-          })}
-        </>
-        <Spacer />
+        {options.calls.map((pos, i) => {
+          return <Position key={i} option={pos} />
+        })}
         {options.puts.map((pos, i) => {
           return <Position key={i} option={pos} />
         })}
-        <Spacer />
-        <StyledEmptyContent>
-          <StyledEmptyIcon>
-            <AddIcon />
-          </StyledEmptyIcon>
-          <StyledEmptyMessage>
-            Click an option to open a new position
-          </StyledEmptyMessage>
-        </StyledEmptyContent>
       </CardContent>
     </Card>
   )
 }
 const StyledPosition = styled.a`
-  border: 1px solid ${(props) => props.theme.color.grey[400]};
+  border: 0px solid ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};
   min-height: 2em;
   border-radius: 4px;
-  padding: 0.4em;
+  padding: 0.8em;
+  cursor: pointer;
   margin-bottom: 0.5em;
+`
+const StyledLink = styled.a`
+  text-decoration: none;
+  cursor: grab;
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const StyledEmptyContent = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
+  position: absolute;
   justify-content: center;
 `
 

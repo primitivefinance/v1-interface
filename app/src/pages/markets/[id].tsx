@@ -70,11 +70,11 @@ const Market = ({ market }) => {
               />
             </StyledMain>
             <StyledSideBar>
+              <BetaBanner isOpen={true} />
+              <Spacer />
               <PositionsCard asset="ethereum" />
               <OrderCard />
               <NewMarketCard />
-              <Spacer />
-              <BetaBanner isOpen={true} />
               <Spacer />
               <TransactionCard />
             </StyledSideBar>
@@ -104,6 +104,7 @@ const StyledSideBar = styled.div`
   flex: 0.3;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px;
+  padding-top: 0 !important;
   width: ${(props) => props.theme.sidebarWidth}%;
 `
 const StyledText = styled.h4`

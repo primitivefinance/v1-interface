@@ -146,3 +146,6 @@ export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20
 export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
+
+export const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
+export const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'

@@ -18,6 +18,7 @@ import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 
 import { useWeb3React } from '@web3-react/core'
+import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
 
 export type FormattedOption = {
   breakEven: number
@@ -33,9 +34,6 @@ export interface OptionsTableProps {
   assetAddress: string
   callActive: boolean
 }
-
-const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
-const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { callActive, asset, assetAddress, optionExp } = props
@@ -82,7 +80,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       </StyledTableHead>
       <LitContainer>
         {options.loading ? (
-          <Loader />
+          <>
+            <Spacer />
+            <Loader />
+          </>
         ) : (
           <TableBody>
             {options[type].map((option) => {
