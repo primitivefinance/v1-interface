@@ -242,7 +242,7 @@ const useTradeInfo = () => {
   const { library } = useWeb3React()
   const { item, orderType } = useOrders()
   const optionEntities = useOptionEntities([item.address])
-  const tradeSet = useTradeSettings()
+  const tradeSettings = useTradeSettings()
 
   const fetchTrade = useCallback(async () => {
     if (library && typeof optionEntities !== 'undefined') {
@@ -252,24 +252,23 @@ const useTradeInfo = () => {
         1,
         orderType,
         1,
-        tradeSet,
+        tradeSettings,
         optionEntities[item.address]
       )
       if (tradeInfo) {
         setTrade(tradeInfo)
+        console.log(tradeInfo)
       }
     }
-  }, [library, orderType, item])
+  }, [library, orderType, item, tradeSettings, optionEntities, getTrade])
 
   useEffect(() => {
     if (library) {
       fetchTrade()
-      let refreshInterval = setInterval(fetchTrade, 1000000)
-      return () => clearInterval(refreshInterval)
     }
-  }, [library, orderType, fetchTrade, setTrade, item])
+  }, [library, orderType, setTrade, item, tradeSettings, fetchTrade])
 
-  return 1
+  return trade
 }
 
 export default useTradeInfo

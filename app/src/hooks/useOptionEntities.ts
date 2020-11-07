@@ -23,15 +23,13 @@ const useOptionEntities = (optionAddresses: string[]) => {
         setEntities(optionEntities)
       }
     }
-  }, [chainId, library, optionAddresses])
+  }, [chainId, library, optionAddresses, Protocol])
 
   useEffect(() => {
     if (chainId && library) {
       fetchOptionEntities()
-      let refreshInterval = setInterval(fetchOptionEntities, 1000000000)
-      return () => clearInterval(refreshInterval)
     }
-  }, [setEntities, optionAddresses, library, chainId])
+  }, [setEntities, optionAddresses, library, chainId, Protocol])
 
   return entities
 }

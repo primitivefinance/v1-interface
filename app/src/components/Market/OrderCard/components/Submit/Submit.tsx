@@ -32,8 +32,6 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const [quantity, setQuantity] = useState('')
   const [secondaryQuantity, setSecondaryQuantity] = useState('')
   const { library } = useWeb3React()
-  const tradeSettings = useTradeSettings()
-  const optionEntities = useOptionEntities([item.address])
   const tradeInfo = useTradeInfo()
 
   const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
