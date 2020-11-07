@@ -49,7 +49,7 @@ export const changeItem = (
 
 export const initialState = {
   item: EmptyAttributes,
-  orderType: '',
+  orderType: null,
 }
 
 const reducer = (state: OrderState = initialState, action: OrderAction) => {
