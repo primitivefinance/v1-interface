@@ -54,11 +54,7 @@ const Positions: React.FC = (props) => {
         if (long || redeem || lp) {
           positionExists = true
           positionsArr.push({
-            entity: options[i].entity,
-            asset: options[i].asset,
-            strike: options[i].strike,
-            address: options[i].address,
-            expiry: options[i].expiry,
+            attributes: options[i],
             long: long,
             redeem: redeem,
             lp: lp,

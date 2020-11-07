@@ -27,7 +27,7 @@ const OrderContent: React.FC = () => {
 
 const OrderCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
-  if (!item.id) {
+  if (!item.expiry) {
     return null
   }
   const exp = new Date(parseInt(item.expiry.toString()) * 1000)

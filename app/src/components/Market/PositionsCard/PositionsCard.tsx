@@ -51,12 +51,12 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const { onAddItem, item } = useOrders()
 
   const handleClick = () => {
-    onAddItem(option.entity, Operation.NONE)
+    onAddItem(option.attributes, Operation.NONE)
   }
 
   console.log(option.long)
-  if (!option.entity.pair) return null
-  const exp = new Date(parseInt(option.expiry.toString()) * 1000)
+  if (!option.attributes.entity.pair) return null
+  const exp = new Date(parseInt(option.attributes.expiry.toString()) * 1000)
 
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
@@ -64,12 +64,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
         <span>
-          {`${option.asset} ${option.entity.isCall ? 'Call' : 'Put'} $${
-            option.strike
+          {`${option.attributes.asset} ${
+            option.attributes.entity.isCall ? 'Call' : 'Put'
+          } $${
+            option.attributes.strike
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
-          {option.address.substr(0, 4) + '...'}
+          {option.attributes.address.substr(0, 4) + '...'}
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
       </Box>

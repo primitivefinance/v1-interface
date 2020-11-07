@@ -1,6 +1,6 @@
 import { Option } from '@/lib/entities/option'
 import { BigNumberish } from 'ethers'
-import { OptionsAttributes } from '../Options/types'
+import { OptionsAttributes, EmptyAttributes } from '../Options/types'
 
 export interface PositionsContextValues {
   positions: PositionsData
@@ -21,22 +21,14 @@ export type PositionsAttributes = {
 }
 
 export type OptionPosition = {
-  entity: Option
-  asset: string
-  strike: BigNumberish
-  address: string
-  expiry: BigNumberish
+  attributes: OptionsAttributes
   long: BigNumberish
   redeem: BigNumberish
   lp: BigNumberish
 }
 
 export const EmptyPositionAttributes = {
-  entity: null,
-  asset: '',
-  strike: 0,
-  address: '',
-  expiry: 0,
+  attributes: EmptyAttributes,
   long: 0,
   redeem: 0,
   lp: 0,
