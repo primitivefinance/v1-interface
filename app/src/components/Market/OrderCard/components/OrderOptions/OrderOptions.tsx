@@ -19,21 +19,13 @@ import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 
-interface LPOptionProps {
-  tokenA: Token
-  tokenB: Token
-  LPAddress?: string
-}
-const LPOptions: React.FC<LPOptionProps> = ({ tokenA, tokenB, LPAddress }) => {
+const LPOptions: React.FC = () => {
   const { chainId, library } = useWeb3React()
-  const { data: pair } = useReserves(tokenA, tokenB)
-  useEffect(() => {
-    console.log(pair)
-  })
   const balance = false
   const { item, onChangeItem } = useOrders()
-  const change = (t: string) => {
+  const change = (t: Operation) => {
     onChangeItem(item, t)
+    console.log(`change to ${t}`)
   }
   return (
     <StyledBottom>
@@ -44,7 +36,7 @@ const LPOptions: React.FC<LPOptionProps> = ({ tokenA, tokenB, LPAddress }) => {
       <LineItem label={'LP Token Balance'} data={0} />
       <Spacer />
       <Box row justifyContent="space-between" alignItems="center">
-        <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
+        <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
@@ -56,7 +48,7 @@ const LPOptions: React.FC<LPOptionProps> = ({ tokenA, tokenB, LPAddress }) => {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => change('REMOVE_LIQUIDITY')}
+            onClick={() => change(Operation.REMOVE_LIQUIDITY)}
           >
             Withdraw
           </Button>
@@ -68,16 +60,9 @@ const LPOptions: React.FC<LPOptionProps> = ({ tokenA, tokenB, LPAddress }) => {
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
   const { chainId, library } = useWeb3React()
-  const tokenA = new Token(chainId, item.address, 18)
-  const tokenB = new Token(chainId, item.underlyingAddress, 18)
 
-  const [balanceAddress, setBalanceAddress] = useState({
-    longT: '',
-    shortT: '',
-  })
-
-  const longBalance = useTokenBalance(balanceAddress.longT)
-  const shortBalance = useTokenBalance(balanceAddress.shortT)
+  const longBalance = useTokenBalance(item.address)
+  const shortBalance = useTokenBalance(item.underlyingAddress)
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -130,7 +115,7 @@ const OrderOptions: React.FC = () => {
           <Spacer />
         </StyledColumn>
       </Box>
-      <LPOptions tokenA={tokenA} tokenB={tokenB} />
+      <LPOptions />
     </>
   )
 }
@@ -142,7 +127,6 @@ const StyledColumn = styled.div`
   flex-direction: column;
   width: 40%;
 `
-
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
   //padding-left: 1em;

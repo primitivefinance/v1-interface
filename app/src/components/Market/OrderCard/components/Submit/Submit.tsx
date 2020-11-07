@@ -22,6 +22,7 @@ import { useWeb3React } from '@web3-react/core'
 import useTradeInfo from '@/hooks/useTradeInfo'
 import { useTradeSettings } from '@/hooks/user'
 import useOptionEntities from '@/hooks/useOptionEntities'
+import { STABLECOINS } from '@/constants/index'
 
 export interface SubmitProps {
   orderType: Operation
@@ -31,7 +32,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
   const [quantity, setQuantity] = useState('')
   const [secondaryQuantity, setSecondaryQuantity] = useState('')
-  const { library } = useWeb3React()
+  const { library, chainId } = useWeb3React()
   const tradeInfo = useTradeInfo()
 
   const stablecoinAddress = STABLECOINS[chainId].address
@@ -96,8 +97,6 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       tokenAddress = stablecoinAddress
       break
     default:
-      capitalLabel = 'Buying'
-      tokenAddress = stablecoinAddress
       break
   }
 
