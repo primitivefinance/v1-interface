@@ -105,7 +105,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       {
                         ...option,
                       },
-                      null
+                      Operation.NONE
                     )
                   }}
                 >
