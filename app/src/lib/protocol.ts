@@ -177,7 +177,9 @@ export class Protocol {
         Object.assign(optionsEntityObject, {
           [optionAddresses[i]]: optionEntity,
         })
-      } catch {}
+      } catch {
+        return {}
+      }
     }
 
     return optionsEntityObject

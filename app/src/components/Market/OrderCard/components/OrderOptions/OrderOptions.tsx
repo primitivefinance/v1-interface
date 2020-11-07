@@ -17,6 +17,7 @@ import LineItem from '@/components/LineItem'
 import TableRow from '../../../../TableRow/TableRow'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
+import { Operation } from '@/constants/index'
 
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
@@ -73,8 +74,9 @@ const OrderOptions: React.FC = () => {
   const longLPBalance = useTokenBalance(balanceAddress.longLP)
   const shortLPBalance = useTokenBalance(balanceAddress.shortLP)
 
-  const change = (t: string) => {
+  const change = (t: Operation) => {
     onChangeItem(item, t)
+    console.log(`change to ${t}`)
   }
 
   return (
@@ -83,9 +85,10 @@ const OrderOptions: React.FC = () => {
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Long Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('LONG')}>
+          <Button full size="sm" onClick={() => change(Operation.LONG)}>
             Open Long
           </Button>
           <Spacer size="sm" />
@@ -94,17 +97,19 @@ const OrderOptions: React.FC = () => {
             disabled={longBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_LONG')}
+            onClick={() => change(Operation.CLOSE_LONG)}
           >
             Close Long
           </Button>
         </StyledColumn>
+
         <StyledColumn>
           <Box row justifyContent="flex-start" alignItems="center">
             <Label text={'Short Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('SHORT')}>
+          <Button full size="sm" onClick={() => change(Operation.SHORT)}>
             Open Short
           </Button>
           <Spacer size="sm" />
@@ -113,7 +118,7 @@ const OrderOptions: React.FC = () => {
             disabled={shortBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_SHORT')}
+            onClick={() => change(Operation.CLOSE_SHORT)}
           >
             Close Short
           </Button>
@@ -129,26 +134,32 @@ const OrderOptions: React.FC = () => {
             <Label text={'LP Tokens'} />
             <StyledBalance>{formatBalance(longLPBalance)}</StyledBalance>
           </StyledColumn>
-          <Spacer size="md" />
-          <Box column justifyContent="center" alignItems="flex-start">
-            <Button size="sm" onClick={() => change('ADD_LIQUIDITY')}>
+
+          <StyledColumn>
+            <Button
+              full
+              size="sm"
+              onClick={() => change(Operation.ADD_LIQUIDITY)}
+            >
               Provide Liquidity
             </Button>
             <Spacer size="sm" />
             {!longLPBalance ? (
-              <Button size="sm" variant="secondary" disabled>
+              <Button full size="sm" variant="secondary" disabled>
                 Withdraw Liquidity
               </Button>
             ) : (
               <Button
+                full
                 size="sm"
                 variant="secondary"
-                onClick={() => change('REMOVE_LIQUIDITY')}
+                onClick={() => change(Operation.REMOVE_LIQUIDITY)}
               >
                 Withdraw Liquidity
               </Button>
             )}
-          </Box>
+          </StyledColumn>
+          <Spacer />
         </Box>
       </StyledBottom>
     </>
@@ -165,14 +176,15 @@ const StyledColumn = styled.div`
 
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
-  padding-left: 1em;
+  //padding-left: 1em;
 `
 
 const StyledBottom = styled.div`
-  padding: 1em;
-  background: black;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  background: ${(props) => props.theme.color.black};
   border-width: 1px;
-  border-radius: 10px;
+  border-radius: ${(props) => props.theme.borderRadius}px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
 `

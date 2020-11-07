@@ -1,20 +1,33 @@
-import ethers from 'ethers'
+import ethers, { BigNumberish } from 'ethers'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import Option from '@primitivefi/contracts/artifacts/Option.json'
 import { parseEther } from 'ethers/lib/utils'
 import { SinglePositionParameters } from '../types'
 const MIN_ALLOWANCE: ethers.BigNumber = parseEther('10000000')
+import { Transaction } from '@/contexts/Transactions/types'
 
-const checkAllowance = async (signer, tokenAddress, spenderAddress) => {
+export const checkAllowance = async (
+  signer,
+  tokenAddress,
+  spenderAddress
+): Promise<BigNumberish> => {
   const token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
   const owner = await signer.getAddress()
   const allowance = await token.allowance(owner, spenderAddress)
   console.log(
     `Allowance of token ${tokenAddress} of account ${owner} for ${spenderAddress} is ${allowance}`
   )
-  if (allowance < MIN_ALLOWANCE) {
-    await token.approve(spenderAddress, MIN_ALLOWANCE)
-  }
+  return allowance
+}
+
+export const executeApprove = async (
+  signer,
+  tokenAddress,
+  spenderAddress
+): Promise<Transaction> => {
+  const token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
+  let tx: Transaction = await token.approve(spenderAddress, MIN_ALLOWANCE)
+  return tx
 }
 
 const executeTransaction = async (
@@ -24,6 +37,7 @@ const executeTransaction = async (
   let tx: any = {}
   const args = transaction.args
 
+  let approvalTxs: any[] = []
   if (transaction.tokensToApprove.length > 0) {
     // for each contract
     for (let i = 0; i < transaction.contractsToApprove.length; i++) {
@@ -31,10 +45,17 @@ const executeTransaction = async (
       // for each token check allowance
       for (let t = 0; t < transaction.tokensToApprove.length; t++) {
         let tokenAddress = transaction.tokensToApprove[t]
-        await checkAllowance(signer, tokenAddress, contractAddress)
+        checkAllowance(signer, tokenAddress, contractAddress)
+          .then((tx) => {
+            approvalTxs.push(tx)
+          })
+          .catch((err) => {
+            throw Error(`Approving transaction issue: ${err}`)
+          })
       }
     }
   }
+  console.log(approvalTxs)
   console.log(`Executing transaction:`, transaction)
   try {
     tx = await transaction.contract[transaction.methodName](...args, {

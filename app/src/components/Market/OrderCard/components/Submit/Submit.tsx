@@ -19,6 +19,9 @@ import LP from '../LiquidityPool/LP'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import { useWeb3React } from '@web3-react/core'
+import useTradeInfo from '@/hooks/useTradeInfo'
+import { useTradeSettings } from '@/hooks/user'
+import useOptionEntities from '@/hooks/useOptionEntities'
 
 export interface SubmitProps {
   orderType: Operation
@@ -29,6 +32,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const [quantity, setQuantity] = useState('')
   const [secondaryQuantity, setSecondaryQuantity] = useState('')
   const { library } = useWeb3React()
+  const tradeInfo = useTradeInfo()
 
   const stablecoinAddress = '0xb05cB19b19e09c4c7b72EA929C8CfA3187900Ad2' // Fix - should not be hardcode
   const testEthAddress = '0xc45c339313533a6c9B05184CD8B5486BC53F75Fb'

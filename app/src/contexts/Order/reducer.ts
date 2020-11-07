@@ -1,5 +1,6 @@
 import { OrderItem, OrderState } from './types'
 import { EmptyAttributes } from '../Options/types'
+import { Operation } from '@/constants/index'
 
 const ADD_ITEM = 'ADD_ITEM'
 const REMOVE_ITEM = 'REMOVE_ITEM'
@@ -8,7 +9,7 @@ const CHANGE_ITEM = 'CHANGE_ITEM'
 export interface AddItemAction {
   type: typeof ADD_ITEM
   item: OrderItem
-  orderType: string
+  orderType: Operation
 }
 export interface RemoveItemAction {
   type: typeof REMOVE_ITEM
@@ -18,12 +19,15 @@ export interface RemoveItemAction {
 export interface ChangeItemAction {
   type: typeof CHANGE_ITEM
   item: OrderItem
-  orderType: string
+  orderType: Operation
 }
 
 export type OrderAction = AddItemAction | ChangeItemAction | RemoveItemAction
 
-export const addItem = (item: OrderItem, orderType: string): AddItemAction => ({
+export const addItem = (
+  item: OrderItem,
+  orderType: Operation
+): AddItemAction => ({
   type: ADD_ITEM,
   item,
   orderType,
@@ -36,7 +40,7 @@ export const removeItem = (item: OrderItem): RemoveItemAction => ({
 
 export const changeItem = (
   item: OrderItem,
-  orderType: string
+  orderType: Operation
 ): ChangeItemAction => ({
   type: CHANGE_ITEM,
   item,

@@ -1,5 +1,5 @@
 import React, { useCallback, useReducer } from 'react'
-import ethers, { BigNumberish } from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 
@@ -17,6 +17,7 @@ import {
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
   STABLECOINS,
+  DEFAULT_ALLOWANCE,
 } from '@/constants/index'
 
 import { Operation, UNISWAP_FACTORY_V2 } from '@/lib/constants'
@@ -28,26 +29,31 @@ import { Uniswap } from '@/lib/uniswap'
 import { TradeSettings, SinglePositionParameters } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 
-import executeTransaction from '@/lib/utils/executeTransaction'
+import executeTransaction, {
+  checkAllowance,
+  executeApprove,
+} from '@/lib/utils/executeTransaction'
 import useTransactions from '@/hooks/transactions/index'
 import { useSlippage } from '@/hooks/user'
+import { useBlockNumber } from '@/hooks/data'
 
 const Order: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { chainId, account } = useWeb3React()
-  const { addTransaction } = useTransactions()
+  const { addTransaction, checkTransaction } = useTransactions()
   const [slippage] = useSlippage()
+  const { data } = useBlockNumber()
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem, orderType: Operation) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem, orderType: Operation) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]
@@ -289,14 +295,60 @@ const Order: React.FC = (props) => {
         break
     }
 
-    const tx: Transaction = await executeTransaction(signer, transaction)
+    let approvalTxs: any[] = []
+    if (transaction.tokensToApprove.length > 0) {
+      // for each contract
+      for (let i = 0; i < transaction.contractsToApprove.length; i++) {
+        let contractAddress = transaction.contractsToApprove[i]
+        // for each token check allowance
+        for (let t = 0; t < transaction.tokensToApprove.length; t++) {
+          let tokenAddress = transaction.tokensToApprove[t]
+          checkAllowance(signer, tokenAddress, contractAddress).then(
+            (allowance) => {
+              if (BigNumber.from(allowance).lt(DEFAULT_ALLOWANCE)) {
+                executeApprove(signer, tokenAddress, contractAddress)
+                  .then((tx) => {
+                    if (tx.hash) {
+                      approvalTxs.push(tx)
+                      addTransaction(chainId, {
+                        hash: tx.hash,
+                        addedTime: now(),
+                        from: account,
+                      })
+                      checkTransaction(chainId, data, tx)
+                    }
+                  })
+                  .catch((err) => {
+                    throw Error(`Approving transaction issue: ${err}`)
+                  })
+              }
+            }
+          )
+        }
+      }
+    }
+
+    executeTransaction(signer, transaction)
+      .then((tx) => {
+        if (tx.hash) {
+          addTransaction(chainId, {
+            hash: tx.hash,
+            addedTime: now(),
+            from: account,
+          })
+        }
+      })
+      .catch((err) => {
+        throw Error(`Executing transaction issue: ${err}`)
+      })
+    /* const tx: Transaction = await executeTransaction(signer, transaction)
     if (tx.hash) {
       addTransaction(chainId, {
         hash: tx.hash,
         addedTime: now(),
         from: account,
       })
-    }
+    } */
   }
 
   return (

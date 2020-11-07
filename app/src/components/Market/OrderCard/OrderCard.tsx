@@ -17,10 +17,11 @@ import { Operation } from '@/lib/constants'
 const OrderContent: React.FC = () => {
   const { orderType } = useOrders()
 
-  if (orderType.length > 0) {
-    return <Submit orderType={Operation[orderType]} />
+  if (orderType !== null) {
+    console.log(orderType)
+    return <Submit orderType={orderType} />
   }
-  if (orderType === '') {
+  if (orderType === null) {
     return <OrderOptions />
   }
 }
@@ -34,7 +35,6 @@ const OrderCard: React.FC = () => {
   const clear = () => {
     onRemoveItem(item)
   }
-  console.log(item.id)
   return (
     <Card>
       <CardTitle>
