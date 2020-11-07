@@ -51,7 +51,13 @@ const TransactionCard: React.FC = () => {
               <StyledTableRow isActive key={i}>
                 <TableCell>
                   <Box row justifyContent="space-between" alignItems="center">
-                    <StyledText>{date.toUTCString().substr(16, 10)}</StyledText>
+                    {!txs[hash].receipt ? (
+                      <>Processing...</>
+                    ) : (
+                      <StyledText>
+                        {date.toUTCString().substr(16, 10)}
+                      </StyledText>
+                    )}
                     <Spacer />
                     <StyledLink
                       href={`${
