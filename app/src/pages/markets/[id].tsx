@@ -19,7 +19,7 @@ import {
   OrderCard,
   PositionsCard,
   NewMarketCard,
-} from '../../components/Market'
+} from '@/components/Market'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -67,7 +67,7 @@ const Market = ({ market }) => {
             <StyledSideBar>
               <BetaBanner isOpen={true} />
               <Spacer />
-              <PositionsCard asset="ethereum" />
+              <PositionsCard asset={market} />
               <OrderCard />
               <NewMarketCard />
               <Spacer />
