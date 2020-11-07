@@ -1,37 +1,39 @@
+import { useCallback, useEffect, useState } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Option } from '@/lib/entities/option'
 import { Protocol } from '@/lib/index'
-import useSWR from 'swr'
-import { DataType } from './data'
+import { useWeb3React } from '@web3-react/core'
 
 export interface OptionEntities {
   [address: string]: Option
 }
 
-const getOptionEntities = (
-  chainId: number,
-  provider: Web3Provider,
-  optionAddresses: string[]
-): (() => Promise<any>) => {
-  return async (): Promise<any> => {
-    return Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
-  }
-}
+const useOptionEntities = (optionAddresses: string[]) => {
+  const [entities, setEntities] = useState<OptionEntities>()
+  const { library, chainId } = useWeb3React()
 
-const useOptionEntities = (
-  chainId: number,
-  provider: Web3Provider,
-  optionAddresses: string[]
-): any => {
-  const suspense = true
-  const shouldFetch = true
-  const result = useSWR(
-    shouldFetch ? [DataType.Option] : null,
-    getOptionEntities(chainId, provider, optionAddresses),
-    { suspense }
-  )
-  console.log(`option result: ${result.data}`)
-  return result
+  const fetchOptionEntities = useCallback(async () => {
+    if (optionAddresses) {
+      const optionEntities = await Protocol.getOptionsUsingMultiCall(
+        chainId,
+        optionAddresses,
+        library
+      )
+      if (library && optionEntities) {
+        setEntities(optionEntities)
+      }
+    }
+  }, [chainId, library, optionAddresses])
+
+  useEffect(() => {
+    if (chainId && library) {
+      fetchOptionEntities()
+      let refreshInterval = setInterval(fetchOptionEntities, 1000000000)
+      return () => clearInterval(refreshInterval)
+    }
+  }, [setEntities, optionAddresses, library, chainId])
+
+  return entities
 }
 
 export default useOptionEntities

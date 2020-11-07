@@ -1,10 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { Operation } from '@/lib/constants'
 import { BigNumberish } from 'ethers'
+import { Operation } from '@/constants/index'
 
 export interface OrderContextValues {
   item: OrderItem
-  orderType: string
+  orderType: Operation
   onAddItem: (item: OrderItem, orderType: string) => void
   onChangeItem: (item: OrderItem, orderType: string) => void
   onRemoveItem: (item: OrderItem) => void

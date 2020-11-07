@@ -17,6 +17,7 @@ import LineItem from '@/components/LineItem'
 import TableRow from '../../../../TableRow/TableRow'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
+import { Operation } from '@/constants/index'
 
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
@@ -73,7 +74,7 @@ const OrderOptions: React.FC = () => {
   const longLPBalance = useTokenBalance(balanceAddress.longLP)
   const shortLPBalance = useTokenBalance(balanceAddress.shortLP)
 
-  const change = (t: string) => {
+  const change = (t: Operation) => {
     onChangeItem(item, t)
   }
 
@@ -86,7 +87,7 @@ const OrderOptions: React.FC = () => {
             <Spacer />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('LONG')}>
+          <Button full size="sm" onClick={() => change(Operation.LONG)}>
             Open Long
           </Button>
           <Spacer size="sm" />

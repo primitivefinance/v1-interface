@@ -46,14 +46,14 @@ const Order: React.FC = (props) => {
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem, orderType: Operation) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem, orderType: string) => {
+    (item: OrderItem, orderType: Operation) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]

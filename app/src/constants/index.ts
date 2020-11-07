@@ -147,3 +147,19 @@ export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
 
 export const DEFAULT_ALLOWANCE = parseEther('10000000')
+
+export enum Operation {
+  MINT,
+  EXERCISE,
+  REDEEM,
+  CLOSE,
+  UNWIND,
+  LONG,
+  SHORT,
+  CLOSE_LONG,
+  CLOSE_SHORT,
+  NEUTRAL,
+  ADD_LIQUIDITY,
+  REMOVE_LIQUIDITY,
+  REMOVE_LIQUIDITY_CLOSE,
+}
