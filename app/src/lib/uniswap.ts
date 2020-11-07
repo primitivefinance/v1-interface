@@ -1,6 +1,6 @@
 import { STABLECOIN_ADDRESS, Operation } from './constants'
 import { Trade } from './entities'
-import ethers from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
@@ -145,11 +145,21 @@ export class Uniswap {
         const amountADesired = ethers.BigNumber.from(amountOptions)
           .mul(trade.option.optionParameters.quote.quantity)
           .div(trade.option.optionParameters.base.quantity)
-        const amountBDesired = trade.quote(
-          amountADesired,
-          trade.reserves[0],
-          trade.reserves[1]
-        )
+
+        let amountBDesired: BigNumberish
+        if (
+          BigNumber.from(trade.reserves[0]).isZero() &&
+          BigNumber.from(trade.reserves[1]).isZero()
+        ) {
+          amountBDesired = trade.outputAmount.quantity
+        } else {
+          amountBDesired = trade.quote(
+            amountADesired,
+            trade.reserves[0],
+            trade.reserves[1]
+          )
+        }
+
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,
           tradeSettings.slippage

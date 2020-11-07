@@ -7,6 +7,13 @@ import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
 import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '../../constants'
 
+import { TradeSettings } from '@/lib/types'
+import {
+  DEFAULT_DEADLINE,
+  DEFAULT_TIMELIMIT,
+  STABLECOINS,
+} from '@/constants/index'
+
 declare global {
   interface Window {
     ethereum: any
@@ -16,6 +23,19 @@ declare global {
 // https://github.com/Uniswap/uniswap-interface/blob/master/src/hooks/index.ts
 export function useSlippage() {
   return useLocalStorage<string>(LocalStorageKeys.Slippage, DEFAULT_SLIPPAGE)
+}
+
+export function useTradeSettings(): TradeSettings {
+  const [slippage] = useSlippage()
+  const { account, chainId } = useWeb3React()
+  const tradeSettings: TradeSettings = {
+    slippage: slippage,
+    timeLimit: DEFAULT_TIMELIMIT,
+    receiver: account,
+    deadline: DEFAULT_DEADLINE,
+    stablecoin: STABLECOINS[chainId].address,
+  }
+  return tradeSettings
 }
 
 export function useActiveWeb3React(): Web3ReactContextInterface<

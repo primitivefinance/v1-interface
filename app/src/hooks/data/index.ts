@@ -6,6 +6,7 @@ export enum DataType {
   Reserves,
   Token,
   RemoteTokens,
+  Option,
 }
 
 export { useETHBalance } from './useETHBalance'

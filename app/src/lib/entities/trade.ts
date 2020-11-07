@@ -285,7 +285,12 @@ export class Trade {
     reserveA: BigNumberish,
     reserveB: BigNumberish
   ): BigNumberish => {
-    let amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    let amountB
+    if (ethers.BigNumber.from(reserveA).isZero()) {
+      amountB = 0
+    } else {
+      amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    }
     return amountB
   }
 }

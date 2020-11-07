@@ -8,33 +8,40 @@ import Spacer from '@/components/Spacer'
 import { BigNumberish } from 'ethers'
 
 export interface LPProps {
-  title: string
+  titles: string[]
   balance: BigNumberish
-  quantity: BigNumberish
-  onChange: (e: React.FormEvent<HTMLInputElement>) => void
-  onClick: () => void
+  quantities: BigNumberish[]
+  onPrimaryChange: (e: React.FormEvent<HTMLInputElement>) => void
+  onPrimaryClick: () => void
+  onSecondaryChange: (e: React.FormEvent<HTMLInputElement>) => void
+  onSecondaryClick: () => void
 }
 
 const LP: React.FC<LPProps> = ({
-  title,
+  titles,
   balance,
-  quantity,
-  onChange,
-  onClick,
+  quantities,
+  onPrimaryChange,
+  onPrimaryClick,
+  onSecondaryChange,
+  onSecondaryClick,
 }) => {
   return (
     <>
       <Spacer />
       <PriceInput
-        title={title}
-        quantity={quantity}
-        onChange={onChange}
-        onClick={onClick}
+        title={titles[0]}
+        quantity={quantities[0]}
+        onChange={onPrimaryChange}
+        onClick={onPrimaryClick}
       />
       <Spacer />
-      <Label text={`Quantity (${title.substr(10, 3)})`} />
-      <Spacer size="sm" />
-      <Input placeholder="0.00" onChange={onChange} value={`${quantity}`} />
+      <PriceInput
+        title={titles[1]}
+        quantity={quantities[1]}
+        onChange={onSecondaryChange}
+        onClick={onSecondaryClick}
+      />
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price per LP Token" />

@@ -34,19 +34,18 @@ import TableRow from '@/components/TableRow'
 import Timer from '../Timer'
 import { OrderItem as Item } from '@/contexts/Order/types'
 import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
-import { isNullOrUndefined } from 'util'
-
+import { getBalance } from '../../../lib/erc20'
 export interface TokenProps {
   option: any // replace with option type
+  adds: any
 }
 export interface PositionsProp {
   asset: string
 }
-const Position: React.FC<TokenProps> = ({ option }) => {
+const Position: React.FC<TokenProps> = ({ option, adds }) => {
   const { chainId, library } = useWeb3React()
   const { onAddItem, item } = useOrders()
-  const [params, setParams] = useState()
-  const [position, setPos] = useState({
+  const [address, setAddress] = useState({
     loading: true,
     long: '',
     short: '',
@@ -57,15 +56,8 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     const getAddress = async () => {
       try {
         console.log(library)
-        const optionContract = new ethers.Contract(
-          option.address,
-          Option.abi,
-          library
-        )
-        const redeemAddress = await optionContract.redeemToken()
-        const redeem = new Token(chainId, redeemAddress, 18)
-        const redeemPair = Pair.getAddress(option.underlyingAddress, redeem)
-        setPos({
+
+        setAddress({
           loading: false,
           long: option.address,
           short: redeemAddress,
@@ -78,7 +70,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           library
         )
         const redeemAddress = await optionContract.redeemToken()
-        setPos({
+        setAddress({
           loading: false,
           long: option.address,
           short: redeemAddress,
@@ -86,26 +78,21 @@ const Position: React.FC<TokenProps> = ({ option }) => {
         })
       }
     }
-    const getParams = async () => {
-      const pm = await Protocol.getOptionParametersFromMultiCall(library, [
-        option.address,
-      ])
-      setParams(pm[0])
-    }
-    getParams()
+    getAddress()
   }, [])
 
   const handleClick = () => {
     onAddItem(option, '')
   }
-  const longBalance = parseInt(useTokenBalance(params?._strikeToken))
-  const shortBalance = parseInt(useTokenBalance(params?._redeemToken))
-  const LPBalance = parseInt(useTokenBalance(position.LP))
+  const longBalance = useTokenBalance(address.long)
+  const shortBalance = useTokenBalance(address.short)
+  const LPBalance = useTokenBalance(address.LP)
 
-  if (!params) return null
+  console.log(longBalance)
+  if (!address.long) return null
   const exp = new Date(parseInt(option.expiry.toString()) * 1000)
 
-  if (longBalance !== 0 && shortBalance === 0 && LPBalance === 0) {
+  if (longBalance !== 0 && shortBalance !== 0 && LPBalance !== 0) {
     return null
   }
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -114,7 +101,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
         <span>
-          {`${option.asset} ${params.isCall ? 'Call' : 'Put'} $${
+          {`${option.asset} ${option.isCall ? 'Call' : 'Put'} $${
             item.strike
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
@@ -123,9 +110,12 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
       </Box>
-      <span>Long Tokens {longBalance}</span>
-      <span>Short Tokens {shortBalance}</span>
-      <span>LP{LPBalance}</span>
+      <Spacer size="sm" />
+      <Box row justifyContent="space-between" alignItems="center">
+        <span>Long {longBalance}</span>
+        <span>Short {shortBalance}</span>
+        <span>LP {LPBalance}</span>
+      </Box>
     </StyledPosition>
   )
 }
@@ -133,9 +123,9 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
-  const [positions, setPositions] = useState()
+  const [positions, setPositions] = useState([])
 
-  const { library, chainId } = useWeb3React()
+  const { library, chainId, account } = useWeb3React()
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {
@@ -145,27 +135,22 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
       }
     }
   }, [library, asset, getOptions])
-  useEffect(() => {
-    const getPositions = async () => {
-      options.calls.map((pos) => {
-        console.log('Put' + pos.address)
-      })
-      options.puts.map((pos) => {
-        console.log('Put' + pos.address)
-      })
-    }
-    getPositions()
-  }, [positions, setPositions])
+
   if (item.expiry) return null
-  if (options.loading) return <Loader />
+  if (options.loading)
+    return (
+      <Card>
+        <CardTitle>Your Positions</CardTitle>
+        <CardContent>
+          <Loader />
+        </CardContent>
+      </Card>
+    )
   return (
     <Card>
       <CardTitle>Your Positions</CardTitle>
       <CardContent>
-        {options.calls.map((pos, i) => {
-          return <Position key={i} option={pos} />
-        })}
-        {options.puts.map((pos, i) => {
+        {positions.map((pos, i) => {
           return <Position key={i} option={pos} />
         })}
       </CardContent>

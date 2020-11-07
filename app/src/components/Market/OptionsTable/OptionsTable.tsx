@@ -102,7 +102,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 <TableRow
                   key={address}
                   onClick={() => {
-                    onAddItem(option, '')
+                    onAddItem(
+                      {
+                        ...option,
+                        asset: asset.toUpperCase(),
+                        isCall: type === 'calls',
+                      },
+                      null
+                    )
                   }}
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
@@ -116,7 +123,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableCell>{depth}</TableCell>
                   ) : (
                     <TableCell>---</TableCell>
-                  )}{' '}
+                  )}
                   {reserve > 0 ? (
                     <TableCell>{formatBalance(reserve)}</TableCell>
                   ) : (

@@ -17,7 +17,7 @@ import LineItem from '@/components/LineItem'
 import TableRow from '../../../../TableRow/TableRow'
 import formatBalance from '@/utils/formatBalance'
 import { useWeb3React } from '@web3-react/core'
-import { useReserves } from '@/hooks/data/useReserves'
+import { Operation } from '@/constants/index'
 
 interface LPOptionProps {
   tokenA: Token
@@ -79,8 +79,9 @@ const OrderOptions: React.FC = () => {
   const longBalance = useTokenBalance(balanceAddress.longT)
   const shortBalance = useTokenBalance(balanceAddress.shortT)
 
-  const change = (t: string) => {
+  const change = (t: Operation) => {
     onChangeItem(item, t)
+    console.log(`change to ${t}`)
   }
 
   return (
@@ -89,9 +90,10 @@ const OrderOptions: React.FC = () => {
         <StyledColumn>
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Long Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('LONG')}>
+          <Button full size="sm" onClick={() => change(Operation.LONG)}>
             Open Long
           </Button>
           <Spacer size="sm" />
@@ -100,17 +102,19 @@ const OrderOptions: React.FC = () => {
             disabled={longBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_LONG')}
+            onClick={() => change(Operation.CLOSE_LONG)}
           >
             Close Long
           </Button>
         </StyledColumn>
+
         <StyledColumn>
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Short Tokens'} />
+            <Spacer />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('SHORT')}>
+          <Button full size="sm" onClick={() => change(Operation.SHORT)}>
             Open Short
           </Button>
           <Spacer size="sm" />
@@ -119,7 +123,7 @@ const OrderOptions: React.FC = () => {
             disabled={shortBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_SHORT')}
+            onClick={() => change(Operation.CLOSE_SHORT)}
           >
             Close Short
           </Button>
@@ -141,7 +145,7 @@ const StyledColumn = styled.div`
 
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
-  padding-left: 1em;
+  //padding-left: 1em;
 `
 const StyledSubtitle = styled.h3`
   color: ${(props) => props.theme.color.white};

@@ -48,7 +48,7 @@ export class MultiCall {
       }
       inputs = arg1
 
-      for (let input of inputs) {
+      for (const input of inputs) {
         if (!input.interface) input.interface = arg0
       }
       strict = arg2
@@ -59,7 +59,7 @@ export class MultiCall {
     const targets: string[] = []
     const datas: string[] = []
     const interfaces: Interface[] = []
-    for (let input of inputs) {
+    for (const input of inputs) {
       let _interface: Interface
       if (!input.interface) {
         throw new Error(`Call input must include interface.`)
@@ -98,6 +98,7 @@ export class MultiCall {
         if (Array.isArray(result) && result.length == 1) {
           result = result[0]
         }
+        console.log(result)
         results.push(result)
       }
     }

@@ -1,18 +1,19 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { Operation } from '@/lib/constants'
 import { BigNumberish } from 'ethers'
+import { Operation } from '@/constants/index'
 
 export interface OrderContextValues {
   item: OrderItem
-  orderType: string
-  onAddItem: (item: OrderItem, orderType: string) => void
-  onChangeItem: (item: OrderItem, orderType: string) => void
+  orderType: Operation
+  onAddItem: (item: OrderItem, orderType: Operation) => void
+  onChangeItem: (item: OrderItem, orderType: Operation) => void
   onRemoveItem: (item: OrderItem) => void
   submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
     quantity: number,
-    operation: Operation
+    operation: Operation,
+    secondaryQuantity?: number
   ) => Promise<void>
 }
 
@@ -35,5 +36,5 @@ export interface OrderItem {
 
 export interface OrderState {
   item: OrderItem
-  orderType?: string
+  orderType?: Operation
 }
