@@ -55,8 +55,6 @@ const executeTransaction = async (
       }
     }
   }
-  console.log(approvalTxs)
-  console.log(`Executing transaction:`, transaction)
   try {
     tx = await transaction.contract[transaction.methodName](...args, {
       value: transaction.value,

@@ -58,7 +58,7 @@ const StyledContainer = styled.div`
   display: flex;
   padding: 0em;
   flex-direction: row;
-  border-radius: 0.2em;
+  border-radius: 0 0 0.2em 0.2em;
   justify-content: center;
   /* height: 3em; */
   width: 100%;

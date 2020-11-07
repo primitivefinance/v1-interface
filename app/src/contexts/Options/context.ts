@@ -4,6 +4,7 @@ import { OptionsContextValues, EmptyAttributes } from './types'
 
 const OptionsContext = createContext<OptionsContextValues>({
   options: {
+    loading: true,
     calls: [EmptyAttributes],
     puts: [EmptyAttributes],
     reservesTotal: 0,

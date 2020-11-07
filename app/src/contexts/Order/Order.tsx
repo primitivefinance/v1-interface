@@ -5,7 +5,7 @@ import { Web3Provider } from '@ethersproject/providers'
 
 import { Transaction } from '@/contexts/Transactions/types'
 import OrderContext from './context'
-import { OrderItem } from './types'
+import { OptionsAttributes } from '@/contexts/Options/types'
 import reducer, {
   addItem,
   initialState,
@@ -46,21 +46,21 @@ const Order: React.FC = (props) => {
   const now = () => new Date().getTime()
 
   const handleAddItem = useCallback(
-    (item: OrderItem, orderType: Operation) => {
+    (item: OptionsAttributes, orderType: Operation) => {
       dispatch(addItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleChangeItem = useCallback(
-    (item: OrderItem, orderType: Operation) => {
+    (item: OptionsAttributes, orderType: Operation) => {
       dispatch(changeItem(item, orderType))
     },
     [dispatch]
   )
 
   const handleRemoveItem = useCallback(
-    (item: OrderItem) => {
+    (item: OptionsAttributes) => {
       dispatch(removeItem(item))
     },
     [dispatch]
@@ -74,11 +74,10 @@ const Order: React.FC = (props) => {
     secondaryQuantity?: number
   ) => {
     const signer: ethers.Signer = await provider.getSigner()
-    const receiver: string = await signer.getAddress()
     const tradeSettings: TradeSettings = {
       slippage: slippage,
       timeLimit: DEFAULT_TIMELIMIT,
-      receiver: receiver,
+      receiver: account,
       deadline: DEFAULT_DEADLINE,
       stablecoin: STABLECOINS[chainId].address,
     }

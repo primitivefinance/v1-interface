@@ -1,15 +1,16 @@
 import { createContext } from 'react'
 import { EmptyAttributes } from '../Options/types'
-import { OrderContextValues, OrderItem } from './types'
+import { OrderContextValues } from './types'
+import { OptionsAttributes } from '@/contexts/Options/types'
 import { Operation } from '@/lib/constants'
 import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({
   item: EmptyAttributes,
-  orderType: null,
-  onAddItem: (item: OrderItem, orderType: Operation) => {},
-  onChangeItem: (item: OrderItem, orderType: Operation) => {},
-  onRemoveItem: (item: OrderItem) => {},
+  orderType: Operation.NONE,
+  onAddItem: (item: OptionsAttributes, orderType: Operation) => {},
+  onChangeItem: (item: OptionsAttributes, orderType: Operation) => {},
+  onRemoveItem: (item: OptionsAttributes) => {},
   submitOrder: async (
     provider: Web3Provider,
     optionAddress: string,

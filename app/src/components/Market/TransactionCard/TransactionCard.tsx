@@ -13,6 +13,9 @@ import { useWeb3React } from '@web3-react/core'
 
 import { nullState } from '@/contexts/Transactions/types'
 
+const ETHERSCAN_MAINNET = 'https://etherscan.io/address/'
+const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address/'
+
 const TransactionCard: React.FC = () => {
   const { transactions } = useTransactions()
   const { library, chainId } = useWeb3React()
@@ -31,13 +34,31 @@ const TransactionCard: React.FC = () => {
               <Button variant="tertiary">clear</Button>
             </Box>
             <Spacer />
-            {Object.keys(txs).map((hash, i) => (
-              <li key={i}>
-                <span>{txs[hash].addedTime}</span>
-                <span>{txs[hash].hash.substr(0, 3)}</span>
-                {!txs[hash].receipt ? <Loader /> : <span>Confirmed</span>}
-              </li>
-            ))}
+            {Object.keys(txs).map((hash, i) => {
+              const date = new Date(txs[hash].addedTime * 1000)
+              return (
+                <li key={i}>
+                  <Box row justifyContent="flex-start" alignItems="center">
+                    <StyledText>
+                      {date.getHours + `:` + date.getMinutes}
+                    </StyledText>
+                    <StyledLink
+                      href={`${
+                        chainId === 4 ? ETHERSCAN_MAINNET : ETHERSCAN_RINKEBY
+                      } + ${txs[hash].hash}`}
+                      target="__blank"
+                    >
+                      {txs[hash].hash.substr(0, 3)}
+                    </StyledLink>
+                    {!txs[hash].receipt ? (
+                      <Loader />
+                    ) : (
+                      <StyledText>Confirmed</StyledText>
+                    )}
+                  </Box>
+                </li>
+              )
+            })}
           </CardContent>
         </StyledContainer>
       </Card>
@@ -45,10 +66,15 @@ const TransactionCard: React.FC = () => {
   )
 }
 
-const StyledText = styled.h4`
+const StyledText = styled.h5`
   align-items: center;
   color: ${(props) => props.theme.color.white};
   display: flex;
+`
+
+const StyledLink = styled.a`
+  text-decoration: none;
+  color: ${(props) => props.theme.color.white};
 `
 
 const StyledTitle = styled.h1`

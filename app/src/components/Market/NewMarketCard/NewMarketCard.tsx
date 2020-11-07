@@ -19,7 +19,7 @@ import CardTitle from '@/components/CardTitle'
 import Slider from '@/components/Slider'
 import { destructureOptionSymbol } from '@/lib/utils'
 import { OrderItem } from '@/contexts/Order/types'
-import { Operation } from '@/lib/constants'
+import { Operation } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 const NewMarketCard: React.FC = () => {
@@ -75,7 +75,7 @@ const NewMarketCard: React.FC = () => {
   }
   // parseInt->toString removes syntax error
   const exp = new Date(parseInt(item.expiry.toString()) * 1000)
-  if (orderType !== 'NEW_MARKET') {
+  if (orderType !== Operation.NEW_MARKET) {
     return null
   }
   return (

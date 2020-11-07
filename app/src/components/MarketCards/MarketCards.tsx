@@ -9,7 +9,7 @@ import Spacer from '../Spacer'
 import CardIcon from '../CardIcon'
 import Loader from '../Loader'
 
-import { MARKETS, Market } from '../../constants'
+import { MARKETS, Market } from '@/constants/index'
 
 const MarketCards: React.FC = () => {
   const markets = MARKETS

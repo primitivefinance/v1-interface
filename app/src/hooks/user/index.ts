@@ -33,7 +33,7 @@ export function useTradeSettings(): TradeSettings {
     timeLimit: DEFAULT_TIMELIMIT,
     receiver: account,
     deadline: DEFAULT_DEADLINE,
-    stablecoin: STABLECOINS[chainId].address,
+    stablecoin: STABLECOINS[chainId]?.address,
   }
   return tradeSettings
 }

@@ -6,21 +6,17 @@ import Spacer from '@/components/Spacer'
 
 import formatBalance from '@/utils/formatBalance'
 
-export interface LineItemProps {
+export interface MultiLineItemProps {
   label: React.ReactNode
-  data: string | number
-  units?: React.ReactNode
 }
 
-const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
+const MultiLineItem: React.FC<MultiLineItemProps> = ({ label, children }) => {
   return (
-    <StyledLineItem>
+    <StyledMultiLineItem>
       <StyledLabel>{label}</StyledLabel>
       <Spacer />
-      <span>
-        {units ? units : null} {formatBalance(data)}
-      </span>
-    </StyledLineItem>
+      <span>{children}</span>
+    </StyledMultiLineItem>
   )
 }
 
@@ -34,7 +30,7 @@ const StyledLabel = styled.div`
   text-transform: uppercase;
 `
 
-const StyledLineItem = styled(Box)`
+const StyledMultiLineItem = styled(Box)`
   align-items: center;
   display: flex;
   flex-direction: row;
@@ -42,4 +38,4 @@ const StyledLineItem = styled(Box)`
   width: 100%;
 `
 
-export default LineItem
+export default MultiLineItem

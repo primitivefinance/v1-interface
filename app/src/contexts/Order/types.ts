@@ -1,13 +1,14 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { BigNumberish } from 'ethers'
 import { Operation } from '@/constants/index'
+import { OptionsAttributes } from '@/contexts/Options/types'
 
 export interface OrderContextValues {
-  item: OrderItem
+  item: OptionsAttributes
   orderType: Operation
-  onAddItem: (item: OrderItem, orderType: Operation) => void
-  onChangeItem: (item: OrderItem, orderType: Operation) => void
-  onRemoveItem: (item: OrderItem) => void
+  onAddItem: (item: OptionsAttributes, orderType: Operation) => void
+  onChangeItem: (item: OptionsAttributes, orderType: Operation) => void
+  onRemoveItem: (item: OptionsAttributes) => void
   submitOrder: (
     provider: Web3Provider,
     optionAddress: string,
@@ -17,7 +18,7 @@ export interface OrderContextValues {
   ) => Promise<void>
 }
 
-export interface OrderItem {
+/* export interface OptionsAttributes {
   asset?: string
   isCall?: boolean
   underlyingAddress?: string
@@ -32,9 +33,9 @@ export interface OrderItem {
   strike?: BigNumberish
   volume?: BigNumberish
   id?: string
-}
+} */
 
 export interface OrderState {
-  item: OrderItem
+  item: OptionsAttributes
   orderType?: Operation
 }

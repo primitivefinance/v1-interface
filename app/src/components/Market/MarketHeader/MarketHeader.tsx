@@ -14,8 +14,12 @@ import formatBalance from '@/utils/formatBalance'
 import {
   COINGECKO_ID_FOR_MARKET,
   NAME_FOR_MARKET,
+  ADDRESS_FOR_MARKET,
+  ETHERSCAN_MAINNET,
+  ETHERSCAN_RINKEBY,
   getIconForMarket,
 } from '@/constants/index'
+import Link from 'next/link'
 
 const formatName = (name: any) => {
   return name.charAt(0).toUpperCase() + name.slice(1)
@@ -25,28 +29,22 @@ export interface MarketHeaderProps {
   marketId: string
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
-  const { marketId } = props
   const { options, getOptions } = useOptions()
-  const { library } = useWeb3React()
+  const { library, chainId } = useWeb3React()
+  const baseUrl = chainId === 1 ? ETHERSCAN_MAINNET : ETHERSCAN_RINKEBY
 
   const getMarketDetails = () => {
-    let key: string
-    let name: string
     const symbol: string = marketId
-    name = NAME_FOR_MARKET[marketId]
-    key = COINGECKO_ID_FOR_MARKET[marketId]
-    return { name, symbol, key }
+    const name: string = NAME_FOR_MARKET[marketId]
+    const key: string = COINGECKO_ID_FOR_MARKET[marketId]
+    const address: string = ADDRESS_FOR_MARKET[marketId]
+    return { name, symbol, key, address }
   }
-  useEffect(() => {
-    /* if (library) {
-      getOptions(getMarketDetails().name)
-    } */
-  }, [library, marketId, getOptions])
 
-  const { name, symbol, key } = getMarketDetails()
+  const { name, symbol, key, address } = getMarketDetails()
   const { data, mutate } = useSWR(
     `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
@@ -85,7 +83,9 @@ const MarketHeader: React.FC<MarketHeaderProps> = (props) => {
           <StyledContent>
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
             <Spacer size="sm" />
-            <StyledName>{formatName(name)}</StyledName>
+            <Link href={`${baseUrl}/${address}`}>
+              <StyledName>{formatName(name)}</StyledName>
+            </Link>
           </StyledContent>
 
           <Spacer size="lg" />
@@ -164,7 +164,12 @@ const StyledTitle = styled.div`
 const StyledName = styled.span`
   font-size: 24px;
   font-weight: 700;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
+  color: ${(props) => props.theme.color.white};
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
 `
 
 const StyledSymbol = styled.span`

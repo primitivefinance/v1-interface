@@ -1,11 +1,10 @@
-import React, { useEffect, useState, Component } from 'react'
+import React from 'react'
 
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 
 import Layout from '@/components/Layout'
-import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 
@@ -17,7 +16,6 @@ import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-   /*  height: 100%; */
     width: 100%;
     line-height: 1.5;
     margin: 0;

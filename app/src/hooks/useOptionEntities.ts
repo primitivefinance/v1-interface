@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Web3Provider } from '@ethersproject/providers'
 import { Option } from '@/lib/entities/option'
 import { Protocol } from '@/lib/index'
 import { useWeb3React } from '@web3-react/core'

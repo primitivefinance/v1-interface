@@ -16,6 +16,7 @@ export interface Market {
   icon: string
   id: string
   sort: number
+  address: string
 }
 
 export const WALLETS: { [key: string]: Wallet } = {
@@ -87,6 +88,7 @@ export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
       icon: `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${ADDRESS_FOR_MARKET[key]}/logo.png`,
       id: key,
       sort: SORT_FOR_MARKET[key],
+      address: ADDRESS_FOR_MARKET[key],
     }
   }
 )
@@ -107,6 +109,8 @@ export enum LocalStorageKeys {
   Slippage = 'slippage',
   Transactions = 'transactions',
   Stablecoin = 'stablecoin',
+  LoadingPositions = 'loadposition',
+  EmptyPositions = 'emptyposition',
 }
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -145,6 +149,8 @@ export const NO_VERSION = -1
 export const DEFAULT_DEADLINE = 60 * 20
 export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
+export const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
+export const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 export const DEFAULT_ALLOWANCE = parseEther('10000000')
 
@@ -162,4 +168,6 @@ export enum Operation {
   ADD_LIQUIDITY,
   REMOVE_LIQUIDITY,
   REMOVE_LIQUIDITY_CLOSE,
+  NEW_MARKET,
+  NONE,
 }
