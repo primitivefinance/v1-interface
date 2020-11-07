@@ -12,14 +12,15 @@ import CardTitle from '@/components/CardTitle'
 import Submit from './components/Submit'
 import OrderOptions from './components/OrderOptions'
 import formatBalance from '@/utils/formatBalance'
+import { Operation } from '@/constants/index'
 
 const OrderContent: React.FC = () => {
   const { orderType } = useOrders()
 
-  if (orderType !== null) {
+  if (orderType !== Operation.NONE) {
     return <Submit orderType={orderType} />
   }
-  if (orderType === null) {
+  if (orderType === Operation.NONE) {
     return <OrderOptions />
   }
 }
@@ -38,7 +39,9 @@ const OrderCard: React.FC = () => {
       <CardTitle>
         <StyledTitle>
           <>
-            {`${item.asset} ${item.isCall ? 'Call' : 'Put'} $${formatBalance(
+            {`${item.asset} ${
+              item.entity.isCall ? 'Call' : 'Put'
+            } $${formatBalance(
               item.strike
             )} ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
           </>

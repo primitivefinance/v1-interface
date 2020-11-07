@@ -169,4 +169,5 @@ export enum Operation {
   REMOVE_LIQUIDITY,
   REMOVE_LIQUIDITY_CLOSE,
   NEW_MARKET,
+  NONE,
 }
