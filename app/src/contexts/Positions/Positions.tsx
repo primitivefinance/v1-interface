@@ -37,23 +37,19 @@ const Positions: React.FC = (props) => {
       for (let i = 0; i < options.length; i++) {
         const long = await getBalance(
           library,
-          options[i].entity.assetAddresses[0],
+          options[i].entity.assetAddresses[1],
           account
         )
         const redeem = await getBalance(
           library,
-          options[i].entity.assetAddresses[1],
+          options[i].entity.assetAddresses[2],
           account
         )
-        const lp = await getBalance(
-          library,
-          options[i].entity.assetAddresses[1],
-          account
-        )
+        const lp = await getBalance(library, options[i].entity.pair, account)
         if (
-          formatBalance(long) === '0.00' &&
-          formatBalance(redeem) === '0.00' &&
-          formatBalance(lp) === '0.00'
+          formatBalance(long) !== '0.00' &&
+          formatBalance(redeem) !== '0.00' &&
+          formatBalance(lp) !== '0.00'
         ) {
           positionExists = true
           positionsArr.push({

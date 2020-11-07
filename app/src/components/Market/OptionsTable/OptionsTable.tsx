@@ -144,14 +144,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableRow
               isActive
               onClick={() => {
-                onAddItem(
-                  {
-                    expiry: optionExp,
-                    asset: asset,
-                    underlyingAddress: assetAddress,
-                  },
-                  Operation.NEW_MARKET
-                )
+                onAddItem({}, Operation.NEW_MARKET) //TBD
               }}
             >
               <TableCell></TableCell>
