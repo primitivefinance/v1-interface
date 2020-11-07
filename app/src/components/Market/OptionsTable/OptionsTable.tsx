@@ -105,7 +105,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                         asset: asset.toUpperCase(),
                         isCall: type === 'calls',
                       },
-                      ''
+                      null
                     )
                   }}
                 >
@@ -139,7 +139,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       asset: asset.toUpperCase(),
                       isCall: type === 'calls',
                     },
-                    ''
+                    null
                   )
                 }}
               >

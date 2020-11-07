@@ -68,7 +68,7 @@ const getTrade = async (
   )
   // type SinglePositionParameters fails due to difference in Trader and Uniswap type
   let transaction: any
-  /* switch (operation) {
+  switch (operation) {
     case Operation.LONG:
       // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
       // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
@@ -232,7 +232,7 @@ const getTrade = async (
     default:
       //transaction = Trader.singleOperationCallParameters(trade, tradeSettings)
       break
-  } */
+  }
 
   return trade
 }
@@ -245,7 +245,13 @@ const useTradeInfo = () => {
   const tradeSettings = useTradeSettings()
 
   const fetchTrade = useCallback(async () => {
-    if (library && typeof optionEntities !== 'undefined') {
+    if (
+      library &&
+      typeof optionEntities !== 'undefined' &&
+      item &&
+      orderType &&
+      tradeSettings
+    ) {
       const tradeInfo = await getTrade(
         library,
         item.address,
@@ -263,8 +269,16 @@ const useTradeInfo = () => {
   }, [library, orderType, item, tradeSettings, optionEntities, getTrade])
 
   useEffect(() => {
-    if (library) {
+    if (
+      library &&
+      typeof optionEntities !== 'undefined' &&
+      item &&
+      orderType &&
+      tradeSettings
+    ) {
       fetchTrade()
+      const refreshInterval = setInterval(fetchTrade, 10000000000)
+      return () => clearInterval(refreshInterval)
     }
   }, [library, orderType, setTrade, item, tradeSettings, fetchTrade])
 

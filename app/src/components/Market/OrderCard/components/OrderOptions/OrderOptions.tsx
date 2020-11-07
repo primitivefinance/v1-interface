@@ -76,6 +76,7 @@ const OrderOptions: React.FC = () => {
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
+    console.log(`change to ${t}`)
   }
 
   return (
@@ -96,7 +97,7 @@ const OrderOptions: React.FC = () => {
             disabled={longBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_LONG')}
+            onClick={() => change(Operation.CLOSE_LONG)}
           >
             Close Long
           </Button>
@@ -108,7 +109,7 @@ const OrderOptions: React.FC = () => {
             <Spacer />
             <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
           </Box>
-          <Button full size="sm" onClick={() => change('SHORT')}>
+          <Button full size="sm" onClick={() => change(Operation.SHORT)}>
             Open Short
           </Button>
           <Spacer size="sm" />
@@ -117,7 +118,7 @@ const OrderOptions: React.FC = () => {
             disabled={shortBalance ? false : true}
             size="sm"
             variant="secondary"
-            onClick={() => change('CLOSE_SHORT')}
+            onClick={() => change(Operation.CLOSE_SHORT)}
           >
             Close Short
           </Button>
@@ -135,7 +136,11 @@ const OrderOptions: React.FC = () => {
           </StyledColumn>
 
           <StyledColumn>
-            <Button full size="sm" onClick={() => change('ADD_LIQUIDITY')}>
+            <Button
+              full
+              size="sm"
+              onClick={() => change(Operation.ADD_LIQUIDITY)}
+            >
               Provide Liquidity
             </Button>
             <Spacer size="sm" />
@@ -148,7 +153,7 @@ const OrderOptions: React.FC = () => {
                 full
                 size="sm"
                 variant="secondary"
-                onClick={() => change('REMOVE_LIQUIDITY')}
+                onClick={() => change(Operation.REMOVE_LIQUIDITY)}
               >
                 Withdraw Liquidity
               </Button>

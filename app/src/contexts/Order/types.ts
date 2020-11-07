@@ -5,8 +5,8 @@ import { Operation } from '@/constants/index'
 export interface OrderContextValues {
   item: OrderItem
   orderType: Operation
-  onAddItem: (item: OrderItem, orderType: string) => void
-  onChangeItem: (item: OrderItem, orderType: string) => void
+  onAddItem: (item: OrderItem, orderType: Operation) => void
+  onChangeItem: (item: OrderItem, orderType: Operation) => void
   onRemoveItem: (item: OrderItem) => void
   submitOrder: (
     provider: Web3Provider,
@@ -36,5 +36,5 @@ export interface OrderItem {
 
 export interface OrderState {
   item: OrderItem
-  orderType?: string
+  orderType?: Operation
 }
