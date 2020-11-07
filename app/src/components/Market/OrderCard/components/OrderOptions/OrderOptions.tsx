@@ -25,7 +25,7 @@ const LPOptions: React.FC = () => {
   const balance = false
   const { item, onChangeItem } = useOrders()
   const pairBalance = useTokenBalance(item.entity.pair)
-  console.log(item.entity.pair)
+  console.log(item.reserves)
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }

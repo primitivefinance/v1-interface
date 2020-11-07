@@ -9,6 +9,7 @@ import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFac
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import TestERC20 from '@primitivefi/contracts/artifacts/TestERC20.json'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { Asset, Quantity, Token } from './entities'
 import {
   OPTION_SALT,
@@ -18,6 +19,7 @@ import {
 } from './constants'
 import computeClone2Clone from './utils/computeCreate2Clone'
 import MultiCall from './multicall'
+import { FACTORY_ADDRESS } from '@uniswap/sdk'
 
 /**
  * Methods for asyncronously getting on-chain data and returning SDK classes using the data.
@@ -96,6 +98,24 @@ export class Protocol {
     return optionAddresses
   }
 
+  public static async getPairsFromMultiCall(
+    provider,
+    tokensArray
+  ): Promise<any> {
+    const multi = new MultiCall(provider)
+    const inputs = []
+    for (const tokenArray of tokensArray) {
+      inputs.push({
+        target: FACTORY_ADDRESS,
+        function: 'getPair',
+        args: [tokenArray[0], tokenArray[1]],
+      })
+    }
+    // pairAddresses[i] = pair address for tokens in tokenArray
+    const pairAddresses = await multi.multiCall(UniswapV2Factory.abi, inputs)
+    return pairAddresses
+  }
+
   public static async getReservesFromMultiCall(
     provider,
     pairAddresses
@@ -106,6 +126,16 @@ export class Protocol {
       inputs.push({
         target: pair,
         function: 'getReserves',
+        args: [],
+      })
+      inputs.push({
+        target: pair,
+        function: 'token0',
+        args: [],
+      })
+      inputs.push({
+        target: pair,
+        function: 'token1',
         args: [],
       })
     }
