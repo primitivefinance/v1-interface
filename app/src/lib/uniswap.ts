@@ -24,6 +24,8 @@ export class Uniswap {
         ? UniswapConnectorTestnet.address
         : UniswapConnectorTestnet.address
 
+    console.log({ uniswapConnectorAddress })
+
     let transaction: any
     let contract: ethers.Contract
     let methodName: string
@@ -147,6 +149,7 @@ export class Uniswap {
           .div(trade.option.optionParameters.base.quantity)
 
         let amountBDesired: BigNumberish
+        console.log(`output qty: ${trade.outputAmount.quantity}`)
         if (
           BigNumber.from(trade.reserves[0]).isZero() &&
           BigNumber.from(trade.reserves[1]).isZero()
@@ -176,10 +179,8 @@ export class Uniswap {
         methodName = 'addShortLiquidityWithUnderlying'
         args = [
           trade.option.address,
-          trade.option.assetAddresses[0],
           trade.inputAmount.quantity.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
           amountBDesired.toString(),
-          amountAMin.toString(),
           amountBMin.toString(),
           to,
           deadline,

@@ -7,6 +7,7 @@ import Spacer from '@/components/Spacer'
 import { BigNumberish } from 'ethers'
 
 export interface PriceInputProps {
+  name?: string
   title: string
   quantity: BigNumberish | number
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
@@ -15,6 +16,7 @@ export interface PriceInputProps {
 }
 
 const PriceInput: React.FC<PriceInputProps> = ({
+  name,
   title,
   quantity,
   onChange,
@@ -26,6 +28,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
       <Label text={title} />
       <Spacer size="sm" />
       <Input
+        name={name}
         placeholder={'0.00'}
         startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
