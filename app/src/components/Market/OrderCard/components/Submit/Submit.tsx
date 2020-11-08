@@ -25,6 +25,8 @@ import useOptionEntities from '@/hooks/useOptionEntities'
 import { STABLECOINS } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import Label from '@/components/Label'
+import { formatEther } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
 
 export interface SubmitProps {
   orderType: Operation
@@ -112,6 +114,17 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   }
 
   const tokenBalance = useTokenBalance(tokenAddress)
+
+  const calculateTotalDebit = () => {
+    let debit
+    if (item.premium) {
+      let premium = BigNumber.from(item.premium.toString())
+      let size = inputs.primary === '' ? '0' : inputs.primary
+      debit = formatEther(premium.mul(size).toString())
+      console.log(premium.toString(), size.toString(), debit.toString())
+    }
+    return debit
+  }
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -209,8 +222,8 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <>
           <LineItem
             label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
-            data={+item?.premium * +inputs.primary}
-            units={`${sign ? sign : ''} $`}
+            data={calculateTotalDebit().toString()}
+            units={`${sign ? sign : ''} ${item.asset.toUpperCase()}`}
           />
           <Spacer />
         </>
