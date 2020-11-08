@@ -5,6 +5,7 @@ import Box from '@/components/Box'
 import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
 import Spacer from '@/components/Spacer'
+import Loader from '@/components/Loader'
 import useSWR from 'swr'
 import useOptions from '@/hooks/useOptions'
 import { useWeb3React } from '@web3-react/core'
@@ -98,7 +99,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
               {data ? (
                 `$ ${formatBalance(data[key].usd)}`
               ) : (
-                <StyledLoadingBlock />
+                <Loader size="sm" />
               )}
             </StyledPrice>
           </StyledContent>
@@ -107,11 +108,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
           <StyledContent>
             <StyledSymbol>24hr Change</StyledSymbol>
             <Spacer size="sm" />
-            <StyledPrice blink={blink}>
+            <StyledPrice size="sm" blink={blink}>
               {data ? (
                 `${formatBalance(data[key].usd_24h_change)}%`
               ) : (
-                <StyledLoadingBlock />
+                <Loader size="sm" />
               )}
             </StyledPrice>
           </StyledContent>
@@ -120,8 +121,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
           <StyledContent>
             <StyledSymbol>Total Liquidity</StyledSymbol>
             <Spacer size="sm" />
-            <StyledPrice>
-              {options.calls[0] ? (
+            <StyledPrice size="sm">
+              {!options.loading ? (
                 options.reservesTotal ? (
                   `${formatEtherBalance(
                     options.reservesTotal
@@ -130,7 +131,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                   'N/A'
                 )
               ) : (
-                <StyledLoadingBlock />
+                <Loader size="sm" />
               )}
             </StyledPrice>
           </StyledContent>
@@ -143,6 +144,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
 const StyledContent = styled(Box)`
   align-items: baseline;
   flex-direction: row;
+  justify-content: flex-start;
 `
 
 const StyledHeader = styled.div`
@@ -193,7 +195,7 @@ interface StyledPriceProps {
 const StyledPrice = styled.span<StyledPriceProps>`
   color: ${(props) => (props.blink ? '#00ff89' : props.theme.color.white)};
   font-size: ${(props) =>
-    props.size === 'lg' ? 36 : props.size === 'sm' ? 12 : 24}px;
+    props.size === 'lg' ? 36 : props.size === 'sm' ? 18 : 24}px;
   font-weight: 700;
 `
 

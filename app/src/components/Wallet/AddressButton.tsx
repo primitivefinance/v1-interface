@@ -38,8 +38,8 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
             >
               <StyledAddressButton>
                 <Box row alignItems="center" justifyContent="space-between">
-                  <StyledAddress>{address.slice(0, 8)}</StyledAddress>
-                  <CallMadeIcon />
+                  <StyledAddress>{address.slice(0, 12)}...</StyledAddress>
+                  <LaunchIcon style={{ fontSize: '14px' }} />
                 </Box>
               </StyledAddressButton>
             </a>

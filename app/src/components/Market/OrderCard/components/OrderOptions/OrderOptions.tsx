@@ -47,14 +47,14 @@ const LPOptions: React.FC = () => {
         data={formatBalance(lp).toString()}
       />
       <Spacer />
-      <Box row justifyContent="space-between" alignItems="center">
+      <Box row justifyContent="center" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
         {formatBalance(lp) !== 0.0 ? (
           <Button size="sm" variant="secondary" disabled>
-            Withdraw
+            Withdraw Liquidity
           </Button>
         ) : (
           <Button
@@ -62,7 +62,7 @@ const LPOptions: React.FC = () => {
             variant="secondary"
             onClick={() => change(Operation.REMOVE_LIQUIDITY)}
           >
-            Withdraw
+            Withdraw Liquidity
           </Button>
         )}
       </Box>
@@ -73,6 +73,7 @@ const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
 
   const long = useTokenBalance(item.entity.assetAddresses[0])
+  console.log(long)
   const short = useTokenBalance(item.entity.assetAddresses[2])
 
   const change = (t: Operation) => {

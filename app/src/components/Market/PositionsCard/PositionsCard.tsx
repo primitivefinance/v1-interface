@@ -102,14 +102,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
 
   if (item.expiry) return null
   if (positions.loading) {
-    return (
-      <Card>
-        <CardTitle>Your Positions</CardTitle>
-        <CardContent>
-          <Loader />
-        </CardContent>
-      </Card>
-    )
+    return <Loader size="lg" />
   }
   if (!positions.loading && !positions.exists) {
     return (
