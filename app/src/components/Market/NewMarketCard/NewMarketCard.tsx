@@ -28,7 +28,7 @@ const NewMarketCard: React.FC = () => {
   const [long, setLong] = useState(true)
   const [ratio, setRatio] = useState(100)
   const { library } = useWeb3React()
-
+  const tokenBalance = useTokenBalance(item.entity?.assetAddresses[0])
   const clear = () => {
     onRemoveItem(item)
   }

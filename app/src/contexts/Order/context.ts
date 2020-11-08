@@ -7,7 +7,7 @@ import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({
   item: EmptyAttributes,
-  orderType: Operation.NONE,
+  orderType: Operation.NEUTRAL,
   onAddItem: (item: OptionsAttributes, orderType: Operation) => {},
   onChangeItem: (item: OptionsAttributes, orderType: Operation) => {},
   onRemoveItem: (item: OptionsAttributes) => {},

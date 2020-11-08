@@ -52,7 +52,7 @@ const LPOptions: React.FC = () => {
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {formatBalance(lp) !== 0.0 ? (
+        {formatBalance(lp) === 0.0 ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw Liquidity
           </Button>

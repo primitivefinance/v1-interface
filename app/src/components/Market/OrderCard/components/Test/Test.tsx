@@ -54,7 +54,7 @@ const Test: React.FC = () => {
         <IconButton
           variant="tertiary"
           size="sm"
-          onClick={() => onChangeItem(item, '')}
+          onClick={() => onChangeItem(item, Operation.NEUTRAL)}
         >
           <ArrowBackIcon />
         </IconButton>

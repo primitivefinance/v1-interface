@@ -45,7 +45,7 @@ const WLP: React.FC = () => {
 
   const handleSetMax = () => {
     const max =
-      Math.round((buyingPower / +item.price + Number.EPSILON) * 100) / 100
+      Math.round((buyingPower / +item.premium + Number.EPSILON) * 100) / 100
     setQuantity(max.toString())
   }
 
@@ -55,7 +55,7 @@ const WLP: React.FC = () => {
         <IconButton
           variant="tertiary"
           size="sm"
-          onClick={() => onChangeItem(item, '')}
+          onClick={() => onChangeItem(item, Operation.NEUTRAL)}
         >
           <ArrowBackIcon />
         </IconButton>
@@ -66,7 +66,7 @@ const WLP: React.FC = () => {
       <Spacer />
       <Box row justifyContent="space-between">
         <Label text="Price" />
-        <span>${item.price.toString()}</span>
+        <span>${item.premium.toString()}</span>
       </Box>
 
       <Spacer />
@@ -89,7 +89,7 @@ const WLP: React.FC = () => {
       <Box row justifyContent="space-between">
         <Label text="Total Debit" />
         <span>
-          {+quantity ? '-' : ''}${(+item.price * +quantity).toFixed(2)}
+          {+quantity ? '-' : ''}${(+item.premium * +quantity).toFixed(2)}
         </span>
       </Box>
 
