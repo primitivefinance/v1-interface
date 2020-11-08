@@ -73,7 +73,6 @@ const Order: React.FC = (props) => {
     operation: Operation,
     secondaryQuantity?: number
   ) => {
-    console.log(`secondary qty in handleSubmit: ${secondaryQuantity}`)
     const signer: ethers.Signer = await provider.getSigner()
     const tradeSettings: TradeSettings = {
       slippage: slippage,

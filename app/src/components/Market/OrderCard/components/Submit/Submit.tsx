@@ -116,12 +116,11 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const tokenBalance = useTokenBalance(tokenAddress)
 
   const calculateTotalDebit = () => {
-    let debit
+    let debit = '0'
     if (item.premium) {
       let premium = BigNumber.from(item.premium.toString())
       let size = inputs.primary === '' ? '0' : inputs.primary
       debit = formatEther(premium.mul(size).toString())
-      console.log(premium.toString(), size.toString(), debit.toString())
     }
     return debit
   }
@@ -135,7 +134,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       Number(inputs.secondary)
     )
     onRemoveItem(item)
-  }, [submitOrder, onRemoveItem, item, library, inputs])
+  }, [submitOrder, onRemoveItem, item, library, inputs, orderType])
 
   const handleSetMax = () => {
     const max =
@@ -186,7 +185,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
           <LineItem
             label="Option Premium"
             data={formatEtherBalance(item.premium).toString()}
-            units="$"
+            units={item.asset}
           />
           <Spacer />
           <PriceInput
@@ -204,7 +203,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <LineItem
           label={`${capitalLabel} Power`}
           data={tokenBalance}
-          units="$"
+          units={item.asset}
         />
       ) : (
         <> </>

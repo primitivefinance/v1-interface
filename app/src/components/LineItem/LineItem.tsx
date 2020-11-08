@@ -13,15 +13,19 @@ export interface LineItemProps {
 }
 
 const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
-  const sign = units ? units.toString().charAt(0) : null
-  const currency = units ? units.toString().slice(1) : null
+  const sign = units ? (units.toString().charAt(0) === '-' ? '-' : null) : null
+  const currency = units
+    ? sign?.length > 1
+      ? units.toString().slice(1)
+      : units.toString()
+    : null
   return (
     <StyledLineItem>
       <StyledLabel>{label}</StyledLabel>
       <Spacer />
       <span>
         {sign}
-        {currency === '$' ? currency : null} {formatBalance(data)}
+        {currency === '$' ? currency : null} {formatBalance(data)}{' '}
         {currency !== '$' ? currency : null}
       </span>
     </StyledLineItem>
