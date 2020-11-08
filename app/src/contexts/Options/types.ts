@@ -21,7 +21,7 @@ export type OptionsAttributes = {
   volume: BigNumberish
   reserves: BigNumberish[]
   reserve: BigNumberish
-  depth: number
+  depth: BigNumberish
   address: string
   id: string
   expiry: BigNumberish

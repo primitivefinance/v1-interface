@@ -119,7 +119,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableCell>-</TableCell>
                   )}
                   {depth > 0 ? (
-                    <TableCell>{depth}</TableCell>
+                    <TableCell>{formatEtherBalance(depth)}</TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
@@ -146,7 +146,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableRow
               isActive
               onClick={() => {
-                onAddItem({}, Operation.NEW_MARKET) //TBD
+                {
+                  /*onAddItem({}, Operation.NEW_MARKET) //TBD */
+                }
               }}
             >
               <TableCell></TableCell>

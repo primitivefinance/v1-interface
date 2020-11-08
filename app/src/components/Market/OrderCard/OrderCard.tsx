@@ -27,6 +27,7 @@ const OrderContent: React.FC = () => {
 
 const OrderCard: React.FC = () => {
   const { item, onRemoveItem } = useOrders()
+
   if (!item.expiry) {
     return null
   }

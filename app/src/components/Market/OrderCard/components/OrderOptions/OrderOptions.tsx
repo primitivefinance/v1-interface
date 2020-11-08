@@ -23,9 +23,9 @@ import { Operation } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const LPOptions: React.FC = () => {
-  const balance = false
   const { item, onChangeItem } = useOrders()
-  const pairBalance = useTokenBalance(item.entity.pair)
+  const lp = useTokenBalance(item.entity.pair)
+
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }
@@ -35,19 +35,24 @@ const LPOptions: React.FC = () => {
       <Spacer size="sm" />
       <MultiLineItem label={'Reserves'}>
         {' '}
-        {`${formatEtherBalance(item.reserves[0])} / ${formatEtherBalance(
+        {`${formatEtherBalance(
+          item.reserves[0]
+        )} ${item.asset.toUpperCase()} - ${formatEtherBalance(
           item.reserves[1]
-        )}`}
+        )} RDM`}
       </MultiLineItem>
       <Spacer />
-      <LineItem label={'LP Token Balance'} data={pairBalance.toString()} />
+      <LineItem
+        label={'LP Token Balance'}
+        data={formatBalance(lp).toString()}
+      />
       <Spacer />
       <Box row justifyContent="space-between" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {balance ? (
+        {formatBalance(lp) !== 0.0 ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw
           </Button>
@@ -67,10 +72,8 @@ const LPOptions: React.FC = () => {
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
 
-  const longBalance = useTokenBalance(item.address)
-  const shortBalance = useTokenBalance(item.entity.assetAddresses[2])
-  const underlyingBalance = useTokenBalance(item.entity.assetAddresses[0])
-  const strikeBalance = useTokenBalance(item.entity.assetAddresses[1])
+  const long = useTokenBalance(item.entity.assetAddresses[0])
+  const short = useTokenBalance(item.entity.assetAddresses[2])
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -83,7 +86,7 @@ const OrderOptions: React.FC = () => {
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Long Tokens'} />
             <Spacer />
-            <StyledBalance>{formatBalance(longBalance)}</StyledBalance>
+            <StyledBalance>{formatBalance(long).toString()}</StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change(Operation.LONG)}>
             Open Long
@@ -91,7 +94,7 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={longBalance ? false : true}
+            disabled={formatBalance(long).toString() !== '0.00' ? false : true}
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_LONG)}
@@ -104,7 +107,7 @@ const OrderOptions: React.FC = () => {
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Short Tokens'} />
             <Spacer />
-            <StyledBalance>{formatBalance(shortBalance)}</StyledBalance>
+            <StyledBalance>{formatBalance(short).toString()}</StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change(Operation.SHORT)}>
             Open Short
@@ -112,7 +115,7 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={shortBalance ? false : true}
+            disabled={formatBalance(short).toString() !== '0.00' ? false : true}
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_SHORT)}
