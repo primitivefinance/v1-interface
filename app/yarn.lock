@@ -2849,10 +2849,10 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@primitivefi/contracts@0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.2.tgz#e793f165f3041c7dcb354e0467225918e2152371"
-  integrity sha512-ThhvZlCvcnvZyNS8/+aFpwfH2PZD0HxZwyWnnh+I1/+JpY4yRVgNRWhRKo1OJnH4BCaOfIbJw1vkvKHZnpw0Zg==
+"@primitivefi/contracts@0.4.3":
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.3.tgz#5a5644b782e0c8f49692027c0e18d855e3dbb405"
+  integrity sha512-m1nuU2leEb7VrzYbqKl2/KQfXRxqHO3QhbM9YOKmorjVFAwjQhFicW0elDingUV0xRHD5/PGgPMRV0a+EWHXng==
 
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"

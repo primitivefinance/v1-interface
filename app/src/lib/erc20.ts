@@ -13,8 +13,12 @@ export const getBalance = async (
     ) {
       return 0
     }
-    const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
-    const balance = await erc20.balanceOf(account)
+    let code: any = await provider.getCode(tokenAddress)
+    let balance: BigNumberish = 0
+    if (code > 0) {
+      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
+      balance = await erc20.balanceOf(account)
+    }
     return balance
   } catch (error) {
     console.error(error)
@@ -34,8 +38,12 @@ export const getAllowance = async (
     ) {
       return 0
     }
-    const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
-    const allowance = await erc20.allowance(account, spender)
+    let code: any = await provider.getCode(tokenAddress)
+    let allowance: BigNumberish = 0
+    if (code > 0) {
+      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
+      allowance = await erc20.allowance(account, spender)
+    }
     return allowance
   } catch (error) {
     throw Error(`Getting allowance issue: ${error}`)

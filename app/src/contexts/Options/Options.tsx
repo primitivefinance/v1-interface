@@ -214,7 +214,6 @@ const Options: React.FC = (props) => {
                             })
                           }
                         }
-                        console.log(pairReserveTotal.toString())
                       }
                       dispatch(
                         setOptions({
