@@ -30,6 +30,7 @@ const LP: React.FC<LPProps> = ({
     <>
       <Spacer />
       <PriceInput
+        name="primary"
         title={titles[0]}
         quantity={quantities[0]}
         onChange={onPrimaryChange}
@@ -37,6 +38,7 @@ const LP: React.FC<LPProps> = ({
       />
       <Spacer />
       <PriceInput
+        name="secondary"
         title={titles[1]}
         quantity={quantities[1]}
         onChange={onSecondaryChange}

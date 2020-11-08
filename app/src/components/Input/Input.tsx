@@ -5,6 +5,7 @@ import Spacer from '../Spacer'
 import { BigNumberish } from 'ethers'
 
 export interface InputProps {
+  name?: string
   endAdornment?: React.ReactNode
   onChange?: (e: React.FormEvent<HTMLInputElement>) => void
   placeholder?: string
@@ -14,6 +15,7 @@ export interface InputProps {
 }
 
 const Input: React.FC<InputProps> = ({
+  name,
   endAdornment,
   onChange,
   placeholder,
@@ -37,6 +39,7 @@ const Input: React.FC<InputProps> = ({
         </Fragment>
       )}
       <StyledInput
+        name={name}
         height={height}
         onChange={onChange}
         placeholder={placeholder}
