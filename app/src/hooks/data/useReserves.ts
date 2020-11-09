@@ -8,7 +8,7 @@ import { useWeb3React } from '@web3-react/core'
 import { DataType } from './index'
 import { useContract, useKeepSWRDataLiveAsBlocksArrive } from '../utils/index'
 import { STABLECOIN_ADDRESS } from '../../lib/constants'
-import * as IUniswapV2Factory from '@uniswap/v2-periphery/build/IUniswapV2Factory.json'
+import { isAddress, getAddress } from '@ethersproject/address'
 
 function getReserves(
   contract: Contract,
@@ -26,7 +26,6 @@ function getReserves(
           reserve0: { toString: () => string }
           reserve1: { toString: () => string }
         }) => {
-          console.log(reserve0)
           const pair = new Pair(
             new TokenAmount(token0, reserve0.toString()),
             new TokenAmount(token1, reserve1.toString())
@@ -54,13 +53,13 @@ export function useReserves(
       : []
   const pairAddress =
     !!token0 && !!token1 ? Pair.getAddress(token0, token1) : undefined
-  const contract = useContract(pairAddress, IUniswapV2Factory.abi)
+  if (!isAddress(getAddress(pairAddress))) return
+  const contract = useContract(pairAddress, IUniswapV2Pair.abi)
   const result = useSWR(
     token0 && pairAddress && contract && token1
       ? [token0.chainId, pairAddress, DataType.Reserves]
       : null,
     getReserves(contract as Contract, token0 as Token, token1 as Token)
   )
-  console.log(result)
   return result
 }

@@ -25,6 +25,26 @@ export const getBalance = async (
   }
 }
 
+export const getTotalSupply = async (
+  provider: ethers.providers.Provider | ethers.providers.JsonRpcProvider,
+  tokenAddress: string
+): Promise<BigNumberish> => {
+  try {
+    if (!ethers.utils.isAddress(tokenAddress)) {
+      return 0
+    }
+    const code: any = await provider.getCode(tokenAddress)
+    let balance: BigNumberish = 0
+    if (code > 0) {
+      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
+      balance = await erc20.totalSupply()
+    }
+    return balance
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export const getAllowance = async (
   provider: ethers.providers.Provider | ethers.providers.JsonRpcProvider,
   tokenAddress: string,
