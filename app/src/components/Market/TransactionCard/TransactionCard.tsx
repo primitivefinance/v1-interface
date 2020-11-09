@@ -52,7 +52,7 @@ const TransactionCard: React.FC = () => {
                 <TableCell>
                   <Box row justifyContent="space-between" alignItems="center">
                     {!txs[hash].receipt ? (
-                      <>Processing...</>
+                      <>Pending...</>
                     ) : (
                       <StyledText>
                         {date.toUTCString().substr(16, 10)}

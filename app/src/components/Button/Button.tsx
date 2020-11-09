@@ -96,7 +96,7 @@ const Button: React.FC<ButtonProps> = ({
       )
     }
     if (isLoading) {
-      return <Loader />
+      return <Loader dark />
     } else {
       return text
     }
