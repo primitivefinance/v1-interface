@@ -89,7 +89,7 @@ export class Uniswap {
         args = [amountOut, amountIn, trade.path, to, deadline]
         value = '0'
 
-        contractsToApprove = [uniswapConnectorAddress]
+        contractsToApprove = [UNISWAP_ROUTER02_V2]
         tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.CLOSE_LONG:
@@ -138,7 +138,7 @@ export class Uniswap {
         args = [amountIn, amountOutMin, trade.path, to, deadline]
         value = '0'
 
-        contractsToApprove = [uniswapConnectorAddress]
+        contractsToApprove = [UNISWAP_ROUTER02_V2]
         tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
       case Operation.ADD_LIQUIDITY:
