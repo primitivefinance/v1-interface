@@ -24,6 +24,7 @@ import { BigNumber } from 'ethers'
 import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
 import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
+import { EmptyAttributes } from '@/contexts/Options/types'
 
 export type FormattedOption = {
   breakEven: number
@@ -53,7 +54,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const { key } = getMarketDetails()
 
-  const { data, mutate } = useSWR(
+  const { data } = useSWR(
     `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
 
@@ -69,7 +70,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const calculateBreakeven = useCallback(
     (premiumWei, isCall) => {
-      const spotPrice = data ? data[key].usd.toString() : '0'
+      const price = data
+        ? data[key]
+          ? data[key].usd
+            ? data[key].usd
+            : '0'
+          : '0'
+        : '0'
+      const spotPrice = price.toString()
       const spotPriceWei = parseEther(spotPrice)
       let breakeven = BigNumber.from(premiumWei.toString())
         .mul(spotPriceWei)
@@ -200,7 +208,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableRow
               isActive
               onClick={() => {
-                onAddItem({}, Operation.NEW_MARKET) //TBD
+                onAddItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
               }}
             >
               <TableCell></TableCell>
