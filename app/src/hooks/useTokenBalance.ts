@@ -5,12 +5,15 @@ import { useWeb3React } from '@web3-react/core'
 
 import { getBalance } from '../lib/erc20'
 import { BigNumberish } from 'ethers'
+import { isAddress, getAddress } from '@ethersproject/address'
 
 const useTokenBalance = (tokenAddress: string) => {
   const [balance, setBalance] = useState('0')
   const { account, library } = useWeb3React()
 
   const fetchBalance = useCallback(async () => {
+    if (typeof tokenAddress === 'undefined' || tokenAddress === '') return
+    if (!isAddress(getAddress(tokenAddress))) return
     let code: any = await library.getCode(tokenAddress)
     let balance: BigNumberish = 0
     if (code > 0) {
