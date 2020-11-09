@@ -27,6 +27,11 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import Label from '@/components/Label'
 import { formatEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useReserves } from '@/hooks/data/useReserves'
+import { Token, Pair } from '@uniswap/sdk'
+import usePair from '@/hooks/usePair'
+import { parseEther } from 'ethers/lib/utils'
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
 export interface SubmitProps {
   orderType: Operation
@@ -40,6 +45,21 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   })
   const { library, chainId } = useWeb3React()
   const tradeInfo = useTradeInfo()
+  const entity = item.entity
+  const lpPair = useReserves(
+    new Token(
+      entity.chainId,
+      entity.assetAddresses[0],
+      18,
+      item.asset.toUpperCase()
+    ),
+    new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
+  ).data
+
+  const lp = useTokenBalance(lpPair ? lpPair.liquidityToken.address : '')
+  const lpTotalSupply = useTokenTotalSupply(
+    lpPair ? lpPair.liquidityToken.address : ''
+  )
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -92,7 +112,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
     case Operation.ADD_LIQUIDITY:
       title = 'Provide Liquidity'
       capitalLabel = 'LP Token'
-      tokenAddress = stablecoinAddress
+      tokenAddress = lpPair ? lpPair.liquidityToken.address : ''
       break
     case Operation.REMOVE_LIQUIDITY:
       title = 'Remove Liquidity'
@@ -126,6 +146,28 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
     }
     return debit
   }
+
+  const calculateToken0PerToken1 = useCallback(() => {
+    if (typeof lpPair === 'undefined') return 0
+    const ratio = lpPair.token0Price.raw.toSignificant(2)
+    return ratio
+  }, [lpPair])
+
+  const calculateToken1PerToken0 = useCallback(() => {
+    if (typeof lpPair === 'undefined') return 0
+    const ratio = lpPair.token1Price.raw.toSignificant(2)
+    return ratio
+  }, [lpPair])
+
+  const caculatePoolShare = useCallback(() => {
+    if (typeof lpPair === 'undefined') return 0
+    const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
+      ? BigNumber.from(parseEther(lp))
+          .mul(parseEther('1'))
+          .div(parseEther(lpTotalSupply))
+      : 0
+    return Number(formatEther(poolShare)) * 100
+  }, [lpPair, lp, lpTotalSupply])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -219,6 +261,31 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
             .slice(0, 3)
             .toUpperCase()}`}
         />
+      ) : orderType === Operation.ADD_LIQUIDITY ? (
+        <>
+          <LineItem
+            label={`${lpPair ? lpPair.token0.symbol : ''} per ${
+              lpPair ? lpPair.token1.symbol : ''
+            }`}
+            data={calculateToken0PerToken1().toString()}
+            units={``}
+          />
+          <Spacer />
+          <LineItem
+            label={`${lpPair ? lpPair.token1.symbol : ''} per ${
+              lpPair ? lpPair.token0.symbol : ''
+            }`}
+            data={calculateToken1PerToken0().toString()}
+            units={`${sign ? sign : ''} ${item.asset.toUpperCase()}`}
+          />
+          <Spacer />
+          <LineItem
+            label={`Share % of Pool`}
+            data={caculatePoolShare().toString()}
+            units={`%`}
+          />
+          <Spacer />
+        </>
       ) : (
         <>
           <LineItem
