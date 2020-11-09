@@ -107,10 +107,12 @@ const Options: React.FC = (props) => {
                         const option: Option = optionEntitiesObject[key]
                         let index: number = 0
                         let reserves: string[] = ['0', '0']
+                        let pairDataItem: string[]
                         for (const packed of allPackedReserves) {
                           index = packed.indexOf(option.assetAddresses[2])
                           if (index !== -1) {
                             reserves = packed[0]
+                            pairDataItem = packed
                           }
                         }
                         const path: string[] = [
@@ -121,6 +123,13 @@ const Options: React.FC = (props) => {
                           reserves = ['0', '0']
                         const reserves0: BigNumberish = reserves[0]
                         const reserves1: BigNumberish = reserves[1]
+                        let token0: string = option.assetAddresses[0]
+                        let token1: string = option.assetAddresses[2]
+                        if (typeof pairDataItem !== 'undefined') {
+                          token0 = pairDataItem[1]
+                          token1 = pairDataItem[2]
+                        }
+
                         const Base: Quantity = option.optionParameters.base
                         const Quote: Quantity = option.optionParameters.quote
 
@@ -159,7 +168,8 @@ const Options: React.FC = (props) => {
                               strike: option.strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
-                              reserve: reserve,
+                              token0: token0,
+                              token1: token1,
                               depth: 0,
                               address: option.address,
                               expiry: option.expiry,
@@ -196,7 +206,8 @@ const Options: React.FC = (props) => {
                               strike: strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
-                              reserve: reserve,
+                              token0: token0,
+                              token1: token1,
                               depth: 0,
                               address: option.address,
                               expiry: option.expiry,
