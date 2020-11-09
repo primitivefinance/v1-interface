@@ -20,7 +20,8 @@ import {
   DEFAULT_ALLOWANCE,
 } from '@/constants/index'
 
-import { Operation, UNISWAP_FACTORY_V2 } from '@/lib/constants'
+import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
+import { Operation } from '@/constants/index'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
 import { parseEther } from 'ethers/lib/utils'
 import { Asset, Trade, Quantity } from '@/lib/entities'

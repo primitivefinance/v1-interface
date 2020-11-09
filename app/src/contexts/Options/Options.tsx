@@ -146,7 +146,6 @@ const Options: React.FC = (props) => {
                         const Quote: Quantity = option.optionParameters.quote
 
                         // depth calcs
-                        console.log('get reserves for depth')
                         const reserve0ForDepth: BigNumber = BigNumber.from(
                           reserves0.toString()
                         )

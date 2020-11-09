@@ -16,7 +16,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import formatBalance from '@/utils/formatBalance'
 import { destructureOptionSymbol } from '@/lib/utils'
-import { Operation } from '@/lib/constants'
+import { Operation } from '@/constants/index'
 
 const Test: React.FC = () => {
   const { item, onChangeItem, onRemoveItem } = useOrders()
@@ -54,7 +54,7 @@ const Test: React.FC = () => {
         <IconButton
           variant="tertiary"
           size="sm"
-          onClick={() => onChangeItem(item, Operation.NEUTRAL)}
+          onClick={() => onChangeItem(item, Operation.NONE)}
         >
           <ArrowBackIcon />
         </IconButton>

@@ -2,7 +2,7 @@ import { createContext } from 'react'
 import { EmptyAttributes } from '../Options/types'
 import { OrderContextValues } from './types'
 import { OptionsAttributes } from '@/contexts/Options/types'
-import { Operation } from '@/lib/constants'
+import { Operation } from '@/constants/index'
 import { Web3Provider } from '@ethersproject/providers'
 
 const OrderContext = createContext<OrderContextValues>({

@@ -1,6 +1,6 @@
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { Option } from './option'
-import { Operation } from '../constants'
+import { Operation } from '@/constants/index'
 import { Quantity } from './quantity'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { parseEther } from 'ethers/lib/utils'

@@ -68,7 +68,7 @@ const NewMarketCard: React.FC = () => {
     [setRatio]
   )
   const handleSetMax = () => {
-    const max = Math.round(+tokenBalance * ratio) / 100
+    const max = Math.round(1 * ratio) / 100
     setQuantity(max.toString())
   }
   // parseInt->toString removes syntax error

@@ -55,7 +55,6 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     onAddItem(option.attributes, Operation.NONE)
   }
 
-  console.log(option.long)
   if (!option.attributes.entity.pair) return null
   const exp = new Date(parseInt(option.attributes.expiry.toString()) * 1000)
 
@@ -72,7 +71,9 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
         </span>
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
-          {option.attributes.address.substr(0, 4) + '...'}
+          {option.attributes.address.length > 0
+            ? option.attributes.address.substr(0, 4) + '...'
+            : '-'}
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
       </Box>
