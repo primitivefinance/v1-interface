@@ -42,9 +42,9 @@ const OrderCard: React.FC = () => {
           <>
             {`${item.asset} ${
               item.entity.isCall ? 'Call' : 'Put'
-            } $${formatBalance(
-              item.strike
-            )} ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
+            } $${formatBalance(item.strike)} ${
+              exp.getUTCMonth() + 1
+            }/${exp.getUTCDate()} ${exp.getUTCFullYear()}`}
           </>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>
