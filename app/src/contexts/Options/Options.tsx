@@ -11,6 +11,17 @@ import { OptionsAttributes } from '../Options/types'
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
 
+const getAmountIn = (
+  amountOut: BigNumber,
+  reserveIn: BigNumber,
+  reserveOut: BigNumber
+) => {
+  let numerator = reserveIn.mul(amountOut).mul(1000)
+  let denominator = reserveOut.sub(amountOut).mul(997)
+  let amountIn = numerator.div(denominator).add(1)
+  return amountIn
+}
+
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   // Web3 injection
@@ -107,10 +118,12 @@ const Options: React.FC = (props) => {
                         const option: Option = optionEntitiesObject[key]
                         let index: number = 0
                         let reserves: string[] = ['0', '0']
+                        let pairDataItem: string[]
                         for (const packed of allPackedReserves) {
                           index = packed.indexOf(option.assetAddresses[2])
                           if (index !== -1) {
                             reserves = packed[0]
+                            pairDataItem = packed
                           }
                         }
                         const path: string[] = [
@@ -121,8 +134,51 @@ const Options: React.FC = (props) => {
                           reserves = ['0', '0']
                         const reserves0: BigNumberish = reserves[0]
                         const reserves1: BigNumberish = reserves[1]
+
+                        let token0: string = option.assetAddresses[0]
+                        let token1: string = option.assetAddresses[2]
+                        if (typeof pairDataItem !== 'undefined') {
+                          token0 = pairDataItem[1]
+                          token1 = pairDataItem[2]
+                        }
+
                         const Base: Quantity = option.optionParameters.base
                         const Quote: Quantity = option.optionParameters.quote
+
+                        // depth calcs
+                        const reserve0ForDepth: BigNumber = BigNumber.from(
+                          reserves0.toString()
+                        )
+                        const reserve1ForDepth: BigNumber = BigNumber.from(
+                          reserves1.toString()
+                        )
+
+                        const underlyingReserve =
+                          token0 === option.assetAddresses[0]
+                            ? reserve0ForDepth
+                            : reserve1ForDepth
+
+                        const twoPercentOfReserve = underlyingReserve
+                          .mul(2)
+                          .div(100)
+
+                        let redeemCost: BigNumberish = '0'
+                        if (
+                          twoPercentOfReserve.gt(0) &&
+                          reserve0ForDepth.gt(0) &&
+                          reserve1ForDepth.gt(0)
+                        ) {
+                          redeemCost = Trade.getAmountsInPure(
+                            twoPercentOfReserve,
+                            path,
+                            reserve0ForDepth,
+                            reserve1ForDepth
+                          )[0]
+                        }
+
+                        const redeemCostDivMinted = BigNumber.from(
+                          redeemCost.toString()
+                        ).div(Quote.quantity)
 
                         let premium: BigNumberish = Trade.getSpotPremium(
                           Base.quantity,
@@ -159,8 +215,9 @@ const Options: React.FC = (props) => {
                               strike: option.strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
-                              reserve: reserve,
-                              depth: 0,
+                              token0: token0,
+                              token1: token1,
+                              depth: redeemCostDivMinted.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,
@@ -196,8 +253,9 @@ const Options: React.FC = (props) => {
                               strike: strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
-                              reserve: reserve,
-                              depth: 0,
+                              token0: token0,
+                              token1: token1,
+                              depth: redeemCostDivMinted.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,

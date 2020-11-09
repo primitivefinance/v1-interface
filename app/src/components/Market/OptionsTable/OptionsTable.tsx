@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
 
 import Spacer from '@/components/Spacer'
@@ -21,6 +21,10 @@ import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
 import { Operation } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
+import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
+import useSWR from 'swr'
+import { formatEther, parseEther } from 'ethers/lib/utils'
+import { EmptyAttributes } from '@/contexts/Options/types'
 
 export type FormattedOption = {
   breakEven: number
@@ -43,6 +47,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
 
+  const getMarketDetails = useCallback(() => {
+    const key: string = COINGECKO_ID_FOR_MARKET[asset]
+    return { key }
+  }, [asset])
+
+  const { key } = getMarketDetails()
+
+  const { data } = useSWR(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
+  )
+
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {
@@ -52,6 +67,28 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       }
     }
   }, [library, asset, getOptions])
+
+  const calculateBreakeven = useCallback(
+    (premiumWei, isCall) => {
+      const price = data
+        ? data[key]
+          ? data[key].usd
+            ? data[key].usd
+            : '0'
+          : '0'
+        : '0'
+      const spotPrice = price.toString()
+      const spotPriceWei = parseEther(spotPrice)
+      let breakeven = BigNumber.from(premiumWei.toString())
+        .mul(spotPriceWei)
+        .div(parseEther('1'))
+      breakeven = isCall
+        ? breakeven.add(spotPriceWei)
+        : spotPriceWei.sub(breakeven)
+      return breakeven.toString()
+    },
+    [key, data]
+  )
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -90,15 +127,22 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           <TableBody>
             {options[type].map((option) => {
               const {
+                entity,
                 breakEven,
                 premium,
                 strike,
-                reserve,
+                reserves,
+                token0,
+                token1,
                 depth,
                 address,
                 expiry,
               } = option
               if (optionExp != expiry && expiry === 0) return null
+              let reserve0Units =
+                token0 === entity.assetAddresses[0]
+                  ? asset.toUpperCase()
+                  : 'SHORT'
               return (
                 <TableRow
                   key={address}
@@ -112,19 +156,37 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   }}
                 >
                   <TableCell>${formatBalance(strike)}</TableCell>
-                  <TableCell>${formatEtherBalance(breakEven)}</TableCell>
+                  <TableCell>
+                    ${' '}
+                    {formatEtherBalance(
+                      calculateBreakeven(premium, entity.isCall)
+                    )}
+                  </TableCell>
                   {premium > 0 ? (
-                    <TableCell>${formatEtherBalance(premium)}</TableCell>
+                    <TableCell>
+                      {formatEtherBalance(premium)} {asset.toUpperCase()}
+                    </TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
                   {depth > 0 ? (
-                    <TableCell>{depth}</TableCell>
+                    <TableCell>
+                      {depth} {'Options'}
+                    </TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
-                  {BigNumber.from(reserve).gt(0) ? (
-                    <TableCell>{formatEtherBalance(reserve)}</TableCell>
+                  {BigNumber.from(reserves[0]).gt(0) ? (
+                    <TableCell>
+                      {reserve0Units === asset.toUpperCase()
+                        ? formatEtherBalance(reserves[0].toString())
+                        : formatEtherBalance(reserves[1].toString())}{' '}
+                      {asset.toUpperCase()} /{' '}
+                      {reserve0Units === asset.toUpperCase()
+                        ? formatEtherBalance(reserves[1].toString())
+                        : formatEtherBalance(reserves[0].toString())}{' '}
+                      {'SHORT'}
+                    </TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
@@ -146,7 +208,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <TableRow
               isActive
               onClick={() => {
-                onAddItem({}, Operation.NEW_MARKET) //TBD
+                onAddItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
               }}
             >
               <TableCell></TableCell>

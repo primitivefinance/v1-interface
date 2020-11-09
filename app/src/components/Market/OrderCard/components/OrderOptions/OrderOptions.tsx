@@ -29,18 +29,31 @@ const LPOptions: React.FC = () => {
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }
+
+  let reserve0Units =
+    item.token0 === item.entity.assetAddresses[0]
+      ? item.asset.toUpperCase()
+      : 'SHORT'
   return (
     <StyledBottom>
       <StyledSubtitle>Liquidity Provision</StyledSubtitle>
       <Spacer size="sm" />
       <MultiLineItem label={'Reserves'}>
-        {' '}
-        {`${formatEtherBalance(item.reserves[0])} / ${formatEtherBalance(
-          item.reserves[1]
-        )}`}
+        {reserve0Units === item.asset.toUpperCase()
+          ? formatEtherBalance(item.reserves[0].toString())
+          : formatEtherBalance(item.reserves[1].toString())}{' '}
+        {item.asset.toUpperCase()} /{' '}
+        {reserve0Units === item.asset.toUpperCase()
+          ? formatEtherBalance(item.reserves[1].toString())
+          : formatEtherBalance(item.reserves[0].toString())}{' '}
+        {'SHORT'}
       </MultiLineItem>
       <Spacer />
-      <LineItem label={'LP Token Balance'} data={pairBalance.toString()} />
+      <LineItem
+        label={'LP Token Balance'}
+        data={pairBalance.toString()}
+        units={'UNI-V2'}
+      />
       <Spacer />
       <Box row justifyContent="space-between" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>

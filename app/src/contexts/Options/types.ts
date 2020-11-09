@@ -20,8 +20,9 @@ export type OptionsAttributes = {
   strike: BigNumberish
   volume: BigNumberish
   reserves: BigNumberish[]
-  reserve: BigNumberish
-  depth: number
+  token0: string
+  token1: string
+  depth: BigNumberish
   address: string
   id: string
   expiry: BigNumberish
@@ -36,7 +37,8 @@ export const EmptyAttributes = {
   strike: 0,
   volume: 0,
   reserves: [0, 0],
-  reserve: 0,
+  token0: '',
+  token1: '',
   depth: 0,
   address: '',
   id: '',
