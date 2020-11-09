@@ -26,7 +26,7 @@ export const executeApprove = async (
   spenderAddress
 ): Promise<Transaction> => {
   const token = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-  let tx: Transaction = await token.approve(spenderAddress, MIN_ALLOWANCE)
+  const tx: Transaction = await token.approve(spenderAddress, MIN_ALLOWANCE)
   return tx
 }
 
@@ -37,14 +37,14 @@ const executeTransaction = async (
   let tx: any = {}
   const args = transaction.args
 
-  let approvalTxs: any[] = []
+  const approvalTxs: any[] = []
   if (transaction.tokensToApprove.length > 0) {
     // for each contract
     for (let i = 0; i < transaction.contractsToApprove.length; i++) {
-      let contractAddress = transaction.contractsToApprove[i]
+      const contractAddress = transaction.contractsToApprove[i]
       // for each token check allowance
       for (let t = 0; t < transaction.tokensToApprove.length; t++) {
-        let tokenAddress = transaction.tokensToApprove[t]
+        const tokenAddress = transaction.tokensToApprove[t]
         checkAllowance(signer, tokenAddress, contractAddress)
           .then((tx) => {
             approvalTxs.push(tx)
@@ -63,7 +63,7 @@ const executeTransaction = async (
     })
     console.log(`tx: ${tx}`)
   } catch (err) {
-    console.error(
+    throw Error(
       `Issue when attempting to submit transaction: ${transaction.methodName}`
     )
   }

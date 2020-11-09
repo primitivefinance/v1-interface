@@ -35,6 +35,7 @@ import executeTransaction, {
   executeApprove,
 } from '@/lib/utils/executeTransaction'
 import useTransactions from '@/hooks/transactions/index'
+import useError from '@/hooks/useError'
 import { useSlippage } from '@/hooks/user'
 import { useBlockNumber } from '@/hooks/data'
 
@@ -43,6 +44,7 @@ const Order: React.FC = (props) => {
   const { chainId, account } = useWeb3React()
   const { addTransaction, checkTransaction } = useTransactions()
   const [slippage] = useSlippage()
+  const { throwError } = useError()
   const { data } = useBlockNumber()
   const now = () => new Date().getTime()
 
@@ -319,7 +321,7 @@ const Order: React.FC = (props) => {
                     }
                   })
                   .catch((err) => {
-                    throw Error(`Approving transaction issue: ${err}`)
+                    throwError(`Approving transaction issue: ${err}`, '')
                   })
               }
             }
@@ -339,7 +341,7 @@ const Order: React.FC = (props) => {
         }
       })
       .catch((err) => {
-        throw Error(`Executing transaction issue: ${err}`)
+        throwError(`Executing transaction issue: ${err}`, '')
       })
     /* const tx: Transaction = await executeTransaction(signer, transaction)
     if (tx.hash) {
