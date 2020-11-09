@@ -65,8 +65,12 @@ const TransactionCard: React.FC = () => {
                       }${txs[hash].hash}`}
                       target="__blank"
                     >
-                      {txs[hash].hash.substr(0, 20)} {`  `}
+                      <Box row justifyContent="center" alignItems="center">
+                        {txs[hash].hash.substr(0, 14)}...
+                        <LaunchIcon style={{ fontSize: '14px' }} />
+                      </Box>
                     </StyledLink>
+
                     <Spacer />
                   </Box>
                 </TableCell>

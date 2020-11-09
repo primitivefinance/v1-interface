@@ -120,8 +120,8 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const calculateTotalDebit = () => {
     let debit = '0'
     if (item.premium) {
-      let premium = BigNumber.from(item.premium.toString())
-      let size = inputs.primary === '' ? '0' : inputs.primary
+      const premium = BigNumber.from(item.premium.toString())
+      const size = inputs.primary === '' ? '0' : inputs.primary
       debit = formatEther(premium.mul(size).toString())
     }
     return debit

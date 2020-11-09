@@ -14,7 +14,7 @@ const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
   let s: number
   switch (size) {
     case 'lg':
-      s = 80
+      s = 60
       break
     case 'sm':
       s = 20

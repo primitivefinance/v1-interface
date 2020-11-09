@@ -102,7 +102,8 @@ export class Trade {
   }
 
   public sortTokens = (tokenA: string, tokenB: string): string[] => {
-    let tokens: string[] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
+    const tokens: string[] =
+      tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     return tokens
   }
 
@@ -112,10 +113,10 @@ export class Trade {
     tokenA: string,
     tokenB: string
   ): Promise<BigNumberish> => {
-    let tokens = this.sortTokens(tokenA, tokenB)
-    let pairAddress = await factory.getPair(tokens[0], tokens[1])
-    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
-    let totalSupply = await pair.totalSupply()
+    const tokens = this.sortTokens(tokenA, tokenB)
+    const pairAddress = await factory.getPair(tokens[0], tokens[1])
+    const pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    const totalSupply = await pair.totalSupply()
     return totalSupply
   }
 
@@ -125,13 +126,13 @@ export class Trade {
     tokenA: string,
     tokenB: string
   ): Promise<BigNumberish[]> => {
-    let tokens = this.sortTokens(tokenA, tokenB)
-    let token0 = tokens[0]
-    let pairAddress = await factory.getPair(tokens[0], tokens[1])
+    const tokens = this.sortTokens(tokenA, tokenB)
+    const token0 = tokens[0]
+    const pairAddress = await factory.getPair(tokens[0], tokens[1])
     if (pairAddress === ethers.constants.AddressZero) {
       return [0, 0]
     }
-    let pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
+    const pair = new ethers.Contract(pairAddress, UniswapV2Pair.abi, signer)
     let reserves = await pair.getReserves()
     const _reserve0 = reserves._reserve0
     const _reserve1 = reserves._reserve1
@@ -146,7 +147,7 @@ export class Trade {
     amountIn: BigNumberish,
     path: string[]
   ): Promise<BigNumberish[]> => {
-    let amounts: BigNumberish[] = [amountIn]
+    const amounts: BigNumberish[] = [amountIn]
     for (let i = 0; i < path.length - 1; i++) {
       const [reserveIn, reserveOut] = await this.getReserves(
         signer,
@@ -164,8 +165,8 @@ export class Trade {
     reserveIn: BigNumberish,
     reserveOut: BigNumberish
   ): BigNumberish => {
-    let amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
-    let numerator = amountInWithFee.mul(
+    const amountInWithFee = ethers.BigNumber.from(amountIn.toString()).mul(997)
+    const numerator = amountInWithFee.mul(
       ethers.BigNumber.from(reserveOut.toString())
     )
     const denominator = ethers.BigNumber.from(reserveIn.toString())
@@ -181,7 +182,7 @@ export class Trade {
     reserveIn: BigNumberish,
     reserveOut: BigNumberish
   ): BigNumberish[] => {
-    let amounts = [amountIn]
+    const amounts = [amountIn]
     for (let i = 0; i < path.length; i++) {
       amounts[i + 1] = Trade.getAmountOut(amounts[i], reserveIn, reserveOut)
     }
@@ -194,7 +195,7 @@ export class Trade {
     amountOut: BigNumberish,
     path: string[]
   ): Promise<BigNumberish[]> => {
-    let amounts = ['', amountOut]
+    const amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
       const [reserveIn, reserveOut] = await this.getReserves(
         signer,
@@ -213,9 +214,9 @@ export class Trade {
     reserveIn: BigNumberish,
     reserveOut: BigNumberish
   ): BigNumberish => {
-    let numerator = BigNumber.from(reserveIn).mul(amountOut).mul(1000)
-    let denominator = BigNumber.from(reserveOut).sub(amountOut).mul(997)
-    let amountIn = numerator.div(denominator).add(1)
+    const numerator = BigNumber.from(reserveIn).mul(amountOut).mul(1000)
+    const denominator = BigNumber.from(reserveOut).sub(amountOut).mul(997)
+    const amountIn = numerator.div(denominator).add(1)
     return amountIn
   }
 
@@ -225,7 +226,7 @@ export class Trade {
     reserveIn: BigNumberish,
     reserveOut: BigNumberish
   ): BigNumberish[] => {
-    let amounts = ['', amountOut]
+    const amounts = ['', amountOut]
     for (let i = path.length - 1; i > 0; i--) {
       amounts[i - 1] = Trade.getAmountIn(amounts[i], reserveIn, reserveOut)
     }
@@ -253,8 +254,10 @@ export class Trade {
       reserves[0],
       reserves[1]
     )
-    let redeemsRequired = amountsIn[0]
-    let redeemCostRemaining = BigNumber.from(redeemsRequired).sub(redeemsMinted)
+    const redeemsRequired = amountsIn[0]
+    const redeemCostRemaining = BigNumber.from(redeemsRequired).sub(
+      redeemsMinted
+    )
     // if redeemCost > 0
     const amountsOut = Trade.getAmountsOutPure(
       redeemCostRemaining,
@@ -262,7 +265,7 @@ export class Trade {
       reserves[0],
       reserves[1]
     )
-    let premium = BigNumber.from(amountsOut[1])
+    const premium = BigNumber.from(amountsOut[1])
       .mul(100101)
       .add(amountsOut[1])
       .div(100000)
@@ -275,8 +278,8 @@ export class Trade {
     path: string[], // redeem -> underlying
     reserves: BigNumberish[]
   ): BigNumberish => {
-    let quantity = parseEther('1')
-    let premium = Trade.getPremium(quantity, base, quote, path, reserves)
+    const quantity = parseEther('1')
+    const premium = Trade.getPremium(quantity, base, quote, path, reserves)
     return premium
   }
 

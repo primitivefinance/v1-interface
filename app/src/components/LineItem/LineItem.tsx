@@ -28,9 +28,8 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
         : units.toString()
       : null
   return (
-    <StyledLineItem>
+    <StyledLineItem row justifyContent="space-between" alignItems="center">
       <StyledLabel>{label}</StyledLabel>
-      <Spacer />
       <span>
         {sign}
         {currency === '$' ? currency : null} {formatBalance(data)}{' '}
@@ -51,10 +50,6 @@ const StyledLabel = styled.div`
 `
 
 const StyledLineItem = styled(Box)`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   width: 100%;
 `
 

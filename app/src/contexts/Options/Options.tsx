@@ -10,20 +10,22 @@ import { OptionsAttributes } from '../Options/types'
 
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
+import { useError } from '@/hooks/utils/useError'
 
 const getAmountIn = (
   amountOut: BigNumber,
   reserveIn: BigNumber,
   reserveOut: BigNumber
 ) => {
-  let numerator = reserveIn.mul(amountOut).mul(1000)
-  let denominator = reserveOut.sub(amountOut).mul(997)
-  let amountIn = numerator.div(denominator).add(1)
+  const numerator = reserveIn.mul(amountOut).mul(1000)
+  const denominator = reserveOut.sub(amountOut).mul(997)
+  const amountIn = numerator.div(denominator).add(1)
   return amountIn
 }
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const throwError = useError()
   // Web3 injection
   const { library, chainId } = useWeb3React()
   const provider = library
@@ -89,15 +91,15 @@ const Options: React.FC = (props) => {
               }
               Protocol.getPairsFromMultiCall(provider, allTokensArray)
                 .then((allPairsData) => {
-                  let actualPairs = []
-                  for (let pair of allPairsData) {
+                  const actualPairs = []
+                  for (const pair of allPairsData) {
                     if (pair !== ethers.constants.AddressZero) {
                       actualPairs.push(pair)
                     }
                   }
                   Protocol.getReservesFromMultiCall(provider, actualPairs)
                     .then((allReservesData) => {
-                      let allPackedReserves: any = []
+                      const allPackedReserves: any = []
                       for (let t = 0; t < allReservesData.length / 3; t++) {
                         const startIndex = t * 3
                         const firstItem: string[] = allReservesData[startIndex]
@@ -116,7 +118,7 @@ const Options: React.FC = (props) => {
                       for (let i = 0; i < allKeys.length; i++) {
                         const key: string = allKeys[i]
                         const option: Option = optionEntitiesObject[key]
-                        let index: number = 0
+                        let index = 0
                         let reserves: string[] = ['0', '0']
                         let pairDataItem: string[]
                         for (const packed of allPackedReserves) {
@@ -186,10 +188,19 @@ const Options: React.FC = (props) => {
                           path,
                           [reserves0, reserves1]
                         )
-
+                        /* console.log(
+                          Trade.getAmountOut(
+                            reserves1.mul(0.02),
+                            reserves1,
+                            reserves1.mul(0.88)
+                          )
+                        ) */
                         let reserve: BigNumberish = reserves1.toString()
-
-                        if (typeof reserve === 'undefined') reserve = 0
+                        let depth: BigNumberish = +reserves1 * 0.02
+                        if (typeof reserve === 'undefined') {
+                          reserve = 0
+                          depth = 0
+                        }
                         if (typeof premium === 'undefined') premium = 0
                         pairReserveTotal = pairReserveTotal.add(
                           BigNumber.from(reserves1)
@@ -276,11 +287,11 @@ const Options: React.FC = (props) => {
                       console.log(calls)
                     })
                 })
-                .catch((error) => console.log(`getReserves ${error}`))
+                .catch((error) => throwError(`getReserves ${error}`))
             })
-            .catch((error) => console.log(`getOptions ${error}`))
+            .catch((error) => throwError(`getOptions ${error}`))
         })
-        .catch((error) => console.log(`getClones ${error}`))
+        .catch((error) => throwError(`getClones ${error}`))
     },
     [dispatch, provider, chainId, setOptions]
   )

@@ -40,6 +40,7 @@ import {
 import { getBalance } from '../../../lib/erc20'
 import { OptionParameters } from '../../../lib/entities/option'
 import formatBalance from '@/utils/formatBalance'
+import LineItem from '@/components/LineItem'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -103,14 +104,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
 
   if (item.expiry) return null
   if (positions.loading) {
-    return (
-      <Card>
-        <CardTitle>Your Positions</CardTitle>
-        <CardContent>
-          <Loader />
-        </CardContent>
-      </Card>
-    )
+    return <Loader size="lg" />
   }
   if (!positions.loading && !positions.exists) {
     return (
