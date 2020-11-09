@@ -16,8 +16,8 @@ const Layout: React.FC<PageProps> = (props) => {
       <TopBar />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
+        <Error />
       </StyledPage>
-      <Error />
       <Footer />
     </>
   )

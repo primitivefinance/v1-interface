@@ -14,21 +14,33 @@ const Error: React.FC = () => {
 
   if (!error) return null
   return (
-    <Card>
+    <StyledCard>
       <CardTitle>
         <StyledTitle>Error</StyledTitle>
         <Button variant="transparent" size="sm" onClick={() => clearError()}>
           <ClearIcon />
         </Button>
       </CardTitle>
-      <StyledContent>{msg}</StyledContent>
-      {link}
-    </Card>
+      <CardContent>
+        <StyledContent>{msg}</StyledContent>
+      </CardContent>
+    </StyledCard>
   )
 }
 
+const StyledCard = styled.div`
+  position: absolute;
+  bottom: 2em;
+  left: 40px;
+  width: 30em !important;
+  background: ${(props) => props.theme.color.grey[600]};
+  border-radius: 15px;
+  max-width: 30em !important;
+`
 const StyledContent = styled.h4`
+  margin-top: -1em;
   color: red;
+  width: inherit;
 `
 const StyledTitle = styled(Box)`
   align-items: center;

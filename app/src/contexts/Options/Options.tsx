@@ -283,17 +283,17 @@ const Options: React.FC = (props) => {
                         })
                       )
                     })
-                    .catch(() => {
-                      console.log(calls)
+                    .catch((error) => {
+                      throwError(`getReserves ${error}`, '')
                     })
                 })
-                .catch((error) => throwError(`getReserves ${error}`))
+                .catch((error) => throwError(`getReserves ${error}`, ''))
             })
-            .catch((error) => throwError(`getOptions ${error}`))
+            .catch((error) => throwError(`getOptions ${error}`, ''))
         })
-        .catch((error) => throwError(`getClones ${error}`))
+        .catch((error) => throwError(`getClones ${error}`, ''))
     },
-    [dispatch, provider, chainId, setOptions]
+    [dispatch, provider, chainId, setOptions, throwError]
   )
 
   return (

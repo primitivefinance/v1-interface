@@ -4,7 +4,7 @@ const ErrorContext = createContext<ErrorContextValues>({
   error: false,
   msg: '',
   link: '',
-  throwError: (msg: string, link?: string) => {},
+  throwError: (msg: string, link: string) => {},
   clearError: () => {},
 })
 

@@ -312,4 +312,13 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   )
 }
 
+const StyledTitle = styled.h5`
+  align-items: center;
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  font-size: 18px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+`
+
 export default Submit
