@@ -6,6 +6,8 @@ import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
 import TableCell from '@/components/TableCell'
+import Tooltip from '@/components/Tooltip'
+
 import TableRow from '@/components/TableRow'
 import Loader from '@/components/Loader'
 import useOrders from '@/hooks/useOrders'
@@ -93,13 +95,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   const headers = [
-    'Strike Price',
-    'Break Even',
-    'Price',
-    '2% Depth',
-    'Reserve',
-    'Contract',
-    '',
+    { name: 'Strike Price', tip: null },
+    { name: 'Break Even', tip: null },
+    { name: 'Price', tip: null },
+    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
+    { name: 'Reserve', tip: null },
+    { name: 'Contract', tip: null },
+    { name: '', tip: null },
   ]
   return (
     <Table>
@@ -109,10 +111,19 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             {headers.map((header, index) => {
               if (index === headers.length - 1) {
                 return (
-                  <StyledButtonCell key={header}>{header}</StyledButtonCell>
+                  <StyledButtonCell key={header.name}>
+                    {header.tip}
+                  </StyledButtonCell>
                 )
               }
-              return <TableCell key={header}>{header}</TableCell>
+              if (header.tip) {
+                return (
+                  <TableCell key={header.name}>
+                    <Tooltip text={header.tip}>{header.name}</Tooltip>
+                  </TableCell>
+                )
+              }
+              return <TableCell key={header.name}>{header.name}</TableCell>
             })}
           </TableRow>
         </LitContainer>
