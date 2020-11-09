@@ -1,11 +1,8 @@
 import React from 'react'
 
-interface props {}
-
-interface state {
-  hasError: boolean
-}
-export default class ErrorBoundary extends React.Component {
+export default class ErrorBoundary extends React.Component<{
+  fallback: React.ReactNode
+}> {
   state = { error: false }
 
   static getDerivedStateFromError(error) {
