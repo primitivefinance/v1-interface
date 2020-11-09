@@ -12,6 +12,7 @@ import theme from '../theme'
 
 import { default as TransactionProvider } from '@/contexts/Transactions/Transactions'
 import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
+import { default as ErrorProvider } from '@/contexts/Error/Error'
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -76,29 +77,31 @@ export default function App({ Component, pageProps }) {
       <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
           <>
-            <TransactionProvider>
-              <Updater />
-              <Layout>
-                {active ? (
-                  <WaitingRoom>
-                    <Spacer size="lg" />
-                    <StyledText>
-                      This interface requires a connection from the browser to
-                      Ethereum.
-                    </StyledText>
-                    <Button
-                      size="sm"
-                      text="Learn More"
-                      variant="transparent"
-                      href="https://ethereum.org/en/wallets/"
-                    />{' '}
-                    <Spacer />
-                  </WaitingRoom>
-                ) : (
-                  <Component {...pageProps} />
-                )}
-              </Layout>
-            </TransactionProvider>
+            <ErrorProvider>
+              <TransactionProvider>
+                <Updater />
+                <Layout>
+                  {active ? (
+                    <WaitingRoom>
+                      <Spacer size="lg" />
+                      <StyledText>
+                        This interface requires a connection from the browser to
+                        Ethereum.
+                      </StyledText>
+                      <Button
+                        size="sm"
+                        text="Learn More"
+                        variant="transparent"
+                        href="https://ethereum.org/en/wallets/"
+                      />{' '}
+                      <Spacer />
+                    </WaitingRoom>
+                  ) : (
+                    <Component {...pageProps} />
+                  )}
+                </Layout>
+              </TransactionProvider>
+            </ErrorProvider>
           </>
         </ThemeProvider>
       </Web3ReactProvider>

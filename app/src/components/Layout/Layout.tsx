@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import TopBar from '@/components/TopBar'
 import Footer from '@/components/Footer'
 import Spacer from '@/components/Spacer'
-import { useWeb3React } from '@web3-react/core'
+import Error from '@/components/Error'
 
 interface PageProps {
   children: any
@@ -17,6 +17,7 @@ const Layout: React.FC<PageProps> = (props) => {
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>
+      <Error />
       <Footer />
     </>
   )
