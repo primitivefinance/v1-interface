@@ -13,10 +13,16 @@ export interface LineItemProps {
 }
 
 const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
-  const sign = units ? (units.toString().charAt(0) === '-' ? '-' : null) : null
+  const sign = units
+    ? units.toString().charAt(0) === '-'
+      ? '-'
+      : units.toString().charAt(0) === '+'
+      ? '+'
+      : null
+    : null
   const currency = units
-    ? sign?.length > 1
-      ? units.toString().slice(1)
+    ? sign?.length > 0
+      ? units.toString().slice(2)
       : units.toString()
     : null
   return (
