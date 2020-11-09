@@ -166,7 +166,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <TableCell>-</TableCell>
                   )}
                   {depth > 0 ? (
-                    <TableCell>{depth}</TableCell>
+                    <TableCell>
+                      {depth} {'Options'}
+                    </TableCell>
                   ) : (
                     <TableCell>-</TableCell>
                   )}
@@ -178,7 +180,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                       {asset.toUpperCase()} /{' '}
                       {reserve0Units === asset.toUpperCase()
                         ? formatEtherBalance(reserves[1].toString())
-                        : formatEtherBalance(reserves[0].toString())}
+                        : formatEtherBalance(reserves[0].toString())}{' '}
                       {'SHORT'}
                     </TableCell>
                   ) : (

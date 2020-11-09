@@ -11,6 +11,17 @@ import { OptionsAttributes } from '../Options/types'
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
 
+const getAmountIn = (
+  amountOut: BigNumber,
+  reserveIn: BigNumber,
+  reserveOut: BigNumber
+) => {
+  let numerator = reserveIn.mul(amountOut).mul(1000)
+  let denominator = reserveOut.sub(amountOut).mul(997)
+  let amountIn = numerator.div(denominator).add(1)
+  return amountIn
+}
+
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   // Web3 injection
@@ -123,6 +134,7 @@ const Options: React.FC = (props) => {
                           reserves = ['0', '0']
                         const reserves0: BigNumberish = reserves[0]
                         const reserves1: BigNumberish = reserves[1]
+
                         let token0: string = option.assetAddresses[0]
                         let token1: string = option.assetAddresses[2]
                         if (typeof pairDataItem !== 'undefined') {
@@ -132,6 +144,42 @@ const Options: React.FC = (props) => {
 
                         const Base: Quantity = option.optionParameters.base
                         const Quote: Quantity = option.optionParameters.quote
+
+                        // depth calcs
+                        console.log('get reserves for depth')
+                        const reserve0ForDepth: BigNumber = BigNumber.from(
+                          reserves0.toString()
+                        )
+                        const reserve1ForDepth: BigNumber = BigNumber.from(
+                          reserves1.toString()
+                        )
+
+                        const underlyingReserve =
+                          token0 === option.assetAddresses[0]
+                            ? reserve0ForDepth
+                            : reserve1ForDepth
+
+                        const twoPercentOfReserve = underlyingReserve
+                          .mul(2)
+                          .div(100)
+
+                        let redeemCost: BigNumberish = '0'
+                        if (
+                          twoPercentOfReserve.gt(0) &&
+                          reserve0ForDepth.gt(0) &&
+                          reserve1ForDepth.gt(0)
+                        ) {
+                          redeemCost = Trade.getAmountsInPure(
+                            twoPercentOfReserve,
+                            path,
+                            reserve0ForDepth,
+                            reserve1ForDepth
+                          )[0]
+                        }
+
+                        const redeemCostDivMinted = BigNumber.from(
+                          redeemCost.toString()
+                        ).div(Quote.quantity)
 
                         let premium: BigNumberish = Trade.getSpotPremium(
                           Base.quantity,
@@ -170,7 +218,7 @@ const Options: React.FC = (props) => {
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
-                              depth: 0,
+                              depth: redeemCostDivMinted.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,
@@ -208,7 +256,7 @@ const Options: React.FC = (props) => {
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
-                              depth: 0,
+                              depth: redeemCostDivMinted.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,

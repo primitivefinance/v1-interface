@@ -22,7 +22,7 @@ export type OptionsAttributes = {
   reserves: BigNumberish[]
   token0: string
   token1: string
-  depth: number
+  depth: BigNumberish
   address: string
   id: string
   expiry: BigNumberish
