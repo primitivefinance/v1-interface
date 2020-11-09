@@ -12,6 +12,7 @@ import CardTitle from '@/components/CardTitle'
 import Submit from './components/Submit'
 import OrderOptions from './components/OrderOptions'
 import formatBalance from '@/utils/formatBalance'
+import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 
 const OrderContent: React.FC = () => {
@@ -31,7 +32,7 @@ const OrderCard: React.FC = () => {
   if (!item.expiry) {
     return null
   }
-  const exp = new Date(parseInt(item.expiry.toString()) * 1000)
+  const { date, month, year } = formatExpiry(item.expiry)
   const clear = () => {
     onRemoveItem(item)
   }
@@ -42,9 +43,7 @@ const OrderCard: React.FC = () => {
           <>
             {`${item.asset} ${
               item.entity.isCall ? 'Call' : 'Put'
-            } $${formatBalance(
-              item.strike
-            )} ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
+            } $${formatBalance(item.strike)} ${month}/${date} ${year}`}
           </>
           <StyledFlex />
           <Button variant="transparent" size="sm" onClick={() => clear()}>
