@@ -6,6 +6,8 @@ import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
+import LaunchIcon from '@material-ui/icons/Launch'
+
 import useSWR from 'swr'
 import useOptions from '@/hooks/useOptions'
 import { useWeb3React } from '@web3-react/core'
@@ -77,25 +79,28 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
     <StyledHeader>
       <LitContainer>
         <GoBack to="/markets" />
-
         <Spacer />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-
           <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
             <Spacer size="sm" />
-            <Link href={`${baseUrl}/${address}`}>
+            <StyledLink
+              href={`${baseUrl}/${address}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               <StyledName>{formatName(name)}</StyledName>
-            </Link>
+              <StyledIcon />
+            </StyledLink>
           </StyledContent>
 
           <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />
-            <StyledPrice blink={blink}>
+            <StyledPrice size="sm" blink={blink}>
               {data ? (
                 `$ ${formatBalance(data[key].usd)}`
               ) : (
@@ -146,13 +151,23 @@ const StyledContent = styled(Box)`
   flex-direction: row;
   justify-content: flex-start;
 `
-
+const StyledIcon = styled(LaunchIcon)`
+  color: ${(props) => props.theme.color.grey[400]};
+  font-size: 14px !important;
+  margin-left: 10px;
+`
 const StyledHeader = styled.div`
   background-color: ${(props) => props.theme.color.grey[800]};
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   padding-top: ${(props) => props.theme.spacing[4]}px;
 `
-
+const StyledLink = styled.a`
+  text-decoration: none;
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
 const StyledLoadingBlock = styled.div`
   background-color: ${(props) => props.theme.color.grey[400]};
   border-radius: 12px;

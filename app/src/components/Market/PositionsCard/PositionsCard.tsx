@@ -40,6 +40,7 @@ import {
 import { getBalance } from '../../../lib/erc20'
 import { OptionParameters } from '../../../lib/entities/option'
 import formatBalance from '@/utils/formatBalance'
+import LineItem from '@/components/LineItem'
 export interface TokenProps {
   option: any // replace with option type
 }

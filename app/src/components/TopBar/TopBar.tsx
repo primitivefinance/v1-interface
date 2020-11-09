@@ -17,7 +17,13 @@ const TopBar: React.FC = () => {
   const location = useRouter()
   return (
     <StyledTopBar>
-      <Container alignItems="center" display="flex" height={72}>
+      <Container
+        alignItems="center"
+        display="flex"
+        flexDirection="row"
+        justifyContent="space-between"
+        height={72}
+      >
         <StyledFlex>
           <Link href="/">
             <StyledNavItem active>

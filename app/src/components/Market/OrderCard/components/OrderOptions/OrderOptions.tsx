@@ -33,26 +33,28 @@ const LPOptions: React.FC = () => {
     <StyledBottom>
       <StyledSubtitle>Liquidity Provision</StyledSubtitle>
       <Spacer size="sm" />
-      <MultiLineItem label={'Reserves'}>
-        {' '}
-        {`${formatEtherBalance(
-          item.reserves[0]
-        )} ${item.asset.toUpperCase()} - ${formatEtherBalance(
-          item.reserves[1]
-        )} RDM`}
-      </MultiLineItem>
+      <StyledReserves row justifyContent="center">
+        <h5>
+          {formatEtherBalance(item.reserves[0])}
+          {item.asset.toUpperCase()}
+        </h5>
+        <Spacer />
+        <h5>{`${formatEtherBalance(item.reserves[1])} RDM`}</h5>
+      </StyledReserves>
       <Spacer />
       <LineItem
         label={'LP Token Balance'}
         data={formatBalance(lp).toString()}
       />
+      <Spacer size="sm" />
+      <LineItem label={'Pool Ownership'} data={'%'} />
       <Spacer />
       <Box row justifyContent="center" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {formatBalance(lp) === 0.0 ? (
+        {formatBalance(lp) !== 0.0 ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw Liquidity
           </Button>
@@ -151,6 +153,10 @@ const StyledBottom = styled.div`
   border-radius: 5px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
+`
+
+const StyledReserves = styled(Box)`
+  color: ${(props) => props.theme.color.white};
 `
 
 export default OrderOptions

@@ -21,6 +21,7 @@ export enum Operation {
   NEW_MARKET,
   NONE,
 }
+
 export const STABLECOIN_ADDRESS = ''
 
 export const UNISWAP_FACTORY_V2 = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'

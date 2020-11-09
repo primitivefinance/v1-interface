@@ -139,7 +139,6 @@ const Options: React.FC = (props) => {
                         ) */
                         let reserve: BigNumberish = reserves1.toString()
                         let depth: BigNumberish = +reserves1 * 0.02
-                        console.log(depth)
                         if (typeof reserve === 'undefined') {
                           reserve = 0
                           depth = 0
