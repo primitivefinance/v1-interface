@@ -135,10 +135,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 token0 === entity.assetAddresses[0]
                   ? asset.toUpperCase()
                   : 'SHORT'
-              let reserve1Units =
-                token0 === entity.assetAddresses[2]
-                  ? asset.toUpperCase()
-                  : 'SHORT'
               return (
                 <TableRow
                   key={address}
