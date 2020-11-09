@@ -103,11 +103,13 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       title = 'Close Long Position'
       capitalLabel = ''
       tokenAddress = stablecoinAddress
+      sign = '+'
       break
     case Operation.CLOSE_SHORT:
       title = 'Close Short Position'
       capitalLabel = ''
       tokenAddress = stablecoinAddress
+      sign = '-'
       break
     default:
       break

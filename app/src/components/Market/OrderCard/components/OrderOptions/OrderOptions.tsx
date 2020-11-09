@@ -29,25 +29,31 @@ const LPOptions: React.FC = () => {
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }
+
+  const reserve0Units =
+    item.token0 === item.entity.assetAddresses[0]
+      ? item.asset.toUpperCase()
+      : 'SHORT'
   return (
     <StyledBottom>
       <StyledSubtitle>Liquidity Provision</StyledSubtitle>
       <Spacer size="sm" />
-      <StyledReserves row justifyContent="center">
-        <h5>
-          {formatEtherBalance(item.reserves[0])}
-          {item.asset.toUpperCase()}
-        </h5>
-        <Spacer />
-        <h5>{`${formatEtherBalance(item.reserves[1])} RDM`}</h5>
-      </StyledReserves>
+      <MultiLineItem label={'Reserves'}>
+        {reserve0Units === item.asset.toUpperCase()
+          ? formatEtherBalance(item.reserves[0].toString())
+          : formatEtherBalance(item.reserves[1].toString())}{' '}
+        {item.asset.toUpperCase()} /{' '}
+        {reserve0Units === item.asset.toUpperCase()
+          ? formatEtherBalance(item.reserves[1].toString())
+          : formatEtherBalance(item.reserves[0].toString())}{' '}
+        {'SHORT'}
+      </MultiLineItem>
       <Spacer />
       <LineItem
         label={'LP Token Balance'}
-        data={formatBalance(lp).toString()}
+        data={pairBalance.toString()}
+        units={'UNI-V2'}
       />
-      <Spacer size="sm" />
-      <LineItem label={'Pool Ownership'} data={'%'} />
       <Spacer />
       <Box row justifyContent="center" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
