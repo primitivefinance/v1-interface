@@ -51,7 +51,7 @@ const LPOptions: React.FC = () => {
       <Spacer />
       <LineItem
         label={'LP Token Balance'}
-        data={pairBalance.toString()}
+        data={lp.toString()}
         units={'UNI-V2'}
       />
       <Spacer />

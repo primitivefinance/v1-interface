@@ -10,6 +10,7 @@ export { usePrevious } from './usePrevious'
 export { useLocalStorage } from './useLocalStorage'
 export { useClickAway } from './useClickAway'
 export { useQueryParameters } from './useQueryParameters'
+export { useError } from './useError'
 
 export function useKeepSWRDataLiveAsBlocksArrive(
   mutate: responseInterface<any, any>['mutate']

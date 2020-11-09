@@ -46,7 +46,7 @@ const Market = ({ market }) => {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={'Error Loading Market'}>
       <OrderProvider>
         <OptionsProvider>
           <PositionsProvider>
