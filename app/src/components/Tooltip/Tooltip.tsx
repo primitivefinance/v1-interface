@@ -37,7 +37,7 @@ const StyledInfoIcon = styled(InfoIcon)`
 const StyledContainer = styled.div`
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black;
+  //border-bottom: 1px dotted black;
   cursor: pointer;
 `
 const Tip = styled.div`
