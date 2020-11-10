@@ -301,7 +301,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         </>
       )}
       <Button
-        disabled={!inputs}
+        disabled={!inputs || submitting}
         full
         size="sm"
         onClick={handleSubmitClick}

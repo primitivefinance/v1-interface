@@ -21,7 +21,7 @@ import { Trade, Option, Quantity } from '@/lib/entities'
 import { getBalance } from '@/lib/erc20'
 import { ethers } from 'ethers'
 import { OptionsAttributes } from '../Options/types'
-import formatBalance from '@/utils/formatBalance'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const Positions: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -47,11 +47,12 @@ const Positions: React.FC = (props) => {
         )
         const lp = await getBalance(library, options[i].entity.pair, account)
         if (
-          formatBalance(long) !== '0.00' &&
-          formatBalance(redeem) !== '0.00' &&
-          formatBalance(lp) !== '0.00'
+          formatEtherBalance(long) !== '0.00' ||
+          formatEtherBalance(redeem) !== '0.00' ||
+          formatEtherBalance(lp) !== '0.00'
         ) {
           positionExists = true
+          console.log(positionExists)
           positionsArr.push({
             attributes: options[i],
             long: long,
