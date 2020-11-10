@@ -26,6 +26,7 @@ import GreeksTableRow from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
 import OptionsTableRow from './OptionsTableRow'
 import OptionsTableHeader from './OptionsTableHeader'
+import LoadingTable from './LoadingTable'
 
 export type FormattedOption = {
   breakEven: number
@@ -121,10 +122,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       <OptionsTableHeader />
       <LitContainer>
         {options.loading ? (
-          <>
-            <Spacer />
-            <Loader />
-          </>
+          <LoadingTable />
         ) : (
           <TableBody>
             {options[type].map((option) => {
