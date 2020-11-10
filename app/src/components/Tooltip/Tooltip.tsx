@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import InfoIcon from '@material-ui/icons/Info'
 
 export interface TooltipProps {
   children: React.ReactNode
@@ -13,17 +14,25 @@ export const Tooltip: React.FC<TooltipProps> = ({
   direction = 'bottom',
 }) => {
   const [open, setOpen] = useState(false)
-  const toggle = () => {
-    console.log(open)
-    setOpen(!open)
+  const onOver = () => {
+    setOpen(true)
+  }
+  const onLeave = () => {
+    setOpen(false)
   }
   return (
-    <StyledContainer onMouseOver={toggle} onMouseLeave={toggle}>
+    <StyledContainer onMouseOver={onOver} onMouseLeave={onLeave}>
       {open ? <Tip>{text}</Tip> : null}
       {children}
+      <StyledInfoIcon />
     </StyledContainer>
   )
 }
+
+const StyledInfoIcon = styled(InfoIcon)`
+  font-size: 12px !important;
+  margin-bottom: 7px;
+`
 
 const StyledContainer = styled.div`
   position: relative;
@@ -36,9 +45,10 @@ const Tip = styled.div`
   background-color: black;
   color: white;
   text-align: center;
-  padding: 5px;
+  padding: 10px;
   border-radius: 6px;
-  top: 2em;
+  top: 1em;
+  left: 5em;
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;

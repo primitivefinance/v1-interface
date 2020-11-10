@@ -313,6 +313,10 @@ const Order: React.FC = (props) => {
                     if (tx.hash) {
                       approvalTxs.push(tx)
                       addTransaction(chainId, {
+                        approval: {
+                          tokenAddress: tokenAddress,
+                          spender: account,
+                        },
                         hash: tx.hash,
                         addedTime: now(),
                         from: account,
@@ -329,11 +333,12 @@ const Order: React.FC = (props) => {
         }
       }
     }
-
+    console.log(approvalTxs)
     executeTransaction(signer, transaction)
       .then((tx) => {
         if (tx.hash) {
           addTransaction(chainId, {
+            summary: Operation[operation].toString(),
             hash: tx.hash,
             addedTime: now(),
             from: account,

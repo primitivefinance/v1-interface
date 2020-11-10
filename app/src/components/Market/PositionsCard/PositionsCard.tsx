@@ -39,8 +39,8 @@ import {
 } from '@/constants/index'
 import { getBalance } from '../../../lib/erc20'
 import { OptionParameters } from '../../../lib/entities/option'
-import formatBalance from '@/utils/formatBalance'
-import LineItem from '@/components/LineItem'
+import formatEtherBalance from '@/utils/formatEtherBalance'
+import formatExpiry from '@/utils/formatExpiry'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -50,26 +50,21 @@ export interface PositionsProp {
 const Position: React.FC<TokenProps> = ({ option }) => {
   const { chainId, library } = useWeb3React()
   const { onAddItem, item } = useOrders()
+  const { date, month, year } = formatExpiry(option.attributes.expiry)
 
   const handleClick = () => {
     onAddItem(option.attributes, Operation.NONE)
   }
 
-  if (!option.attributes.entity.pair) return null
-  const exp = new Date(parseInt(option.attributes.expiry.toString()) * 1000)
-
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-
   return (
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
-        <span>
+        <StyledTitle>
           {`${option.attributes.asset} ${
             option.attributes.entity.isCall ? 'Call' : 'Put'
-          } $${
-            option.attributes.strike
-          } ${exp.getMonth()}/${exp.getDay()} ${exp.getFullYear()}`}
-        </span>
+          } $${option.attributes.strike} ${month}/${date} ${year}`}
+        </StyledTitle>
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
           {option.attributes.address.length > 0
             ? option.attributes.address.substr(0, 4) + '...'
@@ -79,9 +74,9 @@ const Position: React.FC<TokenProps> = ({ option }) => {
       </Box>
       <Spacer size="sm" />
       <Box row justifyContent="space-between" alignItems="center">
-        <span>Long {formatBalance(option.long)}</span>
-        <span>Short {formatBalance(option.short)}</span>
-        <span>LP {formatBalance(option.lp)}</span>
+        <span>Long {formatEtherBalance(option.long)}</span>
+        <span>Short {formatEtherBalance(option.redeem)}</span>
+        <span>LP {formatEtherBalance(option.lp)}</span>
       </Box>
     </StyledPosition>
   )
@@ -97,19 +92,18 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   useEffect(() => {
     if (!options.loading) {
       const temp = options.calls.concat(options.puts)
-      console.log(temp)
       getPositions(temp)
     }
   }, [getPositions, options])
 
-  if (item.expiry) return null
+  if (item.asset) return null
   if (positions.loading) {
     return <Loader size="lg" />
   }
   if (!positions.loading && !positions.exists) {
     return (
       <Card>
-        <CardTitle>Your Positions</CardTitle>
+        <CardTitle>Active Positions</CardTitle>
         <CardContent>
           <StyledEmptyContent>
             <StyledEmptyIcon>
@@ -125,7 +119,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   }
   return (
     <Card>
-      <CardTitle>Your Positions</CardTitle>
+      <CardTitle>Active Positions</CardTitle>
       <CardContent>
         {positions.options.map((pos, i) => {
           return <Position key={i} option={pos} />
@@ -134,12 +128,18 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     </Card>
   )
 }
+
+const StyledTitle = styled.h3`
+  color: ${(props) => props.theme.color.white};
+`
 const StyledPosition = styled.a`
   border: 0px solid ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};
   min-height: 2em;
   border-radius: 4px;
-  padding: 0.8em;
+  padding-left: 0.8em;
+  padding-right: 0.8em;
+  padding-bottom: 1em;
   cursor: pointer;
   margin-bottom: 0.5em;
 `
