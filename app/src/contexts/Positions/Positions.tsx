@@ -26,7 +26,7 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 const Positions: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   // Web3 injection
-  const { library, chainId, account } = useWeb3React()
+  const { library, account } = useWeb3React()
 
   const handlePositions = useCallback(
     async (options: OptionsAttributes[]) => {
@@ -37,7 +37,7 @@ const Positions: React.FC = (props) => {
       for (let i = 0; i < options.length; i++) {
         const long = await getBalance(
           library,
-          options[i].entity.assetAddresses[1],
+          options[i].entity.address,
           account
         )
         const redeem = await getBalance(
