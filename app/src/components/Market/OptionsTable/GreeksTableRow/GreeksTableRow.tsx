@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
 
-interface Greeks {
+export interface Greeks {
   iv: number
   delta: number
   theta: number

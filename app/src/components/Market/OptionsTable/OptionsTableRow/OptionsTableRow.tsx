@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import LaunchIcon from '@material-ui/icons/Launch'
+import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
-interface TableColumns {
+export interface TableColumns {
   key: string
   asset: string
   strike: string
@@ -21,13 +22,16 @@ export interface OptionsTableRowProps {
   onClick: () => void
   columns: TableColumns
   href: string
+  greeks: Greeks
 }
 
 const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   onClick,
   columns,
   href,
+  greeks,
 }) => {
+  const [toggle, setToggle] = useState(false)
   const {
     key,
     asset,
@@ -39,9 +43,13 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     reserves,
     address,
   } = columns
+  const handleOnClick = useCallback(() => {
+    onClick()
+    setToggle(!toggle)
+  }, [onClick, toggle, setToggle])
   return (
     <>
-      <TableRow key={key} onClick={onClick}>
+      <TableRow key={key} onClick={handleOnClick}>
         <TableCell>${strike}</TableCell>
         <TableCell>$ {breakeven}</TableCell>
         {+premium > 0 ? (
@@ -74,6 +82,11 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <ArrowForwardIosIcon />
         </StyledButtonCell>
       </TableRow>
+      {toggle ? (
+        <GreeksTableRow onClick={() => setToggle(!toggle)} greeks={greeks} />
+      ) : (
+        <></>
+      )}
     </>
   )
 }
