@@ -333,7 +333,7 @@ const Order: React.FC = (props) => {
         }
       }
     }
-
+    console.log(approvalTxs)
     executeTransaction(signer, transaction)
       .then((tx) => {
         if (tx.hash) {

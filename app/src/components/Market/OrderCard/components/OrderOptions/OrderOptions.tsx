@@ -59,7 +59,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {balance !== 0.0 ? (
+        {balance !== '0x00' ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw Liquidity
           </Button>
@@ -85,7 +85,6 @@ const OrderOptions: React.FC = () => {
     const temp = positions.options.filter(
       (opt) => opt.attributes.address === item.address
     )[0]
-    console.log(temp.redeem.toString())
     if (temp.long || temp.redeem || temp.redeem) {
       setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
     }
@@ -118,11 +117,7 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={
-              !positions.loading && option?.long.toString() !== '0'
-                ? false
-                : true
-            }
+            disabled={!positions.loading ? false : true}
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_LONG)}
@@ -151,11 +146,7 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={
-              !positions.loading && option?.short.toString() !== '0'
-                ? false
-                : true
-            }
+            disabled={!positions.loading ? false : true}
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_SHORT)}
@@ -165,7 +156,7 @@ const OrderOptions: React.FC = () => {
           <Spacer />
         </StyledColumn>
       </Box>
-      <LPOptions balance={Option.lp} />
+      <LPOptions balance={option?.lp ? option.lp : null} />
     </>
   )
 }
