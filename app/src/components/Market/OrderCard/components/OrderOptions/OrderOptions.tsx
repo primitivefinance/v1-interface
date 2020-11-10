@@ -8,6 +8,7 @@ import Label from '@/components/Label'
 import Button from '@/components/Button'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
+import Loader from '@/components/Loader'
 import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useOptions from '@/hooks/useOptions'
@@ -22,10 +23,8 @@ import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
-const LPOptions: React.FC = () => {
+const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const { item, onChangeItem } = useOrders()
-  const lp = useTokenBalance(item.entity.pair)
-
   const change = (t: Operation) => {
     onChangeItem(item, t)
   }
@@ -51,7 +50,7 @@ const LPOptions: React.FC = () => {
       <Spacer />
       <LineItem
         label={'LP Token Balance'}
-        data={lp.toString()}
+        data={balance ? formatEtherBalance(balance).toString() : '0.00'}
         units={'UNI-V2'}
       />
       <Spacer />
@@ -60,7 +59,7 @@ const LPOptions: React.FC = () => {
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {formatBalance(lp) !== 0.0 ? (
+        {balance !== 0.0 ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw Liquidity
           </Button>
@@ -79,10 +78,18 @@ const LPOptions: React.FC = () => {
 }
 const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
+  const { positions } = usePositions()
 
-  const long = useTokenBalance(item.entity.assetAddresses[0])
-  console.log(long)
-  const short = useTokenBalance(item.entity.assetAddresses[2])
+  const [option, setOption] = useState({})
+  useEffect(() => {
+    const temp = positions.options.filter(
+      (opt) => opt.attributes.address === item.address
+    )[0]
+    console.log(temp.redeem.toString())
+    if (temp.long || temp.redeem || temp.redeem) {
+      setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
+    }
+  }, [setOption, positions])
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -95,7 +102,15 @@ const OrderOptions: React.FC = () => {
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Long Tokens'} />
             <Spacer />
-            <StyledBalance>{formatBalance(long).toString()}</StyledBalance>
+            <StyledBalance>
+              {positions.loading ? (
+                <Loader size="sm" />
+              ) : !option ? (
+                '0.00'
+              ) : (
+                formatEtherBalance(option?.long)
+              )}
+            </StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change(Operation.LONG)}>
             Open Long
@@ -103,7 +118,11 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={formatBalance(long).toString() !== '0.00' ? false : true}
+            disabled={
+              !positions.loading && option?.long.toString() !== '0'
+                ? false
+                : true
+            }
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_LONG)}
@@ -116,7 +135,15 @@ const OrderOptions: React.FC = () => {
           <Box row justifyContent="center" alignItems="center">
             <Label text={'Short Tokens'} />
             <Spacer />
-            <StyledBalance>{formatBalance(short).toString()}</StyledBalance>
+            <StyledBalance>
+              {positions.loading ? (
+                <Loader size="sm" />
+              ) : positions.exists ? (
+                '0.00'
+              ) : (
+                formatEtherBalance(option.short)
+              )}
+            </StyledBalance>
           </Box>
           <Button full size="sm" onClick={() => change(Operation.SHORT)}>
             Open Short
@@ -124,7 +151,11 @@ const OrderOptions: React.FC = () => {
           <Spacer size="sm" />
           <Button
             full
-            disabled={formatBalance(short).toString() !== '0.00' ? false : true}
+            disabled={
+              !positions.loading && option?.short.toString() !== '0'
+                ? false
+                : true
+            }
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.CLOSE_SHORT)}
@@ -134,7 +165,7 @@ const OrderOptions: React.FC = () => {
           <Spacer />
         </StyledColumn>
       </Box>
-      <LPOptions />
+      <LPOptions balance={Option.lp} />
     </>
   )
 }

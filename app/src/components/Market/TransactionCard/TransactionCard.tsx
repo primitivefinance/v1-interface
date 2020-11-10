@@ -46,7 +46,6 @@ const TransactionCard: React.FC = () => {
         <CardContent>
           {Object.keys(txs).map((hash, i) => {
             const date = new Date(txs[hash].confirmedTime)
-            console.log(date)
             return (
               <StyledTableRow isActive key={i}>
                 <TableCell>
@@ -58,7 +57,13 @@ const TransactionCard: React.FC = () => {
                         {date.toUTCString().substr(16, 10)}
                       </StyledText>
                     )}
-                    <Spacer />
+                    <Spacer size="sm" />
+                    {txs[hash].summary ? (
+                      <StyledText>{txs[hash].summary}</StyledText>
+                    ) : txs[hash].approval ? null : (
+                      <StyledText>Token Approval</StyledText>
+                    )}
+                    <Spacer size="sm" />
                     <StyledLink
                       href={`${
                         chainId !== 4 ? ETHERSCAN_MAINNET : ETHERSCAN_RINKEBY
@@ -66,7 +71,7 @@ const TransactionCard: React.FC = () => {
                       target="__blank"
                     >
                       <Box row justifyContent="center" alignItems="center">
-                        {txs[hash].hash.substr(0, 14)}...
+                        {txs[hash].hash.substr(0, 8)}...
                         <LaunchIcon style={{ fontSize: '14px' }} />
                       </Box>
                     </StyledLink>
@@ -110,7 +115,7 @@ const StyledConfirmed = styled.h5`
 `
 const StyledLink = styled.a`
   text-decoration: none;
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 export default TransactionCard

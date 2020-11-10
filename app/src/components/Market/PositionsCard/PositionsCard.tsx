@@ -96,14 +96,14 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     }
   }, [getPositions, options])
 
-  if (item.expiry) return null
+  if (item.asset) return null
   if (positions.loading) {
     return <Loader size="lg" />
   }
   if (!positions.loading && !positions.exists) {
     return (
       <Card>
-        <CardTitle>Your Positions</CardTitle>
+        <CardTitle>Active Positions</CardTitle>
         <CardContent>
           <StyledEmptyContent>
             <StyledEmptyIcon>
@@ -119,7 +119,7 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   }
   return (
     <Card>
-      <CardTitle>Your Positions</CardTitle>
+      <CardTitle>Active Positions</CardTitle>
       <CardContent>
         {positions.options.map((pos, i) => {
           return <Position key={i} option={pos} />

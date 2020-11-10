@@ -98,7 +98,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     { name: 'Strike Price', tip: null },
     { name: 'Break Even', tip: null },
     { name: 'Price', tip: null },
-    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
+    {
+      name: '2% Depth',
+      tip: '# of options that can be bought at <2% slippage',
+    },
     { name: 'Reserve', tip: null },
     { name: 'Contract', tip: null },
     { name: '', tip: null },
