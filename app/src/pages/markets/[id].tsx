@@ -21,6 +21,7 @@ import {
   PositionsCard,
   NewMarketCard,
 } from '@/components/Market'
+import TestnetCard from '@/components/Market/TestnetCard/TestnetCard'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -74,6 +75,14 @@ const Market = ({ market }) => {
                 <NewMarketCard />
                 <Spacer />
                 <TransactionCard />
+                {chainId === 4 ? (
+                  <>
+                    <Spacer />
+                    <TestnetCard />
+                  </>
+                ) : (
+                  <> </>
+                )}
               </StyledSideBar>
             </StyledMarket>
           </PositionsProvider>
