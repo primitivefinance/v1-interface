@@ -87,10 +87,9 @@ const OrderOptions: React.FC = () => {
     )[0]
     console.log({ temp })
     if (temp) {
-      /* if (temp.long || temp.redeem || temp.lp) {
+      if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
-      } */
-      setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
+      }
     }
   }, [setOption, positions, item])
 
