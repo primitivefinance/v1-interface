@@ -69,12 +69,9 @@ export class BlackScholes implements BlackScholesInterface {
    */
   delta(): number | null {
     if (isUndefinedOrNull(this.d1)) {
-      console.log(`d1 is undefined or null`)
       return null
     }
-    console.log(`d1: ${this.d1}`)
     const delta = NormalDistribution.cdf(this.d1)
-    console.log({ delta })
     return _toFixed(delta, 3)
   }
 
@@ -218,9 +215,6 @@ export class BlackScholes implements BlackScholesInterface {
       return null
     }
 
-    console.log(
-      `spot: ${this.assetPrice}, strike: ${+this.option.strikePrice.quantity}`
-    )
     return (
       (Math.log(this.assetPrice / +this.option.strikePrice.quantity) +
         (this.riskFree + Math.pow(this.deviation, 2) / 2) * timeToExpiry) /
@@ -269,7 +263,6 @@ export class BlackScholes implements BlackScholesInterface {
         this.riskFree,
         this.option.isCall
       )
-      console.log(`value: ${actualCost}, expectedCost: ${expectedCost}`)
       // compare the price down to the cent
       if (expectedCost * 100 == Math.floor(actualCost * 100)) {
         break
@@ -283,7 +276,6 @@ export class BlackScholes implements BlackScholesInterface {
       }
     }
 
-    console.log(`estimate: ${estimate}`)
     return estimate
   }
 
@@ -299,7 +291,6 @@ export class BlackScholes implements BlackScholesInterface {
 
   async getCurrentPrice(name: string): Promise<number> {
     let price: string
-    console.log({ name })
     const priceAPI = `https://api.coingecko.com/api/v3/simple/price?ids=${name}&vs_currencies=usd&include_24hr_change=true`
     fetch(priceAPI)
       .then((res) => res.json())

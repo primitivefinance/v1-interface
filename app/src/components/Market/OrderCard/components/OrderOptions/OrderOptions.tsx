@@ -85,12 +85,14 @@ const OrderOptions: React.FC = () => {
     const temp = positions.options.filter(
       (opt) => opt.attributes.address === item.address
     )[0]
+    console.log({ temp })
     if (temp) {
-      if (temp.long || temp.redeem || temp.redeem) {
+      /* if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
-      }
+      } */
+      setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
     }
-  }, [setOption, positions])
+  }, [setOption, positions, item])
 
   const change = (t: Operation) => {
     onChangeItem(item, t)
@@ -135,10 +137,10 @@ const OrderOptions: React.FC = () => {
             <StyledBalance>
               {positions.loading ? (
                 <Loader size="sm" />
-              ) : positions.exists ? (
+              ) : !option ? (
                 '0.00'
               ) : (
-                formatEtherBalance(option.short)
+                formatEtherBalance(option?.short)
               )}
             </StyledBalance>
           </Box>
