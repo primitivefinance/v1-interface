@@ -135,7 +135,7 @@ const OrderOptions: React.FC = () => {
             <StyledBalance>
               {positions.loading ? (
                 <Loader size="sm" />
-              ) : positions.exists ? (
+              ) : !option ? (
                 '0.00'
               ) : (
                 formatEtherBalance(option.short)

@@ -7,14 +7,17 @@ const useTransactions = () => {
 
 export default useTransactions
 
-export const useHasPendingApproval = (
+export const useHasPendingApproval = (): ((
   tokenAddress: string | undefined,
   spender: string | undefined
-): boolean => {
+) => boolean) => {
   const { transactions } = useTransactions()
-  return useMemo(
-    () =>
-      typeof tokenAddress === 'string' &&
+
+  const isApproved = (
+    tokenAddress: string | undefined,
+    spender: string | undefined
+  ): any => {
+    typeof tokenAddress === 'string' &&
       typeof spender === 'string' &&
       Object.keys(transactions).some((hash) => {
         const tx = transactions[hash]
@@ -29,7 +32,7 @@ export const useHasPendingApproval = (
             approval.tokenAddress === tokenAddress
           )
         }
-      }),
-    [useTransactions, spender, tokenAddress]
-  )
+      })
+  }
+  return isApproved
 }
