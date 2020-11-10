@@ -28,7 +28,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 const StyledContainer = styled.div`
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black;
+  //border-bottom: 1px dotted black;
   cursor: pointer;
 `
 const Tip = styled.div`

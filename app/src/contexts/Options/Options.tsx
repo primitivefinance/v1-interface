@@ -10,7 +10,7 @@ import { OptionsAttributes } from '../Options/types'
 
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
-import { useError } from '@/hooks/utils/useError'
+import useError from '@/hooks//useError'
 
 const getAmountIn = (
   amountOut: BigNumber,
@@ -25,7 +25,7 @@ const getAmountIn = (
 
 const Options: React.FC = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const throwError = useError()
+  const { throwError } = useError()
   // Web3 injection
   const { library, chainId } = useWeb3React()
   const provider = library
@@ -283,17 +283,17 @@ const Options: React.FC = (props) => {
                         })
                       )
                     })
-                    .catch(() => {
-                      console.log(calls)
+                    .catch((error) => {
+                      throwError(`getReserves ${error}`, '')
                     })
                 })
-                .catch((error) => throwError(`getReserves ${error}`))
+                .catch((error) => throwError(`getReserves ${error}`, ''))
             })
-            .catch((error) => throwError(`getOptions ${error}`))
+            .catch((error) => throwError(`getOptions ${error}`, ''))
         })
-        .catch((error) => throwError(`getClones ${error}`))
+        .catch((error) => throwError(`getClones ${error}`, ''))
     },
-    [dispatch, provider, chainId, setOptions]
+    [dispatch, provider, chainId, setOptions, throwError]
   )
 
   return (

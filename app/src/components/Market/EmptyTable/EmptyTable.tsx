@@ -34,9 +34,8 @@ const EmptyTable: React.FC<EmptyTableProps> = (props) => {
 
 const changeColorWhileLoading = (color) => keyframes`
   0%   {background-color: ${color.grey[400]};}
-  25%  {background-color: ${color.grey[500]};}
-  50%  {background-color: ${color.grey[400]};}
-  100% {background-color: ${color.grey[500]};}
+  50%  {background-color: ${color.grey[500]};}
+  100%  {background-color: ${color.grey[400]};}
 `
 
 const StyledLoadingBlock = styled.div`

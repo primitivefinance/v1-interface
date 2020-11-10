@@ -39,6 +39,7 @@ export interface SubmitProps {
 
 const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
+  const [submitting, setSubmit] = useState(false)
   const [inputs, setInputs] = useState({
     primary: '',
     secondary: '',
@@ -170,14 +171,17 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
   }, [lpPair, lp, lpTotalSupply])
 
   const handleSubmitClick = useCallback(() => {
+    setSubmit(true)
     submitOrder(
       library,
       item?.address,
       Number(inputs.primary),
       orderType,
       Number(inputs.secondary)
-    )
-    onRemoveItem(item)
+    ).then(() => {
+      setSubmit(false)
+      onRemoveItem(item)
+    })
   }, [submitOrder, onRemoveItem, item, library, inputs, orderType])
 
   const handleSetMax = () => {
@@ -301,6 +305,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         full
         size="sm"
         onClick={handleSubmitClick}
+        isLoading={submitting}
         text="Review Transaction"
       />
     </>
@@ -315,4 +320,5 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
+
 export default Submit
