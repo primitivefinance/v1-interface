@@ -14,7 +14,6 @@ import useOrders from '@/hooks/useOrders'
 import useOptions from '@/hooks/useOptions'
 import LaunchIcon from '@material-ui/icons/Launch'
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
-import AddIcon from '@material-ui/icons/Add'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -29,6 +28,9 @@ import { formatEther, parseEther } from 'ethers/lib/utils'
 import { EmptyAttributes } from '@/contexts/Options/types'
 
 import { BlackScholes } from '@/lib/math'
+import GreeksTableRow from './GreeksTableRow'
+import NewMarketRow from './NewMarketRow'
+import OptionsTableRow from './OptionsTableRow'
 
 export type FormattedOption = {
   breakEven: number
@@ -119,12 +121,23 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   const headers = [
-    { name: 'Strike Price', tip: null },
-    { name: 'Break Even', tip: null },
-    { name: 'Price', tip: null },
+    {
+      name: 'Strike Price',
+      tip: 'The purchase price for the underlying asset of this option.',
+    },
+    {
+      name: 'Break Even',
+      tip:
+        'The price the underlying asset must reach to reach a net cost of zero.',
+    },
+    {
+      name: 'Price',
+      tip:
+        'The current spot price of an option token, not accounting for slippage.',
+    },
     { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
-    { name: 'Reserve', tip: null },
-    { name: 'Contract', tip: null },
+    { name: 'Reserve', tip: 'The quantity of tokens in the pool.' },
+    { name: 'Contract', tip: 'The address of the Option token.' },
     { name: '', tip: null },
   ]
   return (
@@ -228,7 +241,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
               return (
                 <>
-                  <TableRow
+                  {/* <TableRow
                     key={address}
                     onClick={() => {
                       setGreeks(!greeks)
@@ -249,7 +262,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     </TableCell>
                     {premium > 0 ? (
                       <TableCell>
-                        {formatEtherBalance(premium)} {asset.toUpperCase()}
+                        ${' '}
+                        {formatBalance(
+                          calculatePremiumInDollars(option.premium)
+                        )}{' '}
+                        / {formatEtherBalance(premium)} {asset.toUpperCase()}
                       </TableCell>
                     ) : (
                       <TableCell>-</TableCell>
@@ -287,61 +304,75 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     <StyledButtonCell key={'Open'}>
                       <ArrowForwardIosIcon />
                     </StyledButtonCell>
-                  </TableRow>
+                  </TableRow> */}
+                  <OptionsTableRow
+                    onClick={() => {
+                      setGreeks(!greeks)
+                      onAddItem(
+                        {
+                          ...option,
+                        },
+                        Operation.NONE
+                      )
+                    }}
+                    href={`${baseUrl}/${option.address}`}
+                    columns={{
+                      key: address,
+                      asset: asset.toUpperCase(),
+                      strike: formatBalance(strike).toString(),
+                      breakeven: formatEtherBalance(
+                        calculateBreakeven(premium, entity.isCall)
+                      ).toString(),
+                      premium: formatBalance(
+                        calculatePremiumInDollars(option.premium)
+                      ).toString(),
+                      premiumUnderlying: formatEtherBalance(premium).toString(),
+                      depth: depth.toString(),
+                      reserves: [
+                        reserve0Units === asset.toUpperCase()
+                          ? formatEtherBalance(
+                              reserves[0].toString()
+                            ).toString()
+                          : formatEtherBalance(
+                              reserves[1].toString()
+                            ).toString(),
+                        reserve0Units === asset.toUpperCase()
+                          ? formatEtherBalance(
+                              reserves[1].toString()
+                            ).toString()
+                          : formatEtherBalance(
+                              reserves[0].toString()
+                            ).toString(),
+                      ],
+                      address: formatAddress(address),
+                    }}
+                  />
 
                   {greeks ? (
                     <>
-                      <TableRow isHead>
-                        {greekHeaders.map((header, index) => {
-                          if (header.tip) {
-                            return (
-                              <TableCell key={header.name}>
-                                <Tooltip text={header.tip}>
-                                  {header.name}
-                                </Tooltip>
-                              </TableCell>
-                            )
-                          }
-                          return (
-                            <TableCell key={header.name}>
-                              {header.name}
-                            </TableCell>
-                          )
-                        })}
-                      </TableRow>
-                      <TableRow onClick={() => setGreeks(false)}>
-                        <TableCell>
-                          {iv < 1000 && iv > 0
-                            ? `${(iv * 100).toFixed(3)} %`
-                            : 'N/A'}
-                        </TableCell>
-                        <TableCell>{delta}</TableCell>
-                        <TableCell>{theta}</TableCell>
-                        <TableCell>{gamma}</TableCell>
-                        <TableCell>{vega}</TableCell>
-                        <TableCell>{rho}</TableCell>
-                      </TableRow>
+                      <GreeksTableRow
+                        onClick={() => setGreeks(!greeks)}
+                        greeks={{
+                          iv: iv,
+                          delta: delta,
+                          theta: theta,
+                          gamma: gamma,
+                          vega: vega,
+                          rho: rho,
+                        }}
+                      />
                     </>
                   ) : (
-                    <> </>
+                    <></>
                   )}
                 </>
               )
             })}
-            <TableRow
-              isActive
+            <NewMarketRow
               onClick={() => {
                 onAddItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
               }}
-            >
-              <TableCell></TableCell>
-              <StyledButtonCellError key={'Open'}>
-                <AddIcon />
-                <Spacer size="md" />
-                Add a New Option Market
-              </StyledButtonCellError>
-              <TableCell></TableCell>
-            </TableRow>
+            />
           </TableBody>
         )}
       </LitContainer>
