@@ -28,7 +28,7 @@ export const setPositions = (
 const reducer = (state: PositionsState, action: PositionsActions) => {
   switch (action.type) {
     case SET_POSITIONS:
-      if (state.positions.exists || !state.positions.loading) {
+      if (!state.positions.loading) {
         return {
           positions: { ...state.positions },
         }

@@ -1,16 +1,16 @@
 import { MaxUint256 } from '@ethersproject/constants'
+import { BigNumberish } from 'ethers'
+
 import { TransactionResponse } from '@ethersproject/providers'
 import { Trade, TokenAmount, CurrencyAmount, ETHER } from '@uniswap/sdk'
 import { useCallback, useMemo } from 'react'
-import { useTokenAllowance } from '../data/Allowances'
-import { getTradeVersion, useV1TradeExchangeAddress } from '../data/V1'
-import { Field } from '../state/swap/actions'
-import useTransactions from '@/hooks/transactions'
-import { computeSlippageAdjustedAmounts } from '../utils/prices'
-import { calculateGasMargin } from '../utils'
-import { useTokenContract } from './useContract'
-import { useActiveWeb3React } from './index'
-import { Version } from './useToggledVersion'
+import { useTokenAllowance } from '@/hooks/data/useTokenAllowance'
+import useTransactions, { useHasPendingApproval } from '@/hooks/transactions'
+import {
+  calculateGasMargin,
+  computeSlippageAdjustedAmounts,
+} from '@/utils/index'
+import { useWeb3React } from '@web3-react/core'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -21,18 +21,14 @@ export enum ApprovalState {
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
-  amountToApprove?: CurrencyAmount,
+  amountToApprove?: BigNumberish,
+  tokenAddress?: string,
   spender?: string
 ): [ApprovalState, () => Promise<void>] {
-  const { account } = useActiveWeb3React()
-  const token =
-    amountToApprove instanceof TokenAmount ? amountToApprove.token : undefined
-  const currentAllowance = useTokenAllowance(
-    token,
-    account ?? undefined,
-    spender
-  )
-  const pendingApproval = useHasPendingApproval(token?.address, spender)
+  const { account } = useWeb3React()
+  const currentAllowance = useTokenAllowance(tokenAddress, spender)
+  const { addTransaction } = useTransactions()
+  const pendingApproval = useHasPendingApproval(tokenAddress, spender)
 
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
@@ -42,28 +38,20 @@ export function useApproveCallback(
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
     // amountToApprove will be defined if currentAllowance is
-    return currentAllowance.lessThan(amountToApprove)
+    return currentAllowance < amountToApprove
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
   }, [amountToApprove, currentAllowance, pendingApproval, spender])
 
-  const tokenContract = useTokenContract(token?.address)
-  const addTransaction = useTransactionAdder()
-
   const approve = useCallback(async (): Promise<void> => {
     if (approvalState !== ApprovalState.NOT_APPROVED) {
       console.error('approve was called unnecessarily')
       return
     }
-    if (!token) {
+    if (!tokenAddress) {
       console.error('no token')
-      return
-    }
-
-    if (!tokenContract) {
-      console.error('tokenContract is null')
       return
     }
 
@@ -107,34 +95,21 @@ export function useApproveCallback(
         console.debug('Failed to approve token', error)
         throw error
       })
-  }, [
-    approvalState,
-    token,
-    tokenContract,
-    amountToApprove,
-    spender,
-    addTransaction,
-  ])
+  }, [approvalState, tokenAddress, amountToApprove, spender, addTransaction])
 
   return [approvalState, approve]
 }
 
 // wraps useApproveCallback in the context of a swap
-export function useApproveCallbackFromTrade(
-  trade?: Trade,
-  allowedSlippage = 0
+export function useApproveCallbackFromOrder(
+  amount: BigNumberish,
+  allowedSlippage = 0,
+  address?: string
 ) {
-  const amountToApprove = useMemo(
-    () =>
-      trade
-        ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT]
-        : undefined,
-    [trade, allowedSlippage]
+  const amountToApprove = computeSlippageAdjustedAmounts(
+    amount,
+    allowedSlippage
   )
-  const tradeIsV1 = getTradeVersion(trade) === Version.v1
-  const v1ExchangeAddress = useV1TradeExchangeAddress(trade)
-  return useApproveCallback(
-    amountToApprove,
-    tradeIsV1 ? v1ExchangeAddress : ROUTER_ADDRESS
-  )
+
+  return useApproveCallback(amountToApprove, address)
 }
