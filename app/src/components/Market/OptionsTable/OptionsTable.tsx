@@ -5,15 +5,9 @@ import Spacer from '@/components/Spacer'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
-import TableCell from '@/components/TableCell'
-import Tooltip from '@/components/Tooltip'
-
-import TableRow from '@/components/TableRow'
 import Loader from '@/components/Loader'
 import useOrders from '@/hooks/useOrders'
 import useOptions from '@/hooks/useOptions'
-import LaunchIcon from '@material-ui/icons/Launch'
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -31,6 +25,7 @@ import { BlackScholes } from '@/lib/math'
 import GreeksTableRow from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
 import OptionsTableRow from './OptionsTableRow'
+import OptionsTableHeader from './OptionsTableHeader'
 
 export type FormattedOption = {
   breakEven: number
@@ -120,51 +115,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-  const headers = [
-    {
-      name: 'Strike Price',
-      tip: 'The purchase price for the underlying asset of this option.',
-    },
-    {
-      name: 'Break Even',
-      tip:
-        'The price the underlying asset must reach to reach a net cost of zero.',
-    },
-    {
-      name: 'Price',
-      tip:
-        'The current spot price of an option token, not accounting for slippage.',
-    },
-    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
-    { name: 'Reserve', tip: 'The quantity of tokens in the pool.' },
-    { name: 'Contract', tip: 'The address of the Option token.' },
-    { name: '', tip: null },
-  ]
+
   return (
     <Table>
-      <StyledTableHead>
-        <LitContainer>
-          <TableRow isHead>
-            {headers.map((header, index) => {
-              if (index === headers.length - 1) {
-                return (
-                  <StyledButtonCell key={header.name}>
-                    {header.tip}
-                  </StyledButtonCell>
-                )
-              }
-              if (header.tip) {
-                return (
-                  <TableCell key={header.name}>
-                    <Tooltip text={header.tip}>{header.name}</Tooltip>
-                  </TableCell>
-                )
-              }
-              return <TableCell key={header.name}>{header.name}</TableCell>
-            })}
-          </TableRow>
-        </LitContainer>
-      </StyledTableHead>
+      <OptionsTableHeader />
       <LitContainer>
         {options.loading ? (
           <>
@@ -192,14 +146,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   ? asset.toUpperCase()
                   : 'SHORT'
 
-              const greekHeaders = [
-                { name: 'iv', tip: '' },
-                { name: 'delta', tip: '' },
-                { name: 'theta', tip: '' },
-                { name: 'gamma', tip: '' },
-                { name: 'vega', tip: '' },
-                { name: 'rho', tip: '' },
-              ]
               const bs = new BlackScholes(
                 18,
                 option.id,
@@ -241,70 +187,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
               return (
                 <>
-                  {/* <TableRow
-                    key={address}
-                    onClick={() => {
-                      setGreeks(!greeks)
-                      onAddItem(
-                        {
-                          ...option,
-                        },
-                        Operation.NONE
-                      )
-                    }}
-                  >
-                    <TableCell>${formatBalance(strike)}</TableCell>
-                    <TableCell>
-                      ${' '}
-                      {formatEtherBalance(
-                        calculateBreakeven(premium, entity.isCall)
-                      )}
-                    </TableCell>
-                    {premium > 0 ? (
-                      <TableCell>
-                        ${' '}
-                        {formatBalance(
-                          calculatePremiumInDollars(option.premium)
-                        )}{' '}
-                        / {formatEtherBalance(premium)} {asset.toUpperCase()}
-                      </TableCell>
-                    ) : (
-                      <TableCell>-</TableCell>
-                    )}
-                    {depth > 0 ? (
-                      <TableCell>
-                        {depth} {'Options'}
-                      </TableCell>
-                    ) : (
-                      <TableCell>-</TableCell>
-                    )}
-                    {BigNumber.from(reserves[0]).gt(0) ? (
-                      <TableCell>
-                        {reserve0Units === asset.toUpperCase()
-                          ? formatEtherBalance(reserves[0].toString())
-                          : formatEtherBalance(reserves[1].toString())}{' '}
-                        {asset.toUpperCase()} /{' '}
-                        {reserve0Units === asset.toUpperCase()
-                          ? formatEtherBalance(reserves[1].toString())
-                          : formatEtherBalance(reserves[0].toString())}{' '}
-                        {'SHORT'}
-                      </TableCell>
-                    ) : (
-                      <TableCell>-</TableCell>
-                    )}
-                    <TableCell key={address}>
-                      <StyledARef
-                        href={`${baseUrl}/${option.address}`}
-                        target="__blank"
-                      >
-                        {formatAddress(option.address)}{' '}
-                        <LaunchIcon style={{ fontSize: '14px' }} />
-                      </StyledARef>
-                    </TableCell>
-                    <StyledButtonCell key={'Open'}>
-                      <ArrowForwardIosIcon />
-                    </StyledButtonCell>
-                  </TableRow> */}
                   <OptionsTableRow
                     onClick={() => {
                       setGreeks(!greeks)
@@ -379,30 +261,5 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     </Table>
   )
 }
-const StyledARef = styled.a`
-  color: ${(props) => props.theme.color.white};
-  text-decoration: none;
-`
-
-const StyledTableHead = styled.div`
-  background-color: ${(props) => props.theme.color.grey[800]};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
-`
-
-const StyledButtonCell = styled.div`
-  font-weight: inherit;
-  flex: 0.25;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
-  width: ${(props) => props.theme.buttonSize}px;
-`
-
-const StyledButtonCellError = styled.div`
-  font-weight: inherit;
-  display: flex;
-  flex: 1;
-  color: ${(props) => props.theme.color.white};
-  margin-right: ${(props) => props.theme.spacing[2]}px;
-  width: ${(props) => props.theme.buttonSize}px;
-`
 
 export default OptionsTable
