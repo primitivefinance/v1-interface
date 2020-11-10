@@ -81,7 +81,6 @@ const OrderOptions: React.FC = () => {
   const { item, onChangeItem } = useOrders()
 
   const long = useTokenBalance(item.entity.assetAddresses[0])
-  console.log(long)
   const short = useTokenBalance(item.entity.assetAddresses[2])
 
   const change = (t: Operation) => {

@@ -47,6 +47,14 @@ export class BlackScholes implements BlackScholesInterface {
   }
 
   /**
+   * Set price
+   * @param price
+   */
+  setPrice(price: number) {
+    this.assetPrice = price
+  }
+
+  /**
    * Set asset symbol
    * @param symbol
    */
@@ -61,11 +69,12 @@ export class BlackScholes implements BlackScholesInterface {
    */
   delta(): number | null {
     if (isUndefinedOrNull(this.d1)) {
+      console.log(`d1 is undefined or null`)
       return null
     }
-
+    console.log(`d1: ${this.d1}`)
     const delta = NormalDistribution.cdf(this.d1)
-
+    console.log({ delta })
     return _toFixed(delta, 3)
   }
 
@@ -209,6 +218,9 @@ export class BlackScholes implements BlackScholesInterface {
       return null
     }
 
+    console.log(
+      `spot: ${this.assetPrice}, strike: ${+this.option.strikePrice.quantity}`
+    )
     return (
       (Math.log(this.assetPrice / +this.option.strikePrice.quantity) +
         (this.riskFree + Math.pow(this.deviation, 2) / 2) * timeToExpiry) /
@@ -234,6 +246,47 @@ export class BlackScholes implements BlackScholesInterface {
     return NormalDistribution.pdf(this.d1)
   }
 
+  /// @author Matt Loppatto
+  getImpliedVolatility(expectedCost, estimate) {
+    estimate = estimate || 0.1
+    var low = 0
+    var high = Infinity
+    // perform 100 iterations max
+    for (var i = 0; i < 100; i++) {
+      /* console.log(
+        this.assetPrice,
+        this.option.strikePrice,
+        this.option.getTimeToExpiry(),
+        estimate,
+        this.riskFree,
+        this.option.isCall
+      ) */
+      var actualCost = this.blackScholes(
+        this.assetPrice,
+        this.option.strikePrice.quantity,
+        this.option.getTimeToExpiry(),
+        estimate,
+        this.riskFree,
+        this.option.isCall
+      )
+      console.log(`value: ${actualCost}, expectedCost: ${expectedCost}`)
+      // compare the price down to the cent
+      if (expectedCost * 100 == Math.floor(actualCost * 100)) {
+        break
+      } else if (actualCost > expectedCost) {
+        high = estimate
+        estimate = (estimate - low) / 2 + low
+      } else {
+        low = estimate
+        estimate = (high - estimate) / 2 + estimate
+        if (!isFinite(estimate)) estimate = low * 2
+      }
+    }
+
+    console.log(`estimate: ${estimate}`)
+    return estimate
+  }
+
   async getRiskRate() {
     const expiryTime = 0
 
@@ -246,6 +299,7 @@ export class BlackScholes implements BlackScholesInterface {
 
   async getCurrentPrice(name: string): Promise<number> {
     let price: string
+    console.log({ name })
     const priceAPI = `https://api.coingecko.com/api/v3/simple/price?ids=${name}&vs_currencies=usd&include_24hr_change=true`
     fetch(priceAPI)
       .then((res) => res.json())
@@ -253,7 +307,7 @@ export class BlackScholes implements BlackScholesInterface {
         (result) => {
           let key = Object.keys(result)[0]
           price = result[key].usd
-          let asset = result[key]
+          this.assetPrice = +price
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -264,6 +318,52 @@ export class BlackScholes implements BlackScholesInterface {
       )
 
     return +price
+  }
+
+  stdNormCDF(x) {
+    var probability = 0
+    // avoid divergence in the series which happens around +/-8 when summing the
+    // first 100 terms
+    if (x >= 8) {
+      probability = 1
+    } else if (x <= -8) {
+      probability = 0
+    } else {
+      for (var i = 0; i < 100; i++) {
+        probability += Math.pow(x, 2 * i + 1) / this._doubleFactorial(2 * i + 1)
+      }
+      probability *= Math.pow(Math.E, -0.5 * Math.pow(x, 2))
+      probability /= Math.sqrt(2 * Math.PI)
+      probability += 0.5
+    }
+    return probability
+  }
+
+  _doubleFactorial(n) {
+    var val = 1
+    for (var i = n; i > 1; i -= 2) {
+      val *= i
+    }
+    return val
+  }
+
+  blackScholes(s, k, t, v, r, callPut) {
+    var price = null
+    var w =
+      (r * t + (Math.pow(v, 2) * t) / 2 - Math.log(k / s)) / (v * Math.sqrt(t))
+    if (callPut === 'call') {
+      price =
+        s * this.stdNormCDF(w) -
+        k * Math.pow(Math.E, -1 * r * t) * this.stdNormCDF(w - v * Math.sqrt(t))
+    } // put
+    else {
+      price =
+        k *
+          Math.pow(Math.E, -1 * r * t) *
+          this.stdNormCDF(v * Math.sqrt(t) - w) -
+        s * this.stdNormCDF(-w)
+    }
+    return price
   }
 }
 

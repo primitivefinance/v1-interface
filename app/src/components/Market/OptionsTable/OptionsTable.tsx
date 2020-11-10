@@ -28,6 +28,8 @@ import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { EmptyAttributes } from '@/contexts/Options/types'
 
+import { BlackScholes } from '@/lib/math'
+
 export type FormattedOption = {
   breakEven: number
   change: number
@@ -48,6 +50,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { options, getOptions } = useOptions()
   const { onAddItem, item } = useOrders()
   const { library, chainId } = useWeb3React()
+
+  const [greeks, setGreeks] = useState(false)
 
   const getMarketDetails = useCallback(() => {
     const key: string = COINGECKO_ID_FOR_MARKET[asset]
@@ -88,6 +92,26 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         ? breakeven.add(spotPriceWei)
         : spotPriceWei.sub(breakeven)
       return breakeven.toString()
+    },
+    [key, data]
+  )
+
+  const calculatePremiumInDollars = useCallback(
+    (premiumWei) => {
+      const price = data
+        ? data[key]
+          ? data[key].usd
+            ? data[key].usd
+            : '0'
+          : '0'
+        : '0'
+      const spotPrice = price.toString()
+      const spotPriceWei = parseEther(spotPrice)
+      let premium = BigNumber.from(premiumWei.toString())
+        .mul(spotPriceWei)
+        .div(parseEther('1'))
+      console.log(`premium in dollars: ${formatEther(premium)}`)
+      return formatEther(premium)
     },
     [key, data]
   )
@@ -154,66 +178,154 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 token0 === entity.assetAddresses[0]
                   ? asset.toUpperCase()
                   : 'SHORT'
+
+              const greekHeaders = [
+                { name: 'iv', tip: '' },
+                { name: 'delta', tip: '' },
+                { name: 'theta', tip: '' },
+                { name: 'gamma', tip: '' },
+                { name: 'vega', tip: '' },
+                { name: 'rho', tip: '' },
+              ]
+              const bs = new BlackScholes(
+                18,
+                option.id,
+                COINGECKO_ID_FOR_MARKET[asset],
+                entity
+              )
+              bs.setRiskFree(0)
+              bs.setDeviation(0.1)
+              bs.setPrice(
+                data
+                  ? data[key]
+                    ? data[key].usd
+                      ? +data[key].usd
+                      : 0
+                    : 0
+                  : 0
+              )
+
+              const getGreeks = (blackScholes: BlackScholes) => {
+                const delta = blackScholes.delta()
+                const theta = blackScholes.theta()
+                const gamma = blackScholes.gamma()
+                const vega = blackScholes.vega()
+                const rho = blackScholes.rho()
+                return { delta, theta, gamma, vega, rho }
+              }
+
+              const getIv = (blackScholes: BlackScholes) => {
+                const iv = blackScholes.getImpliedVolatility(
+                  Number(calculatePremiumInDollars(option.premium)),
+                  1
+                )
+                return iv
+              }
+
+              const iv = getIv(bs)
+
+              const { delta, theta, gamma, vega, rho } = getGreeks(bs)
+
               return (
-                <TableRow
-                  key={address}
-                  onClick={() => {
-                    onAddItem(
-                      {
-                        ...option,
-                      },
-                      Operation.NONE
-                    )
-                  }}
-                >
-                  <TableCell>${formatBalance(strike)}</TableCell>
-                  <TableCell>
-                    ${' '}
-                    {formatEtherBalance(
-                      calculateBreakeven(premium, entity.isCall)
+                <>
+                  <TableRow
+                    key={address}
+                    onClick={() => {
+                      setGreeks(!greeks)
+                      onAddItem(
+                        {
+                          ...option,
+                        },
+                        Operation.NONE
+                      )
+                    }}
+                  >
+                    <TableCell>${formatBalance(strike)}</TableCell>
+                    <TableCell>
+                      ${' '}
+                      {formatEtherBalance(
+                        calculateBreakeven(premium, entity.isCall)
+                      )}
+                    </TableCell>
+                    {premium > 0 ? (
+                      <TableCell>
+                        {formatEtherBalance(premium)} {asset.toUpperCase()}
+                      </TableCell>
+                    ) : (
+                      <TableCell>-</TableCell>
                     )}
-                  </TableCell>
-                  {premium > 0 ? (
-                    <TableCell>
-                      {formatEtherBalance(premium)} {asset.toUpperCase()}
+                    {depth > 0 ? (
+                      <TableCell>
+                        {depth} {'Options'}
+                      </TableCell>
+                    ) : (
+                      <TableCell>-</TableCell>
+                    )}
+                    {BigNumber.from(reserves[0]).gt(0) ? (
+                      <TableCell>
+                        {reserve0Units === asset.toUpperCase()
+                          ? formatEtherBalance(reserves[0].toString())
+                          : formatEtherBalance(reserves[1].toString())}{' '}
+                        {asset.toUpperCase()} /{' '}
+                        {reserve0Units === asset.toUpperCase()
+                          ? formatEtherBalance(reserves[1].toString())
+                          : formatEtherBalance(reserves[0].toString())}{' '}
+                        {'SHORT'}
+                      </TableCell>
+                    ) : (
+                      <TableCell>-</TableCell>
+                    )}
+                    <TableCell key={address}>
+                      <StyledARef
+                        href={`${baseUrl}/${option.address}`}
+                        target="__blank"
+                      >
+                        {formatAddress(option.address)}{' '}
+                        <LaunchIcon style={{ fontSize: '14px' }} />
+                      </StyledARef>
                     </TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <ArrowForwardIosIcon />
+                    </StyledButtonCell>
+                  </TableRow>
+
+                  {greeks ? (
+                    <>
+                      <TableRow isHead>
+                        {greekHeaders.map((header, index) => {
+                          if (header.tip) {
+                            return (
+                              <TableCell key={header.name}>
+                                <Tooltip text={header.tip}>
+                                  {header.name}
+                                </Tooltip>
+                              </TableCell>
+                            )
+                          }
+                          return (
+                            <TableCell key={header.name}>
+                              {header.name}
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                      <TableRow onClick={() => setGreeks(false)}>
+                        <TableCell>
+                          {iv < 1000 && iv > 0
+                            ? `${(iv * 100).toFixed(3)} %`
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>{delta}</TableCell>
+                        <TableCell>{theta}</TableCell>
+                        <TableCell>{gamma}</TableCell>
+                        <TableCell>{vega}</TableCell>
+                        <TableCell>{rho}</TableCell>
+                      </TableRow>
+                    </>
                   ) : (
-                    <TableCell>-</TableCell>
+                    <> </>
                   )}
-                  {depth > 0 ? (
-                    <TableCell>
-                      {depth} {'Options'}
-                    </TableCell>
-                  ) : (
-                    <TableCell>-</TableCell>
-                  )}
-                  {BigNumber.from(reserves[0]).gt(0) ? (
-                    <TableCell>
-                      {reserve0Units === asset.toUpperCase()
-                        ? formatEtherBalance(reserves[0].toString())
-                        : formatEtherBalance(reserves[1].toString())}{' '}
-                      {asset.toUpperCase()} /{' '}
-                      {reserve0Units === asset.toUpperCase()
-                        ? formatEtherBalance(reserves[1].toString())
-                        : formatEtherBalance(reserves[0].toString())}{' '}
-                      {'SHORT'}
-                    </TableCell>
-                  ) : (
-                    <TableCell>-</TableCell>
-                  )}
-                  <TableCell key={address}>
-                    <StyledARef
-                      href={`${baseUrl}/${option.address}`}
-                      target="__blank"
-                    >
-                      {formatAddress(option.address)}{' '}
-                      <LaunchIcon style={{ fontSize: '14px' }} />
-                    </StyledARef>
-                  </TableCell>
-                  <StyledButtonCell key={'Open'}>
-                    <ArrowForwardIosIcon />
-                  </StyledButtonCell>
-                </TableRow>
+                </>
               )
             })}
             <TableRow
