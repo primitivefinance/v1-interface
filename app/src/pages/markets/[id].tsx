@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
@@ -6,9 +6,7 @@ import { useWeb3React } from '@web3-react/core'
 
 import BetaBanner from '@/components/BetaBanner'
 import Spacer from '@/components/Spacer'
-import OrderProvider from '@/contexts/Order'
-import OptionsProvider from '@/contexts/Options'
-import PositionsProvider from '@/contexts/Positions'
+
 import { ADDRESS_FOR_MARKET } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -22,7 +20,6 @@ import {
   NewMarketCard,
 } from '@/components/Market'
 import TestnetCard from '@/components/Market/TestnetCard/TestnetCard'
-
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
 
@@ -37,57 +34,53 @@ const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
+
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
   }
+
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
-      <OrderProvider>
-        <OptionsProvider>
-          <PositionsProvider>
-            <StyledMarket>
-              <StyledMain>
-                <MarketHeader marketId={market} />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilterType}
-                  expiry={expiry}
-                  setExpiry={handleFilterExpiry}
-                />
-                <OptionsTable
-                  asset={market}
-                  assetAddress={ADDRESS_FOR_MARKET[market]}
-                  optionExp={expiry}
-                  callActive={callPutActive}
-                />
-              </StyledMain>
-              <StyledSideBar>
-                <BetaBanner isOpen={true} />
-                <Spacer />
-                <PositionsCard asset={market} />
-                <OrderCard />
-                <NewMarketCard />
-                <Spacer />
-                <TransactionCard />
-                {chainId === 4 ? (
-                  <>
-                    <Spacer />
-                    <TestnetCard />
-                  </>
-                ) : (
-                  <> </>
-                )}
-              </StyledSideBar>
-            </StyledMarket>
-          </PositionsProvider>
-        </OptionsProvider>
-      </OrderProvider>
+      <StyledMarket>
+        <StyledMain>
+          <MarketHeader marketId={market} />
+          <FilterBar
+            active={callPutActive}
+            setCallActive={handleFilterType}
+            expiry={expiry}
+            setExpiry={handleFilterExpiry}
+          />
+          <OptionsTable
+            asset={market}
+            assetAddress={ADDRESS_FOR_MARKET[market]}
+            optionExp={expiry}
+            callActive={callPutActive}
+          />
+        </StyledMain>
+        <StyledSideBar>
+          <BetaBanner isOpen={true} />
+          <Spacer />
+          <PositionsCard />
+          <OrderCard />
+          <NewMarketCard />
+          <Spacer />
+          <TransactionCard />
+          {chainId === 4 ? (
+            <>
+              <Spacer />
+              <TestnetCard />
+            </>
+          ) : (
+            <> </>
+          )}
+        </StyledSideBar>
+      </StyledMarket>
     </ErrorBoundary>
   )
 }

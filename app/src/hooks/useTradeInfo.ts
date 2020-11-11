@@ -11,13 +11,13 @@ import { Uniswap, Trader, Protocol } from '@/lib/index'
 import { TradeSettings } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
-import useTransactions from '@/hooks/transactions'
 
 import executeTransaction from '@/lib/utils/executeTransaction'
 import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
-import { addTransaction } from '@/contexts/Transactions/reducer'
+import { useTransactionAdder } from '@/state/transactions/hooks'
+import { useItem } from '@/state/order/hooks'
+
 import { useWeb3React } from '@web3-react/core'
-import useOrders from '@/hooks/useOrders'
 
 const getTrade = async (
   provider: Web3Provider,
@@ -241,7 +241,7 @@ const getTrade = async (
 const useTradeInfo = () => {
   const [trade, setTrade] = useState<Trade>()
   const { library } = useWeb3React()
-  const { item, orderType } = useOrders()
+  const { item, orderType } = useItem()
   const optionEntities = useOptionEntities([item.address])
   const tradeSettings = useTradeSettings()
 

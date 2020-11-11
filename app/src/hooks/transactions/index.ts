@@ -1,20 +1,18 @@
 import { useContext, useMemo } from 'react'
-import { TransactionContext } from '@/contexts/Transactions'
 
-const useTransactions = () => {
-  return useContext(TransactionContext)
-}
+import { useAllTransactions } from '@/state/transactions/hooks'
 
-export default useTransactions
-
-export const useHasPendingApproval = (
+export const useHasPendingApproval = (): ((
   tokenAddress: string | undefined,
   spender: string | undefined
-): boolean => {
-  const { transactions } = useTransactions()
-  return useMemo(
-    () =>
-      typeof tokenAddress === 'string' &&
+) => boolean) => {
+  const transactions = useAllTransactions()
+
+  const isApproved = (
+    tokenAddress: string | undefined,
+    spender: string | undefined
+  ): any => {
+    typeof tokenAddress === 'string' &&
       typeof spender === 'string' &&
       Object.keys(transactions).some((hash) => {
         const tx = transactions[hash]
@@ -29,7 +27,7 @@ export const useHasPendingApproval = (
             approval.tokenAddress === tokenAddress
           )
         }
-      }),
-    [useTransactions, spender, tokenAddress]
-  )
+      })
+  }
+  return isApproved
 }

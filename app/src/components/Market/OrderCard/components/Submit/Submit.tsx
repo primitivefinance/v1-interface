@@ -8,8 +8,13 @@ import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 
-import useOrders from '@/hooks/useOrders'
 import useTokenBalance from '@/hooks/useTokenBalance'
+import {
+  useItem,
+  useUpdateItem,
+  useHandleSubmitOrder,
+  useRemoveItem,
+} from '@/state/order/hooks'
 
 import { Operation } from '@/constants/index'
 import formatBalance from '@/utils/formatBalance'
@@ -37,8 +42,12 @@ export interface SubmitProps {
   orderType: Operation
 }
 
-const Submit: React.FC<SubmitProps> = ({ orderType }) => {
-  const { submitOrder, item, onChangeItem, onRemoveItem } = useOrders()
+const Submit: React.FC<SubmitProps> = () => {
+  const submitOrder = useHandleSubmitOrder()
+  const { item, orderType } = useItem()
+  const updateItem = useUpdateItem()
+  const removeItem = useRemoveItem()
+
   const [submitting, setSubmit] = useState(false)
   const [inputs, setInputs] = useState({
     primary: '',
@@ -178,11 +187,9 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
       Number(inputs.primary),
       orderType,
       Number(inputs.secondary)
-    ).then(() => {
-      setSubmit(false)
-      onRemoveItem(item)
-    })
-  }, [submitOrder, onRemoveItem, item, library, inputs, orderType])
+    )
+    removeItem()
+  }, [submitOrder, removeItem, item, library, inputs, orderType])
 
   const handleSetMax = () => {
     const max =
@@ -196,7 +203,7 @@ const Submit: React.FC<SubmitProps> = ({ orderType }) => {
         <IconButton
           variant="tertiary"
           size="sm"
-          onClick={() => onChangeItem(item, Operation.NONE)}
+          onClick={() => updateItem(item, Operation.NONE)}
         >
           <ArrowBackIcon />
         </IconButton>

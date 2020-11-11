@@ -3,15 +3,13 @@ import styled from 'styled-components'
 
 import Spacer from '@/components/Spacer'
 
-import OrderProvider from '@/contexts/Order'
-
 import Link from 'next/link'
 
 const Risks: React.FC = () => {
   const auditLink = 'https://blog.openzeppelin.com/primitive-audit/'
 
   return (
-    <OrderProvider>
+    <>
       <StyledSpacer size={48} />
       <StyledRisks>
         <StyledTitle>Risks of using Primitive Finance</StyledTitle>
@@ -130,7 +128,7 @@ const Risks: React.FC = () => {
         </StyledText>
         <StyledSpacer size={24} />
       </StyledRisks>
-    </OrderProvider>
+    </>
   )
 }
 

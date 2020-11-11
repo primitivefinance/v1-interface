@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
-import useOrders from '@/hooks/useOrders'
 import ClearIcon from '@material-ui/icons/Clear'
 import { useWeb3React } from '@web3-react/core'
 
@@ -21,8 +20,11 @@ import { destructureOptionSymbol } from '@/lib/utils'
 import { Operation } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
+import { useItem, useRemoveItem } from '@/state/order/hooks'
+
 const NewMarketCard: React.FC = () => {
-  const { item, orderType, onRemoveItem } = useOrders()
+  const { item, orderType } = useItem()
+  const removeItem = useRemoveItem()
   const [quantity, setQuantity] = useState('')
   const [strike, setStrike] = useState('')
   const [long, setLong] = useState(true)
@@ -30,7 +32,7 @@ const NewMarketCard: React.FC = () => {
   const { library } = useWeb3React()
   const tokenBalance = useTokenBalance(item.entity?.assetAddresses[0])
   const clear = () => {
-    onRemoveItem(item)
+    removeItem()
   }
 
   const handleToggleClick = useCallback(() => {
@@ -38,8 +40,8 @@ const NewMarketCard: React.FC = () => {
   }, [long, setLong])
 
   const handleSubmitClick = useCallback(() => {
-    onRemoveItem(item)
-  }, [onRemoveItem, item, library, quantity])
+    removeItem()
+  }, [removeItem, item, library, quantity])
 
   const handleStrikeChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

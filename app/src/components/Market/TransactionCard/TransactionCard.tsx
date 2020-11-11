@@ -12,24 +12,24 @@ import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
 
-import useTransactions from '@/hooks/transactions'
 import { useWeb3React } from '@web3-react/core'
 import ClearIcon from '@material-ui/icons/Clear'
 
-import { nullState } from '@/contexts/Transactions/types'
 import LitContainer from '@/components/LitContainer'
 import TableCell from '@/components/TableCell'
+
+import { useAllTransactions } from '@/state/transactions/hooks'
 
 const ETHERSCAN_MAINNET = 'https://etherscan.io/tx/'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx/'
 
 const TransactionCard: React.FC = () => {
-  const { transactions, clearAllTransactions } = useTransactions()
+  const transactions = useAllTransactions()
   const { library, chainId } = useWeb3React()
 
   const txs = transactions[chainId]
   const clear = () => {
-    clearAllTransactions(chainId)
+    console.log(transactions)
   }
 
   if (!txs) return null

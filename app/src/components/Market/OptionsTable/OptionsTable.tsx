@@ -2,8 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
-import useOrders from '@/hooks/useOrders'
-import useOptions from '@/hooks/useOptions'
+
+import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -15,8 +16,8 @@ import { BigNumber } from 'ethers'
 import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
 import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
-import { EmptyAttributes } from '@/contexts/Options/types'
-
+import { EmptyAttributes } from '@/state/options/reducer'
+import { useUpdatePositions, usePositions } from '@/state/positions/hooks'
 import { BlackScholes } from '@/lib/math'
 import { Greeks } from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
@@ -41,8 +42,12 @@ export interface OptionsTableProps {
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { callActive, asset, optionExp } = props
-  const { options, getOptions } = useOptions()
-  const { onAddItem } = useOrders()
+  const updateOptions = useUpdateOptions()
+  const updateItem = useUpdateItem()
+  const options = useOptions()
+  const updatePositions = useUpdatePositions()
+  const positions = usePositions()
+
   const { library, chainId } = useWeb3React()
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -62,13 +67,16 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   useEffect(() => {
     if (library) {
       if (asset === 'eth') {
-        getOptions('WETH')
+        updateOptions('WETH')
       } else {
-        getOptions(asset.toUpperCase())
+        updateOptions(asset.toUpperCase())
+      }
+      // currently restricts positions updates, need to add this to TX updater
+      if (!options.loading && positions.loading) {
+        updatePositions(options.calls.concat(options.puts))
       }
     }
-  }, [library, asset, getOptions])
-
+  }, [library, asset, updateOptions, options, updatePositions])
   const calculateBreakeven = useCallback(
     (premiumWei, isCall) => {
       const price = data
@@ -102,10 +110,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         : '0'
       const spotPrice = price.toString()
       const spotPriceWei = parseEther(spotPrice)
-      let premium = BigNumber.from(premiumWei.toString())
+      const premium = BigNumber.from(premiumWei.toString())
         .mul(spotPriceWei)
         .div(parseEther('1'))
-      console.log(`premium in dollars: ${formatEther(premium)}`)
       return formatEther(premium)
     },
     [key, data]
@@ -214,14 +221,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               const tableColumns: TableColumns = formatTableColumns(option)
               return (
                 <OptionsTableRow
+                  key={option.address}
                   onClick={() => {
                     setGreeks(!greeks)
-                    onAddItem(
-                      {
-                        ...option,
-                      },
-                      Operation.NONE
-                    )
+                    updateItem(option, Operation.NONE)
                   }}
                   href={`${baseUrl}/${option.address}`}
                   columns={tableColumns}
@@ -231,7 +234,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             })}
             <NewMarketRow
               onClick={() => {
-                onAddItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
+                updateItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
               }}
             />
           </TableBody>
