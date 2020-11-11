@@ -2,8 +2,10 @@ import React, { Fragment } from 'react'
 import styled from 'styled-components'
 
 import Spacer from '../Spacer'
+import { BigNumberish } from 'ethers'
 
 export interface InputProps {
+  name?: string
   endAdornment?: React.ReactNode
   onChange?: (e: React.FormEvent<HTMLInputElement>) => void
   placeholder?: string
@@ -13,6 +15,7 @@ export interface InputProps {
 }
 
 const Input: React.FC<InputProps> = ({
+  name,
   endAdornment,
   onChange,
   placeholder,
@@ -36,6 +39,7 @@ const Input: React.FC<InputProps> = ({
         </Fragment>
       )}
       <StyledInput
+        name={name}
         height={height}
         onChange={onChange}
         placeholder={placeholder}
@@ -61,7 +65,7 @@ const StyledInputWrapper = styled.div<StyledInputProps>`
   background: ${(props) => props.theme.color.black};
   border-radius: ${(props) => props.theme.borderRadius}px;
   display: flex;
-  height: ${(props) => props.height}
+  height: ${(props) => props.height};
   padding: 0 ${(props) => props.theme.spacing[3]}px;
 `
 

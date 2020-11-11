@@ -1,17 +1,20 @@
 import React, { useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
+import Loader from '@/components/Loader'
 
 export interface ButtonProps {
   children?: React.ReactNode
   disabled?: boolean
   full?: boolean
+  isLoading?: boolean
   href?: string
   onClick?: () => void
+  leftIcon?: string
   round?: boolean
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   text?: string
-  to?: string
+  to?: boolean // use if Button is wrapped in Next.js Link component
   variant?: 'default' | 'secondary' | 'tertiary' | 'transparent'
 }
 
@@ -19,6 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   disabled,
   full,
+  isLoading,
   href,
   onClick,
   round,
@@ -32,6 +36,10 @@ const Button: React.FC<ButtonProps> = ({
   let buttonPadding: number
   let fontSize: number
   switch (size) {
+    case 'xs':
+      buttonPadding = spacing[2]
+      fontSize = 10
+      break
     case 'sm':
       buttonPadding = spacing[3]
       fontSize = 14
@@ -72,26 +80,49 @@ const Button: React.FC<ButtonProps> = ({
     case 'default':
     default:
       background = color.white
-      buttonColor = color.grey[600]
-      border = ''
-      hoverBackgroundColor = color.white
-      hoverColor = color.black
+      buttonColor = color.grey[800]
+      border = `1px solid ${color.grey[800]}`
+      hoverBackgroundColor = color.black
+      hoverBorderColor = color.white
+      hoverColor = color.white
   }
 
   const ButtonChild = useMemo(() => {
-    if (to) {
-      return <StyledLink to={to}>{text}</StyledLink>
-    } else if (href) {
+    if (href) {
       return (
         <StyledExternalLink href={href} target="__blank">
           {text}
         </StyledExternalLink>
       )
+    }
+    if (isLoading) {
+      return <Loader dark />
     } else {
       return text
     }
-  }, [href, text, to])
+  }, [href, text, to, isLoading])
 
+  if (to) {
+    return (
+      <StyledButton
+        background={background}
+        border={border}
+        color={buttonColor}
+        disabled={disabled}
+        fontSize={fontSize}
+        full={full}
+        hoverBackgroundColor={hoverBackgroundColor}
+        hoverBorderColor={hoverBorderColor}
+        hoverColor={hoverColor}
+        onClick={onClick}
+        padding={buttonPadding}
+        round={round}
+        size={buttonSize}
+      >
+        {text}
+      </StyledButton>
+    )
+  }
   return (
     <StyledButton
       background={background}
@@ -141,7 +172,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   display: flex;
   font-family: Nunito Sans;
   font-size: ${(props) => props.fontSize}px;
-  font-weight: 700;
+  font-weight: 600;
   height: ${(props) => props.size}px;
   justify-content: center;
   letter-spacing: 0.5px;
@@ -157,10 +188,10 @@ const StyledButton = styled.button<StyledButtonProps>`
   &:hover {
     background: ${(props) => props.hoverBackgroundColor};
     border-color: ${(props) => props.hoverBorderColor};
+    box-shadow: rgba(231, 221, 222, 0.05) 0px 8px 40px;
     color: ${(props) => props.hoverColor};
   }
 `
-
 const StyledExternalLink = styled.a`
   align-items: center;
   color: inherit;
@@ -184,5 +215,7 @@ const StyledLink = styled(Link)`
   padding: 0 ${(props) => props.theme.spacing[4]}px;
   text-decoration: none;
 `
-
+const StyledText = styled.p`
+  text-decoration: none;
+`
 export default Button

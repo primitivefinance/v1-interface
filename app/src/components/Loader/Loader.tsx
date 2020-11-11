@@ -1,23 +1,40 @@
-import React from 'react'
-import styled, { keyframes } from 'styled-components'
+import React, { useContext } from 'react'
+import styled, { keyframes, ThemeContext } from 'styled-components'
 
 import CardIcon from '../CardIcon'
 
 interface LoaderProps {
   text?: string
+  dark?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
-const Loader: React.FC<LoaderProps> = ({ text }) => {
+const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
+  const { spacing } = useContext(ThemeContext)
+  let s: number
+  switch (size) {
+    case 'lg':
+      s = 60
+      break
+    case 'sm':
+      s = 20
+      break
+    case 'md':
+    default:
+      s = 40
+  }
+
   return (
-    <StyledLoader>
-      <CardIcon>
-        <StyledLoading>...</StyledLoading>
-      </CardIcon>
+    <StyledContainer>
+      <StyledSpinner size={s} dark={dark} />
       {!!text && <StyledText>{text}</StyledText>}
-    </StyledLoader>
+    </StyledContainer>
   )
 }
-
+interface StyledSpinnerProps {
+  size: number
+  dark: boolean
+}
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -27,17 +44,22 @@ const spin = keyframes`
   }
 `
 
-const StyledLoader = styled.div`
+const StyledContainer = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
 `
 
-const StyledLoading = styled.div`
+const StyledSpinner = styled.div<StyledSpinnerProps>`
   font-size: 32px;
+  height: ${(props) => props.size}px;
+  width: ${(props) => props.size}px;
+  background: ${(props) =>
+    !props.dark ? props.theme.color.white : props.theme.color.grey[600]}};
+  border-radius: 50%;
   position: relative;
-  animation: 1s ${spin} infinite;
+  animation: 1s ${spin} infinite linear;
 `
 
 const StyledText = styled.div`
