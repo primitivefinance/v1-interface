@@ -102,10 +102,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         : '0'
       const spotPrice = price.toString()
       const spotPriceWei = parseEther(spotPrice)
-      let premium = BigNumber.from(premiumWei.toString())
+      const premium = BigNumber.from(premiumWei.toString())
         .mul(spotPriceWei)
         .div(parseEther('1'))
-      console.log(`premium in dollars: ${formatEther(premium)}`)
       return formatEther(premium)
     },
     [key, data]

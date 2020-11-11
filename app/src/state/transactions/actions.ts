@@ -1,25 +1,6 @@
+import { createAction } from '@reduxjs/toolkit'
 import { ChainId } from '@uniswap/sdk'
 import { Operation } from '@/constants/index'
-
-export interface TransactionContextValues {
-  transactions: TransactionState | null
-  addTransaction: (
-    chainId: ChainId,
-    tx: Transaction,
-    orderType: Operation
-  ) => void
-  clearAllTransactions: (chainId: ChainId) => void
-  finalizeTransaction: (
-    chainId: ChainId,
-    tx: Transaction,
-    receipt: SerializableTransactionReceipt
-  ) => void
-  checkTransaction: (
-    chainId: ChainId,
-    blockNumber: number,
-    tx: Transaction
-  ) => void
-}
 
 export interface SerializableTransactionReceipt {
   to: string
@@ -37,7 +18,6 @@ export interface Transaction {
   orderType?: Operation
   approval?: { tokenAddress: string; spender: string }
   summary?: string
-  claim?: { recipient: string }
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
@@ -51,4 +31,23 @@ export type TransactionState = {
   }
 }
 
-export const nullState = { 1: {}, 3: {}, 4: {}, 5: {}, 42: {} }
+export const addTransaction = createAction<{
+  chainId: ChainId
+  tx: Transaction
+  orderType: Operation
+}>('transactions/addTransaction')
+
+export const clearAllTransactions = createAction<{ chainId: ChainId }>(
+  'transactions/clearAllTransactions'
+)
+export const finalizeTransaction = createAction<{
+  chainId: ChainId
+  hash: string
+  receipt: SerializableTransactionReceipt
+}>('transactions/finalizeTransaction')
+
+export const checkedTransaction = createAction<{
+  chainId: ChainId
+  hash: string
+  blockNumber: number
+}>('transactions/checkedTransaction')

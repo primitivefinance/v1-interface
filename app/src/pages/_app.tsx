@@ -1,4 +1,5 @@
 import React from 'react'
+import { Provider } from 'react-redux'
 
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -8,11 +9,9 @@ import Layout from '@/components/Layout'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 
+import store from '@/state/index'
 import theme from '../theme'
-
-import { default as TransactionProvider } from '@/contexts/Transactions/Transactions'
-import { default as TransactionUpdater } from '@/contexts/Transactions/updater'
-import { default as ErrorProvider } from '@/contexts/Error/Error'
+import TransactionUpdater from '@/state/transactions/updater'
 
 const GlobalStyle = createGlobalStyle`
   html,
@@ -77,31 +76,29 @@ export default function App({ Component, pageProps }) {
       <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
           <>
-            <ErrorProvider>
-              <TransactionProvider>
-                <Updater />
-                <Layout>
-                  {active ? (
-                    <WaitingRoom>
-                      <Spacer size="lg" />
-                      <StyledText>
-                        This interface requires a connection from the browser to
-                        Ethereum.
-                      </StyledText>
-                      <Button
-                        size="sm"
-                        text="Learn More"
-                        variant="transparent"
-                        href="https://ethereum.org/en/wallets/"
-                      />{' '}
-                      <Spacer />
-                    </WaitingRoom>
-                  ) : (
-                    <Component {...pageProps} />
-                  )}
-                </Layout>
-              </TransactionProvider>
-            </ErrorProvider>
+            <Provider store={store}>
+              <Updater />
+              <Layout>
+                {active ? (
+                  <WaitingRoom>
+                    <Spacer size="lg" />
+                    <StyledText>
+                      This interface requires a connection from the browser to
+                      Ethereum.
+                    </StyledText>
+                    <Button
+                      size="sm"
+                      text="Learn More"
+                      variant="transparent"
+                      href="https://ethereum.org/en/wallets/"
+                    />
+                    <Spacer />
+                  </WaitingRoom>
+                ) : (
+                  <Component {...pageProps} />
+                )}
+              </Layout>
+            </Provider>
           </>
         </ThemeProvider>
       </Web3ReactProvider>

@@ -58,6 +58,8 @@ export const useApprovalQueue = () => {
         } else {
           console.log('Approval is not confirmed!')
         }
+      } else {
+        console.log('Approval is complete? -> ', approval.isComplete)
       }
     })
     Promise.all(promises).then(() => {
@@ -66,17 +68,27 @@ export const useApprovalQueue = () => {
     })
   }, [queue, setQueue])
 
-  const createQueue = useCallback(
-    (orderType: Operation, approvals: [Approval]) => {
-      setQueue({
-        orderType: orderType,
-        approvals: approvals,
-        isComplete: false,
-      })
-    },
-    [setQueue]
-  )
+  const createQueue = (orderType: Operation, approvals: [Approval]) => {
+    setQueue({
+      orderType: orderType,
+      approvals: approvals,
+      isComplete: false,
+    })
+    return
+  }
 
+  const addToQueue = useCallback(
+    (app: Approval) => {
+      if (queue.approvals.length > 0) {
+        setQueue({
+          orderType: queue.orderType,
+          approvals: queue.approvals.push(app),
+          isComplete: false,
+        })
+      }
+    },
+    [queue, setQueue]
+  )
   const approve = useCallback(
     async (tokenAddress: string | undefined, spender: string | undefined) => {
       if (!queue.approvals) return
@@ -91,17 +103,17 @@ export const useApprovalQueue = () => {
       const index = queue?.approvals.indexOf(approval)
       if (!approval) return
 
-      if (approval.progress !== ApprovalProgress.NOT_APPROVED) {
+      if (approval?.progress !== ApprovalProgress.NOT_APPROVED) {
         console.error('approve was called unnecessarily')
         return
       }
 
-      if (!approval.amountToApprove) {
+      if (!approval?.amountToApprove) {
         console.error('missing amount to approve')
         return
       }
 
-      if (!approval.spender) {
+      if (!approval?.spender) {
         console.error('no spender')
         return
       }
@@ -111,7 +123,7 @@ export const useApprovalQueue = () => {
         account,
         spender
       )
-      if (allowance >= approval.amountToApprove) {
+      if (allowance >= approval?.amountToApprove) {
         temp[index].progress = ApprovalProgress.APPROVED
         const complete =
           temp.filter((app) => app.progress !== ApprovalProgress.APPROVED)
@@ -134,5 +146,5 @@ export const useApprovalQueue = () => {
     },
     [queue, setQueue]
   )
-  return [queue, createQueue, checkQueue, approve]
+  return { queue, createQueue, checkQueue, addToQueue, approve }
 }

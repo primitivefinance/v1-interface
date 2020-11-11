@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useContext } from 'react'
 import styled from 'styled-components'
 import ethers from 'ethers'
 
@@ -39,6 +39,8 @@ import {
 } from '@/constants/index'
 import { getBalance } from '../../../lib/erc20'
 import { OptionParameters } from '../../../lib/entities/option'
+import PositionsContext from '@/contexts/Positions'
+
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatExpiry from '@/utils/formatExpiry'
 export interface TokenProps {
@@ -85,16 +87,9 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
   const { options } = useOptions()
   const { onAddItem, item } = useOrders()
-  const { positions, getPositions } = usePositions()
-
+  const { positions } = usePositions()
+  const PositionsCon = useContext(PositionsContext)
   const { library, chainId, account } = useWeb3React()
-
-  useEffect(() => {
-    if (!options.loading) {
-      const temp = options.calls.concat(options.puts)
-      getPositions(temp)
-    }
-  }, [getPositions, options])
 
   if (item.asset) return null
   if (positions.loading) {
@@ -121,9 +116,11 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     <Card>
       <CardTitle>Active Positions</CardTitle>
       <CardContent>
-        {positions.options.map((pos, i) => {
-          return <Position key={i} option={pos} />
-        })}
+        <PositionsCon.Consumer>
+          {positions.options.map((pos, i) => {
+            return <Position key={i} option={pos} />
+          })}
+        </PositionsCon.Consumer>
       </CardContent>
     </Card>
   )

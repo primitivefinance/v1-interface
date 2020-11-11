@@ -7,6 +7,7 @@
       "@/contexts/*": ["./src/contexts/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/lib/*": ["./src/lib/*"],
+      "@/state/*": ["./src/state/*"],
       "@/utils/*": ["./src/utils/*"]
     },
     "target": "es5",
