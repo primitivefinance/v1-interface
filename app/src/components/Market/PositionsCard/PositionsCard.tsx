@@ -1,16 +1,8 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react'
 import styled from 'styled-components'
-import ethers from 'ethers'
 
-import useOrders from '@/hooks/useOrders'
-import useOptions from '@/hooks/useOptions'
-import usePositions from '@/hooks/usePositions'
 import AddIcon from '@material-ui/icons/Add'
-import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
-import useTokenBalance from '@/hooks/useTokenBalance'
 
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import Option from '@primitivefi/contracts/artifacts/Option.json'
 import LaunchIcon from '@material-ui/icons/Launch'
 
 import { Protocol } from '@/lib/protocol'
@@ -24,38 +16,28 @@ import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import Loader from '@/components/Loader'
-import EmptyTable from '../EmptyTable'
-import FilledBar from '../FilledBar'
-import LitContainer from '@/components/LitContainer'
-import Table from '@/components/Table'
-import TableBody from '@/components/TableBody'
-import TableCell from '@/components/TableCell'
-import TableRow from '@/components/TableRow'
-import Timer from '../Timer'
+
 import {
   ETHERSCAN_MAINNET,
   ETHERSCAN_RINKEBY,
   Operation,
 } from '@/constants/index'
-import { getBalance } from '../../../lib/erc20'
-import { OptionParameters } from '../../../lib/entities/option'
-import PositionsContext from '@/contexts/Positions'
 
+import { usePositions } from '@/state/positions/hooks'
+import { useUpdateItem, useItem } from '@/state/order/hooks'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatExpiry from '@/utils/formatExpiry'
 export interface TokenProps {
   option: any // replace with option type
 }
-export interface PositionsProp {
-  asset: string
-}
+
 const Position: React.FC<TokenProps> = ({ option }) => {
   const { chainId, library } = useWeb3React()
-  const { onAddItem, item } = useOrders()
+  const updateItem = useUpdateItem()
   const { date, month, year } = formatExpiry(option.attributes.expiry)
 
   const handleClick = () => {
-    onAddItem(option.attributes, Operation.NONE)
+    updateItem(option.attributes, Operation.NONE)
   }
 
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -84,14 +66,11 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   )
 }
 
-const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
-  const { options } = useOptions()
-  const { onAddItem, item } = useOrders()
-  const { positions } = usePositions()
-  const PositionsCon = useContext(PositionsContext)
-  const { library, chainId, account } = useWeb3React()
+const PositionsCard: React.FC = () => {
+  const item = useItem()
+  const positions = usePositions()
 
-  if (item.asset) return null
+  if (item.item.asset) return null
   if (positions.loading) {
     return <Loader size="lg" />
   }
@@ -116,11 +95,9 @@ const PositionsCard: React.FC<PositionsProp> = ({ asset }) => {
     <Card>
       <CardTitle>Active Positions</CardTitle>
       <CardContent>
-        <PositionsCon.Consumer>
-          {positions.options.map((pos, i) => {
-            return <Position key={i} option={pos} />
-          })}
-        </PositionsCon.Consumer>
+        {positions.options.map((pos, i) => {
+          return <Position key={i} option={pos} />
+        })}
       </CardContent>
     </Card>
   )

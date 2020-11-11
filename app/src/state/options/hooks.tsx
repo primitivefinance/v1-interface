@@ -14,9 +14,17 @@ import { Trade, Option, Quantity } from '@/lib/entities'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useThrowError } from '@/state/error/hooks'
 
-export const useOptions = (): ((assetName: string) => void) => {
+export const useOptions = (): OptionsState => {
+  const state = useSelector<AppState, AppState['options']>(
+    (state) => state.options
+  )
+  return state
+}
+
+export const useUpdateOptions = (): ((assetName: string) => void) => {
   const { library, chainId } = useActiveWeb3React()
   const throwError = useThrowError()
+
   const dispatch = useDispatch<AppDispatch>()
 
   const calculateBreakeven = (

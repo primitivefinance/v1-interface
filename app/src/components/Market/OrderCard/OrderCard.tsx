@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import useOrders from '@/hooks/useOrders'
+import { useItem, useRemoveItem } from '@/state/order/hooks'
+
 import ClearIcon from '@material-ui/icons/Clear'
 
 import Button from '@/components/Button'
@@ -16,7 +17,7 @@ import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 
 const OrderContent: React.FC = () => {
-  const { orderType } = useOrders()
+  const { orderType } = useItem()
 
   if (orderType !== Operation.NONE) {
     return <Submit orderType={orderType} />
@@ -27,14 +28,15 @@ const OrderContent: React.FC = () => {
 }
 
 const OrderCard: React.FC = () => {
-  const { item, onRemoveItem } = useOrders()
+  const { item } = useItem()
+  const removeItem = useRemoveItem()
 
   if (!item.expiry) {
     return null
   }
   const { date, month, year } = formatExpiry(item.expiry)
   const clear = () => {
-    onRemoveItem(item)
+    removeItem()
   }
   return (
     <Card>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
@@ -20,7 +20,6 @@ import {
   NewMarketCard,
 } from '@/components/Market'
 import TestnetCard from '@/components/Market/TestnetCard/TestnetCard'
-
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
 
@@ -35,12 +34,14 @@ const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
+
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
   }
+
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
@@ -65,7 +66,7 @@ const Market = ({ market }) => {
         <StyledSideBar>
           <BetaBanner isOpen={true} />
           <Spacer />
-          <PositionsCard asset={market} />
+          <PositionsCard />
           <OrderCard />
           <NewMarketCard />
           <Spacer />

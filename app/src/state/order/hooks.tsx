@@ -37,6 +37,14 @@ import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useThrowError } from '@/state/error/hooks'
 
+export const useItem = (): {
+  item: OptionsAttributes
+  orderType: Operation
+} => {
+  const state = useSelector<AppState, AppState['order']>((state) => state.order)
+  return state
+}
+
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation

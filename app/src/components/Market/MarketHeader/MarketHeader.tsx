@@ -9,7 +9,7 @@ import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
 
 import useSWR from 'swr'
-import useOptions from '@/hooks/useOptions'
+import { useOptions } from '@/state/options/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 
@@ -37,7 +37,7 @@ export interface MarketHeaderProps {
 const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
-  const { options, getOptions } = useOptions()
+  const options = useOptions()
   const { library, chainId } = useWeb3React()
   const baseUrl = chainId === 1 ? ETHERSCAN_MAINNET : ETHERSCAN_RINKEBY
 

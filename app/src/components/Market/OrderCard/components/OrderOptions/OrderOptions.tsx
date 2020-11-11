@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import ethers from 'ethers'
-import { Pair, Token, TokenAmount, Trade, TradeType, Route } from '@uniswap/sdk'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
-import useOrders from '@/hooks/useOrders'
-import useTokenBalance from '@/hooks/useTokenBalance'
-import useOptions from '@/hooks/useOptions'
-import usePositions from '@/hooks/usePositions'
-import Option from '@primitivefi/contracts/artifacts/Option.json'
 
 import LineItem from '@/components/LineItem'
 import MultiLineItem from '@/components/MultiLineItem'
-import TableRow from '../../../../TableRow/TableRow'
-import formatBalance from '@/utils/formatBalance'
-import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
+import { useItem, useUpdateItem } from '@/state/order/hooks'
+import { usePositions } from '@/state/positions/hooks'
+
 const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
-  const { item, onChangeItem } = useOrders()
+  const { item } = useItem()
+  const updateItem = useUpdateItem()
   const change = (t: Operation) => {
-    onChangeItem(item, t)
+    updateItem(item, t)
   }
 
   const reserve0Units =
@@ -59,7 +52,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           Provide Liquidity
         </Button>
         <Spacer size="sm" />
-        {balance !== '0x00' ? (
+        {balance ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw Liquidity
           </Button>
@@ -77,10 +70,10 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   )
 }
 const OrderOptions: React.FC = () => {
-  const { item, onChangeItem } = useOrders()
-  const { positions } = usePositions()
-
-  const [option, setOption] = useState({})
+  const { item } = useItem()
+  const updateItem = useUpdateItem()
+  const positions = usePositions()
+  const [option, setOption] = useState({ long: null, short: null, lp: null })
   useEffect(() => {
     const temp = positions.options.filter(
       (opt) => opt.attributes.address === item.address
@@ -94,7 +87,7 @@ const OrderOptions: React.FC = () => {
   }, [setOption, positions, item])
 
   const change = (t: Operation) => {
-    onChangeItem(item, t)
+    updateItem(item, t)
   }
 
   return (
@@ -107,10 +100,10 @@ const OrderOptions: React.FC = () => {
             <StyledBalance>
               {positions.loading ? (
                 <Loader size="sm" />
-              ) : !option ? (
+              ) : !option.long ? (
                 '0.00'
               ) : (
-                formatEtherBalance(option?.long)
+                formatEtherBalance(option.long)
               )}
             </StyledBalance>
           </Box>
@@ -136,10 +129,10 @@ const OrderOptions: React.FC = () => {
             <StyledBalance>
               {positions.loading ? (
                 <Loader size="sm" />
-              ) : !option ? (
+              ) : !option.short ? (
                 '0.00'
               ) : (
-                formatEtherBalance(option?.short)
+                formatEtherBalance(option.short)
               )}
             </StyledBalance>
           </Box>
@@ -159,7 +152,7 @@ const OrderOptions: React.FC = () => {
           <Spacer />
         </StyledColumn>
       </Box>
-      <LPOptions balance={option?.lp ? option.lp : null} />
+      <LPOptions balance={option.lp ? option.lp : null} />
     </>
   )
 }

@@ -57,10 +57,7 @@ export default createReducer(initialState, (builder) =>
   builder.addCase(
     updateOptions,
     (state, { payload: { loading, calls, puts, reservesTotal } }) => {
-      if (!state.loading) {
-        state = { loading, calls, puts, reservesTotal }
-      }
-      return state
+      return { ...state, loading, calls, puts, reservesTotal }
     }
   )
 )

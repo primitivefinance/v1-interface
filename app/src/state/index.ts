@@ -17,11 +17,20 @@ const store = configureStore({
     positions,
     transactions,
   },
-  middleware: [
-    ...getDefaultMiddleware({ thunk: false }),
-    save({ states: PERSISTED_KEYS }),
-  ],
-  preloadedState: load({ states: PERSISTED_KEYS }),
+  middleware: getDefaultMiddleware({
+    serializableCheck: {
+      // Ignore these action types
+      ignoredActions: [
+        '<root>',
+        'error/clearError',
+        'error/throwError',
+        'options/updateOptions',
+        'order/updateItem',
+        'order/removeItem',
+        'positions/updatePositions',
+      ],
+    },
+  }),
 })
 
 export default store

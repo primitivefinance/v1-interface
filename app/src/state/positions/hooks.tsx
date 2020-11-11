@@ -12,7 +12,20 @@ import { getBalance } from '@/lib/erc20'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
-export const usePositions = (): ((options: OptionsAttributes[]) => void) => {
+export const usePositions = (): {
+  loading: boolean
+  exists: boolean
+  options: OptionPosition[]
+} => {
+  const state = useSelector<AppState, AppState['positions']>(
+    (state) => state.positions
+  )
+  return state
+}
+
+export const useUpdatePositions = (): ((
+  options: OptionsAttributes[]
+) => void) => {
   const { library, account } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
@@ -22,6 +35,7 @@ export const usePositions = (): ((options: OptionsAttributes[]) => void) => {
       const positionsArr: OptionPosition[] = []
 
       for (let i = 0; i < options.length; i++) {
+        console.log('here?')
         const long = await getBalance(
           library,
           options[i].entity.address,
@@ -33,6 +47,7 @@ export const usePositions = (): ((options: OptionsAttributes[]) => void) => {
           account
         )
         const lp = await getBalance(library, options[i].entity.pair, account)
+        console.log(long, redeem, lp)
         if (
           formatEtherBalance(long) !== '0.00' ||
           formatEtherBalance(redeem) !== '0.00' ||
@@ -50,6 +65,7 @@ export const usePositions = (): ((options: OptionsAttributes[]) => void) => {
           })
         }
       }
+      console.log(positionsArr)
       dispatch(
         updatePositions({
           loading: false,

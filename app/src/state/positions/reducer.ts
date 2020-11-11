@@ -35,10 +35,7 @@ export default createReducer(initialState, (builder) =>
   builder.addCase(
     updatePositions,
     (state, { payload: { loading, exists, options } }) => {
-      if (!state.loading) {
-        return { loading, exists, options }
-      }
-      return state
+      return { ...state, loading, exists, options }
     }
   )
 )

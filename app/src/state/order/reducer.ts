@@ -16,9 +16,9 @@ export const initialState: OrderState = {
 export default createReducer(initialState, (builder) =>
   builder
     .addCase(updateItem, (state, { payload: { item, orderType } }) => {
-      return { item, orderType }
+      return { ...state, item, orderType }
     })
-    .addCase(removeItem, (state) => {
+    .addCase(removeItem, () => {
       return initialState
     })
 )
