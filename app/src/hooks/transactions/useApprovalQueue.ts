@@ -9,10 +9,10 @@ import { getAllowance } from '@/lib/erc20'
 
 import { Operation } from '@/constants/index'
 
-import useTransactions, { useHasPendingApproval } from '@/hooks/transactions'
+import { useHasPendingApproval } from '@/hooks/transactions'
 
 import { useWeb3React } from '@web3-react/core'
-
+/*
 export enum ApprovalProgress {
   UNKNOWN,
   NOT_APPROVED,
@@ -24,6 +24,16 @@ interface Approval {
   progress: ApprovalProgress
   tokenAddress: string
   amountToApprove: BigNumberish
+  spender: string
+  isComplete: boolean
+}
+
+const EmptyApproval = {
+  progress: ApprovalProgress.UNKNOWN,
+  tokenAddress: '',
+  amountToApprove: '0x00',
+  spender: '',
+  isComplete: false,
 }
 
 export interface ApprovalQueue {
@@ -37,7 +47,7 @@ export const useApprovalQueue = () => {
   const { account, library } = useWeb3React()
   const [queue, setQueue] = useState({
     orderType: Operation.NONE,
-    approvals: [],
+    approvals: [EmptyApproval],
     isComplete: false,
   })
 
@@ -53,7 +63,7 @@ export const useApprovalQueue = () => {
         )
         if (allowance >= approval.amountToApprove) {
           approve(approval.tokenAddress, approval.spender).then(() => {
-            console.log('APPROVAL CONFIRMED  ->', approval.Token)
+            console.log('APPROVAL CONFIRMED  ->', approval.tokenAddress)
           })
         } else {
           console.log('Approval is not confirmed!')
@@ -82,7 +92,7 @@ export const useApprovalQueue = () => {
       if (queue.approvals.length > 0) {
         setQueue({
           orderType: queue.orderType,
-          approvals: queue.approvals.push(app),
+          approvals: queue.approvals.concat([app]),
           isComplete: false,
         })
       }
@@ -148,3 +158,4 @@ export const useApprovalQueue = () => {
   )
   return { queue, createQueue, checkQueue, addToQueue, approve }
 }
+*/

@@ -10,13 +10,10 @@ import { Uniswap, Trader, Protocol } from '@/lib/index'
 import { SinglePositionParameters, TradeSettings } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
-import useTransactions from '@/hooks/transactions'
 
 import executeTransaction from '@/lib/utils/executeTransaction'
 import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
-import { addTransaction } from '@/contexts/Transactions/reducer'
 import { useWeb3React } from '@web3-react/core'
-import useOrders from '@/hooks/useOrders'
 
 const getTrade = async (
   provider: Web3Provider,
@@ -43,12 +40,12 @@ const getTrade = async (
   const base = optionEntity.optionParameters.base.quantity
   const quote = optionEntity.optionParameters.quote.quantity
 
-  let path: string[] = []
-  let amountsIn: BigNumberish[] = []
+  const path: string[] = []
+  const amountsIn: BigNumberish[] = []
   let amountsOut: BigNumberish[] = []
-  let reserves: BigNumberish[] = []
+  const reserves: BigNumberish[] = []
   let totalSupply: BigNumberish
-  let trade: Trade = new Trade(
+  const trade: Trade = new Trade(
     optionEntity,
     inputAmount,
     outputAmount,
@@ -247,7 +244,7 @@ const useTradeExecution = (
   const { library } = useWeb3React()
   const transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
   const handleExecution = useCallback(async (): Promise<Transaction> => {
-    let tx = await executeTransaction(await library.getSigner(), transaction)
+    const tx = await executeTransaction(await library.getSigner(), transaction)
     return tx
   }, [executeTransaction, library, transaction, trade, tradeSettings])
   return [transaction, handleExecution]

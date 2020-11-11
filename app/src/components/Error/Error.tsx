@@ -6,13 +6,13 @@ import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
-import useError from '@/hooks/useError'
+import { useError, useClearError } from '@/state/error/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
 
 const Error: React.FC = () => {
-  const { error, msg, link, clearError } = useError()
-
-  if (!error) return null
+  const { msg, link } = useError()
+  const clearError = useClearError()
+  if (msg === '') return null
   return (
     <StyledCard>
       <CardTitle>
@@ -30,11 +30,11 @@ const Error: React.FC = () => {
 
 const StyledCard = styled.div`
   position: absolute;
-  bottom: 2em;
+  bottom: 4em;
   left: 40px;
-  width: 30em !important;
+  width: 20em !important;
   background: ${(props) => props.theme.color.grey[600]};
-  border-radius: 15px;
+  border-radius: 5px;
   max-width: 30em !important;
 `
 const StyledContent = styled.h4`

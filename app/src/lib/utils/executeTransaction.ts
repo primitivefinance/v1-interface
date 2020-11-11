@@ -4,7 +4,7 @@ import Option from '@primitivefi/contracts/artifacts/Option.json'
 import { parseEther } from 'ethers/lib/utils'
 import { SinglePositionParameters } from '../types'
 const MIN_ALLOWANCE: ethers.BigNumber = parseEther('10000000')
-import { Transaction } from '@/contexts/Transactions/types'
+import { Transaction } from '@/state/transactions/actions'
 
 export const checkAllowance = async (
   signer,

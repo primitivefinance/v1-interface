@@ -187,10 +187,8 @@ const Submit: React.FC<SubmitProps> = () => {
       Number(inputs.primary),
       orderType,
       Number(inputs.secondary)
-    ).then(() => {
-      setSubmit(false)
-      removeItem(item)
-    })
+    )
+    removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
   const handleSetMax = () => {

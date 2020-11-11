@@ -4,16 +4,18 @@ import styled from 'styled-components'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
-import useOrders from '@/hooks/useOrders'
+import { useItem } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
 
 interface TestnetCardProps {}
 import mintTestTokens from '@/utils/mintTestTokens'
-import useTransactions from '@/hooks/transactions'
+import { useTransactionAdder } from '@/state/transactions/hooks'
+import { Operation } from '@/constants/index'
 
 const TestnetCard: React.FC<TestnetCardProps> = () => {
-  const { item } = useOrders()
-  const { addTransaction } = useTransactions()
+  const { item } = useItem()
+  const addTransaction = useTransactionAdder()
+
   const { library, account, chainId } = useWeb3React()
   useEffect(() => {}, [item])
 
@@ -27,11 +29,14 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
     )
       .then((tx) => {
         if (tx?.hash) {
-          addTransaction(chainId, {
-            hash: tx.hash,
-            addedTime: now(),
-            from: account,
-          })
+          addTransaction(
+            {
+              hash: tx.hash,
+              addedTime: now(),
+              from: account,
+            },
+            Operation.MINT
+          )
         }
       })
       .catch((err) =>
@@ -55,7 +60,6 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
     </Card>
   )
 }
-
 const StyledContainer = styled.div``
 
 export default TestnetCard

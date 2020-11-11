@@ -17,9 +17,9 @@ export const initialState: ErrorState = {
 export default createReducer(initialState, (builder) =>
   builder
     .addCase(throwError, (state, { payload: { msg, link } }) => {
-      state = { error: true, msg: msg, link: link }
+      return { ...state, error: true, msg: msg, link: link }
     })
     .addCase(clearError, (state) => {
-      state = initialState
+      return initialState
     })
 )

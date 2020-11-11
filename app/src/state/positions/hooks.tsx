@@ -54,9 +54,6 @@ export const useUpdatePositions = (): ((
           formatEtherBalance(lp) !== '0.00'
         ) {
           positionExists = true
-          console.log(formatEtherBalance(long))
-          console.log(formatEtherBalance(redeem))
-          console.log(formatEtherBalance(lp))
           positionsArr.push({
             attributes: options[i],
             long: long,
@@ -65,7 +62,6 @@ export const useUpdatePositions = (): ((
           })
         }
       }
-      console.log(positionsArr)
       dispatch(
         updatePositions({
           loading: false,
