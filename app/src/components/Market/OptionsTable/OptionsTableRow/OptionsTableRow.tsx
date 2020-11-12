@@ -2,10 +2,11 @@ import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import AddIcon from '@material-ui/icons/Add'
 import LaunchIcon from '@material-ui/icons/Launch'
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
-
+import { useClickAway } from '@/hooks/utils/useClickAway'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 export interface TableColumns {
   key: string
   asset: string
@@ -44,11 +45,17 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     address,
   } = columns
   const handleOnClick = useCallback(() => {
-    onClick()
     setToggle(!toggle)
-  }, [onClick, toggle, setToggle])
+  }, [toggle, setToggle])
+  const handleOnAdd = (e) => {
+    e.stopPropagation()
+    onClick()
+  }
+  const nodeRef = useClickAway(() => {
+    setToggle(false)
+  })
   return (
-    <>
+    <div ref={nodeRef}>
       <TableRow key={key} onClick={handleOnClick}>
         <TableCell>${strike}</TableCell>
         <TableCell>$ {breakeven}</TableCell>
@@ -79,7 +86,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </StyledARef>
         </TableCell>
         <StyledButtonCell key={'Open'}>
-          <ArrowForwardIosIcon />
+          <StyledARef onClick={(e) => handleOnAdd(e)}>
+            {toggle ? <ExpandMoreIcon /> : <AddIcon />}
+          </StyledARef>
         </StyledButtonCell>
       </TableRow>
       {toggle ? (
@@ -87,7 +96,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       ) : (
         <></>
       )}
-    </>
+    </div>
   )
 }
 

@@ -5,7 +5,7 @@ import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-import { useClickAway } from '../../hooks/utils/useClickAway'
+import { useClickAway } from '@/hooks/utils/useClickAway'
 import { useSlippage } from '@/hooks/user'
 
 export const Settings = () => {
