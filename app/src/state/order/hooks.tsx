@@ -267,7 +267,6 @@ export const useHandleSubmitOrder = (): ((
             new Asset(18), // fix with actual metadata
             parseEther(secondaryQuantity ? secondaryQuantity.toString() : '0')
           )
-          console.log({ secondaryQuantity })
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings

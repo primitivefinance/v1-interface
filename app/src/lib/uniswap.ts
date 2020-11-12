@@ -149,7 +149,6 @@ export class Uniswap {
           .div(trade.option.optionParameters.base.quantity)
 
         let amountBDesired: BigNumberish
-        console.log(`output qty: ${trade.outputAmount.quantity}`)
         if (
           BigNumber.from(trade.reserves[0]).isZero() &&
           BigNumber.from(trade.reserves[1]).isZero()

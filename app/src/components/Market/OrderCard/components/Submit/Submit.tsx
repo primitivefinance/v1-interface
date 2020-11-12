@@ -38,6 +38,8 @@ import usePair from '@/hooks/usePair'
 import { parseEther } from 'ethers/lib/utils'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
+import { AddLiquidity } from '../AddLiquidity'
+
 export interface SubmitProps {
   orderType: Operation
 }
@@ -146,6 +148,8 @@ const Submit: React.FC<SubmitProps> = () => {
   }
 
   const tokenBalance = useTokenBalance(tokenAddress)
+  const token0 = lpPair ? lpPair.token0.symbol : ''
+  const token1 = lpPair ? lpPair.token1.symbol : ''
 
   const calculateTotalDebit = () => {
     let debit = '0'
@@ -156,28 +160,6 @@ const Submit: React.FC<SubmitProps> = () => {
     }
     return debit
   }
-
-  const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof lpPair === 'undefined') return 0
-    const ratio = lpPair.token0Price.raw.toSignificant(2)
-    return ratio
-  }, [lpPair])
-
-  const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof lpPair === 'undefined') return 0
-    const ratio = lpPair.token1Price.raw.toSignificant(2)
-    return ratio
-  }, [lpPair])
-
-  const caculatePoolShare = useCallback(() => {
-    if (typeof lpPair === 'undefined') return 0
-    const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
-      ? BigNumber.from(parseEther(lp))
-          .mul(parseEther('1'))
-          .div(parseEther(lpTotalSupply))
-      : 0
-    return Number(formatEther(poolShare)) * 100
-  }, [lpPair, lp, lpTotalSupply])
 
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
@@ -199,122 +181,65 @@ const Submit: React.FC<SubmitProps> = () => {
 
   return (
     <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Spacer size="sm" />
-        <StyledTitle>{`${title ? title : capitalLabel}`}</StyledTitle>
-      </Box>
       {orderType === Operation.ADD_LIQUIDITY ? (
+        <AddLiquidity />
+      ) : (
         <>
-          <Spacer />
-          <PriceInput
-            name="primary"
-            title={`Quantity Options`}
-            quantity={inputs.primary}
-            onChange={handleInputChange}
-            onClick={handleSetMax}
-          />
-          <Spacer />
-          <PriceInput
-            name="secondary"
-            title={`Quantity Underlying`}
-            quantity={inputs.secondary}
-            onChange={handleInputChange}
-            onClick={handleSetMax}
-          />
-          <Spacer />
-          <Box row justifyContent="space-between">
-            <Label text="Price per LP Token" />
-            <span>${formatBalance(tokenBalance).toString()}</span>
+          <Box row justifyContent="flex-start">
+            <IconButton
+              variant="tertiary"
+              size="sm"
+              onClick={() => updateItem(item, Operation.NONE)}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Spacer size="sm" />
+            <StyledTitle>{`${title ? title : capitalLabel}`}</StyledTitle>
           </Box>
-        </>
-      ) : (
-        <>
+          <>
+            <Spacer />
+            <LineItem
+              label="Option Premium"
+              data={formatEtherBalance(item.premium).toString()}
+              units={item.asset}
+            />
+            <Spacer />
+            <PriceInput
+              title="Quantity"
+              name="primary"
+              onChange={handleInputChange}
+              quantity={inputs.primary}
+              onClick={handleSetMax}
+            />
+          </>
           <Spacer />
-          <LineItem
-            label="Option Premium"
-            data={formatEtherBalance(item.premium).toString()}
-            units={item.asset}
-          />
-          <Spacer />
-          <PriceInput
-            title="Quantity"
-            name="primary"
-            onChange={handleInputChange}
-            quantity={inputs.primary}
-            onClick={handleSetMax}
-          />
-        </>
-      )}
-      <Spacer />
-
-      {capitalLabel.length > 0 ? (
-        <LineItem
-          label={`${capitalLabel} Power`}
-          data={tokenBalance}
-          units={item.asset}
-        />
-      ) : (
-        <> </>
-      )}
-
-      <Spacer />
-      {orderType === Operation.EXERCISE ? (
-        <Exercise
-          cost={`${sign} ${formatBalance(+item.strike * +inputs.primary)}`}
-          received={`${formatBalance(+inputs.primary)} ${item.id
-            .slice(0, 3)
-            .toUpperCase()}`}
-        />
-      ) : orderType === Operation.ADD_LIQUIDITY ? (
-        <>
-          <LineItem
-            label={`${lpPair ? lpPair.token0.symbol : ''} per ${
-              lpPair ? lpPair.token1.symbol : ''
-            }`}
-            data={calculateToken0PerToken1().toString()}
-            units={``}
-          />
-          <Spacer />
-          <LineItem
-            label={`${lpPair ? lpPair.token1.symbol : ''} per ${
-              lpPair ? lpPair.token0.symbol : ''
-            }`}
-            data={calculateToken1PerToken0().toString()}
-            units={`${sign ? sign : ''} ${item.asset.toUpperCase()}`}
-          />
-          <Spacer />
-          <LineItem
-            label={`Share % of Pool`}
-            data={caculatePoolShare().toString()}
-            units={`%`}
-          />
-          <Spacer />
-        </>
-      ) : (
-        <>
-          <LineItem
-            label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
-            data={calculateTotalDebit().toString()}
-            units={`${sign ? sign : ''} ${item.asset.toUpperCase()}`}
-          />
-          <Spacer />
+          {orderType === Operation.EXERCISE ? (
+            <Exercise
+              cost={`${sign} ${formatBalance(+item.strike * +inputs.primary)}`}
+              received={`${formatBalance(+inputs.primary)} ${item.id
+                .slice(0, 3)
+                .toUpperCase()}`}
+            />
+          ) : (
+            <>
+              <LineItem
+                label={`Total ${isDebit ? 'Debit' : 'Credit'}`}
+                data={calculateTotalDebit().toString()}
+                units={`${sign ? sign : ''} ${item.asset.toUpperCase()}`}
+              />
+              <Spacer />
+            </>
+          )}
+          <Button
+            disabled={!inputs || submitting}
+            full
+            size="sm"
+            onClick={handleSubmitClick}
+            isLoading={submitting}
+            text="Review Transaction"
+          />{' '}
         </>
       )}
-      <Button
-        disabled={!inputs || submitting}
-        full
-        size="sm"
-        onClick={handleSubmitClick}
-        isLoading={submitting}
-        text="Review Transaction"
-      />
     </>
   )
 }
