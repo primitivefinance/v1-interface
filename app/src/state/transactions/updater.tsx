@@ -42,7 +42,9 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return
-    updatePositions(options.calls.concat(options.puts))
+    if (!options.loading) {
+      updatePositions(options.calls.concat(options.puts))
+    }
     Object.keys(transactions)
       .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
       .forEach((hash) => {

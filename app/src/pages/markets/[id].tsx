@@ -10,8 +10,6 @@ import Spacer from '@/components/Spacer'
 
 import { ADDRESS_FOR_MARKET } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import { useUpdatePositions } from '@/state/positions/hooks'
-import { useOptions } from '@/state/options/hooks'
 
 import {
   FilterBar,
@@ -38,8 +36,6 @@ const Market = ({ market }) => {
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
   const [network, setNetwork] = useState(chainId)
-  const updatePositions = useUpdatePositions()
-  const options = useOptions()
 
   useEffect(() => {
     setNetwork(chainId)
@@ -47,8 +43,6 @@ const Market = ({ market }) => {
       console.log('network change!')
       setNetwork(chainId)
     }
-    console.log('updating positions')
-    updatePositions(options.calls.concat(options.puts))
   }, [network, chainId, setNetwork])
 
   const handleFilterType = () => {
