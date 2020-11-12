@@ -15,6 +15,8 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import { usePositions } from '@/state/positions/hooks'
 
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+
 const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const { item } = useItem()
   const updateItem = useUpdateItem()
@@ -69,7 +71,9 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
     </StyledBottom>
   )
 }
+
 const OrderOptions: React.FC = () => {
+  const [tab, setTab] = useState(0)
   const { item } = useItem()
   const updateItem = useUpdateItem()
   const positions = usePositions()
@@ -93,76 +97,118 @@ const OrderOptions: React.FC = () => {
   return (
     <>
       <Box row alignItems="flex-start" justifyContent="center">
-        <StyledColumn>
-          <Box row justifyContent="center" alignItems="center">
-            <Label text={'Long Tokens'} />
-            <Spacer />
-            <StyledBalance>
-              {positions.loading ? (
-                <Loader size="sm" />
-              ) : !option.long ? (
-                '0.00'
-              ) : (
-                formatEtherBalance(option.long)
-              )}
-            </StyledBalance>
+        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
+          <Box row justifyContent="flex-start">
+            <StyledTabList>
+              <StyledTab active={tab === 0}>Long</StyledTab>
+              <Spacer />
+              <StyledTab active={tab === 1}>Short</StyledTab>
+              <Spacer />
+              <StyledTab active={tab === 2}>Pool</StyledTab>
+            </StyledTabList>
           </Box>
-          <Button full size="sm" onClick={() => change(Operation.LONG)}>
-            Open Long
-          </Button>
-          <Spacer size="sm" />
-          <Button
-            full
-            disabled={!positions.loading ? false : true}
-            size="sm"
-            variant="secondary"
-            onClick={() => change(Operation.CLOSE_LONG)}
-          >
-            Close Long
-          </Button>
-        </StyledColumn>
-
-        <StyledColumn>
-          <Box row justifyContent="center" alignItems="center">
-            <Label text={'Short Tokens'} />
-            <Spacer />
-            <StyledBalance>
-              {positions.loading ? (
-                <Loader size="sm" />
-              ) : !option.short ? (
-                '0.00'
-              ) : (
-                formatEtherBalance(option.short)
-              )}
-            </StyledBalance>
-          </Box>
-          <Button full size="sm" onClick={() => change(Operation.SHORT)}>
-            Open Short
-          </Button>
-          <Spacer size="sm" />
-          <Button
-            full
-            disabled={!positions.loading ? false : true}
-            size="sm"
-            variant="secondary"
-            onClick={() => change(Operation.CLOSE_SHORT)}
-          >
-            Close Short
-          </Button>
           <Spacer />
-        </StyledColumn>
+          <TabPanel>
+            <StyledColumn>
+              <Box row justifyContent="flex-start" alignItems="center">
+                <Label text={'Balance'} />
+                <Spacer />
+                <StyledBalance>
+                  {positions.loading ? (
+                    <Loader size="sm" />
+                  ) : !option.long ? (
+                    '0.00'
+                  ) : (
+                    formatEtherBalance(option.long)
+                  )}
+                </StyledBalance>
+              </Box>
+              <Button full size="sm" onClick={() => change(Operation.LONG)}>
+                Buy
+              </Button>
+              <Spacer size="sm" />
+              <Button
+                full
+                disabled={!positions.loading ? false : true}
+                size="sm"
+                variant="secondary"
+                onClick={() => change(Operation.CLOSE_LONG)}
+              >
+                Sell
+              </Button>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <StyledColumn>
+              <Box row justifyContent="flex-start" alignItems="center">
+                <Label text={'Balance'} />
+                <Spacer />
+                <StyledBalance>
+                  {positions.loading ? (
+                    <Loader size="sm" />
+                  ) : !option.short ? (
+                    '0.00'
+                  ) : (
+                    formatEtherBalance(option.short)
+                  )}
+                </StyledBalance>
+              </Box>
+              <Button full size="sm" onClick={() => change(Operation.SHORT)}>
+                Buy
+              </Button>
+              <Spacer size="sm" />
+              <Button
+                full
+                disabled={!positions.loading ? false : true}
+                size="sm"
+                variant="secondary"
+                onClick={() => change(Operation.CLOSE_SHORT)}
+              >
+                Sell
+              </Button>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <LPOptions balance={option.lp ? option.lp : null} />
+          </TabPanel>
+        </StyledTabs>
       </Box>
-      <LPOptions balance={option.lp ? option.lp : null} />
     </>
   )
 }
+const StyledTabs = styled(Tabs)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`
+
+const StyledTabList = styled(TabList)`
+  background-color: ${(props) => props.theme.color.grey[700]};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  border-bottom: 2px solid black;
+  display: flex;
+  flex-direction: row;
+  margin: 0px;
+  padding-left: 1em;
+  width: 100%;
+`
+
+interface TabProps {
+  active?: boolean
+}
+
+const StyledTab = styled(Tab)<TabProps>`
+  background-color: ${(props) =>
+    props.active ? props.theme.color.grey[500] : 'transparent'};
+  color: ${(props) => props.theme.color.white};
+  font-weight: ${(props) => (props.active ? 600 : 500)};
+  list-style: none;
+  margin-right: ${(props) => props.theme.spacing[2]}px;
+`
 
 const StyledColumn = styled.div`
   display: flex;
-  padding-left: 1em;
-  padding-right: 1em;
   flex-direction: column;
-  width: 40%;
 `
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
@@ -177,10 +223,6 @@ const StyledBottom = styled.div`
   border-radius: 5px;
   border-color: ${(props) => props.theme.color.grey[400]};
   border-style: solid;
-`
-
-const StyledReserves = styled(Box)`
-  color: ${(props) => props.theme.color.white};
 `
 
 export default OrderOptions
