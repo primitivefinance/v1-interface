@@ -9,7 +9,7 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import { BigNumberish } from 'ethers'
 import { useReserves } from '@/hooks/data'
-import { Token } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@uniswap/sdk'
 import {
   useItem,
   useUpdateItem,
@@ -19,6 +19,7 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import styled from 'styled-components'
+import { Trade } from '@/lib/entities/trade'
 
 import formatBalance from '@/utils/formatBalance'
 import useTokenBalance from '@/hooks/useTokenBalance'
@@ -27,11 +28,15 @@ import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import IconButton from '@/components/IconButton'
 import Tooltip from '@/components/Tooltip'
+import Button from '@/components/Button'
 
 export interface AddLiquidityProps {}
 
 const AddLiquidity: React.FC<AddLiquidityProps> = () => {
+  const submitOrder = useHandleSubmitOrder()
+  const removeItem = useRemoveItem()
   const [advanced, setAdvanced] = useState(false)
+  const [submitting, setSubmit] = useState(false)
   const { item, orderType } = useItem()
   const [inputs, setInputs] = useState({
     primary: '',
@@ -73,27 +78,108 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
     setInputs({ ...inputs, primary: max.toString() })
   }
 
+  const handleSubmitClick = useCallback(() => {
+    setSubmit(true)
+    submitOrder(
+      library,
+      item?.address,
+      Number(inputs.primary),
+      orderType,
+      Number(inputs.secondary)
+    )
+    removeItem()
+  }, [submitOrder, removeItem, item, library, inputs, orderType])
+
   const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return 0
+    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
     const ratio = lpPair.token0Price.raw.toSignificant(2)
     return ratio
   }, [lpPair])
 
   const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof lpPair === 'undefined') return 0
+    if (typeof lpPair === 'undefined') return '0'
     const ratio = lpPair.token1Price.raw.toSignificant(2)
     return ratio
   }, [lpPair])
 
   const caculatePoolShare = useCallback(() => {
-    if (typeof lpPair === 'undefined') return 0
+    if (typeof lpPair === 'undefined') return '0'
     const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
       ? BigNumber.from(parseEther(lp))
           .mul(parseEther('1'))
           .div(parseEther(lpTotalSupply))
-      : 0
-    return Number(formatEther(poolShare)) * 100
+      : '0'
+    return (Number(formatEther(poolShare)) * 100).toFixed(2)
   }, [lpPair, lp, lpTotalSupply])
+
+  const calculateOutput = useCallback(() => {
+    if (typeof lpPair === 'undefined') return '0'
+    const reservesA = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[2], 18)
+    )
+    const reservesB = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[0], 18)
+    )
+    const input = inputs.primary !== '' ? parseEther(inputs.primary) : '0'
+    const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
+      .mul(item.entity.optionParameters.quote.quantity)
+      .div(item.entity.optionParameters.base.quantity)
+    const quote = Trade.getQuote(
+      inputShort,
+      reservesA.raw.toString(),
+      reservesB.raw.toString()
+    )
+    const sum = +quote + +input
+    return formatEther(sum.toString())
+  }, [lpPair, lp, lpTotalSupply, inputs])
+
+  const calculateLiquidityValuePerShare = useCallback(() => {
+    if (typeof lpPair === 'undefined')
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+    const SHORT: Token =
+      lpPair.token0.address === item.entity.assetAddresses[2]
+        ? lpPair.token0
+        : lpPair.token1
+    const UNDERLYING: Token =
+      lpPair.token1.address === item.entity.assetAddresses[2]
+        ? lpPair.token0
+        : lpPair.token1
+
+    const shortValue = lpPair.getLiquidityValue(
+      SHORT,
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+    )
+
+    const underlyingValue = lpPair.getLiquidityValue(
+      UNDERLYING,
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+    )
+
+    const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
+    const underlyingPerLp = underlyingValue
+      ? formatEther(underlyingValue.raw.toString())
+      : '0'
+    const totalUnderlyingPerLp = formatEther(
+      BigNumber.from(shortValue.raw.toString())
+        .mul(item.entity.optionParameters.base.quantity)
+        .div(item.entity.optionParameters.quote.quantity)
+        .add(underlyingValue.raw.toString())
+    )
+
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [lpPair, lp, lpTotalSupply, inputs])
 
   const title = {
     text: 'Add Liquidity',
@@ -152,13 +238,13 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
       <Spacer />
       <LineItem
         label="This requires"
-        data={`$${formatBalance(tokenBalance).toString()}`}
+        data={`${calculateOutput()}`}
         units={`${item.asset.toUpperCase()}`}
       />
       <Spacer />
       <LineItem
         label="You will receive"
-        data={caculatePoolShare().toString()}
+        data={caculatePoolShare()}
         units={`% of the Pool.`}
       />
       <Spacer />
@@ -175,23 +261,33 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
         <>
           <Spacer size="sm" />
           <LineItem
-            label="Price per LP Token"
-            data={`$${formatBalance(tokenBalance).toString()}`}
+            label="Short per LP token"
+            data={`${calculateLiquidityValuePerShare().shortPerLp}`}
+          />
+          <Spacer size="sm" />
+          <LineItem
+            label="Underlying per LP Token"
+            data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
+          />
+          <Spacer size="sm" />
+          <LineItem
+            label={`Total ${item.asset.toUpperCase()} per LP Token`}
+            data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
           <LineItem
             label={`${token0} per ${token1}`}
-            data={calculateToken0PerToken1().toString()}
+            data={calculateToken0PerToken1()}
           />
           <Spacer size="sm" />
           <LineItem
             label={`${token1} per ${token0}`}
-            data={calculateToken1PerToken0().toString()}
+            data={calculateToken1PerToken0()}
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Share % of Pool`}
-            data={caculatePoolShare().toString()}
+            label={`Your Share % of Pool`}
+            data={caculatePoolShare()}
             units={`%`}
           />
           <Spacer size="sm" />
@@ -199,6 +295,14 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
       ) : (
         <> </>
       )}
+      <Button
+        disabled={!inputs || submitting}
+        full
+        size="sm"
+        onClick={handleSubmitClick}
+        isLoading={submitting}
+        text="Review Transaction"
+      />
     </>
   )
 }
