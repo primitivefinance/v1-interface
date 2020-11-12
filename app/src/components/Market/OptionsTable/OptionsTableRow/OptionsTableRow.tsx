@@ -5,7 +5,8 @@ import TableRow from '@/components/TableRow'
 import AddIcon from '@material-ui/icons/Add'
 import LaunchIcon from '@material-ui/icons/Launch'
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
-
+import { useClickAway } from '@/hooks/utils/useClickAway'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 export interface TableColumns {
   key: string
   asset: string
@@ -50,8 +51,11 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     e.stopPropagation()
     onClick()
   }
+  const nodeRef = useClickAway(() => {
+    setToggle(false)
+  })
   return (
-    <>
+    <div ref={nodeRef}>
       <TableRow key={key} onClick={handleOnClick}>
         <TableCell>${strike}</TableCell>
         <TableCell>$ {breakeven}</TableCell>
@@ -82,8 +86,8 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </StyledARef>
         </TableCell>
         <StyledButtonCell key={'Open'}>
-          <StyledARef onClick={(e) => handleOnAdd(e)} >
-            <AddIcon/>
+          <StyledARef onClick={(e) => handleOnAdd(e)}>
+            {toggle ? <ExpandMoreIcon /> : <AddIcon />}
           </StyledARef>
         </StyledButtonCell>
       </TableRow>
@@ -92,7 +96,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       ) : (
         <></>
       )}
-    </>
+    </div>
   )
 }
 
