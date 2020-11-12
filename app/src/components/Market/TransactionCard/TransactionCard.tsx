@@ -19,17 +19,20 @@ import ClearIcon from '@material-ui/icons/Clear'
 import LitContainer from '@/components/LitContainer'
 import TableCell from '@/components/TableCell'
 
-import { useAllTransactions } from '@/state/transactions/hooks'
+import {
+  useAllTransactions,
+  useClearTransactions,
+} from '@/state/transactions/hooks'
 
 const ETHERSCAN_MAINNET = 'https://etherscan.io/tx/'
 const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx/'
 
 const TransactionCard: React.FC = () => {
   const txs = useAllTransactions()
+  const clearAll = useClearTransactions()
   const { library, chainId } = useWeb3React()
-  console.log(txs)
   const clear = () => {
-    console.log(txs)
+    clearAll()
   }
 
   if (!txs) return null

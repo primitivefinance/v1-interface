@@ -55,7 +55,6 @@ export const useAllTransactions = (): {
   const state = useSelector<AppState, AppState['transactions']>(
     (state) => state.transactions
   )
-  console.log(state)
   return chainId ? state[chainId] : {}
 }
 
