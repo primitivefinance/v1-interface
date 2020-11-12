@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import AddIcon from '@material-ui/icons/Add'
 import LaunchIcon from '@material-ui/icons/Launch'
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
@@ -44,9 +44,12 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     address,
   } = columns
   const handleOnClick = useCallback(() => {
-    onClick()
     setToggle(!toggle)
-  }, [onClick, toggle, setToggle])
+  }, [toggle, setToggle])
+  const handleOnAdd = (e) => {
+    e.stopPropagation()
+    onClick()
+  }
   return (
     <>
       <TableRow key={key} onClick={handleOnClick}>
@@ -79,7 +82,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </StyledARef>
         </TableCell>
         <StyledButtonCell key={'Open'}>
-          <ArrowForwardIosIcon />
+          <StyledARef onClick={(e) => handleOnAdd(e)} >
+            <AddIcon/>
+          </StyledARef>
         </StyledButtonCell>
       </TableRow>
       {toggle ? (
