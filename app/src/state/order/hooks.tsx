@@ -352,6 +352,7 @@ export const useHandleSubmitOrder = (): ((
                     .then((tx) => {
                       if (tx.hash) {
                         approvalTxs.push(tx)
+                        console.log('Approval tx', tokenAddress)
                         addTransaction(
                           {
                             approval: {
@@ -367,7 +368,7 @@ export const useHandleSubmitOrder = (): ((
                       }
                     })
                     .catch((err) => {
-                      throwError(`Approving transaction issue: ${err}`, '')
+                      throwError(`${err.message}`, '')
                     })
                 }
               }
