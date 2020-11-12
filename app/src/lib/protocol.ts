@@ -157,10 +157,16 @@ export class Protocol {
     optionAddresses: string[],
     provider: ethers.providers.Provider
   ): Promise<any> {
-    const parameters = await Protocol.getOptionParametersFromMultiCall(
-      provider,
-      optionAddresses
-    )
+    let parameters
+    try {
+      parameters = await Protocol.getOptionParametersFromMultiCall(
+        provider,
+        optionAddresses
+      )
+    } catch (e) {
+      console.log(e)
+    }
+
     const optionsEntityObject: any = {}
 
     // parameters = [array of option's parameters]

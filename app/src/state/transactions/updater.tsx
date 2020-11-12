@@ -29,20 +29,20 @@ export function shouldCheck(
 export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
 
-  const lastBlockNumber = useBlockNumber()
-
+  const { data } = useBlockNumber()
+  const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(
     (state) => state.transactions
   )
-
   const transactions = chainId ? state[chainId] ?? {} : {}
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber) return
+    console.log('updating transactions', transactions)
 
     Object.keys(transactions)
-      .filter((hash) => shouldCheck(lastBlockNumber.data, transactions[hash]))
+      .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
       .forEach((hash) => {
         library
           .getTransactionReceipt(hash)
@@ -65,11 +65,12 @@ export default function Updater(): null {
                 })
               )
             } else {
+              console.log('checked tx')
               dispatch(
                 checkedTransaction({
                   chainId,
                   hash,
-                  blockNumber: lastBlockNumber.data,
+                  blockNumber: lastBlockNumber,
                 })
               )
             }

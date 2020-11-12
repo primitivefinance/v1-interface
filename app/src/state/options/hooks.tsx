@@ -265,14 +265,20 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      throwError(`getReserves ${error}`, '')
+                      throwError(`Pair Reserves: ${error.message}`, '')
                     })
                 })
-                .catch((error) => throwError(`getReserves ${error}`, ''))
+                .catch((error) =>
+                  throwError(`Option Pair: ${error.message}`, '')
+                )
             })
-            .catch((error) => throwError(`getOptions ${error}`, ''))
+            .catch((error) => {
+              if (error) {
+                throwError(`Option Registry: ${error.messge}`, '')
+              }
+            })
         })
-        .catch((error) => throwError(`getClones ${error}`, ''))
+        .catch((error) => throwError(`getClones: ${error.message}`, ''))
     },
     [dispatch, library, chainId, updateOptions, throwError]
   )
