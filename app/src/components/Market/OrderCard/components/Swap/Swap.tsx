@@ -62,39 +62,48 @@ const Swap: React.FC = () => {
   )
 
   let title = { text: '', tip: '' }
+  let spender =
+    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
+      ? UNISWAP_ROUTER02_V2
+      : UNISWAP_CONNECTOR[chainId]
   let tokenAddress
   switch (orderType) {
     case Operation.LONG:
-      title = { text: 'Buy Long Tokens', tip: '' }
+      title = {
+        text: 'Buy Long Tokens',
+        tip: 'Purchase and hold option tokens.',
+      }
       tokenAddress = underlyingToken.address
       break
     case Operation.SHORT:
-      title = { text: 'Sell Short Tokens', tip: '' }
+      title = {
+        text: 'Sell Short Tokens',
+        tip: 'Purchase tokenized written covered options.',
+      }
       tokenAddress = underlyingToken.address
       break
     case Operation.CLOSE_LONG:
-      title = { text: 'Close Long Position', tip: '' }
+      title = {
+        text: 'Close Long Position',
+        tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
+      }
       tokenAddress = entity.address
       break
     case Operation.CLOSE_SHORT:
-      title = { text: 'Close Short Position', tip: '' }
+      title = {
+        text: 'Close Short Position',
+        tip: `Sell short option tokens for ${item.asset.toUpperCase()}`,
+      }
       tokenAddress = entity.assetAddresses[2]
       break
     default:
       break
   }
 
-  let spender =
-    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
-      ? UNISWAP_ROUTER02_V2
-      : UNISWAP_CONNECTOR[chainId]
-
   const tokenBalance = useTokenBalance(tokenAddress)
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
-  // approve
-  const { onApprove } = useApprove(tokenAddress, spender)
-
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const { onApprove } = useApprove(tokenAddress, spender)
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -201,9 +210,7 @@ const Swap: React.FC = () => {
       ) : (
         <> </>
       )}
-      {BigNumber.from(
-        +tokenAllowance === 0 ? '0' : tokenAllowance.toString()
-      ).gt(inputs.primary.toString() || '0') ? (
+      {parseEther(tokenAllowance).gt(inputs.primary.toString() || '0') ? (
         <Button
           disabled={!inputs || submitting}
           full
@@ -229,23 +236,10 @@ const Swap: React.FC = () => {
   )
 }
 
-const StyledText = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
-const StyledSubtitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 500;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
 
