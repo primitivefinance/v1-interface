@@ -4,6 +4,7 @@ import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
 import { parseEther } from 'ethers/lib/utils'
 
 import { injected, walletconnect } from '../connectors'
+import UniswapConnectorTestnet from '@primitivefi/contracts/deployments/rinkeby/UniswapConnector03.json'
 
 export interface Wallet {
   connector: AbstractConnector
@@ -138,6 +139,11 @@ export const STABLECOINS: { [key: number]: Token } = {
     '0x95b58a6bff3d14b7db2f5cb5f0ad413dc2940658',
     ASSETS.DAI
   ),
+}
+
+export const UNISWAP_CONNECTOR: { [key: number]: string } = {
+  1: UniswapConnectorTestnet.address, // FIX
+  4: UniswapConnectorTestnet.address,
 }
 
 export const DEFAULT_STRIKE_LOW = 0.9
