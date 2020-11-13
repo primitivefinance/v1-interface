@@ -73,7 +73,7 @@ const TransactionCard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       {txs[hash].summary ? (
-                        <StyledText>{txs[hash].summary}</StyledText>
+                        <StyledText>{txs[hash].summary.type}</StyledText>
                       ) : !txs[hash].approval.tokenAddress ? null : (
                         <StyledText>APPROVAL</StyledText>
                       )}

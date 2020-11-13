@@ -74,7 +74,6 @@ const NewMarketCard: React.FC = () => {
     setQuantity(max.toString())
   }
   // parseInt->toString removes syntax error
-  const exp = new Date(parseInt(item.expiry.toString()) * 1000)
   if (orderType !== Operation.NEW_MARKET) {
     return null
   }

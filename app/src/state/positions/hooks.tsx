@@ -35,7 +35,6 @@ export const useUpdatePositions = (): ((
       const positionsArr: OptionPosition[] = []
 
       for (let i = 0; i < options.length; i++) {
-        console.log('here?')
         const long = await getBalance(
           library,
           options[i].entity.address,
@@ -47,7 +46,6 @@ export const useUpdatePositions = (): ((
           account
         )
         const lp = await getBalance(library, options[i].entity.pair, account)
-        console.log(long, redeem, lp)
         if (
           formatEtherBalance(long) !== '0.00' ||
           formatEtherBalance(redeem) !== '0.00' ||
