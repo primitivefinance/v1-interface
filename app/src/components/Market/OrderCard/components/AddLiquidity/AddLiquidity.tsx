@@ -1,58 +1,68 @@
 import React, { useState, useCallback } from 'react'
+import styled from 'styled-components'
 
-import { useWeb3React } from '@web3-react/core'
 import Box from '@/components/Box'
-import Input from '@/components/Input'
+import Button from '@/components/Button'
+import IconButton from '@/components/IconButton'
 import LineItem from '@/components/LineItem'
-import Label from '@/components/Label'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
-import { BigNumberish } from 'ethers'
+import Tooltip from '@/components/Tooltip'
+import { Operation } from '@/constants/index'
+
+import { BigNumber } from 'ethers'
+import { parseEther, formatEther } from 'ethers/lib/utils'
+
 import { useReserves } from '@/hooks/data'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import useTokenBalance from '@/hooks/useTokenBalance'
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+
+import { Trade } from '@/lib/entities/trade'
+
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+
 import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
 } from '@/state/order/hooks'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import styled from 'styled-components'
-import { Trade } from '@/lib/entities/trade'
+import { useWeb3React } from '@web3-react/core'
+import { Token, TokenAmount } from '@uniswap/sdk'
 
-import formatBalance from '@/utils/formatBalance'
-import useTokenBalance from '@/hooks/useTokenBalance'
-import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import { BigNumber } from 'ethers'
-import { parseEther, formatEther } from 'ethers/lib/utils'
-import IconButton from '@/components/IconButton'
-import Tooltip from '@/components/Tooltip'
-import Button from '@/components/Button'
-
-export interface AddLiquidityProps {}
-
-const AddLiquidity: React.FC<AddLiquidityProps> = () => {
+const AddLiquidity: React.FC = () => {
+  // executes transactions
   const submitOrder = useHandleSubmitOrder()
+  const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
+  // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  // state for pending txs
   const [submitting, setSubmit] = useState(false)
+  // option entity in order
   const { item, orderType } = useItem()
+  // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
     secondary: '',
   })
+  // web3
   const { library, chainId } = useWeb3React()
+  // pair and option entities
   const entity = item.entity
+  const underlyingToken: Token = new Token(
+    entity.chainId,
+    entity.assetAddresses[0],
+    18,
+    item.asset.toUpperCase()
+  )
   const lpPair = useReserves(
-    new Token(
-      entity.chainId,
-      entity.assetAddresses[0],
-      18,
-      item.asset.toUpperCase()
-    ),
+    underlyingToken,
     new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
   ).data
+
   const hasLiquidity = lpPair
     ? lpPair.reserve0.greaterThan('0')
       ? true
@@ -61,7 +71,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
-  const tokenBalance = useTokenBalance(lpToken)
+  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
 
@@ -72,9 +82,15 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
     [setInputs, inputs]
   )
 
+  // FIX
   const handleSetMax = () => {
-    const max =
-      Math.round((+tokenBalance / +item.premium + Number.EPSILON) * 100) / 100
+    const max = Math.round(
+      ((+underlyingTokenBalance /
+        (+calculateLiquidityValuePerShare().totalUnderlyingPerLp +
+          Number.EPSILON)) *
+        100) /
+        100
+    )
     setInputs({ ...inputs, primary: max.toString() })
   }
 
@@ -120,7 +136,8 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
     const reservesB = lpPair.reserveOf(
       new Token(chainId, item.entity.assetAddresses[0], 18)
     )
-    const input = inputs.primary !== '' ? parseEther(inputs.primary) : '0'
+    const input =
+      inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
     const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
       .mul(item.entity.optionParameters.quote.quantity)
       .div(item.entity.optionParameters.base.quantity)
@@ -129,12 +146,15 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
       reservesA.raw.toString(),
       reservesB.raw.toString()
     )
-    const sum = +quote + +input
+    const sum = BigNumber.from(quote).add(input)
     return formatEther(sum.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
-    if (typeof lpPair === 'undefined')
+    if (
+      typeof lpPair === 'undefined' ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
       return {
         shortPerLp: '0',
         underlyingPerLp: '0',
@@ -195,9 +215,20 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
 
   return (
     <>
-      <StyledTitle>
-        <Tooltip text={title.tip}>{title.text}</Tooltip>
-      </StyledTitle>
+      <Box row justifyContent="flex-start">
+        <IconButton
+          variant="tertiary"
+          size="sm"
+          onClick={() => updateItem(item, Operation.NONE)}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Spacer size="sm" />
+        <StyledTitle>
+          <Tooltip text={title.tip}>{title.text}</Tooltip>
+        </StyledTitle>
+      </Box>
+
       <Spacer />
       {hasLiquidity ? (
         <PriceInput
@@ -205,7 +236,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
           title={`Options Input`}
           quantity={inputs.primary}
           onChange={handleInputChange}
-          onClick={handleSetMax}
+          onClick={() => console.log('Max unavailable.')} //
         />
       ) : (
         <>
@@ -220,7 +251,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
             title={`Options Input`}
             quantity={inputs.primary}
             onChange={handleInputChange}
-            onClick={handleSetMax}
+            onClick={() => console.log('Max unavailable.')} //
           />
           <Spacer />
           <StyledText>Per</StyledText>
@@ -230,7 +261,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
             title={`Underlyings Input`}
             quantity={inputs.secondary}
             onChange={handleInputChange}
-            onClick={handleSetMax}
+            onClick={() => console.log('Max unavailable.')} //
           />{' '}
         </>
       )}
@@ -290,7 +321,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = () => {
             data={caculatePoolShare()}
             units={`%`}
           />
-          <Spacer size="sm" />
+          <Spacer />
         </>
       ) : (
         <> </>
