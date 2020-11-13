@@ -5,7 +5,7 @@ import { Operation } from '@/constants/index'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { AppDispatch, AppState } from '../index'
-import { addTransaction, Transaction } from './actions'
+import { addTransaction, clearAllTransactions, Transaction } from './actions'
 
 export const useTransactionAdder = (): ((
   tx: Transaction,
@@ -34,7 +34,19 @@ export const useTransactionAdder = (): ((
     [dispatch, chainId, account]
   )
 }
+export const useClearTransactions = (): (() => void) => {
+  const { chainId } = useActiveWeb3React()
+  const dispatch = useDispatch<AppDispatch>()
 
+  return useCallback(() => {
+    if (!chainId) return
+    dispatch(
+      clearAllTransactions({
+        chainId,
+      })
+    )
+  }, [dispatch, chainId])
+}
 export const useAllTransactions = (): {
   [txHash: string]: Transaction
 } => {
@@ -43,8 +55,7 @@ export const useAllTransactions = (): {
   const state = useSelector<AppState, AppState['transactions']>(
     (state) => state.transactions
   )
-
-  return chainId ? state[chainId] ?? {} : {}
+  return chainId ? state[chainId] : {}
 }
 
 export function useIsTransactionPending(transactionHash?: string): boolean {

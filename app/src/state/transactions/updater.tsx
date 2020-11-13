@@ -4,7 +4,8 @@ import { useActiveWeb3React } from '@/hooks/user/index'
 import { useBlockNumber } from '@/hooks/data/index'
 import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction } from './actions'
-
+import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import { useUpdatePositions } from '@/state/positions/hooks'
 export function shouldCheck(
   lastBlockNumber: number,
   tx: { addedTime: number; receipt?: {}; lastCheckedBlockNumber?: number }
@@ -28,21 +29,24 @@ export function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
+  const options = useOptions()
+  const updatePositions = useUpdatePositions()
 
-  const lastBlockNumber = useBlockNumber()
-
+  const { data } = useBlockNumber()
+  const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(
     (state) => state.transactions
   )
-
   const transactions = chainId ? state[chainId] ?? {} : {}
 
   useEffect(() => {
-    if (!chainId || !library || !lastBlockNumber) return
-
+    if (!chainId || !library || !lastBlockNumber || options.loading) return
+    if (!options.loading) {
+      updatePositions(options.calls.concat(options.puts))
+    }
     Object.keys(transactions)
-      .filter((hash) => shouldCheck(lastBlockNumber.data, transactions[hash]))
+      .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
       .forEach((hash) => {
         library
           .getTransactionReceipt(hash)
@@ -65,11 +69,12 @@ export default function Updater(): null {
                 })
               )
             } else {
+              console.log('checked tx')
               dispatch(
                 checkedTransaction({
                   chainId,
                   hash,
-                  blockNumber: lastBlockNumber.data,
+                  blockNumber: lastBlockNumber,
                 })
               )
             }

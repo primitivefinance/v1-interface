@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Router from 'next/router'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
@@ -34,6 +35,15 @@ const Market = ({ market }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
+  const [network, setNetwork] = useState(chainId)
+
+  useEffect(() => {
+    setNetwork(chainId)
+    if (chainId !== network) {
+      console.log('network change!')
+      setNetwork(chainId)
+    }
+  }, [network, chainId, setNetwork])
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)

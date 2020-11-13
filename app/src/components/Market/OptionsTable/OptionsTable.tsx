@@ -17,7 +17,6 @@ import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
 import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { EmptyAttributes } from '@/state/options/reducer'
-import { useUpdatePositions, usePositions } from '@/state/positions/hooks'
 import { BlackScholes } from '@/lib/math'
 import { Greeks } from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
@@ -45,8 +44,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const updateOptions = useUpdateOptions()
   const updateItem = useUpdateItem()
   const options = useOptions()
-  const updatePositions = useUpdatePositions()
-  const positions = usePositions()
 
   const { library, chainId } = useWeb3React()
   const type = callActive ? 'calls' : 'puts'
@@ -71,12 +68,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       } else {
         updateOptions(asset.toUpperCase())
       }
-      // currently restricts positions updates, need to add this to TX updater
-      if (!options.loading && positions.loading) {
-        updatePositions(options.calls.concat(options.puts))
-      }
     }
-  }, [library, asset, updateOptions, options, updatePositions])
+  }, [library, asset, updateOptions, options])
   const calculateBreakeven = useCallback(
     (premiumWei, isCall) => {
       const price = data
