@@ -274,7 +274,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
             })
             .catch((error) => {
               if (error) {
-                throwError(`Option Registry: ${error.messge}`, '')
+                throwError(`Getting option params: ${error.messge}`, '')
               }
             })
         })
