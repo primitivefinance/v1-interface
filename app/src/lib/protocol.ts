@@ -61,23 +61,42 @@ export class Protocol {
     return tokenDatas
   }
 
+  public static chunkArray(arr, n) {
+    let chunkLength = Math.max(arr.length / n, 1)
+    let chunks = []
+    for (let i = 0; i < n; i++) {
+      if (chunkLength * (i + 1) <= arr.length)
+        chunks.push(arr.slice(chunkLength * i, chunkLength * (i + 1)))
+    }
+    return chunks
+  }
+
   public static async getOptionParametersFromMultiCall(
     provider,
     optionAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const inputs = []
-    for (const option of optionAddresses) {
-      inputs.push({
-        target: option,
-        function: 'getParameters',
-        args: [],
-      })
+
+    let chunks = Protocol.chunkArray(optionAddresses, 30)
+    let datas = []
+    let allOptionsData = []
+    for (let chunk of chunks) {
+      let inputs = []
+      for (let option of chunk) {
+        inputs.push({
+          target: option,
+          function: 'getParameters',
+          args: [],
+        })
+      }
+      const optionData = await multi.multiCall(OptionContract.abi, inputs)
+      datas.push(optionData)
     }
-    // optionDatas[i] = optionParameters
-    // optionParameters = [underlying, strike, redeem, base, quote, expiry]
-    const optionDatas = await multi.multiCall(OptionContract.abi, inputs)
-    return optionDatas
+
+    for (let data of datas) {
+      allOptionsData = allOptionsData.concat(data)
+    }
+    return allOptionsData
   }
 
   public static async getAllOptionClones(provider): Promise<any> {
@@ -103,16 +122,26 @@ export class Protocol {
     tokensArray
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const inputs = []
-    for (const tokenArray of tokensArray) {
-      inputs.push({
-        target: FACTORY_ADDRESS,
-        function: 'getPair',
-        args: [tokenArray[0], tokenArray[1]],
-      })
+
+    let chunks = Protocol.chunkArray(tokensArray, 30)
+    let datas = []
+    let pairAddresses = []
+    for (let chunk of chunks) {
+      let inputs = []
+      for (let tokenArray of chunk) {
+        inputs.push({
+          target: FACTORY_ADDRESS,
+          function: 'getPair',
+          args: [tokenArray[0], tokenArray[1]],
+        })
+      }
+      const pairData = await multi.multiCall(UniswapV2Factory.abi, inputs)
+      datas.push(pairData)
     }
-    // pairAddresses[i] = pair address for tokens in tokenArray
-    const pairAddresses = await multi.multiCall(UniswapV2Factory.abi, inputs)
+
+    for (let data of datas) {
+      pairAddresses = pairAddresses.concat(data)
+    }
     return pairAddresses
   }
 
