@@ -17,7 +17,7 @@ export interface Transaction {
   hash: string
   orderType?: Operation
   approval?: { tokenAddress: string; spender: string }
-  summary?: string
+  summary?: { type: string; assetName: string; amount: number }
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number

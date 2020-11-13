@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import { useItem, useRemoveItem } from '@/state/order/hooks'
-
+import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
+import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
 
 import Button from '@/components/Button'
@@ -15,6 +15,7 @@ import OrderOptions from './components/OrderOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
+import { EmptyAttributes } from '@/state/options/reducer'
 
 const OrderContent: React.FC = () => {
   const { orderType } = useItem()
@@ -27,10 +28,31 @@ const OrderContent: React.FC = () => {
   }
 }
 
-const OrderCard: React.FC = () => {
+export interface OrderProps {
+  orderState: any
+}
+
+const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const { item } = useItem()
   const removeItem = useRemoveItem()
+  const updateItem = useUpdateItem()
+  const options = useOptions()
 
+  useEffect(() => {
+    if (orderState[1] && orderState[2]) {
+      if (!options.loading) {
+        const opts = options.calls.concat(options.puts)
+        opts.map((opt) => {
+          if (opt.address === orderState[1]) {
+            console.log(opt)
+            // force ts compiler
+            const id: string = orderState[2]
+            updateItem(opt, Operation[id])
+          }
+        })
+      }
+    }
+  }, [orderState, updateItem, options])
   if (!item.expiry) {
     return null
   }

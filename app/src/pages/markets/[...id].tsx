@@ -26,24 +26,16 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return {
     props: {
-      market: data,
+      market: data[0],
+      data: data,
     },
   }
 }
 
-const Market = ({ market }) => {
+const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
-  const [network, setNetwork] = useState(chainId)
-
-  useEffect(() => {
-    setNetwork(chainId)
-    if (chainId !== network) {
-      console.log('network change!')
-      setNetwork(chainId)
-    }
-  }, [network, chainId, setNetwork])
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
@@ -77,7 +69,7 @@ const Market = ({ market }) => {
           <BetaBanner isOpen={true} />
           <Spacer />
           <PositionsCard />
-          <OrderCard />
+          <OrderCard orderState={data} />
           <NewMarketCard />
           <Spacer />
           <TransactionCard />

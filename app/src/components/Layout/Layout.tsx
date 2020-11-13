@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import TopBar from '@/components/TopBar'
 import Footer from '@/components/Footer'
 import Spacer from '@/components/Spacer'
+import Notifs from '@/components/Notifs'
 import Error from '@/components/Error'
 
 interface PageProps {
@@ -16,6 +17,7 @@ const Layout: React.FC<PageProps> = (props) => {
       <TopBar />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
+        <Notifs />
         <Error />
       </StyledPage>
       <Footer />

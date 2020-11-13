@@ -76,6 +76,7 @@ export const useHandleSubmitOrder = (): ((
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
+  const { item } = useItem()
   const { chainId, account } = useWeb3React()
   const [slippage] = useSlippage()
   const { data } = useBlockNumber()
@@ -380,7 +381,11 @@ export const useHandleSubmitOrder = (): ((
           if (tx.hash) {
             addTransaction(
               {
-                summary: Operation[operation].toString(),
+                summary: {
+                  type: Operation[operation].toString(),
+                  assetName: item.asset,
+                  amount: quantity,
+                },
                 hash: tx.hash,
                 addedTime: now(),
                 from: account,
