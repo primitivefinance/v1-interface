@@ -23,10 +23,22 @@ export const Notifs: React.FC = () => {
       </CardTitle>
       <CardContent>
         <StyledContent>{notifs[0].message}</StyledContent>
+        <StyledTwitter href={notifs[0].link} target="__none">
+          <StyledButtonText>Share on Twitter</StyledButtonText>
+        </StyledTwitter>
       </CardContent>
     </StyledCard>
   )
 }
+
+const StyledTwitter = styled.a`
+  background: ${(props) => props.theme.color.blue};
+  padding: 1em;
+  border-radius
+`
+const StyledButtonText = styled.h5`
+  color: white;
+`
 
 const StyledCard = styled.div`
   position: absolute;

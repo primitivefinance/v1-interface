@@ -8,6 +8,7 @@ import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useUpdatePositions } from '@/state/positions/hooks'
 import { addNotif } from '@/state/notifs/actions'
 import { useItem } from '@/state/order/hooks'
+import Link from 'next/link'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -73,12 +74,15 @@ export default function Updater(): null {
               const summary = transactions[hash].summary
               console.log(summary)
               if (summary) {
+                const link = `http://localhost:3000/markets/${summary.asset}/${summary.address}/${summary.type}`
+
+                console.log(link)
                 dispatch(
                   addNotif({
                     id: 0,
                     title: `Trade Successful - ${summary.type}`,
                     message: `${summary.type}`,
-                    link: `http://localhost:3000/markets/${summary.asset}/${summary.address}/${summary.type}`,
+                    link: `https://twitter.com/share?url=${link}`,
                   })
                 )
               }

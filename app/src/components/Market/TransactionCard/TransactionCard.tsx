@@ -61,7 +61,7 @@ const TransactionCard: React.FC = () => {
               .map((hash, i) => {
                 const date = new Date(txs[hash].confirmedTime)
                 return (
-                  <StyledTableRow key={i}>
+                  <StyledTableRow isActive key={i}>
                     <TableCell>
                       {!txs[hash].receipt ? (
                         <Loader size="sm" />
