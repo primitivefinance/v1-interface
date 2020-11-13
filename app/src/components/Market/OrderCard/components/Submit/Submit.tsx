@@ -1,14 +1,26 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
+import { AddLiquidity } from '../AddLiquidity'
+import { Swap } from '../Swap'
+import Exercise from '../Exercise/Exercise'
+
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
+import { STABLECOINS } from '@/constants/index'
+import { Operation } from '@/constants/index'
+
+import { formatEther } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
 
 import useTokenBalance from '@/hooks/useTokenBalance'
+import { useReserves } from '@/hooks/data/useReserves'
+
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import {
   useItem,
   useUpdateItem,
@@ -16,29 +28,10 @@ import {
   useRemoveItem,
 } from '@/state/order/hooks'
 
-import { Operation } from '@/constants/index'
+import { Token } from '@uniswap/sdk'
 import formatBalance from '@/utils/formatBalance'
-
-import Exercise from '../Exercise/Exercise'
-import LP from '../LiquidityPool/LP'
-
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import { useWeb3React } from '@web3-react/core'
-import useTradeInfo from '@/hooks/useTradeInfo'
-import { useTradeSettings } from '@/hooks/user'
-import useOptionEntities from '@/hooks/useOptionEntities'
-import { STABLECOINS } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
-import Label from '@/components/Label'
-import { formatEther } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
-import { useReserves } from '@/hooks/data/useReserves'
-import { Token, Pair } from '@uniswap/sdk'
-import usePair from '@/hooks/usePair'
-import { parseEther } from 'ethers/lib/utils'
-import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-
-import { AddLiquidity } from '../AddLiquidity'
+import { useWeb3React } from '@web3-react/core'
 
 export interface SubmitProps {
   orderType: Operation
@@ -56,7 +49,6 @@ const Submit: React.FC<SubmitProps> = () => {
     secondary: '',
   })
   const { library, chainId } = useWeb3React()
-  const tradeInfo = useTradeInfo()
   const entity = item.entity
   const lpPair = useReserves(
     new Token(
@@ -67,11 +59,6 @@ const Submit: React.FC<SubmitProps> = () => {
     ),
     new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
   ).data
-
-  const lp = useTokenBalance(lpPair ? lpPair.liquidityToken.address : '')
-  const lpTotalSupply = useTokenTotalSupply(
-    lpPair ? lpPair.liquidityToken.address : ''
-  )
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -148,8 +135,6 @@ const Submit: React.FC<SubmitProps> = () => {
   }
 
   const tokenBalance = useTokenBalance(tokenAddress)
-  const token0 = lpPair ? lpPair.token0.symbol : ''
-  const token1 = lpPair ? lpPair.token1.symbol : ''
 
   const calculateTotalDebit = () => {
     let debit = '0'
@@ -185,7 +170,8 @@ const Submit: React.FC<SubmitProps> = () => {
         <AddLiquidity />
       ) : (
         <>
-          <Box row justifyContent="flex-start">
+          <Swap />
+          {/* <Box row justifyContent="flex-start">
             <IconButton
               variant="tertiary"
               size="sm"
@@ -229,7 +215,7 @@ const Submit: React.FC<SubmitProps> = () => {
               />
               <Spacer />
             </>
-          )}
+          )} 
           <Button
             disabled={!inputs || submitting}
             full
@@ -237,7 +223,7 @@ const Submit: React.FC<SubmitProps> = () => {
             onClick={handleSubmitClick}
             isLoading={submitting}
             text="Review Transaction"
-          />{' '}
+          />{' '}*/}
         </>
       )}
     </>

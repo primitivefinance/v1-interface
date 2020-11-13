@@ -13,7 +13,7 @@ const useTokenAllowance = (tokenAddress: string, spender: string) => {
     if (typeof tokenAddress === 'undefined' || tokenAddress === '') return
     if (!isAddress(getAddress(tokenAddress))) return
     let code: any = await library.getCode(tokenAddress)
-    let allowance: BigNumberish = 0
+    let allowance: BigNumberish = '0'
     if (code > 0) {
       allowance = await getAllowance(library, tokenAddress, account, spender)
     }
