@@ -296,4 +296,18 @@ export class Trade {
     }
     return amountB
   }
+
+  public static getQuote = (
+    amountA: BigNumberish,
+    reserveA: BigNumberish,
+    reserveB: BigNumberish
+  ): BigNumberish => {
+    let amountB
+    if (ethers.BigNumber.from(reserveA).isZero()) {
+      amountB = 0
+    } else {
+      amountB = ethers.BigNumber.from(amountA).mul(reserveB).div(reserveA)
+    }
+    return amountB
+  }
 }
