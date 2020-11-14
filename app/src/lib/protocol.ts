@@ -6,7 +6,6 @@ import RegistryMainnet from '@primitivefi/contracts/deployments/live_1/Registry.
 import OptionContract from '@primitivefi/contracts/artifacts/Option.json'
 import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFactory.json'
 //import MainnetFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
-import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import TestERC20 from '@primitivefi/contracts/artifacts/TestERC20.json'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
@@ -46,18 +45,28 @@ export class Protocol {
     tokenAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const inputs = []
     const methodNames = ['name', 'symbol', 'decimals']
-    for (const token of tokenAddresses) {
-      for (const method of methodNames) {
-        inputs.push({
-          target: token,
-          function: method,
-          args: [],
-        })
+    let chunks = Protocol.chunkArray(tokenAddresses, 30)
+    let datas = []
+    let tokenDatas = []
+    for (let chunk of chunks) {
+      let inputs = []
+      for (const token of chunk) {
+        for (const method of methodNames) {
+          inputs.push({
+            target: token,
+            function: method,
+            args: [],
+          })
+        }
       }
+      const tokenData = await multi.multiCall(TestERC20.abi, inputs)
+      datas.push(tokenData)
     }
-    const tokenDatas = await multi.multiCall(TestERC20.abi, inputs)
+
+    for (let data of datas) {
+      tokenDatas = tokenDatas.concat(data)
+    }
     return tokenDatas
   }
 
@@ -150,27 +159,38 @@ export class Protocol {
     pairAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const inputs = []
-    for (const pair of pairAddresses) {
-      inputs.push({
-        target: pair,
-        function: 'getReserves',
-        args: [],
-      })
-      inputs.push({
-        target: pair,
-        function: 'token0',
-        args: [],
-      })
-      inputs.push({
-        target: pair,
-        function: 'token1',
-        args: [],
-      })
+    let chunks = Protocol.chunkArray(pairAddresses, 30)
+    let datas = []
+    let pairDatas = []
+    for (let chunk of chunks) {
+      let inputs = []
+      for (const pair of chunk) {
+        inputs.push({
+          target: pair,
+          function: 'getReserves',
+          args: [],
+        })
+        inputs.push({
+          target: pair,
+          function: 'token0',
+          args: [],
+        })
+        inputs.push({
+          target: pair,
+          function: 'token1',
+          args: [],
+        })
+      }
+      // pairDatas[i] = pair reserves
+      // pair reserves = [reserve0, reserve1]
+      const pairData = await multi.multiCall(UniswapV2Pair.abi, inputs)
+      datas.push(pairData)
     }
-    // pairDatas[i] = pair reserves
-    // pair reserves = [reserve0, reserve1]
-    const pairDatas = await multi.multiCall(UniswapV2Pair.abi, inputs)
+
+    for (let data of datas) {
+      pairDatas = pairDatas.concat(data)
+    }
+
     return pairDatas
   }
 
