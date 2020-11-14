@@ -14,12 +14,12 @@ const Home: React.FC = () => {
       <StyledHero>
         <PageHeader
           icon={''}
-          title="Options for a permissionless future."
-          subtitle="Decentralized, open, and easy."
+          title="Options protocol for a permissionless future."
+          subtitle="Decentralized, open, and user friendly."
         />
         <Container size="lg">
           <Box row justifyContent="center" flex="1">
-            <Button text="Start Trading" href="https://app.primitive.finance" />
+            <Button text="Open App" href="https://app.primitive.finance" />
           </Box>
         </Container>
       </StyledHero>
@@ -32,16 +32,12 @@ const Home: React.FC = () => {
         </IconContainer>
         <Spacer size="md" />
         <StyledSectionTitle>
-          A protocol built on Ethereum for decentralized options.
+          Primitive is a peer-to-peer options protocol built for developers.
         </StyledSectionTitle>
         <Spacer size="md" />
-        <StyledSectionSubtitle>No admin keys.</StyledSectionSubtitle>
-        <Spacer size="md" />
-        <StyledSectionSubtitle>No oracles.</StyledSectionSubtitle>
-        <Spacer size="md" />
-        <StyledSectionSubtitle>No signup.</StyledSectionSubtitle>
-        <Spacer size="md" />
-        <StyledSectionSubtitle>No whitelist.</StyledSectionSubtitle>
+        <StyledSectionSubtitle>
+          The protocol is accessed through a free and open-sourced interface.
+        </StyledSectionSubtitle>
         <Spacer size="lg" />
         <Container size="lg">
           <Box row justifyContent="center" flex="1">
@@ -81,7 +77,7 @@ const StyledSectionTitle = styled.div`
 const StyledSectionSubtitle = styled.div`
   color: ${props => props.theme.colors.black};
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 500;
   opacity: 0.75;
   margin: 0;
   padding: 0;
