@@ -1,7 +1,5 @@
-import React, { useContext } from 'react'
-import styled, { keyframes, ThemeContext } from 'styled-components'
-
-import CardIcon from '../CardIcon'
+import React from 'react'
+import styled from 'styled-components'
 
 interface LoaderProps {
   text?: string
@@ -10,7 +8,6 @@ interface LoaderProps {
 }
 
 const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
-  const { spacing } = useContext(ThemeContext)
   let s: number
   switch (size) {
     case 'lg':
@@ -26,23 +23,16 @@ const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
 
   return (
     <StyledContainer>
-      <StyledSpinner size={s} dark={dark} />
+      <Spinner size={s} dark={dark} />
       {!!text && <StyledText>{text}</StyledText>}
     </StyledContainer>
   )
 }
+
 interface StyledSpinnerProps {
   size: number
   dark: boolean
 }
-const spin = keyframes`
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-`
 
 const StyledContainer = styled.div`
   align-items: center;
@@ -51,15 +41,49 @@ const StyledContainer = styled.div`
   justify-content: center;
 `
 
-const StyledSpinner = styled.div<StyledSpinnerProps>`
-  font-size: 32px;
+const Spinner = ({ size, dark }) => (
+  <StyledSpinner viewBox="0 0 50 50" size={size} dark={dark}>
+    <circle
+      className="path"
+      cx="25"
+      cy="25"
+      r="20"
+      fill="none"
+      strokeWidth="4"
+    />
+  </StyledSpinner>
+)
+
+const StyledSpinner = styled.svg<StyledSpinnerProps>`
+  animation: rotate 2s linear infinite;
   height: ${(props) => props.size}px;
   width: ${(props) => props.size}px;
-  background: ${(props) =>
-    !props.dark ? props.theme.color.white : props.theme.color.grey[600]}};
-  border-radius: 50%;
-  position: relative;
-  animation: 1s ${spin} infinite linear;
+
+  & .path {
+    stroke: #ffffff;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
+  }
 `
 
 const StyledText = styled.div`
