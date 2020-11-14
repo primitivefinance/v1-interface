@@ -113,13 +113,13 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair])
 
   const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof lpPair === 'undefined') return '0'
+    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
     const ratio = lpPair.token1Price.raw.toSignificant(2)
     return ratio
   }, [lpPair])
 
   const caculatePoolShare = useCallback(() => {
-    if (typeof lpPair === 'undefined') return '0'
+    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
     const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
       ? BigNumber.from(parseEther(lp))
           .mul(parseEther('1'))
@@ -129,7 +129,7 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair, lp, lpTotalSupply])
 
   const calculateOutput = useCallback(() => {
-    if (typeof lpPair === 'undefined') return '0'
+    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
     const reservesA = lpPair.reserveOf(
       new Token(chainId, item.entity.assetAddresses[2], 18)
     )
@@ -153,6 +153,7 @@ const AddLiquidity: React.FC = () => {
   const calculateLiquidityValuePerShare = useCallback(() => {
     if (
       typeof lpPair === 'undefined' ||
+      lpPair === null ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return {
