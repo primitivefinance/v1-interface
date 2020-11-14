@@ -16,7 +16,13 @@ export interface ButtonProps {
   size?: 'xs' | 'sm' | 'md' | 'lg'
   text?: string
   to?: boolean // use if Button is wrapped in Next.js Link component
-  variant?: 'default' | 'secondary' | 'tertiary' | 'transparent'
+  variant?:
+    | 'default'
+    | 'secondary'
+    | 'tertiary'
+    | 'transparent'
+    | 'outlined'
+    | 'selected-outlined'
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -78,11 +84,27 @@ const Button: React.FC<ButtonProps> = ({
       buttonColor = color.grey[400]
       hoverBackgroundColor = 'transparent'
       break
+    case 'outlined':
+      background = 'transparent'
+      border = `1px solid ${color.grey[600]}`
+      buttonColor = color.white
+      hoverBackgroundColor = color.white
+      hoverBorderColor = 'transparent'
+      hoverColor = color.black
+      break
+    case 'selected-outlined':
+      background = color.white
+      border = `1px solid ${color.grey[600]}`
+      buttonColor = color.black
+      hoverBackgroundColor = color.white
+      hoverBorderColor = 'transparent'
+      hoverColor = color.black
+      break
     case 'default':
     default:
       background = color.white
       buttonColor = color.grey[800]
-      border = `1px solid ${color.grey[800]}`
+      border = `2px solid ${color.grey[800]}`
       hoverBackgroundColor = color.black
       hoverBorderColor = color.white
       hoverColor = color.white
