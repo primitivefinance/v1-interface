@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import Link from 'next/link'
 import Loader from '@/components/Loader'
+import Spacer from '@/components/Spacer'
 
 export interface ButtonProps {
   children?: React.ReactNode
@@ -96,7 +97,12 @@ const Button: React.FC<ButtonProps> = ({
       )
     }
     if (isLoading) {
-      return <Loader dark />
+      return (
+        <>
+          <Loader dark />
+          <Spacer size="sm" />
+        </>
+      )
     } else {
       return text
     }

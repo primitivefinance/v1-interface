@@ -67,20 +67,20 @@ const Market = ({ market, data }) => {
         </StyledMain>
         <StyledSideBar>
           <BetaBanner isOpen={true} />
-          <Spacer />
-          <PositionsCard />
-          <OrderCard orderState={data} />
-          <NewMarketCard />
-          <Spacer />
-          <TransactionCard />
+          <Spacer size="sm" />
           {chainId === 4 ? (
             <>
-              <Spacer />
               <TestnetCard />
             </>
           ) : (
             <> </>
           )}
+          <Spacer size="sm" />
+          <PositionsCard />
+          <OrderCard orderState={data} />
+          <NewMarketCard />
+          <Spacer />
+          <TransactionCard />
         </StyledSideBar>
       </StyledMarket>
     </ErrorBoundary>

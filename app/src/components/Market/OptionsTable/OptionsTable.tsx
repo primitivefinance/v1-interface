@@ -23,6 +23,7 @@ import NewMarketRow from './NewMarketRow'
 import OptionsTableRow, { TableColumns } from './OptionsTableRow'
 import OptionsTableHeader from './OptionsTableHeader'
 import LoadingTable from './LoadingTable'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export type FormattedOption = {
   breakEven: number
@@ -44,7 +45,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const updateOptions = useUpdateOptions()
   const updateItem = useUpdateItem()
   const options = useOptions()
-
+  const addNotif = useAddNotif()
   const { library, chainId } = useWeb3React()
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -227,7 +228,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             })}
             <NewMarketRow
               onClick={() => {
-                updateItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
+                addNotif(
+                  1,
+                  'Custom Option Markets Coming Soon',
+                  'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
+                  ''
+                )
               }}
             />
           </TableBody>

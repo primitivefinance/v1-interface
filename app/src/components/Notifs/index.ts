@@ -1,1 +1,1 @@
-export { Notifs as default } from './Notifs'
+export { default } from './Notifs'

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-
+import { useRouter } from 'next/router'
 import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
@@ -37,17 +37,25 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const removeItem = useRemoveItem()
   const updateItem = useUpdateItem()
   const options = useOptions()
-
+  const router = useRouter()
   useEffect(() => {
     if (orderState[1] && orderState[2]) {
       if (!options.loading) {
         const opts = options.calls.concat(options.puts)
         opts.map((opt) => {
           if (opt.address === orderState[1]) {
-            console.log(opt)
             // force ts compiler
             const id: string = orderState[2]
             updateItem(opt, Operation[id])
+            setTimeout(() => {
+              router.push(
+                `/markets/[...id]`,
+                `/markets/${options.calls[0].asset.toLowerCase()}`,
+                {
+                  shallow: true,
+                }
+              )
+            }, 1000)
           }
         })
       }

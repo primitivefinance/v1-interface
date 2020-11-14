@@ -1,7 +1,6 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { save, load } from 'redux-localstorage-simple'
 
-import error from './error/reducer'
 import notifs from './notifs/reducer'
 import options from './options/reducer'
 import order from './order/reducer'
@@ -12,7 +11,6 @@ const PERSISTED_KEYS: string[] = ['transactions']
 
 const store = configureStore({
   reducer: {
-    error,
     notifs,
     options,
     order,
@@ -24,8 +22,6 @@ const store = configureStore({
       // Ignore these action types
       ignoredActions: [
         '<root>',
-        'error/clearError',
-        'error/throwError',
         'notifs/clearNotif',
         'nofifs/addNotif',
         'options/updateOptions',

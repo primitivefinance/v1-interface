@@ -35,11 +35,12 @@ import executeTransaction, {
 import { useSlippage } from '@/hooks/user'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
-import { useThrowError } from '@/state/error/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
+  loading: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -47,13 +48,14 @@ export const useItem = (): {
 
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
-  orderType: Operation
+  orderType: Operation,
+  loading?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (item: OptionsAttributes, orderType: Operation) => {
-      dispatch(updateItem({ item, orderType }))
+    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
+      dispatch(updateItem({ item, orderType, loading }))
     },
     [dispatch]
   )
@@ -80,7 +82,7 @@ export const useHandleSubmitOrder = (): ((
   const { chainId, account } = useWeb3React()
   const [slippage] = useSlippage()
   const { data } = useBlockNumber()
-  const throwError = useThrowError()
+  const throwError = useAddNotif()
   const now = () => new Date().getTime()
 
   return useCallback(
@@ -368,7 +370,7 @@ export const useHandleSubmitOrder = (): ((
                       }
                     })
                     .catch((err) => {
-                      throwError(`${err.message}`, '')
+                      throwError(0, '', `${err.message}`, '')
                     })
                 }
               }
@@ -383,6 +385,7 @@ export const useHandleSubmitOrder = (): ((
               {
                 summary: {
                   type: Operation[operation].toString(),
+                  address: optionAddress,
                   assetName: item.asset,
                   amount: quantity,
                 },
@@ -395,7 +398,7 @@ export const useHandleSubmitOrder = (): ((
           }
         })
         .catch((err) => {
-          throwError(`Executing transaction issue: ${err}`, '')
+          throwError(0, '', `${err.message}`, '')
         })
     },
     [dispatch, account, addTransaction]
