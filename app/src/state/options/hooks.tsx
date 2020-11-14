@@ -275,18 +275,22 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      addNotif(0, '', `${error.message}`, '')
+                      addNotif(0, 'Getting reserves', error.message, '')
                     })
                 })
-                .catch((error) => addNotif(0, '', `${error.message}`, ''))
+                .catch((error) =>
+                  addNotif(0, 'Getting pairs', error.message, '')
+                )
             })
             .catch((error) => {
               if (error) {
-                addNotif(0, '', `${error.message}`, '')
+                addNotif(0, 'Getting options', error.message, '')
               }
             })
         })
-        .catch((error) => addNotif(0, '', `${error.message}`, ''))
+        .catch((error) =>
+          addNotif(0, 'Getting all option clones', error.message, '')
+        )
     },
     [dispatch, library, chainId, updateOptions, addNotif]
   )
