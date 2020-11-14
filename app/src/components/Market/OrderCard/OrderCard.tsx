@@ -47,7 +47,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
             // force ts compiler
             const id: string = orderState[2]
             updateItem(opt, Operation[id])
-            console.log(opt)
             setTimeout(() => {
               router.push(
                 `/markets/[...id]`,

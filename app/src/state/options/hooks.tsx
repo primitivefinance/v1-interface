@@ -23,7 +23,7 @@ export const useOptions = (): OptionsState => {
 
 export const useUpdateOptions = (): ((assetName: string) => void) => {
   const { library, chainId } = useActiveWeb3React()
-  const throwError = useAddNotif()
+  const addNotif = useAddNotif()
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -255,6 +255,16 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                       }
+                      console.log(puts)
+                      console.log(calls)
+                      if (pairReserveTotal.lte(0)) {
+                        addNotif(
+                          1,
+                          'Option Market Has No Liquidity',
+                          'Warning - attempting trades is not recommended',
+                          ''
+                        )
+                      }
                       dispatch(
                         updateOptions({
                           loading: false,
@@ -265,19 +275,19 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      throwError(0, '', `${error.message}`, '')
+                      addNotif(0, '', `${error.message}`, '')
                     })
                 })
-                .catch((error) => throwError(0, '', `${error.message}`, ''))
+                .catch((error) => addNotif(0, '', `${error.message}`, ''))
             })
             .catch((error) => {
               if (error) {
-                throwError(0, '', `${error.message}`, '')
+                addNotif(0, '', `${error.message}`, '')
               }
             })
         })
-        .catch((error) => throwError(0, '', `${error.message}`, ''))
+        .catch((error) => addNotif(0, '', `${error.message}`, ''))
     },
-    [dispatch, library, chainId, updateOptions, throwError]
+    [dispatch, library, chainId, updateOptions, addNotif]
   )
 }
