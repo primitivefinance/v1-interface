@@ -135,7 +135,8 @@ const Swap: React.FC = () => {
     if (item.premium) {
       const premium = BigNumber.from(item.premium.toString())
       const size = inputs.primary === '' ? '0' : inputs.primary
-      debit = formatEther(premium.mul(size).toString())
+      const sizeWei = parseEther(size)
+      debit = formatEther(premium.mul(sizeWei).div(parseEther('1')).toString())
     }
     return debit
   }, [item, inputs])
@@ -208,7 +209,7 @@ const Swap: React.FC = () => {
       ) : (
         <> </>
       )}
-      {parseEther(tokenAllowance).gt(inputs.primary.toString() || '0') ? (
+      {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
         <Button
           disabled={!inputs || loading}
           full
