@@ -24,8 +24,6 @@ const store = configureStore({
       // Ignore these action types
       ignoredActions: [
         '<root>',
-        'error/clearError',
-        'error/throwError',
         'notifs/clearNotif',
         'nofifs/addNotif',
         'options/updateOptions',

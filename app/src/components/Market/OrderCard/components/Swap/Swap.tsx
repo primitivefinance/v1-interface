@@ -40,10 +40,8 @@ const Swap: React.FC = () => {
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
-  // state for pending txs
-  const [submitting, setSubmit] = useState(false)
   // option entity in order
-  const { item, orderType } = useItem()
+  const { item, orderType, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -62,7 +60,7 @@ const Swap: React.FC = () => {
   )
 
   let title = { text: '', tip: '' }
-  let spender =
+  const spender =
     Operation.CLOSE_SHORT || Operation.CLOSE_LONG
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
@@ -121,7 +119,7 @@ const Swap: React.FC = () => {
   }
 
   const handleSubmitClick = useCallback(() => {
-    setSubmit(true)
+    updateItem(item, orderType, true)
     submitOrder(
       library,
       item?.address,
@@ -212,22 +210,22 @@ const Swap: React.FC = () => {
       )}
       {parseEther(tokenAllowance).gt(inputs.primary.toString() || '0') ? (
         <Button
-          disabled={!inputs || submitting}
+          disabled={!inputs || loading}
           full
           size="sm"
           onClick={handleSubmitClick}
-          isLoading={submitting}
+          isLoading={loading}
           text="Review Transaction"
         />
       ) : (
         <>
           {' '}
           <Button
-            disabled={!tokenAllowance || submitting}
+            disabled={!tokenAllowance || loading}
             full
             size="sm"
             onClick={onApprove}
-            isLoading={submitting}
+            isLoading={loading}
             text="Approve"
           />
         </>

@@ -96,7 +96,7 @@ export const Wallet = () => {
         {error instanceof UnsupportedChainIdError ? (
           <h5>Unsupported Chain</h5>
         ) : (
-          <h5>Error Connecting</h5>
+          <h5>Error Connecting, Please Refresh</h5>
         )}
       </>
     )

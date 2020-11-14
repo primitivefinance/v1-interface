@@ -8,18 +8,18 @@ import { Notif } from './reducer'
 export const useAddNotif = (): ((
   id: number,
   title: string,
-  message: string,
+  msg: string,
   link: string
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (id, title, message, link) => {
+    (id, title, msg, link) => {
       dispatch(
         addNotif({
           id,
           title,
-          message,
+          msg,
           link,
         })
       )

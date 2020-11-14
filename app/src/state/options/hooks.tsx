@@ -12,7 +12,7 @@ import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
-import { useThrowError } from '@/state/error/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -23,7 +23,7 @@ export const useOptions = (): OptionsState => {
 
 export const useUpdateOptions = (): ((assetName: string) => void) => {
   const { library, chainId } = useActiveWeb3React()
-  const throwError = useThrowError()
+  const throwError = useAddNotif()
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -265,20 +265,18 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      throwError(`Pair Reserves: ${error.message}`, '')
+                      throwError(0, '', `${error.message}`, '')
                     })
                 })
-                .catch((error) =>
-                  throwError(`Option Pair: ${error.message}`, '')
-                )
+                .catch((error) => throwError(0, '', `${error.message}`, ''))
             })
             .catch((error) => {
               if (error) {
-                throwError(`Getting option params: ${error.messge}`, '')
+                throwError(0, '', `${error.message}`, '')
               }
             })
         })
-        .catch((error) => throwError(`getClones: ${error.message}`, ''))
+        .catch((error) => throwError(0, '', `${error.message}`, ''))
     },
     [dispatch, library, chainId, updateOptions, throwError]
   )

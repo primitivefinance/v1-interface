@@ -74,14 +74,16 @@ export default function Updater(): null {
               const summary = transactions[hash].summary
               console.log(summary)
               if (summary) {
-                const link = `http://localhost:3000/markets/${summary.asset}/${summary.address}/${summary.type}`
+                const link = `https://localhost:3000/markets/${summary.assetName.toLowerCase()}/${
+                  summary.address
+                }/${summary.type}`
 
                 console.log(link)
                 dispatch(
                   addNotif({
-                    id: 0,
-                    title: `Trade Successful - ${summary.type}`,
-                    message: `${summary.type}`,
+                    id: 2,
+                    title: `Trade Confirmed`,
+                    msg: `${summary.type} - ${summary.assetName} - ${summary.amount}`,
                     link: `https://twitter.com/share?url=${link}`,
                   })
                 )
