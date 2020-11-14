@@ -90,7 +90,7 @@ const TransactionCard: React.FC = () => {
                           justifyContent="flex-start"
                           alignItems="center"
                         >
-                          {txs[hash].hash.substr(0, 6)}...
+                          {txs[hash].hash.substr(0, 5)}...
                           <LaunchIcon style={{ fontSize: '14px' }} />
                         </Box>
                       </StyledLink>
