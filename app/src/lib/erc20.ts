@@ -1,6 +1,31 @@
 import ethers, { BigNumberish } from 'ethers'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 
+export const approve = async (
+  signer: ethers.Signer,
+  tokenAddress: string,
+  account: string,
+  spender: string
+): Promise<BigNumberish> => {
+  try {
+    if (
+      !ethers.utils.isAddress(tokenAddress) ||
+      !ethers.utils.isAddress(account)
+    ) {
+      return null
+    }
+    let code: any = await signer.provider.getCode(tokenAddress)
+    let tx: any
+    if (code > 0) {
+      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
+      tx = await erc20.approve(spender, ethers.constants.MaxUint256)
+    }
+    return tx
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export const getBalance = async (
   provider: ethers.providers.Provider | ethers.providers.JsonRpcProvider,
   tokenAddress: string,

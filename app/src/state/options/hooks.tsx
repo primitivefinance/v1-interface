@@ -12,7 +12,7 @@ import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Quantity } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
-import { useThrowError } from '@/state/error/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -23,7 +23,7 @@ export const useOptions = (): OptionsState => {
 
 export const useUpdateOptions = (): ((assetName: string) => void) => {
   const { library, chainId } = useActiveWeb3React()
-  const throwError = useThrowError()
+  const addNotif = useAddNotif()
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -255,6 +255,16 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                       }
+                      console.log(puts)
+                      console.log(calls)
+                      if (pairReserveTotal.lte(0)) {
+                        addNotif(
+                          1,
+                          'Option Market Has No Liquidity',
+                          'Warning - attempting trades is not recommended',
+                          ''
+                        )
+                      }
                       dispatch(
                         updateOptions({
                           loading: false,
@@ -265,15 +275,23 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      throwError(`getReserves ${error}`, '')
+                      addNotif(0, 'Getting reserves', error.message, '')
                     })
                 })
-                .catch((error) => throwError(`getReserves ${error}`, ''))
+                .catch((error) =>
+                  addNotif(0, 'Getting pairs', error.message, '')
+                )
             })
-            .catch((error) => throwError(`getOptions ${error}`, ''))
+            .catch((error) => {
+              if (error) {
+                addNotif(0, 'Getting options', error.message, '')
+              }
+            })
         })
-        .catch((error) => throwError(`getClones ${error}`, ''))
+        .catch((error) =>
+          addNotif(0, 'Getting all option clones', error.message, '')
+        )
     },
-    [dispatch, library, chainId, updateOptions, throwError]
+    [dispatch, library, chainId, updateOptions, addNotif]
   )
 }

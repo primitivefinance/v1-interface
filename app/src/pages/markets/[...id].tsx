@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Router from 'next/router'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
@@ -25,12 +26,13 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return {
     props: {
-      market: data,
+      market: data[0],
+      data: data,
     },
   }
 }
 
-const Market = ({ market }) => {
+const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
@@ -65,20 +67,20 @@ const Market = ({ market }) => {
         </StyledMain>
         <StyledSideBar>
           <BetaBanner isOpen={true} />
-          <Spacer />
-          <PositionsCard />
-          <OrderCard />
-          <NewMarketCard />
-          <Spacer />
-          <TransactionCard />
+          <Spacer size="sm" />
           {chainId === 4 ? (
             <>
-              <Spacer />
               <TestnetCard />
             </>
           ) : (
             <> </>
           )}
+          <Spacer size="sm" />
+          <PositionsCard />
+          <OrderCard orderState={data} />
+          <NewMarketCard />
+          <Spacer />
+          <TransactionCard />
         </StyledSideBar>
       </StyledMarket>
     </ErrorBoundary>

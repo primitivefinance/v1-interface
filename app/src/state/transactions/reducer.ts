@@ -30,7 +30,6 @@ export default createReducer(initialState, (builder) =>
         addedTime: now(),
       }
       transactions[chainId] = txs
-      console.log(transactions)
       return transactions
     })
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {

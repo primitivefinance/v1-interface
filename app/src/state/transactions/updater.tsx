@@ -4,6 +4,11 @@ import { useActiveWeb3React } from '@/hooks/user/index'
 import { useBlockNumber } from '@/hooks/data/index'
 import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction } from './actions'
+import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import { useUpdatePositions } from '@/state/positions/hooks'
+import { addNotif } from '@/state/notifs/actions'
+import { useItem } from '@/state/order/hooks'
+import Link from 'next/link'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -28,21 +33,23 @@ export function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
-
-  const lastBlockNumber = useBlockNumber()
-
+  const options = useOptions()
+  const updatePositions = useUpdatePositions()
+  const { data } = useBlockNumber()
+  const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(
     (state) => state.transactions
   )
-
   const transactions = chainId ? state[chainId] ?? {} : {}
 
   useEffect(() => {
-    if (!chainId || !library || !lastBlockNumber) return
-
+    if (!chainId || !library || !lastBlockNumber || options.loading) return
+    if (!options.loading) {
+      updatePositions(options.calls.concat(options.puts))
+    }
     Object.keys(transactions)
-      .filter((hash) => shouldCheck(lastBlockNumber.data, transactions[hash]))
+      .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
       .forEach((hash) => {
         library
           .getTransactionReceipt(hash)
@@ -64,12 +71,30 @@ export default function Updater(): null {
                   },
                 })
               )
+              const summary = transactions[hash].summary
+              console.log(summary)
+              if (summary) {
+                const link = `https://localhost:3000/markets/${summary.assetName.toLowerCase()}/${
+                  summary.address
+                }/${summary.type}`
+
+                console.log(link)
+                dispatch(
+                  addNotif({
+                    id: 2,
+                    title: `Trade Confirmed`,
+                    msg: `${summary.type} - ${summary.assetName} - ${summary.amount}`,
+                    link: `https://twitter.com/share?url=${link}`,
+                  })
+                )
+              }
             } else {
+              console.log('checked tx')
               dispatch(
                 checkedTransaction({
                   chainId,
                   hash,
-                  blockNumber: lastBlockNumber.data,
+                  blockNumber: lastBlockNumber,
                 })
               )
             }

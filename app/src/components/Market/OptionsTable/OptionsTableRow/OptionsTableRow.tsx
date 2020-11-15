@@ -1,9 +1,18 @@
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
+
 import TableCell from '@/components/TableCell'
 import TableRow from '@/components/TableRow'
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import IconButton from '@/components/IconButton'
+
+import { useClickAway } from '@/hooks/utils/useClickAway'
+
+import AddIcon from '@material-ui/icons/Add'
 import LaunchIcon from '@material-ui/icons/Launch'
+import CheckIcon from '@material-ui/icons/Check'
+
+import { useItem } from '@/state/order/hooks'
+
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
 export interface TableColumns {
@@ -32,6 +41,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   greeks,
 }) => {
   const [toggle, setToggle] = useState(false)
+  const { item } = useItem()
   const {
     key,
     asset,
@@ -44,12 +54,28 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     address,
   } = columns
   const handleOnClick = useCallback(() => {
-    onClick()
     setToggle(!toggle)
-  }, [onClick, toggle, setToggle])
+  }, [toggle, setToggle])
+  const handleOnAdd = (e) => {
+    e.stopPropagation()
+    onClick()
+  }
+  const nodeRef = useClickAway(() => {
+    setToggle(false)
+  })
   return (
-    <>
-      <TableRow key={key} onClick={handleOnClick}>
+    <div ref={nodeRef}>
+      <TableRow
+        isActive={
+          item.entity === null
+            ? false
+            : item?.entity.address === key
+            ? true
+            : false
+        }
+        key={key}
+        onClick={handleOnClick}
+      >
         <TableCell>${strike}</TableCell>
         <TableCell>$ {breakeven}</TableCell>
         {+premium > 0 ? (
@@ -79,7 +105,24 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </StyledARef>
         </TableCell>
         <StyledButtonCell key={'Open'}>
-          <ArrowForwardIosIcon />
+          <IconButton
+            onClick={onClick}
+            variant={
+              item.entity === null
+                ? 'outlined'
+                : item.entity.address === key
+                ? 'selected-outlined'
+                : 'outlined'
+            }
+          >
+            {item.entity === null ? (
+              <AddIcon />
+            ) : item?.entity.address === key ? (
+              <CheckIcon />
+            ) : (
+              <AddIcon />
+            )}
+          </IconButton>
         </StyledButtonCell>
       </TableRow>
       {toggle ? (
@@ -87,7 +130,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       ) : (
         <></>
       )}
-    </>
+    </div>
   )
 }
 
@@ -99,8 +142,8 @@ const StyledARef = styled.a`
 const StyledButtonCell = styled.div`
   font-weight: inherit;
   flex: 0.25;
+  justify-content: center;
   margin-right: ${(props) => props.theme.spacing[2]}px;
-  width: ${(props) => props.theme.buttonSize}px;
 `
 
 export default OptionsTableRow

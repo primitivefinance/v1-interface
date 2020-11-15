@@ -47,17 +47,15 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
   }
 
   return (
-    <Card>
-      <StyledContainer>
-        <CardContent>
-          <Button
-            onClick={handleMintTestTokens}
-            text={'Get Test Tokens'}
-            variant="default"
-          />
-        </CardContent>
-      </StyledContainer>
-    </Card>
+    <StyledContainer>
+      <CardContent>
+        <Button
+          onClick={handleMintTestTokens}
+          text={'Get Testnet Tokens'}
+          variant="secondary"
+        />
+      </CardContent>
+    </StyledContainer>
   )
 }
 const StyledContainer = styled.div``

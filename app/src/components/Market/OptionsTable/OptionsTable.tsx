@@ -17,13 +17,13 @@ import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
 import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { EmptyAttributes } from '@/state/options/reducer'
-import { useUpdatePositions, usePositions } from '@/state/positions/hooks'
 import { BlackScholes } from '@/lib/math'
 import { Greeks } from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
 import OptionsTableRow, { TableColumns } from './OptionsTableRow'
 import OptionsTableHeader from './OptionsTableHeader'
 import LoadingTable from './LoadingTable'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export type FormattedOption = {
   breakEven: number
@@ -45,9 +45,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const updateOptions = useUpdateOptions()
   const updateItem = useUpdateItem()
   const options = useOptions()
-  const updatePositions = useUpdatePositions()
-  const positions = usePositions()
-
+  const addNotif = useAddNotif()
   const { library, chainId } = useWeb3React()
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
@@ -71,12 +69,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       } else {
         updateOptions(asset.toUpperCase())
       }
-      // currently restricts positions updates, need to add this to TX updater
-      if (!options.loading && positions.loading) {
-        updatePositions(options.calls.concat(options.puts))
-      }
     }
-  }, [library, asset, updateOptions, options, updatePositions])
+  }, [library, asset, updateOptions, options])
   const calculateBreakeven = useCallback(
     (premiumWei, isCall) => {
       const price = data
@@ -234,7 +228,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             })}
             <NewMarketRow
               onClick={() => {
-                updateItem(EmptyAttributes, Operation.NEW_MARKET) //TBD
+                addNotif(
+                  1,
+                  'Custom Option Markets Coming Soon',
+                  'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
+                  ''
+                )
               }}
             />
           </TableBody>

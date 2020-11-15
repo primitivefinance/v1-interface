@@ -35,11 +35,12 @@ import executeTransaction, {
 import { useSlippage } from '@/hooks/user'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
-import { useThrowError } from '@/state/error/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
+  loading: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -47,13 +48,14 @@ export const useItem = (): {
 
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
-  orderType: Operation
+  orderType: Operation,
+  loading?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (item: OptionsAttributes, orderType: Operation) => {
-      dispatch(updateItem({ item, orderType }))
+    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
+      dispatch(updateItem({ item, orderType, loading }))
     },
     [dispatch]
   )
@@ -76,10 +78,11 @@ export const useHandleSubmitOrder = (): ((
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
+  const { item } = useItem()
   const { chainId, account } = useWeb3React()
   const [slippage] = useSlippage()
   const { data } = useBlockNumber()
-  const throwError = useThrowError()
+  const throwError = useAddNotif()
   const now = () => new Date().getTime()
 
   return useCallback(
@@ -267,7 +270,6 @@ export const useHandleSubmitOrder = (): ((
             new Asset(18), // fix with actual metadata
             parseEther(secondaryQuantity ? secondaryQuantity.toString() : '0')
           )
-          console.log({ secondaryQuantity })
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -352,6 +354,7 @@ export const useHandleSubmitOrder = (): ((
                     .then((tx) => {
                       if (tx.hash) {
                         approvalTxs.push(tx)
+                        console.log('Approval tx', tokenAddress)
                         addTransaction(
                           {
                             approval: {
@@ -367,7 +370,7 @@ export const useHandleSubmitOrder = (): ((
                       }
                     })
                     .catch((err) => {
-                      throwError(`Approving transaction issue: ${err}`, '')
+                      throwError(0, '', `${err.message}`, '')
                     })
                 }
               }
@@ -380,7 +383,12 @@ export const useHandleSubmitOrder = (): ((
           if (tx.hash) {
             addTransaction(
               {
-                summary: Operation[operation].toString(),
+                summary: {
+                  type: Operation[operation].toString(),
+                  address: optionAddress,
+                  assetName: item.asset,
+                  amount: quantity,
+                },
                 hash: tx.hash,
                 addedTime: now(),
                 from: account,
@@ -390,7 +398,7 @@ export const useHandleSubmitOrder = (): ((
           }
         })
         .catch((err) => {
-          throwError(`Executing transaction issue: ${err}`, '')
+          throwError(0, '', `${err.message}`, '')
         })
     },
     [dispatch, account, addTransaction]
