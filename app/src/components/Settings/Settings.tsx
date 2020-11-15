@@ -31,59 +31,57 @@ export const Settings = () => {
           <SettingsIcon style={{ color: 'black' }} />
         </IconButton>
         <StyledModal ref={nodeRef}>
-          <StyledRow>
-            <StyledContent>
-              <StyledTitle>Settings</StyledTitle>
-              <StyledSetting>Slippage tolerance</StyledSetting>
+          <StyledContent>
+            <StyledTitle>Settings</StyledTitle>
+            <StyledSetting>Slippage tolerance</StyledSetting>
+            <Spacer size="sm" />
+            <StyledRow>
+              {slippage === '0.001' ? (
+                <Button
+                  size="sm"
+                  text="0.10%"
+                  disabled
+                  onClick={() => handleSlip('0.001')}
+                ></Button>
+              ) : (
+                <Button
+                  size="sm"
+                  text="0.10%"
+                  onClick={() => handleSlip('0.001')}
+                ></Button>
+              )}
               <Spacer size="sm" />
-              <StyledRow>
-                {slippage === '0.001' ? (
-                  <Button
-                    size="sm"
-                    text="0.10%"
-                    disabled
-                    onClick={() => handleSlip('0.001')}
-                  ></Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    text="0.10%"
-                    onClick={() => handleSlip('0.001')}
-                  ></Button>
-                )}
-                <Spacer size="sm" />
-                {slippage === '0.005' ? (
-                  <Button
-                    size="sm"
-                    text="0.50%"
-                    disabled
-                    onClick={() => handleSlip('0.005')}
-                  ></Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    text="0.50%"
-                    onClick={() => handleSlip('0.005')}
-                  ></Button>
-                )}
-                <Spacer size="sm" />
-                {slippage === '0.01' ? (
-                  <Button
-                    size="sm"
-                    text="1.00%"
-                    disabled
-                    onClick={() => handleSlip('0.01')}
-                  ></Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    text="1.00%"
-                    onClick={() => handleSlip('0.01')}
-                  ></Button>
-                )}
-              </StyledRow>
-            </StyledContent>
-          </StyledRow>
+              {slippage === '0.005' ? (
+                <Button
+                  size="sm"
+                  text="0.50%"
+                  disabled
+                  onClick={() => handleSlip('0.005')}
+                ></Button>
+              ) : (
+                <Button
+                  size="sm"
+                  text="0.50%"
+                  onClick={() => handleSlip('0.005')}
+                ></Button>
+              )}
+              <Spacer size="sm" />
+              {slippage === '0.01' ? (
+                <Button
+                  size="sm"
+                  text="1.00%"
+                  disabled
+                  onClick={() => handleSlip('0.01')}
+                ></Button>
+              ) : (
+                <Button
+                  size="sm"
+                  text="1.00%"
+                  onClick={() => handleSlip('0.01')}
+                ></Button>
+              )}
+            </StyledRow>
+          </StyledContent>
         </StyledModal>
       </>
     )
@@ -124,9 +122,10 @@ const StyledModal = styled.div`
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
+  margin: 1em;
   position: fixed;
-  right: 10%;
-  top: ${(props) => props.theme.barHeight + 10}px;
+  right: 0%;
+  top: ${(props) => props.theme.barHeight + 1}px;
   z-index: 0;
   z-index: 9999 !important;
 `

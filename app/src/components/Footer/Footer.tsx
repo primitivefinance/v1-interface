@@ -29,7 +29,7 @@ const breathe = keyframes`
 
 const StyledContainer = styled.div`
   position: fixed;
-  bottom: -1em;
+  bottom: -1.5em;
   width: 100%;
   pointer-events: none;
 `
@@ -49,7 +49,7 @@ const StyledBlockNumber = styled.h5`
   opacity: 90%;
   border-radius: 10px;
   color: ${(props) => props.theme.color.white};
-  background-color: ${(props) => props.theme.color.grey[800]};
+  background-color: ${(props) => props.theme.color.black};
   display: flex;
   max-height: 0.1em;
   margin-right: ${(props) => props.theme.spacing[4]}px;
@@ -59,8 +59,8 @@ const StyledFooter = styled.footer`
   align-items: center;
   display: flex;
   justify-content: flex-end;
-  padding-left: 1em;
-  padding-right: 1em;
+  padding-left: 0em;
+  padding-right: 0em;
   justify-content: space-between;
   pointer-events: none;
 `

@@ -10,6 +10,7 @@ import Spacer from '@/components/Spacer'
 
 import { ADDRESS_FOR_MARKET } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 
 import {
   FilterBar,
@@ -50,64 +51,67 @@ const Market = ({ market, data }) => {
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
       <StyledMarket>
-        <StyledMain>
-          <MarketHeader marketId={market} />
-          <FilterBar
-            active={callPutActive}
-            setCallActive={handleFilterType}
-            expiry={expiry}
-            setExpiry={handleFilterExpiry}
-          />
-          <OptionsTable
-            asset={market}
-            assetAddress={ADDRESS_FOR_MARKET[market]}
-            optionExp={expiry}
-            callActive={callPutActive}
-          />
-        </StyledMain>
-        <StyledSideBar>
-          <BetaBanner isOpen={true} />
-          <Spacer size="sm" />
-          {chainId === 4 ? (
-            <>
-              <TestnetCard />
-            </>
-          ) : (
-            <> </>
-          )}
-          <Spacer size="sm" />
-          <PositionsCard />
-          <OrderCard orderState={data} />
-          <NewMarketCard />
-          <Spacer />
-          <TransactionCard />
-        </StyledSideBar>
+        <Grid>
+          <Row>
+            <Col sm={7} md={8} lg={8}>
+              <StyledMain>
+                <MarketHeader marketId={market} />
+                <FilterBar
+                  active={callPutActive}
+                  setCallActive={handleFilterType}
+                  expiry={expiry}
+                  setExpiry={handleFilterExpiry}
+                />
+                <OptionsTable
+                  asset={market}
+                  assetAddress={ADDRESS_FOR_MARKET[market]}
+                  optionExp={expiry}
+                  callActive={callPutActive}
+                />
+              </StyledMain>
+            </Col>
+            <Col sm={5} md={4} lg={4}>
+              <StyledSideBar>
+                <BetaBanner isOpen={true} />
+                <Spacer size="sm" />
+                {chainId === 4 ? (
+                  <>
+                    <TestnetCard />
+                  </>
+                ) : (
+                  <> </>
+                )}
+                <Spacer size="sm" />
+                <PositionsCard />
+                <OrderCard orderState={data} />
+                <NewMarketCard />
+                <Spacer />
+                <TransactionCard />
+              </StyledSideBar>
+            </Col>
+          </Row>
+        </Grid>
       </StyledMarket>
     </ErrorBoundary>
   )
 }
 
-const StyledMain = styled.div`
-  flex: 0.7;
-`
+const StyledMain = styled.div``
 
 const StyledMarket = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: start;
-  width: ${(props) => props.theme.tableWidth}%;
+  width: 100%;
 `
 
 const StyledSideBar = styled.div`
   background: ${(props) => props.theme.color.black};
   border-left: 1px solid ${(props) => props.theme.color.grey[600]};
   box-sizing: border-box;
-  flex: 0.3;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  padding: ${(props) => props.theme.spacing[4]}px;
+  padding: ${(props) => props.theme.spacing[4]}px 0
+    ${(props) => props.theme.spacing[4]}px
+    ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
-  width: ${(props) => props.theme.sidebarWidth}%;
+  width: 100%;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};

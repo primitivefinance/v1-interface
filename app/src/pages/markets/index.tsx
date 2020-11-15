@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-
+import styled from 'styled-components'
 import PageHeader from '@/components/PageHeader'
 import MarketCards from '@/components/MarketCards'
+import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 
 const days: { [key: number]: React.ReactNode } = {
   1: (
@@ -110,14 +111,20 @@ const Markets: React.FC = () => {
   }, [day, setDay])
 
   return (
-    <div>
-      <PageHeader
-        icon={days[day]}
-        title="Choose an option market."
-        subtitle="View available options and trade."
-      />
-      <MarketCards />
-    </div>
+    <Grid>
+      <Col xs={12}>
+        <Row center="xs">
+          <PageHeader
+            icon={days[day]}
+            title="Choose an option market."
+            subtitle="View available options and trade."
+          />
+        </Row>
+        <Row center="xs">
+          <MarketCards />
+        </Row>
+      </Col>
+    </Grid>
   )
 }
 

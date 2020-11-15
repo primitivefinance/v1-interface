@@ -13535,6 +13535,13 @@ react-spinners@^0.9.0:
   dependencies:
     "@emotion/core" "^10.0.15"
 
+react-styled-flexboxgrid@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/react-styled-flexboxgrid/-/react-styled-flexboxgrid-3.2.1.tgz#78b87c9dcf6e4f146e4a305668e894be8fa4f679"
+  integrity sha512-4dRs4CiVHjnyOQssm2Ge7ERCmbWi2rI/rsQtp3A8A5sli9EAKlVErQ6XujMM5Z9uxXN4O30zb2YDL3ufmD5Hiw==
+  dependencies:
+    lodash.isinteger "^4.0.4"
+
 react-tabs@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/react-tabs/-/react-tabs-3.1.1.tgz#b363a239f76046bb2158875a1e5921b11064052f"

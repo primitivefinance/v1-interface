@@ -46,24 +46,33 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 
   return (
     <StyledPosition onClick={handleClick}>
-      <Box row justifyContent="space-between" alignItems="center">
+      <Box row justifyContent="space-around" alignItems="center">
         <StyledLogo
           src={getIconForMarket(option.attributes.asset.toLowerCase())}
           alt={''}
         />
-        <StyledTitle>
-          {`${option.attributes.asset} ${
-            option.attributes.entity.isCall ? 'Call' : 'Put'
-          } $${option.attributes.strike} ${month}/${date} ${year}`}
-        </StyledTitle>
+        <Spacer />
+        <div>
+          <Spacer />
+          <StyledTitle>
+            {`${option.attributes.asset} ${
+              option.attributes.entity.isCall ? 'Call' : 'Put'
+            }`}
+          </StyledTitle>
+          <StyledTitle>
+            {`$${option.attributes.strike} ${month}/${date} ${year}`}
+          </StyledTitle>
+        </div>
+        <Spacer />
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
           {option.attributes.address.length > 0
             ? option.attributes.address.substr(0, 4) + '...'
             : '-'}
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
+        <Spacer size="sm" />
       </Box>
-      <Spacer />
+      <Spacer size="sm" />
       <StyledPrices row justifyContent="space-between" alignItems="center">
         <span>Long {formatEtherBalance(option.long)}</span>
         <span>Short {formatEtherBalance(option.redeem)}</span>
@@ -111,21 +120,25 @@ const PositionsCard: React.FC = () => {
 }
 
 const StyledPrices = styled(Box)`
-  border-radius: 15px;
-  border-width: 2px;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  background: ${(props) => props.theme.color.grey[800]};
+  border-radius: 5px;
+  border-width: 1px;
+  border-color: ${(props) => props.theme.color.grey[500]};
+  background: ${(props) => props.theme.color.black};
   border-style: solid;
   margin: 0 0.5em 0 0.5em;
-  padding: 0.5em;
+  padding: 1em;
 `
 const StyledTitle = styled.h3`
   color: ${(props) => props.theme.color.white};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top: -0.5em;
 `
 const StyledPosition = styled.a`
   border: 2px solid ${(props) => props.theme.color.grey[600]};
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.black};
   min-height: 2em;
   border-radius: 4px;
   padding-left: 0.8em;
@@ -133,7 +146,8 @@ const StyledPosition = styled.a`
   padding-bottom: 1em;
   padding-top: 1em;
   cursor: pointer;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
   &:hover {
     background: ${(props) => props.theme.color.grey[600]};
     border: 1.5px solid ${(props) => props.theme.color.grey[400]};

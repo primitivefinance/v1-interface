@@ -92,9 +92,10 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
 
 const StyledTitle = styled(Box)`
   align-items: center;
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   width: 100%;
 `
 
