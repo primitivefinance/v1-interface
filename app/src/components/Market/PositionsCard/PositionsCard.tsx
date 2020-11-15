@@ -21,6 +21,8 @@ import {
   ETHERSCAN_MAINNET,
   ETHERSCAN_RINKEBY,
   Operation,
+  getIconForMarket,
+  COINGECKO_ID_FOR_MARKET,
 } from '@/constants/index'
 
 import { usePositions } from '@/state/positions/hooks'
@@ -41,9 +43,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   }
 
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
+
   return (
     <StyledPosition onClick={handleClick}>
       <Box row justifyContent="space-between" alignItems="center">
+        <StyledLogo
+          src={getIconForMarket(option.attributes.asset.toLowerCase())}
+          alt={''}
+        />
         <StyledTitle>
           {`${option.attributes.asset} ${
             option.attributes.entity.isCall ? 'Call' : 'Put'
@@ -107,15 +114,21 @@ const StyledTitle = styled.h3`
   color: ${(props) => props.theme.color.white};
 `
 const StyledPosition = styled.a`
-  border: 0px solid ${(props) => props.theme.color.grey[400]};
-  background: ${(props) => props.theme.color.black};
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.color.grey[700]};
   min-height: 2em;
   border-radius: 4px;
   padding-left: 0.8em;
   padding-right: 0.8em;
   padding-bottom: 1em;
+  padding-top: 1em;
   cursor: pointer;
   margin-bottom: 0.5em;
+  &:hover {
+    background: ${(props) => props.theme.color.grey[600]};
+    border: 1.5px solid ${(props) => props.theme.color.grey[400]};
+  }
 `
 const StyledLink = styled.a`
   text-decoration: none;
@@ -145,6 +158,11 @@ const StyledEmptyMessage = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   margin-top: ${(props) => props.theme.spacing[3]}px;
   text-align: center;
+`
+
+const StyledLogo = styled.img`
+  border-radius: 50%;
+  height: 64px;
 `
 
 export default PositionsCard
