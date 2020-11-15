@@ -12,7 +12,7 @@ export interface NewMarketRowProps {
 const NewMarketRow: React.FC<NewMarketRowProps> = ({ onClick }) => {
   return (
     <>
-      <TableRow onClick={onClick}>
+      <TableRow isHead onClick={onClick}>
         <TableCell></TableCell>
         <StyledButtonCellError key={'Open'}>
           <AddIcon />
