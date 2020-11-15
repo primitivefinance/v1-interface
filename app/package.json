@@ -35,6 +35,7 @@
     "react-redux": "^7.2.2",
     "react-scripts": "3.4.1",
     "react-spinners": "^0.9.0",
+    "react-styled-flexboxgrid": "^3.2.1",
     "react-typeform-embed": "^0.2.1",
     "redux": "^4.0.5",
     "redux-localstorage-simple": "^2.3.1",

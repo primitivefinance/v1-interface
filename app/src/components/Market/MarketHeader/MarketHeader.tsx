@@ -7,6 +7,7 @@ import LitContainer from '@/components/LitContainer'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
+import WarningIcon from '@material-ui/icons/Warning'
 
 import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
@@ -78,8 +79,9 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
 
   return (
     <StyledHeader>
+      <GoBack to="/markets" />
+
       <LitContainer>
-        <GoBack to="/markets" />
         <Spacer />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
@@ -129,12 +131,15 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             <Spacer size="sm" />
             <StyledPrice size="sm">
               {!options.loading ? (
-                options.reservesTotal ? (
+                formatEtherBalance(options.reservesTotal) !== '0.00' ? (
                   `${formatEtherBalance(
                     options.reservesTotal
                   )}  ${symbol.toUpperCase()}`
                 ) : (
-                  'N/A'
+                  <>
+                    <WarningIcon style={{ color: 'yellow' }} />
+                    <h4>This market has no liquidity</h4>
+                  </>
                 )
               ) : (
                 <Loader size="sm" />
@@ -158,7 +163,7 @@ const StyledIcon = styled(LaunchIcon)`
   margin-left: 10px;
 `
 const StyledHeader = styled.div`
-  background-color: ${(props) => props.theme.color.grey[800]};
+  background-color: ${(props) => props.theme.color.black};
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   padding-top: ${(props) => props.theme.spacing[4]}px;
 `

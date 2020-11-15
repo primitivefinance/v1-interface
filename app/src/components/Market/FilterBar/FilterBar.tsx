@@ -40,9 +40,11 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
-          <StyledSelect value={expiry} onChange={handleFilter}>
-            <StyledOption>December 30 2020</StyledOption>
-          </StyledSelect>
+          <StyledSelectWrapper>
+            <StyledSelect value={expiry} onChange={handleFilter}>
+              <StyledOption>December 30th, 2020</StyledOption>
+            </StyledSelect>
+          </StyledSelectWrapper>
         </StyledFilterBarInner>
       </LitContainer>
     </StyledFilterBar>
@@ -50,28 +52,30 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
 }
 
 const StyledFilterBar = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.black};
+  border-radius: 2em;
+  padding: 1em;
 `
 
 const StyledFilterBarInner = styled.div`
   align-items: center;
   display: flex;
+  justify-content: flex-start;
   height: ${(props) => props.theme.barHeight}px;
+`
+const StyledSelectWrapper = styled.div`
+  padding: 1em;
+  border-radius: 1em;
+  width: 40%;
 `
 
 const StyledSelect = styled.select`
   align-items: center;
-  background: ${(props) => props.theme.color.black};
-  border-radius: ${(props) => props.theme.borderRadius}px;
-  border: none;
+  background: ${(props) => props.theme.color.grey[800]};
   color: ${(props) => props.theme.color.grey[400]};
-  display: flex;
   margin-right: ${(props) => props.theme.spacing[7]}px;
   padding: ${(props) => props.theme.spacing[3]}px;
-  width: calc(
-    (100vw - ${(props) => props.theme.contentWidth}px) / 2 +
-      ${(props) => props.theme.contentWidth * (2 / 3)}px
-  );
+  width: 100%;
 `
 const StyledOption = styled.option``
 

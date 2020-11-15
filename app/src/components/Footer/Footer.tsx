@@ -29,7 +29,7 @@ const breathe = keyframes`
 
 const StyledContainer = styled.div`
   position: fixed;
-  bottom: -1em;
+  bottom: -1.5em;
   width: 100%;
   pointer-events: none;
 `
@@ -59,8 +59,8 @@ const StyledFooter = styled.footer`
   align-items: center;
   display: flex;
   justify-content: flex-end;
-  padding-left: 1em;
-  padding-right: 1em;
+  padding-left: 0em;
+  padding-right: 0em;
   justify-content: space-between;
   pointer-events: none;
 `
