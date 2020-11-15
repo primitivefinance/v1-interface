@@ -51,13 +51,19 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           src={getIconForMarket(option.attributes.asset.toLowerCase())}
           alt={''}
         />
-        <Spacer size="sm" />
-        <StyledTitle>
-          {`${option.attributes.asset} ${
-            option.attributes.entity.isCall ? 'Call' : 'Put'
-          } $${option.attributes.strike} ${month}/${date} ${year}`}
-        </StyledTitle>
-        <Spacer size="sm" />
+        <Spacer />
+        <div>
+          <Spacer />
+          <StyledTitle>
+            {`${option.attributes.asset} ${
+              option.attributes.entity.isCall ? 'Call' : 'Put'
+            }`}
+          </StyledTitle>
+          <StyledTitle>
+            {`$${option.attributes.strike} ${month}/${date} ${year}`}
+          </StyledTitle>
+        </div>
+        <Spacer />
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
           {option.attributes.address.length > 0
             ? option.attributes.address.substr(0, 4) + '...'
@@ -124,6 +130,10 @@ const StyledPrices = styled(Box)`
 `
 const StyledTitle = styled.h3`
   color: ${(props) => props.theme.color.white};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top: -0.5em;
 `
 const StyledPosition = styled.a`
   border: 2px solid ${(props) => props.theme.color.grey[600]};

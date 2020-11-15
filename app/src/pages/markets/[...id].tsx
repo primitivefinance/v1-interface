@@ -53,7 +53,7 @@ const Market = ({ market, data }) => {
       <StyledMarket>
         <Grid>
           <Row>
-            <Col sm={6} md={7} lg={7}>
+            <Col sm={7} md={8} lg={8}>
               <StyledMain>
                 <MarketHeader marketId={market} />
                 <FilterBar
@@ -70,7 +70,7 @@ const Market = ({ market, data }) => {
                 />
               </StyledMain>
             </Col>
-            <Col sm={6} md={5} lg={5}>
+            <Col sm={5} md={4} lg={4}>
               <StyledSideBar>
                 <BetaBanner isOpen={true} />
                 <Spacer size="sm" />
