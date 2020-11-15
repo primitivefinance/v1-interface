@@ -217,25 +217,36 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                         if (option.isPut) {
-                          if (
-                            Quote.asset.symbol.toUpperCase() ===
-                            assetName.toUpperCase()
-                          ) {
+                          let asset
+                          if (chainId !== 1) {
+                            asset = Base.asset.symbol.toUpperCase()
+                          } else {
+                            asset = Quote.asset.symbol.toUpperCase()
+                          }
+                          if (asset === 'ETH') {
+                            asset = 'WETH'
+                          }
+                          if (asset === assetName.toUpperCase()) {
                             const denominator = ethers.BigNumber.from(
                               option.optionParameters.quote.quantity
                             )
                             const numerator = ethers.BigNumber.from(
                               option.optionParameters.base.quantity
                             )
+
                             const strikePrice = new Quantity(
-                              option.base.asset,
+                              option.quote.asset,
                               numerator.div(denominator)
+                            )
+                            console.log(
+                              option.optionParameters.base.quantity.toString()
                             )
                             breakEven = calculateBreakeven(
                               parseEther(strikePrice.quantity.toString()),
                               premium,
                               false
                             )
+
                             puts.push({
                               entity: option,
                               asset: assetName,
@@ -255,16 +266,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                       }
-                      console.log(puts)
-                      console.log(calls)
-                      if (pairReserveTotal.lte(0)) {
-                        addNotif(
-                          1,
-                          'Option Market Has No Liquidity',
-                          'Warning - attempting trades is not recommended',
-                          ''
-                        )
-                      }
+
                       dispatch(
                         updateOptions({
                           loading: false,

@@ -31,14 +31,18 @@ const Banner: React.FC = ({ children }) => {
 }
 
 const StyledBanner = styled.div`
-  background-color: ${(props) => props.theme.color.black};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+  background-image: -webkit-linear-gradient(
+    top,
+    rgba(0, 0, 0, 1),
+    rgba(255, 0, 0, 0)
+  );
+  border-top: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
   height: ${(props) => props.theme.barHeight / 2}px;
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 72px;
   width: 100%;
 `
 
@@ -54,7 +58,7 @@ const StyledNav = styled.div`
   align-items: center;
   display: flex;
   flex: 1;
-  font-weight: 700;
+  font-weight: 400;
   justify-content: center;
 `
 

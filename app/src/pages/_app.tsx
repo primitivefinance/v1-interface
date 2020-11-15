@@ -70,6 +70,7 @@ const Updater = () => {
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
+
   return (
     <>
       <GlobalStyle />
