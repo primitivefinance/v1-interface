@@ -63,12 +63,12 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
       </Box>
-      <Spacer size="sm" />
-      <Box row justifyContent="space-between" alignItems="center">
+      <Spacer />
+      <StyledPrices row justifyContent="space-between" alignItems="center">
         <span>Long {formatEtherBalance(option.long)}</span>
         <span>Short {formatEtherBalance(option.redeem)}</span>
         <span>LP {formatEtherBalance(option.lp)}</span>
-      </Box>
+      </StyledPrices>
     </StyledPosition>
   )
 }
@@ -110,13 +110,22 @@ const PositionsCard: React.FC = () => {
   )
 }
 
+const StyledPrices = styled(Box)`
+  border-radius: 15px;
+  border-width: 2px;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  background: ${(props) => props.theme.color.grey[800]};
+  border-style: solid;
+  margin: 0 0.5em 0 0.5em;
+  padding: 0.5em;
+`
 const StyledTitle = styled.h3`
   color: ${(props) => props.theme.color.white};
 `
 const StyledPosition = styled.a`
-  border: 1px solid ${(props) => props.theme.color.grey[600]};
+  border: 2px solid ${(props) => props.theme.color.grey[600]};
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.grey[700]};
+  background: ${(props) => props.theme.color.grey[800]};
   min-height: 2em;
   border-radius: 4px;
   padding-left: 0.8em;
@@ -124,7 +133,7 @@ const StyledPosition = styled.a`
   padding-bottom: 1em;
   padding-top: 1em;
   cursor: pointer;
-  margin-bottom: 0.5em;
+  margin-bottom: 1em;
   &:hover {
     background: ${(props) => props.theme.color.grey[600]};
     border: 1.5px solid ${(props) => props.theme.color.grey[400]};
@@ -162,7 +171,7 @@ const StyledEmptyMessage = styled.div`
 
 const StyledLogo = styled.img`
   border-radius: 50%;
-  height: 64px;
+  height: 54px;
 `
 
 export default PositionsCard

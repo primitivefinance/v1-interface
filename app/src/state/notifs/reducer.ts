@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
-
-import { addNotif, clearNotif } from './actions'
+import { LOCATION_CHANGE } from 'react-redux'
+import { addNotif, clearNotif, resetNotif } from './actions'
 
 export interface Notif {
   title: string
@@ -20,6 +20,11 @@ export default createReducer(initialState, (builder) =>
     })
     .addCase(clearNotif, (state, { payload: id }) => {
       state[id] = null
+      return state
+    })
+    .addCase(resetNotif, (state) => {
+      console.log('reset')
+      state = {}
       return state
     })
 )

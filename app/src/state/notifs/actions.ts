@@ -8,3 +8,4 @@ export const addNotif = createAction<{
 }>('notifs/addNotif')
 
 export const clearNotif = createAction<number>('notifs/clearNotif')
+export const resetNotif = createAction('notifs/resetNotif')

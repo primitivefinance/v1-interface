@@ -155,9 +155,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     (option: any): TableColumns => {
       const tableKey: string = option.entity.address
       const tableAssset: string = asset.toUpperCase()
-      const tableStrike: string = formatBalance(
-        option.entity.strikePrice.quantity
-      ).toString()
+      const tableStrike: string = formatBalance(option.strike).toString()
       const tableBreakeven: string = formatEtherBalance(
         calculateBreakeven(option.premium, option.entity.isCall)
       ).toString()
