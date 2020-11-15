@@ -119,6 +119,14 @@ const Button: React.FC<ButtonProps> = ({
       )
     }
     if (isLoading) {
+      if (variant === 'default') {
+        return (
+          <>
+            <Loader />
+            <Spacer size="sm" />
+          </>
+        )
+      }
       return (
         <>
           <Loader dark />
