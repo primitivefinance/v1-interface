@@ -29,8 +29,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       ? item.asset.toUpperCase()
       : 'SHORT'
   return (
-    <StyledBottom>
-      <StyledSubtitle>Liquidity Provision</StyledSubtitle>
+    <>
       <Spacer size="sm" />
       <MultiLineItem label={'Reserves'}>
         {reserve0Units === item.asset.toUpperCase()
@@ -49,7 +48,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
         units={'UNI-V2'}
       />
       <Spacer />
-      <Box row justifyContent="center" alignItems="center">
+      <Box row justifyContent="space-around" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide Liquidity
         </Button>
@@ -68,7 +67,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           </Button>
         )}
       </Box>
-    </StyledBottom>
+    </>
   )
 }
 
@@ -97,15 +96,13 @@ const OrderOptions: React.FC = () => {
   return (
     <Box row alignItems="flex-start" justifyContent="center">
       <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-        <Box row justifyContent="flex-start">
-          <StyledTabList>
-            <StyledTab active={tab === 0}>Long</StyledTab>
-            <Spacer />
-            <StyledTab active={tab === 1}>Short</StyledTab>
-            <Spacer />
-            <StyledTab active={tab === 2}>Pool</StyledTab>
-          </StyledTabList>
-        </Box>
+        <StyledTabList>
+          <StyledTab active={tab === 0}>Long</StyledTab>
+          <Spacer />
+          <StyledTab active={tab === 1}>Short</StyledTab>
+          <Spacer />
+          <StyledTab active={tab === 2}>Pool</StyledTab>
+        </StyledTabList>
         <Spacer />
         <TabPanel>
           <StyledColumn>
@@ -122,19 +119,21 @@ const OrderOptions: React.FC = () => {
                 )}
               </StyledBalance>
             </Box>
-            <Button full size="sm" onClick={() => change(Operation.LONG)}>
-              Buy
-            </Button>
-            <Spacer size="sm" />
-            <Button
-              full
-              disabled={!positions.loading ? false : true}
-              size="sm"
-              variant="secondary"
-              onClick={() => change(Operation.CLOSE_LONG)}
-            >
-              Sell
-            </Button>
+            <Box row justifyContent="space-between" alignItems="center">
+              <Button full size="sm" onClick={() => change(Operation.LONG)}>
+                Buy
+              </Button>
+              <Spacer />
+              <Button
+                full
+                disabled={!positions.loading ? false : true}
+                size="sm"
+                variant="secondary"
+                onClick={() => change(Operation.CLOSE_LONG)}
+              >
+                Sell
+              </Button>
+            </Box>
           </StyledColumn>
         </TabPanel>
         <TabPanel>
@@ -152,43 +151,42 @@ const OrderOptions: React.FC = () => {
                 )}
               </StyledBalance>
             </Box>
-            <Button full size="sm" onClick={() => change(Operation.SHORT)}>
-              Buy
-            </Button>
-            <Spacer size="sm" />
-            <Button
-              full
-              disabled={!positions.loading ? false : true}
-              size="sm"
-              variant="secondary"
-              onClick={() => change(Operation.CLOSE_SHORT)}
-            >
-              Sell
-            </Button>
+            <Box row justifyContent="space-between" alignItems="center">
+              <Button full size="sm" onClick={() => change(Operation.SHORT)}>
+                Buy
+              </Button>
+              <Spacer />
+              <Button
+                full
+                disabled={!positions.loading ? false : true}
+                size="sm"
+                variant="secondary"
+                onClick={() => change(Operation.CLOSE_SHORT)}
+              >
+                Sell
+              </Button>
+            </Box>
           </StyledColumn>
         </TabPanel>
         <TabPanel>
-          <LPOptions balance={option.lp ? option.lp : null} />
+          <StyledColumn>
+            <LPOptions balance={option.lp ? option.lp : null} />
+          </StyledColumn>
         </TabPanel>
       </StyledTabs>
     </Box>
   )
 }
 const StyledTabs = styled(Tabs)`
-  display: flex;
-  flex-direction: column;
   width: 100%;
 `
 
 const StyledTabList = styled(TabList)`
-  background-color: ${(props) => props.theme.color.grey[700]};
-  border-radius: ${(props) => props.theme.borderRadius}px;
-  border-bottom: 2px solid black;
   display: flex;
   flex-direction: row;
-  margin: 0px;
-  padding-left: 1em;
-  width: 100%;
+  justify-content: flex-start;
+  align-content: baseline;
+  margin-left: -2.5em;
 `
 
 interface TabProps {
@@ -197,30 +195,31 @@ interface TabProps {
 
 const StyledTab = styled(Tab)<TabProps>`
   background-color: ${(props) =>
-    props.active ? props.theme.color.grey[500] : 'transparent'};
+    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
   color: ${(props) => props.theme.color.white};
   font-weight: ${(props) => (props.active ? 600 : 500)};
+  padding: 1em;
+  border-radius: 0.3em 0.3em 0 0;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  width: 20%;
   list-style: none;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
 `
 
 const StyledColumn = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: -2.5em;
+  border-radius: 0.3em 0 0 0;
+  border-width: 1px 1px 1px 1px;
+  border-style: solid;
+  padding: 1em 2em 2em 2em;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  background: ${(props) => props.theme.color.black};
 `
 const StyledBalance = styled.h5`
   color: ${(props) => props.theme.color.white};
-`
-const StyledSubtitle = styled.h3`
-  color: ${(props) => props.theme.color.white};
-`
-const StyledBottom = styled.div`
-  padding: 0 2em 1em 2em;
-  background: black;
-  border-width: 1px;
-  border-radius: 5px;
-  border-color: ${(props) => props.theme.color.grey[400]};
-  border-style: solid;
 `
 
 export default OrderOptions

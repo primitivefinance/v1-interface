@@ -115,7 +115,7 @@ const TransactionCard: React.FC = () => {
 }
 
 const StyledContainer = styled.div`
-  width: 28em;
+  width: 110%;
   justify-content: space-around;
 `
 

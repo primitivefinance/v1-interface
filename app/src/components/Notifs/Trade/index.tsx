@@ -26,7 +26,7 @@ export const Trade: React.FC<TradeProps> = ({ title, msg, link }) => {
   })
   if (!title) return null
   return (
-    <StyledContainer ref={nodeRef}>
+    <StyledContainer>
       <StyledCard>
         <CardTitle>
           <StyledTitle>

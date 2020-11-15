@@ -51,19 +51,22 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           src={getIconForMarket(option.attributes.asset.toLowerCase())}
           alt={''}
         />
+        <Spacer size="sm" />
         <StyledTitle>
           {`${option.attributes.asset} ${
             option.attributes.entity.isCall ? 'Call' : 'Put'
           } $${option.attributes.strike} ${month}/${date} ${year}`}
         </StyledTitle>
+        <Spacer size="sm" />
         <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
           {option.attributes.address.length > 0
             ? option.attributes.address.substr(0, 4) + '...'
             : '-'}
           <LaunchIcon style={{ fontSize: '14px' }} />
         </StyledLink>
+        <Spacer size="sm" />
       </Box>
-      <Spacer />
+      <Spacer size="sm" />
       <StyledPrices row justifyContent="space-between" alignItems="center">
         <span>Long {formatEtherBalance(option.long)}</span>
         <span>Short {formatEtherBalance(option.redeem)}</span>
@@ -112,9 +115,9 @@ const PositionsCard: React.FC = () => {
 
 const StyledPrices = styled(Box)`
   border-radius: 5px;
-  border-width: 2px;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  background: ${(props) => props.theme.color.black};
+  border-width: 1px;
+  border-color: ${(props) => props.theme.color.grey[500]};
+  background: ${(props) => props.theme.color.grey[600]};
   border-style: solid;
   margin: 0 0.5em 0 0.5em;
   padding: 1em;
@@ -125,7 +128,7 @@ const StyledTitle = styled.h3`
 const StyledPosition = styled.a`
   border: 2px solid ${(props) => props.theme.color.grey[600]};
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.black};
+  background: ${(props) => props.theme.color.grey[800]};
   min-height: 2em;
   border-radius: 4px;
   padding-left: 0.8em;
