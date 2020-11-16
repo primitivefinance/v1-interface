@@ -49,7 +49,7 @@ const Tip = styled.div`
   text-align: center;
   padding: 10px;
   border-radius: 6px;
-  top: 0.2em;
+  top: 1.5em;
   left: 2em;
   /* Position the tooltip text - see examples below! */
   position: absolute;

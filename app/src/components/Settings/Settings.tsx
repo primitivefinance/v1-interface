@@ -33,6 +33,7 @@ export const Settings = () => {
         <StyledModal ref={nodeRef}>
           <StyledContent>
             <StyledTitle>Settings</StyledTitle>
+            <Spacer size="sm" />
             <StyledSetting>Slippage tolerance</StyledSetting>
             <Spacer size="sm" />
             <StyledRow>
@@ -122,10 +123,10 @@ const StyledModal = styled.div`
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
-  margin: 1em;
+  margin: 0.5em;
   position: fixed;
   right: 0%;
-  top: ${(props) => props.theme.barHeight + 1}px;
+  top: ${(props) => props.theme.barHeight}px;
   z-index: 0;
   z-index: 9999 !important;
 `

@@ -88,9 +88,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
         <Spacer />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-          <Spacer size="lg" />
+          <Spacer />
           <StyledContent>
+            <div style={{ marginTop: '.3em' }} />
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+            <div style={{ marginTop: '.1em' }} />
             <StyledLink
               href={`${baseUrl}/${address}`}
               target="_blank"
@@ -101,7 +103,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledLink>
           </StyledContent>
 
-          <Spacer size="lg" />
+          <Spacer size="md" />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />
@@ -143,7 +145,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                     <Spacer size="sm" />
                     <h4>
                       <Tooltip
-                        text={`This Market has no liquidty, click an option and navigate to the Liquidity tab to initalize this market!`}
+                        text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
                       >
                         N/A{' '}
                       </Tooltip>
@@ -215,7 +217,7 @@ const StyledName = styled.span`
   text-decoration: none;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.white};
+    color: ${(props) => props.theme.color.grey[400]};
   }
 `
 

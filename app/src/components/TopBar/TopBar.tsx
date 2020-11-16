@@ -82,13 +82,13 @@ const StyledTopBar = styled.div`
   height: 72px;
   position: sticky;
   top: 0;
-  width: 100%;
 `
 
 const StyledFlex = styled.div`
   align-items: center;
   display: flex;
-  flex: 1;
+  flex: 0.2;
+  margin: 0 1em 0 1em;
 `
 
 const StyledNav = styled.div`
