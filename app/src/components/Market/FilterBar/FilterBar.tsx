@@ -66,7 +66,7 @@ const SelectTitle = styled.div`
 `
 const StyledFilterBar = styled.div`
   border-radius: 2em;
-  margin-left: -0.5em;
+  margin-left: 1.5em;
   padding: 1em 0 1em 0;
 `
 const StyledSymbol = styled.span`

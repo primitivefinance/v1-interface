@@ -172,7 +172,7 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 338px;
+  min-height: 341px;
   min-width: 1200px;
   left: 0;
 `
@@ -188,6 +188,7 @@ const StyledIcon = styled(LaunchIcon)`
 `
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
+  margin-left: 2em;
 `
 const StyledLink = styled.a`
   text-decoration: none;
