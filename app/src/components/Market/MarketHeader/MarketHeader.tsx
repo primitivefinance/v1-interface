@@ -79,6 +79,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
 
   return (
     <StyledHeader>
+      <GreyBack />
+      <Spacer />
       <GoBack to="/markets" />
 
       <LitContainer>
@@ -153,6 +155,14 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
   )
 }
 
+const GreyBack = styled.div`
+  background: ${(props) => props.theme.color.grey[800]};
+  position: absolute;
+  z-index: -100;
+  min-height: 342px;
+  min-width: 1200px;
+  left: 0;
+`
 const StyledContent = styled(Box)`
   align-items: baseline;
   flex-direction: row;
@@ -165,7 +175,6 @@ const StyledIcon = styled(LaunchIcon)`
 `
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
-  padding-top: ${(props) => props.theme.spacing[4]}px;
 `
 const StyledLink = styled.a`
   text-decoration: none;

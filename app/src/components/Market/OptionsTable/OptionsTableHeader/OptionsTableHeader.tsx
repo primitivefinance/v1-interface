@@ -54,7 +54,6 @@ const OptionsTableHeader: React.FC = () => {
   )
 }
 const StyledTableHead = styled.div`
-  background-color: ${(props) => props.theme.color.grey[800]};
   border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
 `
 

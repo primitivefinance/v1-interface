@@ -92,7 +92,7 @@ const StyledSelectWrapper = styled.div`
 
 const StyledSelect = styled.select`
   align-items: center;
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.black};
   color: ${(props) => props.theme.color.grey[400]};
   margin-right: ${(props) => props.theme.spacing[7]}px;
   padding: ${(props) => props.theme.spacing[3]}px;
