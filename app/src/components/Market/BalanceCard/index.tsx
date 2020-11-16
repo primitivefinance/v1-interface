@@ -2,29 +2,34 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
+import LineItem from '@/components/LineItem'
 import { useItem } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
 
 interface TestnetCardProps {}
 import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
+import { useOptions } from '@/state/options/hooks'
+import { usePositions } from '@/state/positions/hooks'
 import { Operation } from '@/constants/index'
+import numeral from 'numeral'
 
-const TestnetCard: React.FC<TestnetCardProps> = () => {
-  const { item } = useItem()
+const Balance: React.FC<TestnetCardProps> = () => {
+  const { loading, balance } = usePositions()
+  const { calls, puts } = useOptions()
   const addTransaction = useTransactionAdder()
 
   const { library, account, chainId } = useWeb3React()
-  useEffect(() => {}, [item])
 
   const handleMintTestTokens = async () => {
     const now = () => new Date().getTime()
     let tx: any
     mintTestTokens(
       account,
-      item.entity.assetAddresses[0],
+      calls[0].entity.assetAddresses[0],
       await library.getSigner()
     )
       .then((tx) => {
@@ -45,19 +50,28 @@ const TestnetCard: React.FC<TestnetCardProps> = () => {
 
     return tx
   }
-
+  if (loading) return null
   return (
-    <StyledContainer>
+    <Card border>
       <CardContent>
-        <Button
-          onClick={handleMintTestTokens}
-          text={'Get Testnet Tokens'}
-          variant="secondary"
+        <LineItem
+          label={`${balance.asset.symbol} Balance`}
+          data={numeral(balance.quantity).format('0a')}
         />
+        {chainId === 4 ? (
+          <>
+            <Spacer />
+            <Button
+              onClick={handleMintTestTokens}
+              text={'Get Testnet Tokens'}
+              variant="secondary"
+            />
+          </>
+        ) : null}
       </CardContent>
-    </StyledContainer>
+    </Card>
   )
 }
 const StyledContainer = styled.div``
 
-export default TestnetCard
+export default Balance

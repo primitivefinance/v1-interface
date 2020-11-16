@@ -111,7 +111,7 @@ const PositionsCard: React.FC = () => {
   }
   if (!positions.loading && !positions.exists) {
     return (
-      <Card>
+      <Card border>
         <CardTitle>Active Positions</CardTitle>
         <CardContent>
           <StyledEmptyContent>
@@ -140,14 +140,15 @@ const PositionsCard: React.FC = () => {
         </div>
       </CardTitle>
       <Reverse />
-      {open ? null : (
+      {open ? (
+        <Spacer size="sm" />
+      ) : (
         <>
           <CardContent>
             {positions.options.map((pos, i) => {
               return <Position key={i} option={pos} />
             })}
           </CardContent>
-          <Spacer size="sm" />
         </>
       )}
     </Card>
