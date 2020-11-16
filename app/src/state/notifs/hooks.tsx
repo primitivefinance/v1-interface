@@ -15,6 +15,7 @@ export const useAddNotif = (): ((
 
   return useCallback(
     (id, title, msg, link) => {
+      if (msg.substr(0, 9) === 'underlying') return
       dispatch(
         addNotif({
           id,

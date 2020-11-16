@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
@@ -11,6 +11,7 @@ import Spacer from '@/components/Spacer'
 import { ADDRESS_FOR_MARKET } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
+import { useClearNotif } from '@/state/notifs/hooks'
 
 import {
   FilterBar,
@@ -38,6 +39,24 @@ const Market = ({ market, data }) => {
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active } = useWeb3React()
 
+  const router = useRouter()
+  const clear = useClearNotif()
+  useEffect(() => {
+    const { ethereum } = window
+
+    const handleChainChanged = () => {
+      // eat errors
+      clear(0)
+      router.reload()
+    }
+
+    ethereum.on('chainChanged', handleChainChanged)
+    return () => {
+      if (ethereum.removeListener) {
+        ethereum.removeListener('chainChanged', handleChainChanged)
+      }
+    }
+  })
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
