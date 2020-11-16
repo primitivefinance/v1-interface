@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
+import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
@@ -87,9 +88,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
         <Spacer />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-          <Spacer size="lg" />
+          <Spacer />
           <StyledContent>
+            <div style={{ marginTop: '.3em' }} />
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
+            <div style={{ marginTop: '.1em' }} />
             <StyledLink
               href={`${baseUrl}/${address}`}
               target="_blank"
@@ -100,7 +103,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledLink>
           </StyledContent>
 
-          <Spacer size="lg" />
+          <Spacer size="md" />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />
@@ -137,10 +140,17 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                     options.reservesTotal
                   )}  ${symbol.toUpperCase()}`
                 ) : (
-                  <>
+                  <StyledL row justifyContent="flex-start" alignItems="center">
                     <WarningIcon style={{ color: 'yellow' }} />
-                    <h4>This market has no liquidity</h4>
-                  </>
+                    <Spacer size="sm" />
+                    <h4>
+                      <Tooltip
+                        text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
+                      >
+                        N/A{' '}
+                      </Tooltip>
+                    </h4>
+                  </StyledL>
                 )
               ) : (
                 <Loader size="sm" />
@@ -153,6 +163,10 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
     </StyledHeader>
   )
 }
+const StyledL = styled(Box)`
+  margin-top: -1.5em;
+  margin-bottom: -1.1em;
+`
 
 const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
@@ -203,7 +217,7 @@ const StyledName = styled.span`
   text-decoration: none;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.white};
+    color: ${(props) => props.theme.color.grey[400]};
   }
 `
 
