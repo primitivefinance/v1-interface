@@ -140,17 +140,24 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                     options.reservesTotal
                   )}  ${symbol.toUpperCase()}`
                 ) : (
-                  <StyledL row justifyContent="flex-start" alignItems="center">
-                    <WarningIcon style={{ color: 'yellow' }} />
-                    <Spacer size="sm" />
-                    <h4>
-                      <Tooltip
-                        text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
-                      >
-                        N/A{' '}
-                      </Tooltip>
-                    </h4>
-                  </StyledL>
+                  <>
+                    <div style={{ minHeight: '.05em' }} />
+                    <StyledL
+                      row
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
+                      <WarningIcon style={{ color: 'yellow' }} />
+                      <Spacer size="sm" />
+                      <h4>
+                        <Tooltip
+                          text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
+                        >
+                          N/A{' '}
+                        </Tooltip>
+                      </h4>
+                    </StyledL>
+                  </>
                 )
               ) : (
                 <Loader size="sm" />

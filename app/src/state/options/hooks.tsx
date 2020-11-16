@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import router from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes } from './actions'
@@ -22,7 +23,7 @@ export const useOptions = (): OptionsState => {
 }
 
 export const useUpdateOptions = (): ((assetName: string) => void) => {
-  const { library, chainId } = useActiveWeb3React()
+  const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
 
   const dispatch = useDispatch<AppDispatch>()
@@ -41,6 +42,11 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
     return Number(breakeven)
   }
 
+  if (!active) {
+    return useCallback(() => {
+      router.push('/markets')
+    }, [router])
+  }
   return useCallback(
     async (assetName: string) => {
       const calls: OptionsAttributes[] = []

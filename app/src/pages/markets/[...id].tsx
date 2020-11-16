@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
-import { useWeb3React } from '@web3-react/core'
+import { useActiveWeb3React } from '@/hooks/user/index'
 
 import BetaBanner from '@/components/BetaBanner'
 import Spacer from '@/components/Spacer'
@@ -23,6 +23,7 @@ import {
   NewMarketCard,
 } from '@/components/Market'
 import TestnetCard from '@/components/Market/TestnetCard/TestnetCard'
+
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
 
@@ -37,22 +38,25 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
-  const { chainId, active } = useWeb3React()
+  const { chainId, active, account } = useActiveWeb3React()
 
   const router = useRouter()
   const clear = useClearNotif()
   useEffect(() => {
-    const { ethereum } = window
-
+    const { ethereum } = window as any
+    if (!ethereum) {
+      clear(0)
+      router.push('/markets')
+    }
     const handleChainChanged = () => {
       // eat errors
       clear(0)
       router.reload()
     }
 
-    ethereum.on('chainChanged', handleChainChanged)
+    ethereum?.on('chainChanged', handleChainChanged)
     return () => {
-      if (ethereum.removeListener) {
+      if (ethereum?.removeListener) {
         ethereum.removeListener('chainChanged', handleChainChanged)
       }
     }
@@ -64,6 +68,9 @@ const Market = ({ market, data }) => {
     setExpiry(exp)
   }
 
+  if (!active) {
+    return <StyledText>Please install Metamask</StyledText>
+  }
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
