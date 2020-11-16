@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, useContext } from 'react'
 import styled from 'styled-components'
 
 import AddIcon from '@material-ui/icons/Add'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 
@@ -13,6 +15,7 @@ import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Spacer from '@/components/Spacer'
+import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import Loader from '@/components/Loader'
@@ -79,17 +82,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
       <StyledPrices row justifyContent="space-between" alignItems="center">
         <StyledPrice>
           <StyledT>Long</StyledT>
-          <Spacer size="sm" />
           {formatEtherBalance(option.long)}
         </StyledPrice>
         <StyledPrice>
           <StyledT>Short</StyledT>
-          <Spacer size="sm" />
           {formatEtherBalance(option.redeem)}
         </StyledPrice>
         <StyledPrice>
           <StyledT>LP</StyledT>
-          <Spacer size="sm" />
           {formatEtherBalance(option.lp)}
         </StyledPrice>
       </StyledPrices>
@@ -100,6 +100,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 const PositionsCard: React.FC = () => {
   const item = useItem()
   const positions = usePositions()
+  const [open, setOpen] = useState(false)
 
   if (item.item.asset) return null
   if (positions.loading) {
@@ -123,28 +124,54 @@ const PositionsCard: React.FC = () => {
     )
   }
   return (
-    <Card>
-      <CardTitle>Active Positions</CardTitle>
-      <CardContent>
-        {positions.options.map((pos, i) => {
-          return <Position key={i} option={pos} />
-        })}
-      </CardContent>
+    <Card border>
+      <Reverse />
+      <CardTitle>
+        <div onClick={() => setOpen(!open)}>
+          <StyledBox row justifyContent="space-around" alignItems="center">
+            <Title>{`Active Positions (${positions.options.length})`}</Title>
+            <IconButton variant="tertiary">
+              {open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            </IconButton>
+          </StyledBox>
+        </div>
+      </CardTitle>
+      <Reverse />
+      {open ? null : (
+        <>
+          <CardContent>
+            {positions.options.map((pos, i) => {
+              return <Position key={i} option={pos} />
+            })}
+          </CardContent>
+          <Spacer size="sm" />
+        </>
+      )}
     </Card>
   )
 }
 
+const StyledBox = styled(Box)`
+  cursor: pointer;
+`
+
+const Title = styled.h4`
+  color: white;
+  min-width: 16em;
+`
 const Reverse = styled.div`
   margin-top: -1.1em;
 `
 const StyledT = styled.h5`
   opacity: 66%;
+  margin-bottom: -2px;
+  margin-top: -0px;
 `
 
 const StyledPrice = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: baseline;
+  flex-direction: column;
+  padding: 0.3em;
   color: white;
 `
 const StyledPrices = styled(Box)`
@@ -164,7 +191,7 @@ const StyledTitle = styled.h3`
   margin-top: -0.5em;
 `
 const StyledPosition = styled.a`
-  border: 2px solid ${(props) => props.theme.color.grey[600]};
+  border: 1px solid ${(props) => props.theme.color.grey[800]};
   border-radius: ${(props) => props.theme.borderRadius}px;
   background: ${(props) => props.theme.color.black};
   min-height: 2em;

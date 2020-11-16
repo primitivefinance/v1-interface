@@ -75,7 +75,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
     removeItem()
   }
   return (
-    <Card>
+    <Card border>
       <Box row justifyContent="space-between" alignItems="center">
         <StyledLogo src={getIconForMarket(item.asset.toLowerCase())} alt={''} />
         <div>

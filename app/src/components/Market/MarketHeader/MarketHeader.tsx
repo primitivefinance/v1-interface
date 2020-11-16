@@ -90,7 +90,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
           <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-            <Spacer size="sm" />
             <StyledLink
               href={`${baseUrl}/${address}`}
               target="_blank"
@@ -114,7 +113,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledPrice>
           </StyledContent>
 
-          <Spacer />
+          <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>24hr Change</StyledSymbol>
             <Spacer size="sm" />
@@ -127,7 +126,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledPrice>
           </StyledContent>
 
-          <Spacer />
+          <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>Total Liquidity</StyledSymbol>
             <Spacer size="sm" />
@@ -159,7 +158,7 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 342px;
+  min-height: 338px;
   min-width: 1200px;
   left: 0;
 `
