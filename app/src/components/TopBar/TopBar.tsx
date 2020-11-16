@@ -41,7 +41,7 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledFlex>
-        <StyledNav isAlt={chainId === 1}>
+        <StyledNav isActive={chainId === 1}>
           <Link href="/markets">
             <StyledNavItem
               active={
