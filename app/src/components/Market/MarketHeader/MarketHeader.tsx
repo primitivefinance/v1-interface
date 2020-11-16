@@ -112,7 +112,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledPrice>
           </StyledContent>
 
-          <Spacer size="lg" />
+          <Spacer />
           <StyledContent>
             <StyledSymbol>24hr Change</StyledSymbol>
             <Spacer size="sm" />
@@ -125,7 +125,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             </StyledPrice>
           </StyledContent>
 
-          <Spacer size="lg" />
+          <Spacer />
           <StyledContent>
             <StyledSymbol>Total Liquidity</StyledSymbol>
             <Spacer size="sm" />
@@ -146,6 +146,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
               )}
             </StyledPrice>
           </StyledContent>
+          <Spacer size="lg" />
         </StyledTitle>
       </LitContainer>
     </StyledHeader>

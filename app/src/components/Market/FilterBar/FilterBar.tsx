@@ -65,7 +65,6 @@ const SelectTitle = styled.div`
   margin: 1em;
 `
 const StyledFilterBar = styled.div`
-  background: ${(props) => props.theme.color.black};
   border-radius: 2em;
   margin-left: -0.5em;
   padding: 1em 0 1em 0;

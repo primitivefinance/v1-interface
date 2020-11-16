@@ -96,7 +96,13 @@ const Market = ({ market, data }) => {
   )
 }
 
-const StyledMain = styled.div``
+const StyledMain = styled.div`
+  background: ${(props) => props.theme.color.grey[800]};
+  padding: 0 10em 0 3em;
+  height: 40%;
+  width: 100%;
+  border-radius: 0 0 0 5px;
+`
 
 const StyledMarket = styled.div`
   width: 100%;
