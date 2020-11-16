@@ -48,14 +48,14 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
         units={'UNI-V2'}
       />
       <Spacer />
-      <Box row justifyContent="space-around" alignItems="center">
+      <Box row justifyContent="center" alignItems="center">
         <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
-          Provide Liquidity
+          Provide
         </Button>
-        <Spacer size="sm" />
+        <Spacer />
         {balance ? (
           <Button size="sm" variant="secondary" disabled>
-            Withdraw Liquidity
+            Withdraw
           </Button>
         ) : (
           <Button
@@ -63,7 +63,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
             variant="secondary"
             onClick={() => change(Operation.REMOVE_LIQUIDITY)}
           >
-            Withdraw Liquidity
+            Withdraw
           </Button>
         )}
       </Box>
@@ -94,91 +94,97 @@ const OrderOptions: React.FC = () => {
   }
 
   return (
-    <Box row alignItems="flex-start" justifyContent="center">
-      <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-        <StyledTabList>
-          <StyledTab active={tab === 0}>Long</StyledTab>
+    <>
+      <Reverse />
+      <Box row alignItems="flex-start" justifyContent="center">
+        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
+          <StyledTabList>
+            <StyledTab active={tab === 0}>Long</StyledTab>
+            <Spacer size="sm" />
+            <StyledTab active={tab === 1}>Short</StyledTab>
+            <Spacer size="sm" />
+            <StyledTab active={tab === 2}>Liquidity</StyledTab>
+          </StyledTabList>
           <Spacer />
-          <StyledTab active={tab === 1}>Short</StyledTab>
-          <Spacer />
-          <StyledTab active={tab === 2}>Pool</StyledTab>
-        </StyledTabList>
-        <Spacer />
-        <TabPanel>
-          <StyledColumn>
-            <Box row justifyContent="flex-start" alignItems="center">
-              <Label text={'Balance'} />
-              <Spacer />
-              <StyledBalance>
-                {positions.loading ? (
-                  <Loader size="sm" />
-                ) : !option.long ? (
-                  '0.00'
-                ) : (
-                  formatEtherBalance(option.long)
-                )}
-              </StyledBalance>
-            </Box>
-            <Box row justifyContent="space-between" alignItems="center">
-              <Button full size="sm" onClick={() => change(Operation.LONG)}>
-                Buy
-              </Button>
-              <Spacer />
-              <Button
-                full
-                disabled={!positions.loading ? false : true}
-                size="sm"
-                variant="secondary"
-                onClick={() => change(Operation.CLOSE_LONG)}
-              >
-                Sell
-              </Button>
-            </Box>
-          </StyledColumn>
-        </TabPanel>
-        <TabPanel>
-          <StyledColumn>
-            <Box row justifyContent="flex-start" alignItems="center">
-              <Label text={'Balance'} />
-              <Spacer />
-              <StyledBalance>
-                {positions.loading ? (
-                  <Loader size="sm" />
-                ) : !option.short ? (
-                  '0.00'
-                ) : (
-                  formatEtherBalance(option.short)
-                )}
-              </StyledBalance>
-            </Box>
-            <Box row justifyContent="space-between" alignItems="center">
-              <Button full size="sm" onClick={() => change(Operation.SHORT)}>
-                Buy
-              </Button>
-              <Spacer />
-              <Button
-                full
-                disabled={!positions.loading ? false : true}
-                size="sm"
-                variant="secondary"
-                onClick={() => change(Operation.CLOSE_SHORT)}
-              >
-                Sell
-              </Button>
-            </Box>
-          </StyledColumn>
-        </TabPanel>
-        <TabPanel>
-          <StyledColumn>
-            <LPOptions balance={option.lp ? option.lp : null} />
-          </StyledColumn>
-        </TabPanel>
-      </StyledTabs>
-    </Box>
+          <TabPanel>
+            <StyledColumn>
+              <Box row justifyContent="flex-start" alignItems="center">
+                <Label text={'Balance'} />
+                <Spacer />
+                <StyledBalance>
+                  {positions.loading ? (
+                    <Loader size="sm" />
+                  ) : !option.long ? (
+                    '0.00'
+                  ) : (
+                    formatEtherBalance(option.long)
+                  )}
+                </StyledBalance>
+              </Box>
+              <Box row justifyContent="space-between" alignItems="center">
+                <Button full size="sm" onClick={() => change(Operation.LONG)}>
+                  Buy
+                </Button>
+                <Spacer />
+                <Button
+                  full
+                  disabled={!positions.loading ? false : true}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => change(Operation.CLOSE_LONG)}
+                >
+                  Sell
+                </Button>
+              </Box>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <StyledColumn>
+              <Box row justifyContent="flex-start" alignItems="center">
+                <Label text={'Balance'} />
+                <Spacer />
+                <StyledBalance>
+                  {positions.loading ? (
+                    <Loader size="sm" />
+                  ) : !option.short ? (
+                    '0.00'
+                  ) : (
+                    formatEtherBalance(option.short)
+                  )}
+                </StyledBalance>
+              </Box>
+              <Box row justifyContent="space-between" alignItems="center">
+                <Button full size="sm" onClick={() => change(Operation.SHORT)}>
+                  Buy
+                </Button>
+                <Spacer />
+                <Button
+                  full
+                  disabled={!positions.loading ? false : true}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => change(Operation.CLOSE_SHORT)}
+                >
+                  Sell
+                </Button>
+              </Box>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <StyledColumn>
+              <LPOptions balance={option.lp ? option.lp : null} />
+            </StyledColumn>
+          </TabPanel>
+        </StyledTabs>
+      </Box>
+    </>
   )
 }
 const StyledTabs = styled(Tabs)`
   width: 100%;
+`
+const Reverse = styled.div`
+  margin-top: -1.1em;
 `
 
 const StyledTabList = styled(TabList)`
@@ -203,8 +209,9 @@ const StyledTab = styled(Tab)<TabProps>`
   border-width: 1px 1px 0 1px;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
-  width: 20%;
+  width: 22%;
   list-style: none;
+  cursor: pointer;
 `
 
 const StyledColumn = styled.div`

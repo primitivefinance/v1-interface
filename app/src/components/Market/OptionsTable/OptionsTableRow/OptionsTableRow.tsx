@@ -66,7 +66,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     setToggle(false)
   })
   return (
-    <div ref={nodeRef}>
+    <StyledDiv ref={nodeRef}>
       <TableRow
         isActive={
           item.entity === null
@@ -118,9 +118,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
                 ? 'selected-outlined'
                 : 'outlined'
             }
+            size="sm"
           >
             {item.entity === null ? (
-              <AddIcon />
+              <AddIcon style={{ fontSize: '2em' }} />
             ) : item?.entity.address === key ? (
               <CheckIcon />
             ) : (
@@ -134,13 +135,17 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       ) : (
         <></>
       )}
-    </div>
+    </StyledDiv>
   )
 }
 
 const StyledARef = styled.a`
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
+`
+
+const StyledDiv = styled.div`
+  color: black;
 `
 
 const StyledButtonCell = styled.div`

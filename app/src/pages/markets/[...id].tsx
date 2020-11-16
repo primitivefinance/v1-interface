@@ -53,7 +53,7 @@ const Market = ({ market, data }) => {
       <StyledMarket>
         <Grid>
           <Row>
-            <Col sm={7} md={8} lg={8}>
+            <StyledContainer sm={12} md={8} lg={8}>
               <StyledMain>
                 <MarketHeader marketId={market} />
                 <FilterBar
@@ -69,8 +69,9 @@ const Market = ({ market, data }) => {
                   callActive={callPutActive}
                 />
               </StyledMain>
-            </Col>
-            <Col sm={5} md={4} lg={4}>
+            </StyledContainer>
+
+            <Col sm={12} md={4} lg={4}>
               <StyledSideBar>
                 <BetaBanner isOpen={true} />
                 <Spacer size="sm" />
@@ -96,6 +97,13 @@ const Market = ({ market, data }) => {
   )
 }
 
+const StyledContainer = styled(Col)`
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+`
 const StyledMain = styled.div``
 
 const StyledMarket = styled.div`

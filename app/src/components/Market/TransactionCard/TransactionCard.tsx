@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
-import Button from '@/components/Button'
+import IconButton from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
@@ -39,19 +39,21 @@ const TransactionCard: React.FC = () => {
   if (Object.keys(txs).length === 0 && txs.constructor === Object) return null
   return (
     <>
-      <Card>
+      <Card border>
         <CardTitle>
-          <StyledTitle>Recent Transactions</StyledTitle>
-          <Button variant="transparent" size="sm" onClick={() => clear()}>
-            <ClearIcon />
-          </Button>
+          <Box row justifyContent="space-around" alignItems="center">
+            <StyledTitle>Recent Transactions</StyledTitle>
+            <IconButton variant="transparent" size="sm" onClick={() => clear()}>
+              <ClearIcon />
+            </IconButton>
+          </Box>
         </CardTitle>
         <CardContent>
           <StyledContainer>
             <Table>
               <TableRow>
                 <TableCell>Time</TableCell>
-                <TableCell>Operation</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>Hash</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
@@ -114,6 +116,10 @@ const TransactionCard: React.FC = () => {
   )
 }
 
+const Reverse = styled.div`
+  margin-top: -1.1em;
+`
+
 const StyledContainer = styled.div`
   width: 110%;
   justify-content: space-around;
@@ -142,6 +148,7 @@ const StyledTitle = styled(Box)`
   align-items: center;
   display: flex;
   flex-direction: row;
+  min-width: 15.7em;
   width: 100%;
 `
 

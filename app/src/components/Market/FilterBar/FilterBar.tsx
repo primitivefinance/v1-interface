@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import LitContainer from '@/components/LitContainer'
 import Toggle from '@/components/Toggle'
+import Label from '@/components/Label'
 import ToggleButton from '@/components/ToggleButton'
 import Spacer from '@/components/Spacer'
 
@@ -41,6 +42,10 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
           </Toggle>
           <Spacer size="lg" />
           <StyledSelectWrapper>
+            <SelectTitle>
+              <StyledSymbol>Expiry</StyledSymbol>
+              <Spacer size="sm" />
+            </SelectTitle>
             <StyledSelect value={expiry} onChange={handleFilter}>
               <StyledOption>December 30th, 2020</StyledOption>
             </StyledSelect>
@@ -51,12 +56,24 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
   )
 }
 
-const StyledFilterBar = styled.div`
-  background: ${(props) => props.theme.color.black};
-  border-radius: 2em;
-  padding: 1em;
+const SelectTitle = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 1em;
 `
-
+const StyledFilterBar = styled.div`
+  border-radius: 2em;
+  margin-left: -0.5em;
+  padding: 1em 0 1em 0;
+`
+const StyledSymbol = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  text-transform: uppercase;
+`
 const StyledFilterBarInner = styled.div`
   align-items: center;
   display: flex;
@@ -66,15 +83,20 @@ const StyledFilterBarInner = styled.div`
 const StyledSelectWrapper = styled.div`
   padding: 1em;
   border-radius: 1em;
-  width: 40%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 45%;
 `
 
 const StyledSelect = styled.select`
   align-items: center;
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.black};
   color: ${(props) => props.theme.color.grey[400]};
   margin-right: ${(props) => props.theme.spacing[7]}px;
   padding: ${(props) => props.theme.spacing[3]}px;
+  border-radius: 0.5em;
   width: 100%;
 `
 const StyledOption = styled.option``
