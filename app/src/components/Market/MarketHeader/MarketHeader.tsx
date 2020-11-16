@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
+import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
@@ -137,10 +138,17 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                     options.reservesTotal
                   )}  ${symbol.toUpperCase()}`
                 ) : (
-                  <>
+                  <StyledL row justifyContent="flex-start" alignItems="center">
                     <WarningIcon style={{ color: 'yellow' }} />
-                    <h4>This market has no liquidity</h4>
-                  </>
+                    <Spacer size="sm" />
+                    <h4>
+                      <Tooltip
+                        text={`This Market has no liquidty, click an option and navigate to the Liquidity tab to initalize this market!`}
+                      >
+                        N/A{' '}
+                      </Tooltip>
+                    </h4>
+                  </StyledL>
                 )
               ) : (
                 <Loader size="sm" />
@@ -153,6 +161,10 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
     </StyledHeader>
   )
 }
+const StyledL = styled(Box)`
+  margin-top: -1.5em;
+  margin-bottom: -1.1em;
+`
 
 const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};

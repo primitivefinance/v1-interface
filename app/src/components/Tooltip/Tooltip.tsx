@@ -42,14 +42,15 @@ const StyledContainer = styled.div`
   cursor: pointer;
 `
 const Tip = styled.div`
-  width: 120px;
+  max-width: 20em;
+  min-width: 10em;
   background-color: black;
   color: ${(props) => props.theme.color.white};
   text-align: center;
   padding: 10px;
   border-radius: 6px;
-  top: 1em;
-  left: 5em;
+  top: 0.2em;
+  left: 2em;
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
