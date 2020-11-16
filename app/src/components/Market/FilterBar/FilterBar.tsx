@@ -42,12 +42,8 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
           </Toggle>
           <Spacer size="lg" />
           <StyledSelectWrapper>
-            <SelectTitle>
-              <StyledSymbol>Expiry</StyledSymbol>
-              <Spacer size="sm" />
-            </SelectTitle>
             <StyledSelect value={expiry} onChange={handleFilter}>
-              <StyledOption>December 30th, 2020</StyledOption>
+              <StyledOption>Expiring December 30th, 2020 </StyledOption>
             </StyledSelect>
           </StyledSelectWrapper>
         </StyledFilterBarInner>
@@ -69,7 +65,7 @@ const StyledFilterBar = styled.div`
   margin-left: 1.5em;
   padding: 1em 0 1em 0;
 `
-const StyledSymbol = styled.span`
+const StyledSymbol = styled.h4`
   color: ${(props) => props.theme.color.grey[400]};
   letter-spacing: 1px;
   text-transform: uppercase;

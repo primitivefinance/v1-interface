@@ -70,7 +70,10 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           </StyledTitle>
         </div>
         <Spacer />
-        <StyledLink href={`${baseUrl}/${option.address}`} target="_blank">
+        <StyledLink
+          href={`${baseUrl}/${option.attributes.address}`}
+          target="_blank"
+        >
           {option.attributes.address.length > 0
             ? option.attributes.address.substr(0, 4) + '...'
             : '-'}

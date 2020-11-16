@@ -12,9 +12,11 @@ import Spacer from '@/components/Spacer'
 import Logo from '@/components/Logo'
 import Settings from '@/components/Settings'
 import { Wallet } from '@/components/Wallet'
+import { useWeb3React } from '@web3-react/core'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
+  const { chainId } = useWeb3React()
   return (
     <StyledTopBar>
       <Container
@@ -40,6 +42,7 @@ const TopBar: React.FC = () => {
           </Link>
         </StyledFlex>
         <StyledNav>
+          {chainId !== 1 ? <RSpacer /> : <MSpacer />}
           <Link href="/markets">
             <StyledNavItem
               active={
@@ -72,6 +75,13 @@ const TopBar: React.FC = () => {
     </StyledTopBar>
   )
 }
+const RSpacer = styled.div`
+  margin-left: 1em;
+`
+
+const MSpacer = styled.div`
+  margin-left: -2em;
+`
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};

@@ -100,9 +100,7 @@ const OrderOptions: React.FC = () => {
         <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
           <StyledTabList>
             <StyledTab active={tab === 0}>Long</StyledTab>
-            <Spacer size="sm" />
             <StyledTab active={tab === 1}>Short</StyledTab>
-            <Spacer size="sm" />
             <StyledTab active={tab === 2}>Liquidity</StyledTab>
           </StyledTabList>
           <Spacer />
@@ -209,7 +207,7 @@ const StyledTab = styled(Tab)<TabProps>`
   border-width: 1px 1px 0 1px;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
-  width: 22%;
+  width: 25%;
   list-style: none;
   cursor: pointer;
 `

@@ -1,5 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
+
+import Spacer from '@/components/Spacer'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
 import TableRow from '@/components/TableRow'
@@ -35,9 +37,12 @@ const OptionsTableHeader: React.FC = () => {
           {headers.map((header, index) => {
             if (index === headers.length - 1) {
               return (
-                <StyledButtonCell key={header.name}>
-                  {header.tip}
-                </StyledButtonCell>
+                <>
+                  <Spacer />
+                  <Spacer size="sm" />
+                  <Spacer size="sm" />
+                  <Spacer size="sm" />
+                </>
               )
             }
             if (header.tip) {
