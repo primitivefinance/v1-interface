@@ -53,7 +53,7 @@ const Market = ({ market, data }) => {
       <StyledMarket>
         <Grid>
           <Row>
-            <Col sm={7} md={8} lg={8}>
+            <Col sm={12} md={8} lg={8}>
               <StyledMain>
                 <MarketHeader marketId={market} />
                 <FilterBar
@@ -70,7 +70,7 @@ const Market = ({ market, data }) => {
                 />
               </StyledMain>
             </Col>
-            <Col sm={5} md={4} lg={4}>
+            <Col sm={12} md={4} lg={4}>
               <StyledSideBar>
                 <BetaBanner isOpen={true} />
                 <Spacer size="sm" />
@@ -99,7 +99,8 @@ const Market = ({ market, data }) => {
 const StyledMain = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   padding: 0 10em 0 3em;
-  height: 40%;
+  height: 21.25em;
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;
   border-radius: 0 0 0 5px;
 `
