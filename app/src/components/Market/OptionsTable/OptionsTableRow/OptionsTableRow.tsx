@@ -87,7 +87,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        {depth !== '0.00' ? (
+        {depth !== '0' ? (
           <TableCell>
             {depth} {'Options'}
           </TableCell>
@@ -150,9 +150,7 @@ const StyledDiv = styled.div`
 
 const StyledButtonCell = styled.div`
   font-weight: inherit;
-  flex: 0.25;
-  justify-content: center;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
+  justify-content: flex-start;
 `
 
 const Units = styled.span`
