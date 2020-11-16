@@ -29,6 +29,7 @@ const StyledButtonCellError = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  cursor: pointer;
   font-weight: inherit;
   color: ${(props) => props.theme.color.white};
   margin-right: ${(props) => props.theme.spacing[2]}px;

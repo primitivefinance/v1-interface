@@ -6,6 +6,8 @@ import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
 
 import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
+
 import Box from '@/components/Box'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
@@ -14,7 +16,11 @@ import Submit from './components/Submit'
 import OrderOptions from './components/OrderOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
-import { Operation } from '@/constants/index'
+import {
+  Operation,
+  getIconForMarket,
+  COINGECKO_ID_FOR_MARKET,
+} from '@/constants/index'
 import { EmptyAttributes } from '@/state/options/reducer'
 
 const OrderContent: React.FC = () => {
@@ -70,19 +76,24 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   }
   return (
     <Card>
-      <CardTitle>
-        <StyledTitle>
-          <>
-            {`${item.asset} ${
-              item.entity.isCall ? 'Call' : 'Put'
-            } $${formatBalance(item.strike)} ${month}/${date} ${year}`}
-          </>
-          <StyledFlex />
+      <Box row justifyContent="space-between" alignItems="center">
+        <StyledLogo src={getIconForMarket(item.asset.toLowerCase())} alt={''} />
+        <div>
+          <StyledTitle>
+            {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
+          </StyledTitle>
+          <Reverse />
+          <StyledTitle>
+            {`$${formatBalance(item.strike)} ${month}/${date} ${year}`}
+          </StyledTitle>
+        </div>
+        <Spacer />
+        <CustomButton>
           <Button variant="transparent" size="sm" onClick={() => clear()}>
             <ClearIcon />
           </Button>
-        </StyledTitle>
-      </CardTitle>
+        </CustomButton>
+      </Box>
       <CardContent>
         <OrderContent />
       </CardContent>
@@ -90,18 +101,25 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   )
 }
 
-const StyledTitle = styled(Box)`
-  align-items: center;
-  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
+const CustomButton = styled.div`
+  margin-top: -1.1em;
+  background: none;
+`
+const Reverse = styled.div`
+  margin-top: -1.1em;
 `
 
-const StyledFlex = styled.div`
-  display: flex;
-  flex: 1;
+const StyledTitle = styled.h4`
+  align-items: center;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
+  width: 100%;
+  color: white;
+`
+
+const StyledLogo = styled.img`
+  border-radius: 50%;
+  margin-left: 1.3em;
+  height: 36px;
 `
 
 export default OrderCard

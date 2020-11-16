@@ -12,7 +12,7 @@ const LitContainer: React.FC = (props) => {
 const StyledLitContainer = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
 `
 const StyledLitContainerContent = styled.div`
   width: ${(props) => props.theme.contentWidth * (2 / 3)}px;

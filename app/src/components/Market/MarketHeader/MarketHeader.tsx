@@ -163,7 +163,6 @@ const StyledIcon = styled(LaunchIcon)`
   margin-left: 10px;
 `
 const StyledHeader = styled.div`
-  background-color: ${(props) => props.theme.color.black};
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   padding-top: ${(props) => props.theme.spacing[4]}px;
 `

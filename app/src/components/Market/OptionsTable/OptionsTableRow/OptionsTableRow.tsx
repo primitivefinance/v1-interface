@@ -114,9 +114,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
                 ? 'selected-outlined'
                 : 'outlined'
             }
+            size="sm"
           >
             {item.entity === null ? (
-              <AddIcon />
+              <AddIcon style={{ fontSize: '2em' }} />
             ) : item?.entity.address === key ? (
               <CheckIcon />
             ) : (
