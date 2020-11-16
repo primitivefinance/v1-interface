@@ -29,7 +29,7 @@ const StyledTableRow = styled.div<StyleProps>`
   background-color: ${(props) =>
     props.isActive ? 'transparent' : 'transparent'};
   border-bottom: 1px solid
-    ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[700])};
+    ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[800])};
   color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
   cursor: ${(props) => (props.isHead ? null : 'pointer')};
   display: flex;

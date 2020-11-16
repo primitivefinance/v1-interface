@@ -15,14 +15,27 @@ export const useAddNotif = (): ((
 
   return useCallback(
     (id, title, msg, link) => {
-      dispatch(
-        addNotif({
-          id,
-          title,
-          msg,
-          link,
-        })
-      )
+      if (id === 0) {
+        setTimeout(() => {
+          dispatch(
+            addNotif({
+              id,
+              title,
+              msg,
+              link,
+            })
+          )
+        }, 1000)
+      } else {
+        dispatch(
+          addNotif({
+            id,
+            title,
+            msg,
+            link,
+          })
+        )
+      }
     },
     [dispatch]
   )

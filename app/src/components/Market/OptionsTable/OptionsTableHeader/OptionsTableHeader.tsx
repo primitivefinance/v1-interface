@@ -59,7 +59,7 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 60px;
+  min-height: 50px;
   min-width: 1200px;
   left: 0;
 `

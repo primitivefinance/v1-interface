@@ -1,6 +1,5 @@
 import React from 'react'
 import { Provider } from 'react-redux'
-
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
