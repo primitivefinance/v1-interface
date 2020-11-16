@@ -177,7 +177,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           [reserves0, reserves1]
                         )
                         let reserve: BigNumberish = reserves1.toString()
-                        let depth: BigNumberish = +reserves1 * 0.02
+                        let depth: BigNumberish = redeemCostDivMinted
                         if (typeof reserve === 'undefined') {
                           reserve = 0
                           depth = 0
@@ -186,6 +186,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         pairReserveTotal = pairReserveTotal.add(
                           BigNumber.from(reserves1)
                         )
+
                         if (option.isCall) {
                           if (
                             Base.asset.symbol.toUpperCase() ===
@@ -198,6 +199,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               true
                             )
+
                             calls.push({
                               entity: option,
                               asset: assetName,
@@ -209,7 +211,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
-                              depth: redeemCostDivMinted.toString(),
+                              depth: depth.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,
@@ -238,9 +240,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               option.quote.asset,
                               numerator.div(denominator)
                             )
-                            console.log(
-                              option.optionParameters.base.quantity.toString()
-                            )
                             breakEven = calculateBreakeven(
                               parseEther(strikePrice.quantity.toString()),
                               premium,
@@ -258,7 +257,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
-                              depth: redeemCostDivMinted.toString(),
+                              depth: depth.toString(),
                               address: option.address,
                               expiry: option.expiry,
                               id: option.name,

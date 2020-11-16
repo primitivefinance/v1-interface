@@ -15,6 +15,8 @@ import { useItem } from '@/state/order/hooks'
 
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
+import numeral from 'numeral'
+
 export interface TableColumns {
   key: string
   asset: string
@@ -78,23 +80,25 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       >
         <TableCell>${strike}</TableCell>
         <TableCell>$ {breakeven}</TableCell>
-        {+premium > 0 ? (
+        {premium !== '0.00' ? (
           <TableCell>
             $ {premium} / {premiumUnderlying} {asset}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+depth > 0 ? (
+        {depth !== '0.00' ? (
           <TableCell>
             {depth} {'Options'}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+reserves[0] > 0 ? (
+        {reserves[0] !== '0.00' ? (
           <TableCell>
-            {reserves[0]} {asset.toUpperCase()} / {reserves[1]} {'SHORT'}
+            {numeral(reserves[0]).format('0a')}{' '}
+            <Units>{asset.toUpperCase()}</Units> /{' '}
+            {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -144,6 +148,11 @@ const StyledButtonCell = styled.div`
   flex: 0.25;
   justify-content: center;
   margin-right: ${(props) => props.theme.spacing[2]}px;
+`
+
+const Units = styled.span`
+  opacity: 0.66;
+  font-size: 12px;
 `
 
 export default OptionsTableRow
