@@ -51,6 +51,7 @@ const Balance: React.FC<TestnetCardProps> = () => {
     return tx
   }
   if (loading) return null
+  if (calls.length === 0) return null
   return (
     <Card border>
       <CardContent>

@@ -6,6 +6,7 @@ import { OptionPosition } from './reducer'
 import { updatePositions } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
+import { useOptions } from '@/state/options/hooks'
 
 import { OptionsAttributes } from '../options/reducer'
 import { getBalance } from '@/lib/erc20'
@@ -34,6 +35,17 @@ export const useUpdatePositions = (): ((
     async (options: OptionsAttributes[]) => {
       let positionExists = false
       const positionsArr: OptionPosition[] = []
+      if (options.length === 0) {
+        dispatch(
+          updatePositions({
+            loading: false,
+            exists: false,
+            balance: null,
+            options: positionsArr,
+          })
+        )
+        return
+      }
       const bal = await getBalance(
         library,
         options[0].entity.assetAddresses[0],
