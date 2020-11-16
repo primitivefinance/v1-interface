@@ -45,13 +45,13 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const options = useOptions()
   const router = useRouter()
   useEffect(() => {
-    if (orderState[1] && orderState[2]) {
+    if (orderState[1] && orderState[2] && orderState[3]) {
       if (!options.loading) {
         const opts = options.calls.concat(options.puts)
         opts.map((opt) => {
-          if (opt.address === orderState[1]) {
+          if (opt.address === orderState[2]) {
             // force ts compiler
-            const id: string = orderState[2]
+            const id: string = orderState[3]
             updateItem(opt, Operation[id])
             setTimeout(() => {
               router.push(
