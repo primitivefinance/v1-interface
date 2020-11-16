@@ -41,8 +41,7 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledFlex>
-        <StyledNav>
-          {chainId !== 1 ? <RSpacer /> : <MSpacer />}
+        <StyledNav isAlt={chainId === 1}>
           <Link href="/markets">
             <StyledNavItem
               active={
@@ -75,13 +74,10 @@ const TopBar: React.FC = () => {
     </StyledTopBar>
   )
 }
-const RSpacer = styled.div`
-  margin-left: 1em;
-`
 
-const MSpacer = styled.div`
-  margin-left: -2em;
-`
+interface NavProps {
+  isActive: boolean
+}
 
 const StyledTopBar = styled.div`
   background-color: ${(props) => props.theme.color.black};
@@ -91,7 +87,7 @@ const StyledTopBar = styled.div`
   flex-direction: column;
   height: 72px;
   position: sticky;
-  top: 0;
+  top: -1px;
 `
 
 const StyledFlex = styled.div`
@@ -101,12 +97,15 @@ const StyledFlex = styled.div`
   margin: 0 1em 0 1em;
 `
 
-const StyledNav = styled.div`
+const StyledNav = styled.div<NavProps>`
   align-items: center;
   display: flex;
   flex: 1;
   font-weight: 700;
   justify-content: center;
+  position: absolute;
+  left: ${(props) => (props.isActive ? 50 : 50)}%;
+  right: ${(props) => (props.isActive ? 40 : 60)}%;
 `
 
 interface StyledNavItemProps {

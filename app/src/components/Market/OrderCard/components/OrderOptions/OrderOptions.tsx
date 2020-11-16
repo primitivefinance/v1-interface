@@ -107,7 +107,7 @@ const OrderOptions: React.FC = () => {
           <TabPanel>
             <StyledColumn>
               <Box row justifyContent="flex-start" alignItems="center">
-                <Label text={'Balance'} />
+                <Label text={'Long Balance'} />
                 <Spacer />
                 <StyledBalance>
                   {positions.loading ? (
@@ -139,7 +139,7 @@ const OrderOptions: React.FC = () => {
           <TabPanel>
             <StyledColumn>
               <Box row justifyContent="flex-start" alignItems="center">
-                <Label text={'Balance'} />
+                <Label text={'Short Balance'} />
                 <Spacer />
                 <StyledBalance>
                   {positions.loading ? (
