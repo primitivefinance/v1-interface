@@ -153,13 +153,7 @@ const PositionsCard: React.FC = () => {
           <>
             <CardContent>
               {positions.options.map((pos, i) => {
-                return (
-                  <Position
-                    onClick={() => setOpen(false)}
-                    key={i}
-                    option={pos}
-                  />
-                )
+                return <Position key={i} option={pos} />
               })}
             </CardContent>
           </>
