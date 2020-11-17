@@ -89,6 +89,9 @@ const Market = ({ market, data }) => {
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
+  if (!MetaMaskOnboarding.isMetaMaskInstalled() || !ethereum || !web3) {
+    return <StyledText>Please Install Metamask to View Markets</StyledText>
+  }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
     return <StyledText>Please Connect to Metamask to View Markets</StyledText>
   }
