@@ -23,7 +23,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
-
+  console.log(formatEtherBalance(balance.toString()))
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
       ? item.asset.toUpperCase()
@@ -54,7 +54,11 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <Spacer />
       <LineItem
         label={'LP Balance'}
-        data={balance ? formatEtherBalance(balance).toString() : '0.00'}
+        data={
+          balance.toString() > 0
+            ? formatEtherBalance(balance.toString()).toString()
+            : '0.00'
+        }
         units={'UNI-V2'}
       />
       <Spacer />
@@ -91,14 +95,12 @@ const OrderOptions: React.FC = () => {
     const temp = positions.options.filter(
       (opt) => opt.attributes.address === item.address
     )[0]
-    console.log({ temp })
     if (temp) {
       if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
       }
     }
   }, [setOption, positions, item])
-
   const change = (t: Operation) => {
     updateItem(item, t)
   }

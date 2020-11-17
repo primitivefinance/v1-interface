@@ -94,14 +94,14 @@ export default function Updater(): null {
                 addNotif(
                   2,
                   `Trade Confirmed`,
-                  `${summary.type} ${
-                    summary.amount
+                  `x${summary.amount} ${
+                    summary.type
                   } ${market.toUpperCase()} ${type
                     .substr(0, type.length - 1)
                     .toUpperCase()} $${summary.option.strikePrice.quantity.toString()} ${
                     exp.month
                   }/${exp.date}/${exp.year}`,
-                  `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%23primtive+.+`
+                  `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimtiveFi`
                 )
               }
             } else {

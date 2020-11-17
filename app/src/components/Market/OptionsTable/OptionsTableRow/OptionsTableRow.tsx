@@ -99,9 +99,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        {depth !== '0' ? (
+        {parseInt(depth) > 0 ? (
           <TableCell>
-            {depth} {'Options'}
+            {depth} <Units>{'SHORT'}</Units>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
