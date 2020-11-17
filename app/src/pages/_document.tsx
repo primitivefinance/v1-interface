@@ -52,7 +52,7 @@ class MyDocument extends Document {
           />
           <meta
             property="og:image"
-            content="https://ipfs.pics/ipfs/QmW3FgNGeD46kHEryFUw1ftEUqRw254WkKxYeKaouz7DJA"
+            content="https://storage.googleapis.com/app-image-cdn/Screen%20Shot%202020-11-16%20at%207.21.02%20PM.png"
           />
           <link
             href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital@0;1&display=swap"
