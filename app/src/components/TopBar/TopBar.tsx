@@ -89,6 +89,7 @@ const StyledTopBar = styled.div`
   flex-direction: column;
   height: 72px;
   position: sticky;
+  z-index: 100;
   top: -1px;
 `
 
