@@ -19,6 +19,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 
@@ -190,19 +191,18 @@ const Swap: React.FC = () => {
             : '-'
         } ${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
         onClick={() => setAdvanced(!advanced)}
       >
-        <ExpandMoreIcon />
+        {!advanced ? <ExpandMoreIcon /> : <ExpandLessIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
       {advanced ? ( // FIX
         <>
-          <Spacer size="sm" />
           <LineItem label="Price Impact" data={``} />
           <Spacer />
         </>

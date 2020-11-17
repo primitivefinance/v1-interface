@@ -52,7 +52,6 @@ const StyledBlockNumber = styled.h5`
   background-color: ${(props) => props.theme.color.black};
   display: flex;
   max-height: 0.1em;
-  margin-right: ${(props) => props.theme.spacing[4]}px;
   padding: ${(props) => props.theme.spacing[4]}px;
 `
 const StyledFooter = styled.footer`
