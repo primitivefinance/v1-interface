@@ -209,6 +209,12 @@ const AddLiquidity: React.FC = () => {
       'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
   }
 
+  const wtitle = {
+    text: 'Withdraw Liquidity',
+    tip:
+      'Withdraw the underlying asset from the pair, using the pool to automatically swap option liquidity into addtional underlying',
+  }
+
   const noLiquidityTitle = {
     text: 'This pair has no liquidity.',
     tip:
@@ -227,7 +233,11 @@ const AddLiquidity: React.FC = () => {
         </IconButton>
         <Spacer size="sm" />
         <StyledTitle>
-          <Tooltip text={title.tip}>{title.text}</Tooltip>
+          {orderType === Operation.REMOVE_LIQUIDITY ? (
+            <Tooltip text={title.tip}>{title.text}</Tooltip>
+          ) : (
+            <Tooltip text={wtitle.tip}>{wtitle.text}</Tooltip>
+          )}
         </StyledTitle>
       </Box>
 

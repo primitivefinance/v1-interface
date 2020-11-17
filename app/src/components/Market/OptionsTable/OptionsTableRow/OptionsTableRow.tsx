@@ -81,10 +81,20 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         onClick={handleOnClick}
       >
         <TableCell>${strike}</TableCell>
-        <TableCell>$ {breakeven}</TableCell>
+        <TableCell>
+          {premium !== '0.00' ? <>{`$${breakeven}`}</> : <>{`--`}</>}
+        </TableCell>
         {premium !== '0.00' ? (
           <TableCell>
-            $ {premium} / {premiumUnderlying} {asset}
+            <StyledR>
+              <StyledT>
+                {`$`}
+                {premium}
+              </StyledT>
+              <span>
+                {premiumUnderlying} <Units>{asset}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -98,9 +108,15 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         )}
         {reserves[0] !== '0.00' ? (
           <TableCell>
-            {numeral(reserves[0]).format('0a')}{' '}
-            <Units>{asset.toUpperCase()}</Units> /{' '}
-            {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+            <StyledR>
+              <StyledT>
+                {numeral(reserves[0]).format('0a')}{' '}
+                <Units>{asset.toUpperCase()}</Units>
+              </StyledT>
+              <span>
+                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -141,9 +157,24 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   )
 }
 
+const StyledT = styled.span`
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  padding-bottom: 3px;
+`
+const StyledR = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 75%;
+`
 const StyledARef = styled.a`
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   text-decoration: none;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
 `
 
 const StyledDiv = styled.div`
