@@ -117,7 +117,6 @@ export class Option extends Token {
         parseInt(numerator.toString()) / parseInt(denominator.toString())
 
       strikePrice = new Quantity(this.optionParameters.quote.asset, strike)
-      console.log(strikePrice.quantity.toString())
     }
     return strikePrice
   }

@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { AppDispatch, AppState } from '../index'
 import { addNotif, clearNotif, resetNotif } from './actions'
 import { Notif } from './reducer'
+import { useWeb3React } from '@web3-react/core'
 
 export const useAddNotif = (): ((
   id: number,
@@ -12,22 +12,11 @@ export const useAddNotif = (): ((
   link: string
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
+  const { active } = useWeb3React()
 
   return useCallback(
     (id, title, msg, link) => {
-      if (id === 0) {
-        setTimeout(() => {
-          dispatch(
-            addNotif({
-              id,
-              title,
-              msg,
-              link,
-            })
-          )
-        }, 1000)
-      } else {
-        console.log('dispatch')
+      if (!active) {
         dispatch(
           addNotif({
             id,
