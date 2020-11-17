@@ -188,6 +188,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         )
                         let reserve: BigNumberish = reserves1.toString()
                         let depth: BigNumberish = redeemCostDivMinted
+                        if (+depth < 0) depth = 0
                         if (typeof reserve === 'undefined') {
                           reserve = 0
                           depth = 0
