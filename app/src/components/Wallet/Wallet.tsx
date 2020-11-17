@@ -97,7 +97,30 @@ export const Wallet = () => {
         {error instanceof UnsupportedChainIdError ? (
           <h5>Unsupported Chain</h5>
         ) : (
-          <h5>Error Connecting, Please Refresh</h5>
+          <Button
+            variant="secondary"
+            isLoading={connecting}
+            leftIcon={
+              MetaMaskOnboarding.isMetaMaskInstalled()
+                ? ('metamask' as 'edit')
+                : undefined
+            }
+            onClick={(): void => {
+              setConnecting(true)
+              activate(injected, undefined, true).catch((error) => {
+                // ignore the error if it's a user rejected request
+                if (error instanceof UserRejectedRequestError) {
+                  setConnecting(false)
+                } else {
+                  setError(error)
+                }
+              })
+            }}
+          >
+            {MetaMaskOnboarding.isMetaMaskInstalled()
+              ? 'Connect to MetaMask'
+              : 'Connect to Wallet'}
+          </Button>
         )}
       </>
     )
@@ -113,6 +136,7 @@ export const Wallet = () => {
         (window as any)?.ethereum ||
         (window as any)?.web3 ? (
           <Button
+            variant="secondary"
             isLoading={connecting}
             leftIcon={
               MetaMaskOnboarding.isMetaMaskInstalled()

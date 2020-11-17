@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
 import { useActiveWeb3React } from '@/hooks/user/index'
+import MetaMaskOnboarding from '@metamask/onboarding'
 
 import BetaBanner from '@/components/BetaBanner'
 import Spacer from '@/components/Spacer'
@@ -12,7 +13,7 @@ import { ADDRESS_FOR_MARKET } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
-
+import Loader from '@/components/Loader'
 import {
   FilterBar,
   MarketHeader,
@@ -43,8 +44,8 @@ const Market = ({ market, data }) => {
   const router = useRouter()
   const clear = useClearNotif()
   useEffect(() => {
-    const { ethereum } = window as any
-    if (!ethereum) {
+    const { ethereum, web3 } = window as any
+    if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.push('/markets')
     }
@@ -83,10 +84,13 @@ const Market = ({ market, data }) => {
   }
 
   if (!active) {
-    return <StyledText>Please install Metamask</StyledText>
+    return <Loader size="lg" />
   }
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
+  }
+  if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
+    return <StyledText>Please Connect to Metamask to View Markets</StyledText>
   }
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
