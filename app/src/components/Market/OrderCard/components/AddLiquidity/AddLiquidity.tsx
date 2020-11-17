@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
+import ethers from 'ethers'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
@@ -35,6 +36,7 @@ import {
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
@@ -54,6 +56,9 @@ const AddLiquidity: React.FC = () => {
   })
   // web3
   const { library, chainId } = useWeb3React()
+  // approval
+  const addNotif = useAddNotif()
+  const [approved, setApproved] = useState(false)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -81,6 +86,11 @@ const AddLiquidity: React.FC = () => {
   const spender = UNISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(underlyingToken.address, spender)
   const { onApprove } = useApprove(underlyingToken.address, spender)
+
+  const underlyingAmount: TokenAmount = new TokenAmount(
+    underlyingToken,
+    parseEther(underlyingTokenBalance).toString()
+  )
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -209,6 +219,33 @@ const AddLiquidity: React.FC = () => {
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [lpPair, lp, lpTotalSupply, inputs])
 
+  // FIX
+  const isApproved = useCallback(() => {
+    const approved: boolean = parseEther(tokenAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+    setApproved(approved)
+    return approved
+  }, [tokenAllowance, approved])
+
+  useEffect(() => {
+    setApproved(isApproved())
+  }, [isApproved, setApproved, inputs])
+
+  const handleApproval = useCallback(() => {
+    onApprove()
+      .then((tx: ethers.Transaction) => {
+        if (tx.hash) {
+          setApproved(true)
+        }
+      })
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [inputs, tokenAllowance, onApprove, setApproved])
+
+  // End FIX
+
   const title = {
     text: 'Add Liquidity',
     tip:
@@ -270,6 +307,7 @@ const AddLiquidity: React.FC = () => {
             quantity={inputs.secondary}
             onChange={handleInputChange}
             onClick={() => console.log('Max unavailable.')} //
+            balance={underlyingAmount}
           />{' '}
         </>
       )}
@@ -336,7 +374,7 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+        {approved ? (
           <> </>
         ) : (
           <>
@@ -344,7 +382,7 @@ const AddLiquidity: React.FC = () => {
               disabled={!tokenAllowance || submitting}
               full
               size="sm"
-              onClick={onApprove}
+              onClick={handleApproval}
               isLoading={submitting}
               text={`Approve ${item.asset.toUpperCase()}`}
             />
@@ -352,11 +390,7 @@ const AddLiquidity: React.FC = () => {
         )}
 
         <Button
-          disabled={
-            !parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ||
-            !inputs ||
-            submitting
-          }
+          disabled={!approved || !inputs || submitting}
           full
           size="sm"
           onClick={handleSubmitClick}

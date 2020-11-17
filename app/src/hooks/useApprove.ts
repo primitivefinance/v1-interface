@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { approve } from '@/lib/erc20'
 import { Operation } from '@/constants/index'
+import ethers from 'ethers'
 
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -12,7 +13,9 @@ const useApprove = (tokenAddress: string, spender: string) => {
   const now = () => new Date().getTime()
   const throwError = useAddNotif()
 
-  const handleApprove = useCallback(async () => {
+  const handleApprove = useCallback(async (): Promise<
+    ethers.Transaction | any
+  > => {
     approve(await library.getSigner(), tokenAddress, account, spender)
       .then((tx) => {
         if (tx.hash) {

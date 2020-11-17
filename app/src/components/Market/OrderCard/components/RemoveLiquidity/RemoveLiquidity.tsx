@@ -47,6 +47,11 @@ const AddLiquidity: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
+
+  // approval
+  const [lpApproved, setLpApproved] = useState(false)
+  const [optionApproved, setOptionApproved] = useState(false)
+
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
@@ -269,6 +274,24 @@ const AddLiquidity: React.FC = () => {
       'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
   }
 
+  // FIX
+  const isLpApproved = useCallback(() => {
+    const approved: boolean = parseEther(tokenAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+    setLpApproved(approved)
+    return approved
+  }, [inputs, tokenAllowance, setLpApproved])
+
+  const isOptionApproved = useCallback(() => {
+    const approved: boolean = parseEther(optionAllowance).gt(
+      parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+    )
+    setOptionApproved(approved)
+    return approved
+  }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
+  // END FIX
+
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -389,7 +412,7 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+        {lpApproved ? (
           <> </>
         ) : (
           <>
@@ -405,9 +428,7 @@ const AddLiquidity: React.FC = () => {
           </>
         )}
 
-        {parseEther(optionAllowance).gt(
-          parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
-        ) ? (
+        {optionApproved ? (
           <> </>
         ) : (
           <>
@@ -423,14 +444,7 @@ const AddLiquidity: React.FC = () => {
         )}
 
         <Button
-          disabled={
-            !parseEther(optionAllowance).gt(
-              parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
-            ) ||
-            !parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ||
-            !inputs ||
-            submitting
-          }
+          disabled={!optionApproved || !lpApproved || !inputs || submitting}
           full
           size="sm"
           onClick={handleSubmitClick}
@@ -442,25 +456,13 @@ const AddLiquidity: React.FC = () => {
   )
 }
 
-const StyledText = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-const StyledSubtitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
+
 const StyledRatio = styled.h4`
   color: ${(props) => props.theme.color.white};
 `

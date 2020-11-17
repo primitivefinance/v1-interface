@@ -8,7 +8,6 @@ import Spacer from '@/components/Spacer'
 import { BigNumberish } from 'ethers'
 
 import { TokenAmount } from '@uniswap/sdk'
-import ethers from 'ethers'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
@@ -31,7 +30,6 @@ const PriceInput: React.FC<PriceInputProps> = ({
   startAdornment,
   balance,
 }) => {
-  console.log({ balance })
   return (
     <>
       <Label text={title} />
