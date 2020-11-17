@@ -58,7 +58,6 @@ const StyledSpinner = styled.svg<StyledSpinnerProps>`
   animation: rotate 2s linear infinite;
   height: ${(props) => props.size}px;
   width: ${(props) => props.size}px;
-
   & .path {
     stroke: #ffffff;
     stroke-linecap: round;

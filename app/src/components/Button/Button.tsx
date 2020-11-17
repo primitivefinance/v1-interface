@@ -122,14 +122,14 @@ const Button: React.FC<ButtonProps> = ({
       if (variant === 'default') {
         return (
           <>
-            <Loader />
+            <Loader dark />
             <Spacer size="sm" />
           </>
         )
       }
       return (
         <>
-          <Loader dark />
+          <Loader />
           <Spacer size="sm" />
         </>
       )
