@@ -76,7 +76,7 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Sell Short Tokens',
+        text: 'Buy Short Tokens',
         tip: 'Purchase tokenized written covered options.',
       }
       tokenAddress = underlyingToken.address
@@ -142,6 +142,8 @@ const Swap: React.FC = () => {
     return debit
   }, [item, inputs])
 
+  console.log(item.shortPremium.toString())
+
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -159,11 +161,20 @@ const Swap: React.FC = () => {
       </Box>
 
       <Spacer />
-      <LineItem
-        label="Option Premium"
-        data={formatEtherBalance(item.premium).toString()}
-        units={item.asset}
-      />
+      {orderType === Operation.SHORT ? (
+        <LineItem
+          label="Short Option Premium"
+          data={formatEther(item.shortPremium).toString()}
+          units={item.asset}
+          rawData={formatEther(item.shortPremium)}
+        />
+      ) : (
+        <LineItem
+          label="Option Premium"
+          data={formatEther(item.premium).toString()}
+          units={item.asset}
+        />
+      )}
       <Spacer />
       <PriceInput
         title="Quantity"
@@ -211,28 +222,32 @@ const Swap: React.FC = () => {
       ) : (
         <> </>
       )}
-      {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+
+      <Box row justifyContent="flex-start">
+        {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+          <> </>
+        ) : (
+          <>
+            {' '}
+            <Button
+              disabled={!tokenAllowance || loading}
+              full
+              size="sm"
+              onClick={onApprove}
+              isLoading={loading}
+              text="Approve"
+            />
+          </>
+        )}
         <Button
           disabled={!inputs || loading}
           full
           size="sm"
           onClick={handleSubmitClick}
           isLoading={loading}
-          text="Review Transaction"
+          text="Submit"
         />
-      ) : (
-        <>
-          {' '}
-          <Button
-            disabled={!tokenAllowance || loading}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={loading}
-            text="Approve"
-          />
-        </>
-      )}
+      </Box>
     </>
   )
 }

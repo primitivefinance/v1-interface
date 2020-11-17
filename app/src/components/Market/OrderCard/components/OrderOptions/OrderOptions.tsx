@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { formatEther } from 'ethers/lib/utils'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
@@ -23,6 +24,8 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
+
+  useEffect(() => {}, [balance])
 
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
@@ -54,7 +57,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <Spacer />
       <LineItem
         label={'LP Balance'}
-        data={balance ? formatEtherBalance(balance).toString() : '0.00'}
+        data={balance ? formatEther(balance).toString() : '0'}
         units={'UNI-V2'}
       />
       <Spacer />
@@ -96,6 +99,8 @@ const OrderOptions: React.FC = () => {
       if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
       }
+    } else {
+      setOption({ long: null, short: null, lp: null })
     }
   }, [setOption, positions, item])
 
@@ -180,7 +185,7 @@ const OrderOptions: React.FC = () => {
           </TabPanel>
           <TabPanel>
             <StyledColumn>
-              <LPOptions balance={option.lp ? option.lp : null} />
+              <LPOptions balance={option.lp ? option.lp : '0'} />
             </StyledColumn>
           </TabPanel>
         </StyledTabs>

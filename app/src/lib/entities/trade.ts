@@ -272,6 +272,18 @@ export class Trade {
     return premium
   }
 
+  public static getShortPremium = (
+    quantityOptions: BigNumberish,
+    reserves: BigNumberish[]
+  ): BigNumberish => {
+    if (BigNumber.from(reserves[0]).isZero()) {
+      return 0
+    }
+    const amountOut = Trade.getQuote(quantityOptions, reserves[0], reserves[1])
+    const shortPremium = BigNumber.from(amountOut)
+    return shortPremium
+  }
+
   public static getSpotPremium = (
     base: BigNumberish,
     quote: BigNumberish,
@@ -280,6 +292,14 @@ export class Trade {
   ): BigNumberish => {
     const quantity = parseEther('1')
     const premium = Trade.getPremium(quantity, base, quote, path, reserves)
+    return premium
+  }
+
+  public static getSpotShortPremium = (
+    reserves: BigNumberish[]
+  ): BigNumberish => {
+    const quantity = parseEther('1')
+    const premium = Trade.getShortPremium(quantity, reserves)
     return premium
   }
 

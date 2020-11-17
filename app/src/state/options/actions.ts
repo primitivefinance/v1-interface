@@ -16,6 +16,7 @@ export type OptionsAttributes = {
   breakEven: BigNumberish
   change: BigNumberish
   premium: BigNumberish
+  shortPremium: BigNumberish
   strike: BigNumberish
   volume: BigNumberish
   reserves: BigNumberish[]
