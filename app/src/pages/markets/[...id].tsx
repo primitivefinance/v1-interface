@@ -115,7 +115,7 @@ const Market = ({ market, data }) => {
               </StyledMain>
             </StyledContainer>
 
-            <Col sm={12} md={4} lg={4}>
+            <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
                 <Spacer />
                 <BalanceCard />
@@ -126,7 +126,7 @@ const Market = ({ market, data }) => {
                 <Spacer />
                 <TransactionCard />
               </StyledSideBar>
-            </Col>
+            </StyledCol>
           </Row>
         </Grid>
       </StyledMarket>
@@ -134,12 +134,17 @@ const Market = ({ market, data }) => {
   )
 }
 
+const StyledCol = styled(Col)`
+  position: sticky;
+`
+
 const StyledContainer = styled(Col)`
   height: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  overflow-y: hidden;
 `
 const StyledMain = styled.div``
 
@@ -157,6 +162,8 @@ const StyledSideBar = styled.div`
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
