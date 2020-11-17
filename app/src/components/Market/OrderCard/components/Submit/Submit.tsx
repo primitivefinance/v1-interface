@@ -16,7 +16,7 @@ const Submit: React.FC<SubmitProps> = () => {
     <StyledDiv>
       {orderType === Operation.ADD_LIQUIDITY ? (
         <AddLiquidity />
-      ) : orderType === Operation.REMOVE_LIQUIDITY ? (
+      ) : orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
         <RemoveLiquidity />
       ) : (
         <>

@@ -8,16 +8,19 @@ import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
-import { Operation } from '@/constants/index'
+import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
+import useApprove from '@/hooks/useApprove'
+import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
 import { Trade } from '@/lib/entities/trade'
+import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -75,6 +78,9 @@ const AddLiquidity: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+  const spender = UNISWAP_CONNECTOR[chainId]
+  const tokenAllowance = useTokenAllowance(underlyingToken.address, spender)
+  const { onApprove } = useApprove(underlyingToken.address, spender)
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -209,12 +215,6 @@ const AddLiquidity: React.FC = () => {
       'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
   }
 
-  const wtitle = {
-    text: 'Withdraw Liquidity',
-    tip:
-      'Withdraw the underlying asset from the pair, using the pool to automatically swap option liquidity into addtional underlying',
-  }
-
   const noLiquidityTitle = {
     text: 'This pair has no liquidity.',
     tip:
@@ -233,11 +233,7 @@ const AddLiquidity: React.FC = () => {
         </IconButton>
         <Spacer size="sm" />
         <StyledTitle>
-          {orderType === Operation.REMOVE_LIQUIDITY ? (
-            <Tooltip text={title.tip}>{title.text}</Tooltip>
-          ) : (
-            <Tooltip text={wtitle.tip}>{wtitle.text}</Tooltip>
-          )}
+          <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
 
@@ -338,14 +334,36 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <> </>
       )}
-      <Button
-        disabled={!inputs || submitting}
-        full
-        size="sm"
-        onClick={handleSubmitClick}
-        isLoading={submitting}
-        text="Review Transaction"
-      />
+
+      <Box row justifyContent="flex-start">
+        {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+          <> </>
+        ) : (
+          <>
+            <Button
+              disabled={!tokenAllowance || submitting}
+              full
+              size="sm"
+              onClick={onApprove}
+              isLoading={submitting}
+              text={`Approve ${item.asset.toUpperCase()}`}
+            />
+          </>
+        )}
+
+        <Button
+          disabled={
+            !parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ||
+            !inputs ||
+            submitting
+          }
+          full
+          size="sm"
+          onClick={handleSubmitClick}
+          isLoading={submitting}
+          text="Review Transaction"
+        />
+      </Box>
     </>
   )
 }

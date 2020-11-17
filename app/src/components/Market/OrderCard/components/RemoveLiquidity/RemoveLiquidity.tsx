@@ -10,16 +10,19 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
-import { Operation } from '@/constants/index'
+import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
+import useApprove from '@/hooks/useApprove'
+import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
 import { Trade } from '@/lib/entities/trade'
+import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -68,17 +71,17 @@ const AddLiquidity: React.FC = () => {
     new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
   ).data
 
-  const hasLiquidity = lpPair
-    ? lpPair.reserve0.greaterThan('0')
-      ? true
-      : false
-    : false
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+  const spender = UNISWAP_CONNECTOR[chainId]
+  const tokenAllowance = useTokenAllowance(lpToken, spender)
+  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const { onApprove } = useApprove(lpToken, spender)
+  const optionAllowance = useTokenAllowance(item.address, spender)
+  const onApproveOption = useApprove(item.address, spender)
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -102,8 +105,19 @@ const AddLiquidity: React.FC = () => {
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setRatio(Number(e.currentTarget.value))
+      const liquidity = formatEther(parseEther(lp).mul(ratio).div(1000))
+      setInputs({ ...inputs, primary: liquidity })
     },
-    [setRatio]
+    [setRatio, lp]
+  )
+
+  const handleRatio = useCallback(
+    (value) => {
+      setRatio(value)
+      const liquidity = formatEther(parseEther(lp).mul(value).div(1000))
+      setInputs({ ...inputs, primary: liquidity })
+    },
+    [setInputs, lp, ratio, inputs]
   )
 
   const handleSubmitClick = useCallback(() => {
@@ -116,7 +130,7 @@ const AddLiquidity: React.FC = () => {
       Number(inputs.secondary)
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType])
+  }, [submitOrder, removeItem, item, library, inputs, orderType, lp, ratio])
 
   const calculateToken0PerToken1 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
@@ -193,10 +207,14 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateUnderlyingOutput = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return '0'
 
     const liquidity = parseEther(lp).mul(ratio).div(1000)
-    console.log(liquidity.toString())
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
     const base = item.entity.optionParameters.base.quantity
@@ -239,8 +257,10 @@ const AddLiquidity: React.FC = () => {
 
   const calculateBurn = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const liquidity = parseEther(lp).mul(ratio).div(1000)
-    return liquidity.toString()
+    const liquidity = parseEther(lp)
+      .mul(parseEther(ratio.toString()))
+      .div(parseEther('1000'))
+    return formatEther(liquidity)
   }, [lpPair, lp, ratio])
 
   const title = {
@@ -275,16 +295,36 @@ const AddLiquidity: React.FC = () => {
       <Slider
         min={1}
         max={1000}
-        step={0.1}
+        step={1}
         value={ratio}
         onChange={handleRatioChange}
       />
 
       <Box row justifyContent="flex-start">
-        <Button text="25%" onClick={() => setRatio(250)} />
-        <Button text="50%" onClick={() => setRatio(500)} />
-        <Button text="75%" onClick={() => setRatio(750)} />
-        <Button text="100%" onClick={() => setRatio(1000)} />
+        <Button
+          text="25%"
+          onClick={() => {
+            handleRatio(250)
+          }}
+        />
+        <Button
+          text="50%"
+          onClick={() => {
+            handleRatio(500)
+          }}
+        />
+        <Button
+          text="75%"
+          onClick={() => {
+            handleRatio(750)
+          }}
+        />
+        <Button
+          text="100%"
+          onClick={() => {
+            handleRatio(1000)
+          }}
+        />
       </Box>
 
       <Spacer />
@@ -347,14 +387,57 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <> </>
       )}
-      <Button
-        disabled={!inputs || submitting}
-        full
-        size="sm"
-        onClick={handleSubmitClick}
-        isLoading={submitting}
-        text="Review Transaction"
-      />
+
+      <Box row justifyContent="flex-start">
+        {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+          <> </>
+        ) : (
+          <>
+            {' '}
+            <Button
+              disabled={!tokenAllowance || submitting}
+              full
+              size="sm"
+              onClick={onApprove}
+              isLoading={submitting}
+              text="Approve LP"
+            />
+          </>
+        )}
+
+        {parseEther(optionAllowance).gt(
+          parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+        ) ? (
+          <> </>
+        ) : (
+          <>
+            <Button
+              disabled={!optionAllowance || submitting}
+              full
+              size="sm"
+              onClick={onApproveOption.onApprove}
+              isLoading={submitting}
+              text="Approve PRM"
+            />
+          </>
+        )}
+
+        <Button
+          disabled={
+            !parseEther(optionAllowance).gt(
+              parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+            ) ||
+            !parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ||
+            !inputs ||
+            submitting
+          }
+          full
+          size="sm"
+          onClick={handleSubmitClick}
+          isLoading={submitting}
+          text="Review"
+        />
+      </Box>
     </>
   )
 }

@@ -71,7 +71,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => change(Operation.REMOVE_LIQUIDITY)}
+            onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
           >
             Withdraw
           </Button>
