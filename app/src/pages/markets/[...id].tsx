@@ -61,8 +61,22 @@ const Market = ({ market, data }) => {
       }
     }
   })
+  useEffect(() => {
+    if (data[1]) {
+      setCallPutActive(data[1] === 'calls')
+    }
+  }, [setCallPutActive])
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
+    if (callPutActive) {
+      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+        shallow: true,
+      })
+    } else {
+      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+        shallow: true,
+      })
+    }
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
@@ -99,7 +113,6 @@ const Market = ({ market, data }) => {
 
             <Col sm={12} md={4} lg={4}>
               <StyledSideBar>
-                <BetaBanner isOpen={true} />
                 <Spacer />
                 <BalanceCard />
                 <Spacer />

@@ -6,8 +6,9 @@ import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction } from './actions'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useUpdatePositions } from '@/state/positions/hooks'
-import { addNotif } from '@/state/notifs/actions'
+import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem } from '@/state/order/hooks'
+import formatExpiry from '@/utils/formatExpiry'
 import Link from 'next/link'
 
 export function shouldCheck(
@@ -35,6 +36,7 @@ export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
   const options = useOptions()
   const updatePositions = useUpdatePositions()
+  const addNotif = useAddNotif()
   const { data } = useBlockNumber()
   const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
@@ -73,23 +75,36 @@ export default function Updater(): null {
               )
               const summary = transactions[hash].summary
               console.log(summary)
-              if (summary) {
-                const link = `https://localhost:3000/markets/${summary.assetName.toLowerCase()}/${
-                  summary.address
-                }/${summary.type}`
+              if (summary.type) {
+                console.log(summary)
+                const type = summary.option.isCall ? 'calls' : 'puts'
+                let market
+                if (type === 'calls') {
+                  market = summary.option.base.asset.symbol
+                } else {
+                  market = summary.option.quote.asset.symbol
+                }
+                if (market === 'weth') {
+                  market = 'eth'
+                }
+                const link = `https://app.primitive.finance/markets/${market}/${type}/${summary.option.address}/${summary.type}`
 
-                console.log(link)
-                dispatch(
-                  addNotif({
-                    id: 2,
-                    title: `Trade Confirmed`,
-                    msg: `${summary.type} - ${summary.assetName} - ${summary.amount}`,
-                    link: `https://twitter.com/share?url=${link}`,
-                  })
+                const exp = formatExpiry(summary.option.expiry)
+
+                addNotif(
+                  2,
+                  `Trade Confirmed`,
+                  `${summary.type} ${
+                    summary.amount
+                  } ${market.toUpperCase()} ${type
+                    .substr(0, type.length - 1)
+                    .toUpperCase()} $${summary.option.strikePrice.quantity.toString()} ${
+                    exp.month
+                  }/${exp.date}/${exp.year}`,
+                  `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%23primtive+.+`
                 )
               }
             } else {
-              console.log('checked tx')
               dispatch(
                 checkedTransaction({
                   chainId,

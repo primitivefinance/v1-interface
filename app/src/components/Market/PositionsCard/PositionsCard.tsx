@@ -33,6 +33,7 @@ import { useUpdateItem, useItem } from '@/state/order/hooks'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import LineItem from '@/components/LineItem'
+import { useClickAway } from '@/hooks/utils/useClickAway'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -104,8 +105,13 @@ const PositionsCard: React.FC = () => {
   const item = useItem()
   const positions = usePositions()
   const [open, setOpen] = useState(false)
+  const nodeRef = useClickAway(() => {
+    setOpen(false)
+  })
 
-  if (item.item.asset) return null
+  if (item.item.asset) {
+    return null
+  }
   if (positions.loading) {
     return <Loader size="lg" />
   }
@@ -127,31 +133,39 @@ const PositionsCard: React.FC = () => {
     )
   }
   return (
-    <Card border>
-      <Reverse />
-      <CardTitle>
-        <div onClick={() => setOpen(!open)}>
-          <StyledBox row justifyContent="space-around" alignItems="center">
-            <Title>{`Active Positions (${positions.options.length})`}</Title>
-            <IconButton variant="tertiary">
-              {open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
-            </IconButton>
-          </StyledBox>
-        </div>
-      </CardTitle>
-      <Reverse />
-      {open ? (
-        <Spacer size="sm" />
-      ) : (
-        <>
-          <CardContent>
-            {positions.options.map((pos, i) => {
-              return <Position key={i} option={pos} />
-            })}
-          </CardContent>
-        </>
-      )}
-    </Card>
+    <div ref={nodeRef}>
+      <Card border>
+        <Reverse />
+        <CardTitle>
+          <div onClick={() => setOpen(!open)}>
+            <StyledBox row justifyContent="space-around" alignItems="center">
+              <Title>{`Active Positions (${positions.options.length})`}</Title>
+              <IconButton variant="tertiary">
+                {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+              </IconButton>
+            </StyledBox>
+          </div>
+        </CardTitle>
+        <Reverse />
+        {!open ? (
+          <Spacer size="sm" />
+        ) : (
+          <>
+            <CardContent>
+              {positions.options.map((pos, i) => {
+                return (
+                  <Position
+                    onClick={() => setOpen(false)}
+                    key={i}
+                    option={pos}
+                  />
+                )
+              })}
+            </CardContent>
+          </>
+        )}
+      </Card>
+    </div>
   )
 }
 

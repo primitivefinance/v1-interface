@@ -32,7 +32,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 const StyledInfoIcon = styled(InfoIcon)`
   font-size: 10px !important;
   margin-bottom: 7px;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.grey[500]};
 `
 
 const StyledContainer = styled.div`

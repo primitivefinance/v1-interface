@@ -385,8 +385,7 @@ export const useHandleSubmitOrder = (): ((
               {
                 summary: {
                   type: Operation[operation].toString(),
-                  address: optionAddress,
-                  assetName: item.asset,
+                  option: item.entity,
                   amount: quantity,
                 },
                 hash: tx.hash,

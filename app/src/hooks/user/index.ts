@@ -85,7 +85,6 @@ export function useInactiveListener(suppress = false) {
           console.error('Failed to activate after chain changed', error)
         })
         .finally(() => {
-          console.log('is this being cahugt')
           router.reload()
         })
     }

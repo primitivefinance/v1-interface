@@ -43,8 +43,16 @@ class MyDocument extends Document {
           <title>Primitive Finance</title>
           <meta name="og:title" content="Primitive Finance" />
           <meta
+            name="og:description"
+            content="Primitive is a decentralized options protocol built on Ethereum."
+          />
+          <meta
             name="description"
             content="Primitive is a decentralized options protocol built on Ethereum."
+          />
+          <meta
+            property="og:image"
+            content="https://ipfs.pics/ipfs/QmW3FgNGeD46kHEryFUw1ftEUqRw254WkKxYeKaouz7DJA"
           />
           <link
             href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital@0;1&display=swap"
