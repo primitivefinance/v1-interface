@@ -23,7 +23,6 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
-  console.log(formatEtherBalance(balance.toString()))
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
       ? item.asset.toUpperCase()
@@ -55,9 +54,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <LineItem
         label={'LP Balance'}
         data={
-          balance.toString() > 0
-            ? formatEtherBalance(balance.toString()).toString()
-            : '0.00'
+          balance ? formatEtherBalance(balance.toString()).toString() : '0.00'
         }
         units={'UNI-V2'}
       />

@@ -15,7 +15,7 @@ import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
 import { Operation } from '@/constants/index'
 import numeral from 'numeral'
-
+import formatEtherBalance from '@/utils/formatEtherBalance'
 const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
   const { calls, puts } = useOptions()
@@ -56,7 +56,7 @@ const BalanceCard: React.FC = () => {
       <CardContent>
         <LineItem
           label={`${balance.asset.symbol} Balance`}
-          data={numeral(balance.quantity).format('0a')}
+          data={formatEtherBalance(balance.quantity)}
         />
         {chainId === 4 ? (
           <>
