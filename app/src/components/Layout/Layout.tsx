@@ -23,7 +23,6 @@ const Layout: React.FC<PageProps> = (props) => {
   useEffect(() => {
     router.events.on('routeChangeComplete', () => {
       clearNotifs()
-      console.log('notifes cleares')
     })
   })
 

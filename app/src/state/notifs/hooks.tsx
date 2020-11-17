@@ -27,6 +27,7 @@ export const useAddNotif = (): ((
           )
         }, 1000)
       } else {
+        console.log('dispatch')
         dispatch(
           addNotif({
             id,
@@ -63,6 +64,5 @@ export const useNotifs = (): { [id: number]: Notif } => {
   const state = useSelector<AppState, AppState['notifs']>(
     (state) => state.notifs
   )
-  console.log(state)
   return state
 }

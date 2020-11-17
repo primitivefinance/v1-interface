@@ -113,7 +113,6 @@ const Market = ({ market, data }) => {
 
             <Col sm={12} md={4} lg={4}>
               <StyledSideBar>
-                <BetaBanner isOpen={true} />
                 <Spacer />
                 <BalanceCard />
                 <Spacer />

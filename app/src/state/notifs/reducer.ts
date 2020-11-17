@@ -16,6 +16,7 @@ export default createReducer(initialState, (builder) =>
   builder
     .addCase(addNotif, (state, { payload: { id, title, msg, link } }) => {
       state[id] = { title, msg, link }
+      console.log(state)
       return state
     })
     .addCase(clearNotif, (state, { payload: id }) => {

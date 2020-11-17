@@ -9,7 +9,6 @@ import LineItem from '@/components/LineItem'
 import { useItem } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
 
-interface TestnetCardProps {}
 import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useOptions } from '@/state/options/hooks'
@@ -17,7 +16,7 @@ import { usePositions } from '@/state/positions/hooks'
 import { Operation } from '@/constants/index'
 import numeral from 'numeral'
 
-const Balance: React.FC<TestnetCardProps> = () => {
+const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
   const { calls, puts } = useOptions()
   const addTransaction = useTransactionAdder()
@@ -75,4 +74,4 @@ const Balance: React.FC<TestnetCardProps> = () => {
 }
 const StyledContainer = styled.div``
 
-export default Balance
+export default BalanceCard

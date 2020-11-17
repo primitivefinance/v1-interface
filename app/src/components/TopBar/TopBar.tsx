@@ -41,7 +41,7 @@ const TopBar: React.FC = () => {
             </StyledNavItem>
           </Link>
         </StyledFlex>
-        <StyledNav isActive={chainId === 1}>
+        <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
             <StyledNavItem
               active={
@@ -65,7 +65,8 @@ const TopBar: React.FC = () => {
           </Link>
         </StyledNav>
         <StyledFlex>
-          <StyledFlex />
+          <Spacer size="lg" /> <Spacer size="lg" />
+          <Spacer size="lg" /> <Spacer size="lg" />
           <Wallet />
           <Spacer size="sm" />
           <Settings />
@@ -76,7 +77,7 @@ const TopBar: React.FC = () => {
 }
 
 interface NavProps {
-  isActive: boolean
+  isMain: boolean
 }
 
 const StyledTopBar = styled.div`
@@ -104,8 +105,8 @@ const StyledNav = styled.div<NavProps>`
   font-weight: 700;
   justify-content: center;
   position: absolute;
-  left: ${(props) => (props.isActive ? 50 : 50)}%;
-  right: ${(props) => (props.isActive ? 40 : 60)}%;
+  left: ${(props) => (props.isMain ? 50 : 50)}%;
+  right: ${(props) => (props.isMain ? 50 : 50)}%;
 `
 
 interface StyledNavItemProps {

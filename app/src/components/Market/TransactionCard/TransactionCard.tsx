@@ -123,6 +123,7 @@ const Reverse = styled.div`
 const StyledContainer = styled.div`
   width: 110%;
   justify-content: space-around;
+  padding-left: 0.5em;
 `
 
 const StyledTableHead = styled.div`
