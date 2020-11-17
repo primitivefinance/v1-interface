@@ -21,6 +21,7 @@ import { Trade } from '@/lib/entities/trade'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import {
   useItem,
@@ -285,7 +286,7 @@ const AddLiquidity: React.FC = () => {
         variant="transparent"
         onClick={() => setAdvanced(!advanced)}
       >
-        <ExpandMoreIcon />
+        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
       <Spacer />
 

@@ -19,6 +19,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 
@@ -175,34 +176,35 @@ const Swap: React.FC = () => {
       <Spacer />
       <LineItem
         label={`Total ${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? 'Debit'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? 'Credit'
-            : 'Cost'
+            : 'Debit'
         }`}
-        data={calculateTotalDebit().toString()}
+        data={Math.abs(parseInt(calculateTotalDebit())).toString()}
         units={`${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? '+'
             : '-'
         } ${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
         onClick={() => setAdvanced(!advanced)}
       >
-        <ExpandMoreIcon />
+        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
       {advanced ? ( // FIX
         <>
-          <Spacer size="sm" />
           <LineItem label="Price Impact" data={``} />
           <Spacer />
         </>

@@ -56,7 +56,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     address,
   } = columns
   const handleOnClick = useCallback(() => {
-    setToggle(!toggle)
+    if (reserves[0] !== '0.00') {
+      setToggle(!toggle)
+    }
   }, [toggle, setToggle])
   const handleOnAdd = (e) => {
     e.stopPropagation()

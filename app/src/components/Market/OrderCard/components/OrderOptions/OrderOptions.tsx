@@ -53,7 +53,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           Provide
         </Button>
         <Spacer />
-        {balance ? (
+        {!balance ? (
           <Button size="sm" variant="secondary" disabled>
             Withdraw
           </Button>

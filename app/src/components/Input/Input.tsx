@@ -64,6 +64,7 @@ const StyledInputWrapper = styled.div<StyledInputProps>`
   align-items: center;
   background: ${(props) => props.theme.color.black};
   border-radius: ${(props) => props.theme.borderRadius}px;
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
   display: flex;
   height: ${(props) => props.height};
   padding: 0 ${(props) => props.theme.spacing[3]}px;

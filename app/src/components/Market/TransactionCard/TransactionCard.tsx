@@ -48,15 +48,17 @@ const TransactionCard: React.FC = () => {
             </IconButton>
           </Box>
         </CardTitle>
+        <div style={{ marginTop: '-1em' }} />
         <CardContent>
           <StyledContainer>
             <Table>
-              <TableRow>
+              <TableRow isHead>
                 <TableCell>Time</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Hash</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
+              <div style={{ marginTop: '-1em' }} />
               {Object.keys(txs)
                 .reverse()
                 .map((hash, i) => {
@@ -93,7 +95,7 @@ const TransactionCard: React.FC = () => {
                             justifyContent="flex-start"
                             alignItems="center"
                           >
-                            {txs[hash].hash.substr(0, 5)}...
+                            {txs[hash].hash.substr(0, 4)}...
                             <LaunchIcon style={{ fontSize: '14px' }} />
                           </Box>
                         </StyledLink>
@@ -110,6 +112,7 @@ const TransactionCard: React.FC = () => {
                 })}
             </Table>
           </StyledContainer>
+          <div style={{ marginTop: '-1em' }} />
         </CardContent>
       </Card>
     </>

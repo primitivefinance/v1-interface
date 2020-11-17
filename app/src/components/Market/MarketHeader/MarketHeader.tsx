@@ -132,13 +132,17 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
           <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>Total Liquidity</StyledSymbol>
-            <Spacer size="sm" />
             <StyledPrice size="sm">
               {!options.loading ? (
                 formatEtherBalance(options.reservesTotal) !== '0.00' ? (
-                  `${formatEtherBalance(
-                    options.reservesTotal
-                  )}  ${symbol.toUpperCase()}`
+                  <>
+                    <div style={{ minHeight: '.2em' }} />
+
+                    {`${formatEtherBalance(
+                      options.reservesTotal
+                    )}  ${symbol.toUpperCase()}`}
+                    <div style={{ minHeight: '.2em' }} />
+                  </>
                 ) : (
                   <>
                     <div style={{ minHeight: '.05em' }} />
@@ -160,7 +164,12 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                   </>
                 )
               ) : (
-                <Loader size="sm" />
+                <>
+                  <div style={{ minHeight: '.4em' }} />
+
+                  <Loader size="sm" />
+                  <div style={{ minHeight: '.4em' }} />
+                </>
               )}
             </StyledPrice>
           </StyledContent>
