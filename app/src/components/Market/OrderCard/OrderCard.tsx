@@ -95,6 +95,8 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
         </CustomButton>
       </Box>
       <CardContent>
+        <Spacer size="sm" />
+        <Reverse />
         <OrderContent />
       </CardContent>
     </Card>

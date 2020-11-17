@@ -176,17 +176,19 @@ const Swap: React.FC = () => {
       <Spacer />
       <LineItem
         label={`Total ${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? 'Debit'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? 'Credit'
-            : 'Cost'
+            : 'Debit'
         }`}
-        data={calculateTotalDebit().toString()}
+        data={Math.abs(parseInt(calculateTotalDebit())).toString()}
         units={`${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? '+'
             : '-'
         } ${item.asset.toUpperCase()}`}
@@ -197,7 +199,7 @@ const Swap: React.FC = () => {
         variant="transparent"
         onClick={() => setAdvanced(!advanced)}
       >
-        {!advanced ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
       <Spacer size="sm" />
 
