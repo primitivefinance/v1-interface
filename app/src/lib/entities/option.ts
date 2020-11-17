@@ -112,10 +112,12 @@ export class Option extends Token {
       const denominator = ethers.BigNumber.from(
         this.optionParameters.base.quantity
       )
-      strikePrice = new Quantity(
-        this.optionParameters.quote.asset,
-        numerator.div(denominator)
-      )
+
+      const strike =
+        parseInt(numerator.toString()) / parseInt(denominator.toString())
+
+      strikePrice = new Quantity(this.optionParameters.quote.asset, strike)
+      console.log(strikePrice.quantity.toString())
     }
     return strikePrice
   }
