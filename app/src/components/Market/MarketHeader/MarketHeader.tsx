@@ -136,12 +136,12 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
               {!options.loading ? (
                 formatEtherBalance(options.reservesTotal) !== '0.00' ? (
                   <>
-                    <div style={{ minHeight: '.2em' }} />
+                    <div style={{ minHeight: '.4em' }} />
 
                     {`${formatEtherBalance(
                       options.reservesTotal
                     )}  ${symbol.toUpperCase()}`}
-                    <div style={{ minHeight: '.2em' }} />
+                    <div style={{ minHeight: '.25em' }} />
                   </>
                 ) : (
                   <>
@@ -166,7 +166,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
               ) : (
                 <>
                   <div style={{ minHeight: '.4em' }} />
-
                   <Loader size="sm" />
                   <div style={{ minHeight: '.4em' }} />
                 </>

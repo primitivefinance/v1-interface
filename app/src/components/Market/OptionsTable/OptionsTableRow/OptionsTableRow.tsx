@@ -160,7 +160,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
 const StyledT = styled.span`
   border-width: 0 0 1px 0;
   border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[400]};
+  border-color: ${(props) => props.theme.color.grey[600]};
   padding-bottom: 3px;
 `
 const StyledR = styled.div`

@@ -31,19 +31,29 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   return (
     <>
       <Spacer size="sm" />
-      <MultiLineItem label={'Reserves'}>
-        {reserve0Units === item.asset.toUpperCase()
-          ? formatEtherBalance(item.reserves[0].toString())
-          : formatEtherBalance(item.reserves[1].toString())}{' '}
-        {item.asset.toUpperCase()} /{' '}
-        {reserve0Units === item.asset.toUpperCase()
-          ? formatEtherBalance(item.reserves[1].toString())
-          : formatEtherBalance(item.reserves[0].toString())}{' '}
-        {'SHORT'}
-      </MultiLineItem>
+      <Box row justifyContent="space-between" alignItems="center">
+        <Label text={'Reserves'} />
+        <Spacer />
+        <StyledR>
+          <StyledT>
+            {reserve0Units === item.asset.toUpperCase()
+              ? formatEtherBalance(item.reserves[0].toString())
+              : formatEtherBalance(item.reserves[1].toString())}{' '}
+            <Units>{item.asset.toUpperCase()}</Units>
+          </StyledT>
+          <Spacer size="sm" />
+          <span>
+            {reserve0Units === item.asset.toUpperCase()
+              ? formatEtherBalance(item.reserves[1].toString())
+              : formatEtherBalance(item.reserves[0].toString())}{' '}
+            <Units>Short</Units>
+          </span>
+        </StyledR>
+      </Box>
+
       <Spacer />
       <LineItem
-        label={'LP Token Balance'}
+        label={'LP Balance'}
         data={balance ? formatEtherBalance(balance).toString() : '0.00'}
         units={'UNI-V2'}
       />
@@ -178,6 +188,25 @@ const OrderOptions: React.FC = () => {
     </>
   )
 }
+const Units = styled.span`
+  opacity: 0.66;
+  font-size: 16px;
+  padding-left: 0.5em;
+`
+
+const StyledT = styled.span`
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  padding: 3px 0 6px 0;
+`
+const StyledR = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 160px;
+`
+
 const StyledTabs = styled(Tabs)`
   width: 100%;
 `
