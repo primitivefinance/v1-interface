@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { formatEther } from 'ethers/lib/utils'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
@@ -23,6 +24,12 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
+<<<<<<< HEAD
+
+  useEffect(() => {}, [balance])
+
+=======
+>>>>>>> 9793be11c10b44652dd809e130943c91a9515a91
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
       ? item.asset.toUpperCase()
@@ -53,9 +60,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <Spacer />
       <LineItem
         label={'LP Balance'}
-        data={
-          balance ? formatEtherBalance(balance.toString()).toString() : '0.00'
-        }
+        data={balance ? formatEther(balance).toString() : '0'}
         units={'UNI-V2'}
       />
       <Spacer />
@@ -72,7 +77,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => change(Operation.REMOVE_LIQUIDITY)}
+            onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
           >
             Withdraw
           </Button>
@@ -96,6 +101,8 @@ const OrderOptions: React.FC = () => {
       if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
       }
+    } else {
+      setOption({ long: null, short: null, lp: null })
     }
   }, [setOption, positions, item])
   const change = (t: Operation) => {
@@ -179,7 +186,7 @@ const OrderOptions: React.FC = () => {
           </TabPanel>
           <TabPanel>
             <StyledColumn>
-              <LPOptions balance={option.lp ? option.lp : null} />
+              <LPOptions balance={option.lp ? option.lp : '0'} />
             </StyledColumn>
           </TabPanel>
         </StyledTabs>

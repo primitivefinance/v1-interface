@@ -1,13 +1,14 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import ethers from 'ethers'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
+import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
@@ -36,7 +37,6 @@ import {
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
-import { useAddNotif } from '@/state/notifs/hooks'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
@@ -47,6 +47,13 @@ const AddLiquidity: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
+
+  // approval
+  const [lpApproved, setLpApproved] = useState(false)
+  const [optionApproved, setOptionApproved] = useState(false)
+
+  //slider
+  const [ratio, setRatio] = useState(100)
   // option entity in order
   const { item, orderType } = useItem()
   // inputs for user quantity
@@ -56,9 +63,6 @@ const AddLiquidity: React.FC = () => {
   })
   // web3
   const { library, chainId } = useWeb3React()
-  // approval
-  const addNotif = useAddNotif()
-  const [approved, setApproved] = useState(false)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -72,25 +76,17 @@ const AddLiquidity: React.FC = () => {
     new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
   ).data
 
-  const hasLiquidity = lpPair
-    ? lpPair.reserve0.greaterThan('0')
-      ? true
-      : false
-    : false
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(underlyingToken.address, spender)
-  const { onApprove } = useApprove(underlyingToken.address, spender)
-
-  const underlyingAmount: TokenAmount = new TokenAmount(
-    underlyingToken,
-    parseEther(underlyingTokenBalance).toString()
-  )
+  const tokenAllowance = useTokenAllowance(lpToken, spender)
+  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const { onApprove } = useApprove(lpToken, spender)
+  const optionAllowance = useTokenAllowance(item.address, spender)
+  const onApproveOption = useApprove(item.address, spender)
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -111,6 +107,24 @@ const AddLiquidity: React.FC = () => {
     setInputs({ ...inputs, primary: max.toString() })
   }
 
+  const handleRatioChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      setRatio(Number(e.currentTarget.value))
+      const liquidity = formatEther(parseEther(lp).mul(ratio).div(1000))
+      setInputs({ ...inputs, primary: liquidity })
+    },
+    [setRatio, lp]
+  )
+
+  const handleRatio = useCallback(
+    (value) => {
+      setRatio(value)
+      const liquidity = formatEther(parseEther(lp).mul(value).div(1000))
+      setInputs({ ...inputs, primary: liquidity })
+    },
+    [setInputs, lp, ratio, inputs]
+  )
+
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
     submitOrder(
@@ -121,7 +135,7 @@ const AddLiquidity: React.FC = () => {
       Number(inputs.secondary)
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType])
+  }, [submitOrder, removeItem, item, library, inputs, orderType, lp, ratio])
 
   const calculateToken0PerToken1 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
@@ -144,28 +158,6 @@ const AddLiquidity: React.FC = () => {
       : '0'
     return (Number(formatEther(poolShare)) * 100).toFixed(2)
   }, [lpPair, lp, lpTotalSupply])
-
-  const calculateOutput = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const reservesA = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[2], 18)
-    )
-    const reservesB = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[0], 18)
-    )
-    const input =
-      inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
-    const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
-      .mul(item.entity.optionParameters.quote.quantity)
-      .div(item.entity.optionParameters.base.quantity)
-    const quote = Trade.getQuote(
-      inputShort,
-      reservesA.raw.toString(),
-      reservesB.raw.toString()
-    )
-    const sum = BigNumber.from(quote).add(input)
-    return formatEther(sum.toString())
-  }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
     if (
@@ -219,44 +211,86 @@ const AddLiquidity: React.FC = () => {
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [lpPair, lp, lpTotalSupply, inputs])
 
+  const calculateUnderlyingOutput = useCallback(() => {
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return '0'
+
+    const liquidity = parseEther(lp).mul(ratio).div(1000)
+    if (liquidity.isZero()) return '0'
+    if (ratio === 0) return '0'
+    const base = item.entity.optionParameters.base.quantity
+    const quote = item.entity.optionParameters.quote.quantity
+    const SHORT: Token =
+      lpPair.token0.address === item.entity.assetAddresses[2]
+        ? lpPair.token0
+        : lpPair.token1
+    const UNDERLYING: Token =
+      lpPair.token1.address === item.entity.assetAddresses[2]
+        ? lpPair.token0
+        : lpPair.token1
+
+    const shortValue = lpPair.getLiquidityValue(
+      SHORT,
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+    )
+
+    const underlyingValue = lpPair.getLiquidityValue(
+      UNDERLYING,
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+    )
+
+    const totalUnderlyingPerLp = formatEther(
+      BigNumber.from(shortValue.raw.toString())
+        .mul(base)
+        .div(quote)
+        .add(underlyingValue.raw.toString())
+    )
+    return totalUnderlyingPerLp
+  }, [lpPair, lp, lpTotalSupply, inputs, ratio])
+
+  const calculateBurn = useCallback(() => {
+    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    const liquidity = parseEther(lp)
+      .mul(parseEther(ratio.toString()))
+      .div(parseEther('1000'))
+    return formatEther(liquidity)
+  }, [lpPair, lp, ratio])
+
+  const title = {
+    text: 'Withdraw Liquidity',
+    tip:
+      'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
+  }
+
   // FIX
-  const isApproved = useCallback(() => {
+  const isLpApproved = useCallback(() => {
     const approved: boolean = parseEther(tokenAllowance).gt(
       parseEther(inputs.primary || '0')
     )
-    setApproved(approved)
+    setLpApproved(approved)
     return approved
-  }, [tokenAllowance, approved])
+  }, [inputs, tokenAllowance, setLpApproved])
 
-  useEffect(() => {
-    setApproved(isApproved())
-  }, [isApproved, setApproved, inputs])
-
-  const handleApproval = useCallback(() => {
-    onApprove()
-      .then((tx: ethers.Transaction) => {
-        if (tx.hash) {
-          setApproved(true)
-        }
-      })
-      .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
-      })
-  }, [inputs, tokenAllowance, onApprove, setApproved])
-
-  // End FIX
-
-  const title = {
-    text: 'Add Liquidity',
-    tip:
-      'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
-  }
-
-  const noLiquidityTitle = {
-    text: 'This pair has no liquidity.',
-    tip:
-      'Providing liquidity to this pair will set the ratio between the tokens.',
-  }
+  const isOptionApproved = useCallback(() => {
+    const approved: boolean = parseEther(optionAllowance).gt(
+      parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+    )
+    setOptionApproved(approved)
+    return approved
+  }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
+  // END FIX
 
   return (
     <>
@@ -275,54 +309,58 @@ const AddLiquidity: React.FC = () => {
       </Box>
 
       <Spacer />
-      {hasLiquidity ? (
-        <PriceInput
-          name="primary"
-          title={`Options Input`}
-          quantity={inputs.primary}
-          onChange={handleInputChange}
-          onClick={() => console.log('Max unavailable.')} //
+
+      <Box row alignItems="center">
+        <Label text={`Amount`} />
+        <Spacer size="md" />
+        <StyledRatio>{Math.round(10 * (ratio / 10)) / 10 + '%'}</StyledRatio>
+      </Box>
+      <Slider
+        min={1}
+        max={1000}
+        step={1}
+        value={ratio}
+        onChange={handleRatioChange}
+      />
+
+      <Box row justifyContent="flex-start">
+        <Button
+          text="25%"
+          onClick={() => {
+            handleRatio(250)
+          }}
         />
-      ) : (
-        <>
-          <StyledSubtitle>
-            <Tooltip text={noLiquidityTitle.tip}>
-              {noLiquidityTitle.text}
-            </Tooltip>
-          </StyledSubtitle>
-          <Spacer />
-          <PriceInput
-            name="primary"
-            title={`Options Input`}
-            quantity={inputs.primary}
-            onChange={handleInputChange}
-            onClick={() => console.log('Max unavailable.')} //
-          />
-          <Spacer />
-          <StyledText>Per</StyledText>
-          <Spacer />
-          <PriceInput
-            name="secondary"
-            title={`Underlyings Input`}
-            quantity={inputs.secondary}
-            onChange={handleInputChange}
-            onClick={() => console.log('Max unavailable.')} //
-            balance={underlyingAmount}
-          />{' '}
-        </>
-      )}
+        <Button
+          text="50%"
+          onClick={() => {
+            handleRatio(500)
+          }}
+        />
+        <Button
+          text="75%"
+          onClick={() => {
+            handleRatio(750)
+          }}
+        />
+        <Button
+          text="100%"
+          onClick={() => {
+            handleRatio(1000)
+          }}
+        />
+      </Box>
 
       <Spacer />
       <LineItem
         label="This requires"
-        data={`${calculateOutput()}`}
-        units={`${item.asset.toUpperCase()}`}
+        data={`${calculateBurn()}`}
+        units={`UNI-V2 LP Tokens`}
       />
       <Spacer />
       <LineItem
         label="You will receive"
-        data={caculatePoolShare()}
-        units={`% of the Pool.`}
+        data={calculateUnderlyingOutput()}
+        units={`${item.asset.toUpperCase()}`}
       />
       <Spacer />
       <IconButton
@@ -374,52 +412,59 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {approved ? (
+        {lpApproved ? (
           <> </>
         ) : (
           <>
+            {' '}
             <Button
               disabled={!tokenAllowance || submitting}
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={onApprove}
               isLoading={submitting}
-              text={`Approve ${item.asset.toUpperCase()}`}
+              text="Approve LP"
+            />
+          </>
+        )}
+
+        {optionApproved ? (
+          <> </>
+        ) : (
+          <>
+            <Button
+              disabled={!optionAllowance || submitting}
+              full
+              size="sm"
+              onClick={onApproveOption.onApprove}
+              isLoading={submitting}
+              text="Approve PRM"
             />
           </>
         )}
 
         <Button
-          disabled={!approved || !inputs || submitting}
+          disabled={!optionApproved || !lpApproved || !inputs || submitting}
           full
           size="sm"
           onClick={handleSubmitClick}
           isLoading={submitting}
-          text="Review Transaction"
+          text="Review"
         />
       </Box>
     </>
   )
 }
 
-const StyledText = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-const StyledSubtitle = styled.h5`
+
+const StyledRatio = styled.h4`
   color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
 `
 
 export default AddLiquidity

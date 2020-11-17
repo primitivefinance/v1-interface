@@ -182,6 +182,10 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           path,
                           [reserves0, reserves1]
                         )
+
+                        let shortPremium: BigNumberish = Trade.getSpotShortPremium(
+                          [reserves0, reserves1]
+                        )
                         let reserve: BigNumberish = reserves1.toString()
                         let depth: BigNumberish = redeemCostDivMinted
                         if (typeof reserve === 'undefined') {
@@ -211,6 +215,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              shortPremium: shortPremium,
                               strike: option.strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
@@ -257,6 +262,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              shortPremium: shortPremium,
                               strike: strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,

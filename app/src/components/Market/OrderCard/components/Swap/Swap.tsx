@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
+import ethers from 'ethers'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
@@ -29,10 +30,10 @@ import {
   useHandleSubmitOrder,
   useRemoveItem,
 } from '@/state/order/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
-import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const Swap: React.FC = () => {
   // executes transactions
@@ -41,6 +42,8 @@ const Swap: React.FC = () => {
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  // approval state
+  const [approved, setApproved] = useState(false)
   // option entity in order
   const { item, orderType, loading } = useItem()
   // inputs for user quantity
@@ -50,6 +53,7 @@ const Swap: React.FC = () => {
   })
   // web3
   const { library, chainId } = useWeb3React()
+  const addNotif = useAddNotif()
 
   // pair and option entities
   const entity = item.entity
@@ -61,11 +65,7 @@ const Swap: React.FC = () => {
   )
 
   let title = { text: '', tip: '' }
-  const spender =
-    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
-      ? UNISWAP_ROUTER02_V2
-      : UNISWAP_CONNECTOR[chainId]
-  let tokenAddress
+  let tokenAddress: string
   switch (orderType) {
     case Operation.LONG:
       title = {
@@ -76,7 +76,7 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Sell Short Tokens',
+        text: 'Buy Short Tokens',
         tip: 'Purchase tokenized written covered options.',
       }
       tokenAddress = underlyingToken.address
@@ -100,6 +100,14 @@ const Swap: React.FC = () => {
   }
 
   const tokenBalance = useTokenBalance(tokenAddress)
+  const tokenAmount: TokenAmount = new TokenAmount(
+    underlyingToken,
+    parseEther(tokenBalance).toString()
+  )
+  const spender =
+    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
+      ? UNISWAP_ROUTER02_V2
+      : UNISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
@@ -131,16 +139,42 @@ const Swap: React.FC = () => {
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
-  const calculateTotalDebit = useCallback(() => {
+  const calculateTotalCost = useCallback(() => {
     let debit = '0'
     if (item.premium) {
-      const premium = BigNumber.from(item.premium.toString())
+      const premiumWei = BigNumber.from(item.premium.toString())
       const size = inputs.primary === '' ? '0' : inputs.primary
       const sizeWei = parseEther(size)
-      debit = formatEther(premium.mul(sizeWei).div(parseEther('1')).toString())
+      debit = formatEther(
+        premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+      )
     }
     return debit
   }, [item, inputs])
+
+  // FIX
+  const isApproved = useCallback((allowance, qty) => {
+    const approved: boolean = parseEther(allowance).gt(parseEther(qty))
+    setApproved(approved)
+    return approved
+  }, [])
+
+  useEffect(() => {
+    setApproved(isApproved(tokenAllowance, inputs.primary || '0'))
+  }, [isApproved, setApproved, inputs])
+
+  const handleApproval = useCallback(() => {
+    onApprove()
+      .then((tx: ethers.Transaction) => {
+        if (tx.hash) {
+          setApproved(true)
+        }
+      })
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [inputs, tokenAllowance, onApprove, setApproved])
+  // END FIX
 
   return (
     <>
@@ -159,11 +193,19 @@ const Swap: React.FC = () => {
       </Box>
 
       <Spacer />
-      <LineItem
-        label="Option Premium"
-        data={formatEtherBalance(item.premium).toString()}
-        units={item.asset}
-      />
+      {orderType === Operation.SHORT ? (
+        <LineItem
+          label="Short Option Premium"
+          data={formatEther(item.shortPremium)}
+          units={item.asset}
+        />
+      ) : (
+        <LineItem
+          label="Option Premium"
+          data={formatEther(item.premium)}
+          units={item.asset}
+        />
+      )}
       <Spacer />
       <PriceInput
         title="Quantity"
@@ -171,6 +213,7 @@ const Swap: React.FC = () => {
         onChange={handleInputChange}
         quantity={inputs.primary}
         onClick={handleSetMax}
+        balance={tokenAmount}
       />
 
       <Spacer />
@@ -183,7 +226,7 @@ const Swap: React.FC = () => {
             ? 'Credit'
             : 'Debit'
         }`}
-        data={Math.abs(parseInt(calculateTotalDebit())).toString()}
+        data={calculateTotalCost()}
         units={`${
           orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
@@ -211,28 +254,32 @@ const Swap: React.FC = () => {
       ) : (
         <> </>
       )}
-      {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+
+      <Box row justifyContent="flex-start">
+        {approved ? (
+          <> </>
+        ) : (
+          <>
+            {' '}
+            <Button
+              disabled={!tokenAllowance || loading}
+              full
+              size="sm"
+              onClick={handleApproval}
+              isLoading={loading}
+              text="Approve"
+            />
+          </>
+        )}
         <Button
-          disabled={!inputs || loading}
+          disabled={!approved || !inputs || loading}
           full
           size="sm"
           onClick={handleSubmitClick}
           isLoading={loading}
-          text="Review Transaction"
+          text="Submit"
         />
-      ) : (
-        <>
-          {' '}
-          <Button
-            disabled={!tokenAllowance || loading}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={loading}
-            text="Approve"
-          />
-        </>
-      )}
+      </Box>
     </>
   )
 }

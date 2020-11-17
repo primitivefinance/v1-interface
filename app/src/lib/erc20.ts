@@ -6,7 +6,7 @@ export const approve = async (
   tokenAddress: string,
   account: string,
   spender: string
-): Promise<BigNumberish> => {
+): Promise<ethers.Transaction> => {
   try {
     if (
       !ethers.utils.isAddress(tokenAddress) ||

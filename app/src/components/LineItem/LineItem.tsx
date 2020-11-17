@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
-import Spacer from '@/components/Spacer'
+import Tooltip from '@/components/Tooltip'
 
 import formatBalance from '@/utils/formatBalance'
 
@@ -33,9 +33,11 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
     <StyledLineItem row justifyContent="space-between" alignItems="center">
       <StyledLabel>{label}</StyledLabel>
       <span>
-        {sign}
-        {currency === '$' ? currency : null} {data}{' '}
-        {currency !== '$' ? currency : null}
+        <Tooltip text={data.toString()}>
+          {sign}
+          {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+          {currency !== '$' ? currency : null}
+        </Tooltip>
       </span>
     </StyledLineItem>
   )

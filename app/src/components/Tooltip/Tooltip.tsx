@@ -22,7 +22,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }
   return (
     <StyledContainer onMouseOver={onOver} onMouseLeave={onLeave}>
-      {open ? <Tip>{text}</Tip> : null}
+      {open && text ? <Tip>{text}</Tip> : null}
       {children}
       <StyledInfoIcon />
     </StyledContainer>

@@ -176,4 +176,5 @@ export enum Operation {
   REMOVE_LIQUIDITY_CLOSE,
   NEW_MARKET,
   NONE,
+  APPROVE,
 }

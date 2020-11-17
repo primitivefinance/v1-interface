@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { AddLiquidity } from '../AddLiquidity'
+import { RemoveLiquidity } from '../RemoveLiquidity'
 import { Swap } from '../Swap'
 import { Operation } from '@/constants/index'
 
@@ -15,6 +16,8 @@ const Submit: React.FC<SubmitProps> = () => {
     <StyledDiv>
       {orderType === Operation.ADD_LIQUIDITY ? (
         <AddLiquidity />
+      ) : orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
+        <RemoveLiquidity />
       ) : (
         <>
           <Swap />

@@ -276,8 +276,6 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.REMOVE_LIQUIDITY:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
@@ -304,8 +302,6 @@ export const useHandleSubmitOrder = (): ((
           ] // need to approve LP token
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
@@ -329,6 +325,7 @@ export const useHandleSubmitOrder = (): ((
           )
           transaction.tokensToApprove = [
             await factory.getPair(trade.path[0], trade.path[1]),
+            trade.option.address,
           ] // need to approve LP token
           break
         default:
@@ -339,45 +336,6 @@ export const useHandleSubmitOrder = (): ((
           break
       }
 
-      const approvalTxs: any[] = []
-      if (transaction.tokensToApprove.length > 0) {
-        // for each contract
-        for (let i = 0; i < transaction.contractsToApprove.length; i++) {
-          const contractAddress = transaction.contractsToApprove[i]
-          // for each token check allowance
-          for (let t = 0; t < transaction.tokensToApprove.length; t++) {
-            const tokenAddress = transaction.tokensToApprove[t]
-            checkAllowance(signer, tokenAddress, contractAddress).then(
-              (allowance) => {
-                if (BigNumber.from(allowance).lt(DEFAULT_ALLOWANCE)) {
-                  executeApprove(signer, tokenAddress, contractAddress)
-                    .then((tx) => {
-                      if (tx.hash) {
-                        approvalTxs.push(tx)
-                        console.log('Approval tx', tokenAddress)
-                        addTransaction(
-                          {
-                            approval: {
-                              tokenAddress: tokenAddress,
-                              spender: account,
-                            },
-                            hash: tx.hash,
-                            addedTime: now(),
-                            from: account,
-                          },
-                          operation
-                        )
-                      }
-                    })
-                    .catch((err) => {
-                      throwError(0, '', `${err.message}`, '')
-                    })
-                }
-              }
-            )
-          }
-        }
-      }
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
