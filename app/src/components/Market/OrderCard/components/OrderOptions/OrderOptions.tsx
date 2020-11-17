@@ -24,12 +24,6 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
-<<<<<<< HEAD
-
-  useEffect(() => {}, [balance])
-
-=======
->>>>>>> 9793be11c10b44652dd809e130943c91a9515a91
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
       ? item.asset.toUpperCase()
