@@ -276,8 +276,6 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.REMOVE_LIQUIDITY:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
@@ -304,8 +302,6 @@ export const useHandleSubmitOrder = (): ((
           ] // need to approve LP token
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
