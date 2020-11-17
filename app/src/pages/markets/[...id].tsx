@@ -45,6 +45,7 @@ const Market = ({ market, data }) => {
   const clear = useClearNotif()
   useEffect(() => {
     const { ethereum, web3 } = window as any
+
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.push('/markets')
@@ -89,7 +90,11 @@ const Market = ({ market, data }) => {
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
   }
-  if (!MetaMaskOnboarding.isMetaMaskInstalled() || !ethereum || !web3) {
+  if (
+    !MetaMaskOnboarding.isMetaMaskInstalled() ||
+    !(window as any)?.ethereum ||
+    !(window as any)?.web3
+  ) {
     return <StyledText>Please Install Metamask to View Markets</StyledText>
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
@@ -137,9 +142,7 @@ const Market = ({ market, data }) => {
   )
 }
 
-const StyledCol = styled(Col)`
-  position: sticky;
-`
+const StyledCol = styled(Col)``
 
 const StyledContainer = styled(Col)`
   height: 100%;
@@ -147,12 +150,15 @@ const StyledContainer = styled(Col)`
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  overflow-y: hidden;
+  overflow: hidden;
+  flex-grow: 1;
 `
 const StyledMain = styled.div``
 
 const StyledMarket = styled.div`
   width: 100%;
+  position: absolute;
+  overflow: hidden;
 `
 
 const StyledSideBar = styled.div`
@@ -164,9 +170,9 @@ const StyledSideBar = styled.div`
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
-  width: 100%;
   height: 100%;
-  overflow-y: auto;
+  overflow: auto;
+  flex-grow: 1;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
