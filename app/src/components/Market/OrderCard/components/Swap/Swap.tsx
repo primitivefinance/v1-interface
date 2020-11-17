@@ -181,6 +181,9 @@ const Swap: React.FC = () => {
         onChange={handleInputChange}
         quantity={inputs.primary}
         onClick={handleSetMax}
+        balance={
+          new TokenAmount(underlyingToken, parseEther(tokenBalance).toString())
+        }
       />
 
       <Spacer />
