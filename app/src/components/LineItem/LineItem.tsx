@@ -8,8 +8,8 @@ import formatBalance from '@/utils/formatBalance'
 
 export interface LineItemProps {
   label: React.ReactNode
-  data: string | number
-  units?: React.ReactNode
+  data: string | number | any
+  units?: any
 }
 
 const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {

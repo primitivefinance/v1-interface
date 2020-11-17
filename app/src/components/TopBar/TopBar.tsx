@@ -35,6 +35,7 @@ const TopBar: React.FC = () => {
               />
             </StyledNavItem>
           </Link>
+          <div style={{ marginLeft: '-1em' }} />
           <Link href="/">
             <StyledNavItem active>
               <Logo />

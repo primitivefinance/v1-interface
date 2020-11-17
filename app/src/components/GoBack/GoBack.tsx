@@ -27,7 +27,7 @@ const StyledText = styled.h6`
   margin: -1em 0 -1em 0;
 `
 
-const StyledGoBack = styled.button`
+const StyledGoBack = styled.a`
   align-items: center;
   background: transparent;
   border: 0px;
@@ -40,6 +40,7 @@ const StyledGoBack = styled.button`
   &:hover {
     color: ${(props) => props.theme.color.grey[400]};
   }
+  text-decoration: none;
 `
 
 const StyledLink = styled(Link)`
