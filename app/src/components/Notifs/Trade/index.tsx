@@ -61,7 +61,7 @@ const StyledTwitter = styled.a`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-radius: 5px;
+  border-radius: 10px;
   text-decoration: none;
   color: #1da1f2;
 `
