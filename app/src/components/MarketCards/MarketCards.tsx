@@ -62,7 +62,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
               <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
             </StyledDetails>
             <Spacer />
-            <Link href={`/markets/${encodeURIComponent(market.id)}`}>
+            <Link href={`/markets/${encodeURIComponent(market.id)}/calls`}>
               <Button to disabled={!poolActive} full text="Continue" />
             </Link>
           </StyledContent>
