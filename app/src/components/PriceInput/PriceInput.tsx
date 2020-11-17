@@ -13,6 +13,7 @@ export interface PriceInputProps {
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
   onClick: () => void
   startAdornment?: React.ReactNode
+  balance?: BigNumberish | number
 }
 
 const PriceInput: React.FC<PriceInputProps> = ({
@@ -22,6 +23,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
   onChange,
   onClick,
   startAdornment,
+  balance,
 }) => {
   return (
     <>
@@ -35,6 +37,11 @@ const PriceInput: React.FC<PriceInputProps> = ({
         value={`${quantity ? quantity.toString() : ''}`}
         endAdornment={<Button size="sm" text="Max" onClick={onClick} />}
       />
+      {balance ? (
+        <span style={{ alignSelf: 'flex-end' }}>Balance: {balance}</span>
+      ) : (
+        <> </>
+      )}
     </>
   )
 }

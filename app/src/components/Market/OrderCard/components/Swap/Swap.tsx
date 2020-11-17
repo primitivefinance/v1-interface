@@ -134,15 +134,15 @@ const Swap: React.FC = () => {
   const calculateTotalDebit = useCallback(() => {
     let debit = '0'
     if (item.premium) {
-      const premium = BigNumber.from(item.premium.toString())
+      const premiumWei = BigNumber.from(item.premium.toString())
       const size = inputs.primary === '' ? '0' : inputs.primary
       const sizeWei = parseEther(size)
-      debit = formatEther(premium.mul(sizeWei).div(parseEther('1')).toString())
+      debit = formatEther(
+        premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+      )
     }
     return debit
   }, [item, inputs])
-
-  console.log(item.shortPremium.toString())
 
   return (
     <>
@@ -164,14 +164,13 @@ const Swap: React.FC = () => {
       {orderType === Operation.SHORT ? (
         <LineItem
           label="Short Option Premium"
-          data={formatEther(item.shortPremium).toString()}
+          data={formatEther(item.shortPremium)}
           units={item.asset}
-          rawData={formatEther(item.shortPremium)}
         />
       ) : (
         <LineItem
           label="Option Premium"
-          data={formatEther(item.premium).toString()}
+          data={formatEther(item.premium)}
           units={item.asset}
         />
       )}
@@ -194,7 +193,7 @@ const Swap: React.FC = () => {
             ? 'Credit'
             : 'Debit'
         }`}
-        data={Math.abs(parseInt(calculateTotalDebit())).toString()}
+        data={calculateTotalDebit()}
         units={`${
           orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
