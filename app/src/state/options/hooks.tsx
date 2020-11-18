@@ -176,6 +176,14 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           redeemCost.toString()
                         ).div(Quote.quantity)
 
+                        const reserve0ForPremium =
+                          token0 === option.assetAddresses[0]
+                            ? reserve0ForDepth
+                            : reserve1ForDepth
+                        const reserve1ForPremium =
+                          token0 === option.assetAddresses[0]
+                            ? reserve0ForDepth
+                            : reserve1ForDepth
                         let premium: BigNumberish = Trade.getSpotPremium(
                           Base.quantity,
                           Quote.quantity,
