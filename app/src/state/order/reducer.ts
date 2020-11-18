@@ -7,19 +7,24 @@ export interface OrderState {
   item: OptionsAttributes
   orderType?: Operation
   loading?: boolean
+  approved?: boolean
 }
 
 export const initialState: OrderState = {
   item: EmptyAttributes,
   orderType: Operation.NEUTRAL,
   loading: false,
+  approved: false,
 }
 
 export default createReducer(initialState, (builder) =>
   builder
-    .addCase(updateItem, (state, { payload: { item, orderType, loading } }) => {
-      return { ...state, item, orderType, loading }
-    })
+    .addCase(
+      updateItem,
+      (state, { payload: { item, orderType, loading, approved } }) => {
+        return { ...state, item, orderType, loading, approved }
+      }
+    )
     .addCase(removeItem, () => {
       return initialState
     })

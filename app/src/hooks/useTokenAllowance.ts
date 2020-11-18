@@ -3,6 +3,7 @@ import { formatEther } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
 import { getAllowance } from '../lib/erc20'
 import { BigNumberish } from 'ethers'
+
 import { isAddress, getAddress } from '@ethersproject/address'
 
 const useTokenAllowance = (tokenAddress: string, spender: string) => {
@@ -12,7 +13,7 @@ const useTokenAllowance = (tokenAddress: string, spender: string) => {
   const fetchAllowance = useCallback(async () => {
     if (typeof tokenAddress === 'undefined' || tokenAddress === '') return
     if (!isAddress(getAddress(tokenAddress))) return
-    let code: any = await library.getCode(tokenAddress)
+    const code: any = await library.getCode(tokenAddress)
     let allowance: BigNumberish = '0'
     if (code > 0) {
       allowance = await getAllowance(library, tokenAddress, account, spender)
@@ -29,8 +30,7 @@ const useTokenAllowance = (tokenAddress: string, spender: string) => {
       return () => clearInterval(refreshInterval)
     }
   }, [account, library, setAllowance, tokenAddress])
-
+  console.log(allowance)
   return allowance
 }
-
 export default useTokenAllowance

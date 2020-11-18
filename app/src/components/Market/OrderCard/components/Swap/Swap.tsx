@@ -43,9 +43,8 @@ const Swap: React.FC = () => {
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // approval state
-  const [approved, setApproved] = useState(false)
-  // option entity in order
-  const { item, orderType, loading } = useItem()
+  const { item, orderType, approved, loading } = useItem()
+
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -98,7 +97,6 @@ const Swap: React.FC = () => {
     default:
       break
   }
-
   const tokenBalance = useTokenBalance(tokenAddress)
   const tokenAmount: TokenAmount = new TokenAmount(
     underlyingToken,
@@ -152,29 +150,28 @@ const Swap: React.FC = () => {
     return debit
   }, [item, inputs])
 
-  // FIX
-  const isApproved = useCallback((allowance, qty) => {
-    const approved: boolean = parseEther(allowance).gt(parseEther(qty))
-    setApproved(approved)
-    return approved
-  }, [])
-
+  //APPROVALS
   useEffect(() => {
-    setApproved(isApproved(tokenAllowance, inputs.primary || '0'))
-  }, [isApproved, setApproved, inputs])
+    if (tokenAllowance) {
+      const approve: boolean = parseEther(tokenAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
+
+      console.log(parseEther(tokenAllowance).toString())
+      if (approve) {
+        console.log('CHANGE?')
+        updateItem(item, orderType, loading, approve)
+      }
+    }
+  }, [updateItem, item, loading, orderType, tokenAllowance])
 
   const handleApproval = useCallback(() => {
     onApprove()
-      .then((tx: ethers.Transaction) => {
-        if (tx.hash) {
-          setApproved(true)
-        }
-      })
+      .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, tokenAllowance, onApprove, setApproved])
-  // END FIX
+  }, [inputs, tokenAllowance, onApprove])
 
   return (
     <>
