@@ -37,7 +37,6 @@ import {
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { pathToFileURL } from 'url'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
