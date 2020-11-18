@@ -30,6 +30,7 @@ const useTokenAllowance = (tokenAddress: string, spender: string) => {
       return () => clearInterval(refreshInterval)
     }
   }, [account, library, setAllowance, tokenAddress])
+  console.log(tokenAddress)
   console.log(allowance)
   return allowance
 }

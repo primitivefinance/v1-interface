@@ -281,6 +281,7 @@ const AddLiquidity: React.FC = () => {
     const approved: boolean = parseEther(tokenAllowance).gt(
       parseEther(inputs.primary || '0')
     )
+    setLpApproved(approved)
     return approved
   }, [inputs, tokenAllowance, setLpApproved])
 
@@ -288,69 +289,26 @@ const AddLiquidity: React.FC = () => {
     const approved: boolean = parseEther(optionAllowance).gt(
       parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
     )
+    setOptionApproved(approved)
     return approved
   }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
 
   useEffect(() => {
-    if (tokenAllowance && optionAllowance) {
-      const lpApproved: boolean = isLpApproved()
-      const optionApproved: boolean = isOptionApproved()
-      if (lpApproved && optionApproved) {
-        updateItem(item, orderType, loading, lpApproved && optionApproved)
-      }
+    const lpApproved: boolean = isLpApproved()
+    const optionApproved: boolean = isOptionApproved()
+    if (lpApproved && optionApproved) {
+      updateItem(item, orderType, loading, true)
     }
-  }, [updateItem, item, loading, orderType, isLpApproved, isOptionApproved])
-
-  const handleApproval = useCallback(() => {
-    if (!isLpApproved() && !isOptionApproved()) {
-      onApprove()
-        .then()
-        .catch((error) => {
-          addNotif(
-            0,
-            `Approving ${item.asset.toUpperCase()}`,
-            error.message,
-            ''
-          )
-        })
-        .then(() => {
-          onApproveOption
-            .onApprove()
-            .then()
-            .catch((error) => {
-              addNotif(
-                0,
-                `Approving ${item.asset.toUpperCase()}`,
-                error.message,
-                ''
-              )
-            })
-        })
-    } else if (!isLpApproved()) {
-      onApprove()
-        .then()
-        .catch((error) => {
-          addNotif(
-            0,
-            `Approving ${item.asset.toUpperCase()}`,
-            error.message,
-            ''
-          )
-        })
-    } else if (!isOptionApproved()) {
-      onApproveOption
-        .onApprove()
-        .then()
-        .catch((error) => {
-          addNotif(
-            0,
-            `Approving ${item.asset.toUpperCase()}`,
-            error.message,
-            ''
-          )
-        })
-    }
-  }, [inputs, tokenAllowance, onApprove])
+  }, [
+    updateItem,
+    item,
+    loading,
+    orderType,
+    isLpApproved,
+    isOptionApproved,
+    tokenAllowance,
+    optionAllowance,
+  ])
   // END FIX
 
   return (
@@ -415,7 +373,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="This requires"
         data={`${calculateBurn()}`}
-        units={`UNI-V2 LP Tokens`}
+        units={`UNI-V2 LP`}
       />
       <Spacer />
       <LineItem
