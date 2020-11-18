@@ -128,13 +128,13 @@ const AddLiquidity: React.FC = () => {
 
   const calculateToken0PerToken1 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token0Price.raw.toSignificant(2)
+    const ratio = lpPair.token1Price.raw.toSignificant(2)
     return ratio
   }, [lpPair])
 
   const calculateToken1PerToken0 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token1Price.raw.toSignificant(2)
+    const ratio = lpPair.token0Price.raw.toSignificant(2)
     return ratio
   }, [lpPair])
 
@@ -149,7 +149,14 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair, lp, lpTotalSupply])
 
   const calculateOutput = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (typeof lpPair === 'undefined' || lpPair === null) {
+      const input =
+        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+      const output =
+        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+      const sum = BigNumber.from(output).add(input)
+      return formatEther(sum.toString())
+    }
     const reservesA = lpPair.reserveOf(
       new Token(chainId, item.entity.assetAddresses[2], 18)
     )
@@ -222,7 +229,43 @@ const AddLiquidity: React.FC = () => {
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [lpPair, lp, lpTotalSupply, inputs])
 
-  //APPROVALS
+  const calculateImpliedPrice = useCallback(() => {
+    if (typeof lpPair === 'undefined' || lpPair === null) {
+      const input =
+        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+      const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
+        .mul(item.entity.optionParameters.quote.quantity)
+        .div(item.entity.optionParameters.base.quantity)
+      const output =
+        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+      const path = [
+        item.entity.assetAddresses[2],
+        item.entity.assetAddresses[0],
+      ]
+      const quote = Trade.getSpotPremium(
+        item.entity.optionParameters.base.quantity,
+        item.entity.optionParameters.quote.quantity,
+        path,
+        [inputShort, output]
+      )
+      return formatEther(quote.toString())
+    }
+    const reservesA = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[2], 18)
+    )
+    const reservesB = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[0], 18)
+    )
+    const path = [item.entity.assetAddresses[2], item.entity.assetAddresses[0]]
+    const quote = Trade.getSpotPremium(
+      item.entity.optionParameters.quote.quantity,
+      item.entity.optionParameters.base.quantity,
+      path,
+      [reservesA.raw.toString(), reservesB.raw.toString()]
+    )
+    return formatEther(quote.toString())
+  }, [lpPair, lp, lpTotalSupply, inputs])
+
   useEffect(() => {
     if (tokenAllowance) {
       const approve: boolean = parseEther(tokenAllowance).gt(
@@ -315,6 +358,12 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="This requires"
         data={`${calculateOutput()}`}
+        units={`${item.asset.toUpperCase()}`}
+      />
+      <Spacer />
+      <LineItem
+        label="Implied Option Price"
+        data={`${calculateImpliedPrice()}`}
         units={`${item.asset.toUpperCase()}`}
       />
       <Spacer />

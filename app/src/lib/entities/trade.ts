@@ -216,7 +216,9 @@ export class Trade {
   ): BigNumberish => {
     const numerator = BigNumber.from(reserveIn).mul(amountOut).mul(1000)
     const denominator = BigNumber.from(reserveOut).sub(amountOut).mul(997)
-    const amountIn = numerator.div(denominator).add(1)
+    const amountIn = denominator.gt(0)
+      ? numerator.div(denominator).add(1)
+      : BigNumber.from(0)
     return amountIn
   }
 
