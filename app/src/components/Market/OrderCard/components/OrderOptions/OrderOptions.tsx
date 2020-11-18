@@ -46,7 +46,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
             {reserve0Units === item.asset.toUpperCase()
               ? formatEtherBalance(item.reserves[1].toString())
               : formatEtherBalance(item.reserves[0].toString())}{' '}
-            <Units>Short</Units>
+            <Units>SHORT</Units>
           </span>
         </StyledR>
       </Box>

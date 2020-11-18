@@ -6,6 +6,7 @@ import IconButton from '@/components/Button'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
+import Tooltip from '@/components/Tooltip'
 import Table from '@/components/Table'
 import TableRow from '@/components/TableRow'
 import TableBody from '@/components/TableBody'
@@ -76,9 +77,13 @@ const TransactionCard: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         {txs[hash].summary ? (
-                          <StyledText>{txs[hash].summary.type}</StyledText>
+                          <StyledText>
+                            <Tooltip text={txs[hash].summary.type}>
+                              {txs[hash].summary.type.substr(0, 8)}
+                            </Tooltip>
+                          </StyledText>
                         ) : !txs[hash].approval.tokenAddress ? null : (
-                          <StyledText>APPROVAL</StyledText>
+                          <StyledText>APPROVE</StyledText>
                         )}
                       </TableCell>
                       <TableCell>
@@ -169,6 +174,9 @@ const StyledPending = styled.h5`
 const StyledLink = styled.a`
   text-decoration: none;
   color: ${(props) => props.theme.color.grey[400]};
+  &: hover {
+    color: ${(props) => props.theme.color.white};
+  }
 `
 
 export default TransactionCard

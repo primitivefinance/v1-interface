@@ -6,7 +6,7 @@ import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.jso
 import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
 import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
-//import UniswapConnectorMainnet from '@primitivefi/contracts/deployments/live_1/UniswapConnector03.json'
+import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import { TradeSettings, SinglePositionParameters } from './types'
 
 /**
@@ -21,7 +21,7 @@ export class Uniswap {
   ): SinglePositionParameters {
     const uniswapConnectorAddress =
       trade.option.chainId === 1
-        ? UniswapConnectorTestnet.address
+        ? UniswapConnectorMainnet.address
         : UniswapConnectorTestnet.address
 
     console.log({ uniswapConnectorAddress })

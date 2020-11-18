@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -34,6 +34,7 @@ import {
   useHandleSubmitOrder,
   useRemoveItem,
 } from '@/state/order/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
@@ -55,7 +56,7 @@ const AddLiquidity: React.FC = () => {
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType } = useItem()
+  const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -64,6 +65,7 @@ const AddLiquidity: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   // pair and option entities
+  const addNotif = useAddNotif()
   const entity = item.entity
   const underlyingToken: Token = new Token(
     entity.chainId,
@@ -290,6 +292,23 @@ const AddLiquidity: React.FC = () => {
     setOptionApproved(approved)
     return approved
   }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
+
+  useEffect(() => {
+    const lpApproved: boolean = isLpApproved()
+    const optionApproved: boolean = isOptionApproved()
+    if (lpApproved && optionApproved) {
+      updateItem(item, orderType, loading, true)
+    }
+  }, [
+    updateItem,
+    item,
+    loading,
+    orderType,
+    isLpApproved,
+    isOptionApproved,
+    tokenAllowance,
+    optionAllowance,
+  ])
   // END FIX
 
   return (
@@ -354,7 +373,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="This requires"
         data={`${calculateBurn()}`}
-        units={`UNI-V2 LP Tokens`}
+        units={`UNI-V2 LP`}
       />
       <Spacer />
       <LineItem

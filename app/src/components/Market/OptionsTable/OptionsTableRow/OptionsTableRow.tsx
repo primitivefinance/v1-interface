@@ -87,12 +87,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         {premium !== '0.00' ? (
           <TableCell>
             <StyledR>
-              <StyledT>
-                {`$`}
-                {premium}
-              </StyledT>
+              <StyledT>{numeral(premium).format('($0.00a)')}</StyledT>
               <span>
-                {premiumUnderlying} <Units>{asset}</Units>
+                {numeral(premiumUnderlying).format('(0.00a)')}{' '}
+                <Units>{asset}</Units>
               </span>
             </StyledR>
           </TableCell>
