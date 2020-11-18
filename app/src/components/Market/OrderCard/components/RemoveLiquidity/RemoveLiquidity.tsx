@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -34,6 +34,7 @@ import {
   useHandleSubmitOrder,
   useRemoveItem,
 } from '@/state/order/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
@@ -55,7 +56,7 @@ const AddLiquidity: React.FC = () => {
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType } = useItem()
+  const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -64,6 +65,7 @@ const AddLiquidity: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   // pair and option entities
+  const addNotif = useAddNotif()
   const entity = item.entity
   const underlyingToken: Token = new Token(
     entity.chainId,
@@ -279,7 +281,6 @@ const AddLiquidity: React.FC = () => {
     const approved: boolean = parseEther(tokenAllowance).gt(
       parseEther(inputs.primary || '0')
     )
-    setLpApproved(approved)
     return approved
   }, [inputs, tokenAllowance, setLpApproved])
 
@@ -287,9 +288,69 @@ const AddLiquidity: React.FC = () => {
     const approved: boolean = parseEther(optionAllowance).gt(
       parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
     )
-    setOptionApproved(approved)
     return approved
   }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
+
+  useEffect(() => {
+    if (tokenAllowance && optionAllowance) {
+      const lpApproved: boolean = isLpApproved()
+      const optionApproved: boolean = isOptionApproved()
+      if (lpApproved && optionApproved) {
+        updateItem(item, orderType, loading, lpApproved && optionApproved)
+      }
+    }
+  }, [updateItem, item, loading, orderType, isLpApproved, isOptionApproved])
+
+  const handleApproval = useCallback(() => {
+    if (!isLpApproved() && !isOptionApproved()) {
+      onApprove()
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+        .then(() => {
+          onApproveOption
+            .onApprove()
+            .then()
+            .catch((error) => {
+              addNotif(
+                0,
+                `Approving ${item.asset.toUpperCase()}`,
+                error.message,
+                ''
+              )
+            })
+        })
+    } else if (!isLpApproved()) {
+      onApprove()
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    } else if (!isOptionApproved()) {
+      onApproveOption
+        .onApprove()
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    }
+  }, [inputs, tokenAllowance, onApprove])
   // END FIX
 
   return (
