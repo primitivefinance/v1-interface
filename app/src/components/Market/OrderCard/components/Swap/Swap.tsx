@@ -103,9 +103,10 @@ const Swap: React.FC = () => {
     parseEther(tokenBalance).toString()
   )
   const spender =
-    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
+    orderType === Operation.CLOSE_SHORT || orderType === Operation.CLOSE_LONG
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
+
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
@@ -152,14 +153,12 @@ const Swap: React.FC = () => {
 
   //APPROVALS
   useEffect(() => {
-    if (tokenAllowance) {
+    if (parseInt(tokenAllowance) > 0) {
+      console.log(tokenAllowance)
       const approve: boolean = parseEther(tokenAllowance).gt(
         parseEther(inputs.primary || '0')
       )
-
-      console.log(parseEther(tokenAllowance).toString())
       if (approve) {
-        console.log('CHANGE?')
         updateItem(item, orderType, loading, approve)
       }
     }
@@ -287,5 +286,4 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-
 export default Swap

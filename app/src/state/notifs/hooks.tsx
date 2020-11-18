@@ -16,7 +16,7 @@ export const useAddNotif = (): ((
 
   return useCallback(
     (id, title, msg, link) => {
-      if (!active) {
+      if (active) {
         dispatch(
           addNotif({
             id,

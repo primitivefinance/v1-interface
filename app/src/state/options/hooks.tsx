@@ -183,7 +183,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           [reserves0, reserves1]
                         )
 
-                        let shortPremium: BigNumberish = Trade.getSpotShortPremium(
+                        const shortPremium: BigNumberish = Trade.getSpotShortPremium(
                           [reserves0, reserves1]
                         )
                         let reserve: BigNumberish = reserves1.toString()
@@ -277,7 +277,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                       }
-
                       dispatch(
                         updateOptions({
                           loading: false,

@@ -18,6 +18,7 @@ import { BigNumber } from 'ethers'
 
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
+import numeral from 'numeral'
 
 import {
   COINGECKO_ID_FOR_MARKET,
@@ -138,9 +139,9 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                   <>
                     <div style={{ minHeight: '.4em' }} />
 
-                    {`${formatEtherBalance(
-                      options.reservesTotal
-                    )}  ${symbol.toUpperCase()}`}
+                    {`${numeral(
+                      formatEtherBalance(options.reservesTotal)
+                    ).format('0.00a')} ${' '} ${symbol.toUpperCase()}`}
                     <div style={{ minHeight: '.25em' }} />
                   </>
                 ) : (

@@ -77,9 +77,7 @@ export default function Updater(): null {
                 })
               )
               const summary = transactions[hash].summary
-              console.log(summary)
               if (summary) {
-                console.log(summary)
                 const type = summary.option.isCall ? 'calls' : 'puts'
                 let market
                 if (type === 'calls') {
@@ -93,7 +91,6 @@ export default function Updater(): null {
                 const link = `https://app.primitive.finance/markets/${market}/${type}/${summary.option.address}/${summary.type}`
 
                 const exp = formatExpiry(summary.option.expiry)
-
                 addNotif(
                   2,
                   `Trade Confirmed`,
@@ -110,7 +107,6 @@ export default function Updater(): null {
               const app = transactions[hash].approval
               if (!approved && app) {
                 if (app.tokenAddress === item.entity.assetAddresses[0]) {
-                  console.log(app)
                   updateItem(item, orderType, loading, true)
                 }
               }
