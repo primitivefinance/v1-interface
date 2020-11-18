@@ -49,7 +49,7 @@ const AddLiquidity: React.FC = () => {
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
   // option entity in order
-  const { item, orderType } = useItem()
+  const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -59,7 +59,6 @@ const AddLiquidity: React.FC = () => {
   const { library, chainId } = useWeb3React()
   // approval
   const addNotif = useAddNotif()
-  const [approved, setApproved] = useState(false)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -85,7 +84,11 @@ const AddLiquidity: React.FC = () => {
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(underlyingToken.address, spender)
+  console.log(item.entity.assetAddresses[0])
+  const tokenAllowance = useTokenAllowance(
+    item.entity.assetAddresses[0],
+    spender
+  )
   const { onApprove } = useApprove(underlyingToken.address, spender)
 
   const underlyingAmount: TokenAmount = new TokenAmount(
@@ -264,32 +267,27 @@ const AddLiquidity: React.FC = () => {
     return formatEther(quote.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
-  // FIX
-  const isApproved = useCallback(() => {
-    const approved: boolean = parseEther(tokenAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-    setApproved(approved)
-    return approved
-  }, [tokenAllowance, approved])
-
   useEffect(() => {
-    setApproved(isApproved())
-  }, [isApproved, setApproved, inputs])
+    if (tokenAllowance) {
+      const approve: boolean = parseEther(tokenAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
+
+      console.log(parseEther(tokenAllowance).toString())
+      if (approve) {
+        console.log('CHANGE?')
+        updateItem(item, orderType, loading, approve)
+      }
+    }
+  }, [updateItem, item, loading, orderType, tokenAllowance])
 
   const handleApproval = useCallback(() => {
     onApprove()
-      .then((tx: ethers.Transaction) => {
-        if (tx.hash) {
-          setApproved(true)
-        }
-      })
+      .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, tokenAllowance, onApprove, setApproved])
-
-  // End FIX
+  }, [inputs, tokenAllowance, onApprove])
 
   const title = {
     text: 'Add Liquidity',

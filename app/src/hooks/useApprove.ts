@@ -18,7 +18,7 @@ const useApprove = (tokenAddress: string, spender: string) => {
   > => {
     approve(await library.getSigner(), tokenAddress, account, spender)
       .then((tx) => {
-        if (tx.hash) {
+        if (tx?.hash) {
           addTransaction(
             {
               approval: {

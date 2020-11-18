@@ -41,6 +41,7 @@ export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
   loading: boolean
+  approved: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -49,13 +50,19 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  loading?: boolean
+  loading?: boolean,
+  approved?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
-      dispatch(updateItem({ item, orderType, loading }))
+    (
+      item: OptionsAttributes,
+      orderType: Operation,
+      loading?: boolean,
+      approved?: boolean
+    ) => {
+      dispatch(updateItem({ item, orderType, loading, approved }))
     },
     [dispatch]
   )

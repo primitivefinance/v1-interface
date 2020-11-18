@@ -7,7 +7,7 @@ import { checkedTransaction, finalizeTransaction } from './actions'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useUpdatePositions } from '@/state/positions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { useItem } from '@/state/order/hooks'
+import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import Link from 'next/link'
 
@@ -37,6 +37,9 @@ export default function Updater(): null {
   const options = useOptions()
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
+  const { item, orderType, loading, approved } = useItem()
+  const updateItem = useUpdateItem()
+
   const { data } = useBlockNumber()
   const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
@@ -75,7 +78,7 @@ export default function Updater(): null {
               )
               const summary = transactions[hash].summary
               console.log(summary)
-              if (summary.type) {
+              if (summary) {
                 console.log(summary)
                 const type = summary.option.isCall ? 'calls' : 'puts'
                 let market
@@ -103,6 +106,13 @@ export default function Updater(): null {
                   }/${exp.date}/${exp.year}`,
                   `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimtiveFi`
                 )
+              }
+              const app = transactions[hash].approval
+              if (!approved && app) {
+                if (app.tokenAddress === item.entity.assetAddresses[0]) {
+                  console.log(app)
+                  updateItem(item, orderType, loading, true)
+                }
               }
             } else {
               dispatch(
