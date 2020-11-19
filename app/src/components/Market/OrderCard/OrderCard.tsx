@@ -84,7 +84,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </StyledTitle>
           <Reverse />
           <StyledTitle>
-            {`$${formatBalance(item.strike)} ${month}/${date} ${year}`}
+            {`$${formatBalance(item.strike)} ${month}/${date}/${year}`}
           </StyledTitle>
         </div>
         <Spacer />

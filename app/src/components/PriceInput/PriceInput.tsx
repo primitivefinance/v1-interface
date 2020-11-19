@@ -45,7 +45,9 @@ const PriceInput: React.FC<PriceInputProps> = ({
       {balance ? (
         <ContainerSpan>
           <LeftSpan>
-            <OpacitySpan>Balance:</OpacitySpan>{' '}
+            <OpacitySpan>
+              <Label text={'balance'} />
+            </OpacitySpan>
           </LeftSpan>
           <RightSpan>
             {formatEtherBalance(balance.raw.toString())}{' '}

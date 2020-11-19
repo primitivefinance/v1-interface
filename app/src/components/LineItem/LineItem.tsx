@@ -36,13 +36,16 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
         <Tooltip text={data.toString()}>
           {sign}
           {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-          {currency !== '$' ? currency : null}
+          <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
         </Tooltip>
       </span>
     </StyledLineItem>
   )
 }
 
+const StyledSym = styled.a`
+  opacity: 0.66;
+`
 const StyledLabel = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   display: flex;

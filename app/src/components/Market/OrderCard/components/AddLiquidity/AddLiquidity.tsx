@@ -83,7 +83,6 @@ const AddLiquidity: React.FC = () => {
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  console.log(item.entity.assetAddresses[0])
   const tokenAllowance = useTokenAllowance(
     item.entity.assetAddresses[0],
     spender
@@ -272,7 +271,6 @@ const AddLiquidity: React.FC = () => {
         parseEther(inputs.primary || '0')
       )
 
-      console.log(parseEther(tokenAllowance).toString())
       if (approve) {
         console.log('CHANGE?')
         updateItem(item, orderType, loading, approve)

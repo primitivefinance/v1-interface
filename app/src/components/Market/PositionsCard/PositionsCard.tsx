@@ -34,6 +34,7 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import LineItem from '@/components/LineItem'
 import { useClickAway } from '@/hooks/utils/useClickAway'
+import numeral from 'numeral'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -51,7 +52,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 
   return (
     <StyledPosition onClick={handleClick}>
-      <Box row justifyContent="space-around" alignItems="center">
+      <Box row justifyContent="flex-start" alignItems="center">
         <Spacer size="sm" />
         <StyledLogo
           src={getIconForMarket(option.attributes.asset.toLowerCase())}
@@ -67,22 +68,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           </StyledTitle>
           <Reverse />
           <StyledTitle>
-            {`$${option.attributes.strike} ${month}/${date} ${year}`}
+            {`${numeral(option.attributes.strike).format(
+              '$0.00a'
+            )} ${month}/${date}/${year}`}
           </StyledTitle>
         </div>
-        <Spacer />
-        <StyledLink
-          href={`${baseUrl}/${option.attributes.address}`}
-          target="_blank"
-        >
-          {option.attributes.address.length > 0
-            ? option.attributes.address.substr(0, 4) + '...'
-            : '-'}
-          <LaunchIcon style={{ fontSize: '14px' }} />
-        </StyledLink>
+
         <Spacer size="sm" />
       </Box>
-      <Spacer size="sm" />
       <StyledPrices row justifyContent="space-between" alignItems="center">
         <StyledPrice>
           <StyledT>Long</StyledT>
@@ -216,8 +209,8 @@ const StyledPosition = styled.a`
   margin-bottom: 0.5em;
   margin-top: 0.5em;
   &:hover {
-    background: ${(props) => props.theme.color.grey[600]};
-    border: 1.5px solid ${(props) => props.theme.color.grey[400]};
+    background: ${(props) => props.theme.color.grey[800]};
+    border: 1.5px solid ${(props) => props.theme.color.grey[600]};
   }
 `
 const StyledLink = styled.a`

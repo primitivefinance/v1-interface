@@ -38,6 +38,7 @@ import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import numeral from 'numeral'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
@@ -326,14 +327,13 @@ const AddLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-
       <Spacer />
-
-      <Box row alignItems="center">
-        <Label text={`Amount`} />
-        <Spacer size="md" />
-        <StyledRatio>{Math.round(10 * (ratio / 10)) / 10 + '%'}</StyledRatio>
-      </Box>
+      <LineItem
+        label={'Amount'}
+        data={Math.round(10 * (ratio / 10)) / 10 + '%'}
+        units={'%'}
+      ></LineItem>
+      <Spacer size="sm" />
       <Slider
         min={1}
         max={1000}
@@ -372,16 +372,16 @@ const AddLiquidity: React.FC = () => {
       <Spacer />
       <LineItem
         label="This requires"
-        data={`${calculateBurn()}`}
+        data={`${numeral(calculateBurn()).format('0.00')}`}
         units={`UNI-V2 LP`}
       />
       <Spacer />
       <LineItem
         label="You will receive"
-        data={calculateUnderlyingOutput()}
+        data={numeral(calculateUnderlyingOutput()).format('0.00')}
         units={`${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -389,7 +389,7 @@ const AddLiquidity: React.FC = () => {
       >
         {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
       {advanced ? (
         <>

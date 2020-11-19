@@ -210,6 +210,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               true
                             )
+                            console.log(option)
                             calls.push({
                               entity: option,
                               asset: assetName,

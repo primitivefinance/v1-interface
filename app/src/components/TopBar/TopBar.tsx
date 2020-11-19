@@ -52,6 +52,15 @@ const TopBar: React.FC = () => {
               Markets
             </StyledNavItem>
           </Link>
+          <Link href="/contracts">
+            <StyledNavItem
+              active={
+                location.pathname.indexOf('/contracts') !== -1 ? true : false
+              }
+            >
+              Contracts
+            </StyledNavItem>
+          </Link>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ
