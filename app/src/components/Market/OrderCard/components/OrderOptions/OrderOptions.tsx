@@ -138,7 +138,7 @@ const OrderOptions: React.FC = () => {
                   <LineItem
                     label={'Short Balance'}
                     data={
-                      option.long
+                      option.short
                         ? formatEtherBalance(option.short).toString()
                         : '0'
                     }
@@ -156,7 +156,13 @@ const OrderOptions: React.FC = () => {
                 <Spacer />
                 <Button
                   full
-                  disabled={!positions.loading ? false : true}
+                  disabled={
+                    option.short
+                      ? formatEtherBalance(option.short).toString() !== '0.00'
+                        ? false
+                        : true
+                      : true
+                  }
                   size="sm"
                   variant="secondary"
                   onClick={() => change(Operation.CLOSE_SHORT)}

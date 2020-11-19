@@ -75,8 +75,10 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    setHasL(lpPair ? (lpPair.reserve0.greaterThan('0') ? true : false) : false)
-  }, [lpPair, setHasL])
+    console.log('triggered')
+    console.log(item.reserves[0].toString())
+    setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
+  }, [item])
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
@@ -274,7 +276,6 @@ const AddLiquidity: React.FC = () => {
       )
 
       if (approve) {
-        console.log('CHANGE?')
         updateItem(item, orderType, loading, approve)
       }
     }
@@ -315,8 +316,7 @@ const AddLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-
-      <Spacer />
+      <Spacer size="sm" />
       {hasLiquidity ? (
         <PriceInput
           name="primary"
@@ -350,7 +350,7 @@ const AddLiquidity: React.FC = () => {
             onChange={handleInputChange}
             onClick={() => console.log('Max unavailable.')} //
             balance={underlyingAmount}
-          />{' '}
+          />
         </>
       )}
 
@@ -382,7 +382,7 @@ const AddLiquidity: React.FC = () => {
       </IconButton>
       <Spacer size="sm" />
 
-      {advanced ? (
+      {advanced && hasLiquidity ? (
         <>
           <Spacer size="sm" />
           <LineItem

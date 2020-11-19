@@ -129,11 +129,11 @@ const Market = ({ market, data }) => {
                 {item.address && orderType !== Operation.NONE ? null : (
                   <BalanceCard />
                 )}
-                <Spacer />
+                <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />
                 <NewMarketCard />
-                <Spacer />
+                <Spacer size="sm" />
                 <TransactionCard />
               </StyledSideBar>
             </StyledCol>

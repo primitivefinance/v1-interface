@@ -6,7 +6,7 @@ import { Web3Provider } from '@ethersproject/providers'
 
 import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
-import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '../../constants'
+import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '@/constants/index'
 
 import { TradeSettings } from '@/lib/types'
 import {
@@ -26,6 +26,9 @@ export function useSlippage() {
   return useLocalStorage<string>(LocalStorageKeys.Slippage, DEFAULT_SLIPPAGE)
 }
 
+export function useDisclaimer() {
+  return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, false)
+}
 export function useTradeSettings(): TradeSettings {
   const [slippage] = useSlippage()
   const { account, chainId } = useWeb3React()

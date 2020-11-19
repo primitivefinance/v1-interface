@@ -211,7 +211,6 @@ const Swap: React.FC = () => {
         onClick={handleSetMax}
         balance={tokenAmount}
       />
-
       <Spacer />
       <LineItem
         label={`Total ${
