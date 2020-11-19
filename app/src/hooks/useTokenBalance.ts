@@ -20,7 +20,7 @@ const useTokenBalance = (tokenAddress: string) => {
       balance = await getBalance(library, tokenAddress, account)
     }
     if (balance) {
-      setBalance(formatEther(balance).toString())
+      setBalance(formatEther(balance))
     }
   }, [account, library, tokenAddress])
 
