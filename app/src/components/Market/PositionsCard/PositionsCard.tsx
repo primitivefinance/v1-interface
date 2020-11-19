@@ -187,7 +187,7 @@ const StyledPrices = styled(Box)`
   padding: 0 1em 0 1em;
 `
 const StyledTitle = styled.h3`
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
