@@ -10,9 +10,10 @@ export interface LineItemProps {
   label: React.ReactNode
   data: string | number | any
   units?: any
+  tip?: any
 }
 
-const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
+const LineItem: React.FC<LineItemProps> = ({ label, data, units, tip }) => {
   const sign = units
     ? units !== ''
       ? units.toString().charAt(0) === '-'
@@ -33,16 +34,27 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units }) => {
     <StyledLineItem row justifyContent="space-between" alignItems="center">
       <StyledLabel>{label}</StyledLabel>
       <span>
-        <Tooltip text={data.toString()}>
-          {sign}
-          {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-          {currency !== '$' ? currency : null}
-        </Tooltip>
+        {tip ? (
+          <Tooltip text={tip}>
+            {sign}
+            {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+            <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
+          </Tooltip>
+        ) : (
+          <>
+            {sign}
+            {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+            <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
+          </>
+        )}
       </span>
     </StyledLineItem>
   )
 }
 
+const StyledSym = styled.a`
+  opacity: 0.66;
+`
 const StyledLabel = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   display: flex;

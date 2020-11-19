@@ -13,18 +13,19 @@ import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
-import { Operation } from '@/constants/index'
+import { Operation, STABLECOINS } from '@/constants/index'
 import numeral from 'numeral'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatBalance from '@/utils/formatBalance'
+import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { formatEther } from 'ethers/lib/utils'
 const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
   const { calls, puts } = useOptions()
   const addTransaction = useTransactionAdder()
-
   const { library, account, chainId } = useWeb3React()
+  const daiBal = useTokenBalance(STABLECOINS[chainId].address)
 
   const handleMintTestTokens = async () => {
     const now = () => new Date().getTime()
@@ -55,8 +56,10 @@ const BalanceCard: React.FC = () => {
   if (loading) return null
   if (calls.length === 0) return null
   return (
-    <Card border>
+    <Card>
       <CardContent>
+        <LineItem label={`DAI Balance`} data={daiBal} />
+        <Spacer size="sm" />
         <LineItem
           label={`${balance.asset.symbol} Balance`}
           data={formatEther(balance.quantity)}

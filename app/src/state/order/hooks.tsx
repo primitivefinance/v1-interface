@@ -42,6 +42,7 @@ export const useItem = (): {
   orderType: Operation
   loading: boolean
   approved: boolean
+  lpApproved: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -51,7 +52,8 @@ export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
   loading?: boolean,
-  approved?: boolean
+  approved?: boolean,
+  lpApproved?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -60,9 +62,10 @@ export const useUpdateItem = (): ((
       item: OptionsAttributes,
       orderType: Operation,
       loading?: boolean,
-      approved?: boolean
+      approved?: boolean,
+      lpApproved?: boolean
     ) => {
-      dispatch(updateItem({ item, orderType, loading, approved }))
+      dispatch(updateItem({ item, orderType, loading, approved, lpApproved }))
     },
     [dispatch]
   )

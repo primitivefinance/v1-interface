@@ -60,7 +60,7 @@ const Swap: React.FC = () => {
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    entity.isPut ? 'DAI' : item.asset.toUpperCase()
   )
 
   let title = { text: '', tip: '' }
@@ -123,6 +123,7 @@ const Swap: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
     )
+    console.log(max)
     setInputs({ ...inputs, primary: max.toString() })
   }
 
@@ -154,7 +155,6 @@ const Swap: React.FC = () => {
   //APPROVALS
   useEffect(() => {
     if (parseInt(tokenAllowance) > 0) {
-      console.log(tokenAllowance)
       const approve: boolean = parseEther(tokenAllowance).gt(
         parseEther(inputs.primary || '0')
       )
@@ -193,13 +193,13 @@ const Swap: React.FC = () => {
         <LineItem
           label="Short Option Premium"
           data={formatEther(item.shortPremium)}
-          units={item.asset}
+          units={entity.isPut ? 'DAI' : item.asset}
         />
       ) : (
         <LineItem
           label="Option Premium"
           data={formatEther(item.premium)}
-          units={item.asset}
+          units={entity.isPut ? 'DAI' : item.asset}
         />
       )}
       <Spacer />
@@ -211,7 +211,6 @@ const Swap: React.FC = () => {
         onClick={handleSetMax}
         balance={tokenAmount}
       />
-
       <Spacer />
       <LineItem
         label={`Total ${
@@ -230,7 +229,7 @@ const Swap: React.FC = () => {
               orderType === Operation.CLOSE_SHORT
             ? '+'
             : '-'
-        } ${item.asset.toUpperCase()}`}
+        } ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <IconButton

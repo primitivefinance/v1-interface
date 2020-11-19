@@ -7,6 +7,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 import Box from '@/components/Box'
 import Card from '@/components/Card'
@@ -75,31 +76,39 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
     removeItem()
   }
   return (
-    <Card border>
-      <Box row justifyContent="space-between" alignItems="center">
-        <StyledLogo src={getIconForMarket(item.asset.toLowerCase())} alt={''} />
-        <div>
-          <StyledTitle>
-            {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
-          </StyledTitle>
+    <>
+      <Spacer size="sm" />
+      <Card border>
+        <Box row justifyContent="space-between" alignItems="center">
+          <StyledLogo
+            src={getIconForMarket(item.asset.toLowerCase())}
+            alt={''}
+          />
+          <div>
+            <StyledTitle>
+              {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
+            </StyledTitle>
+            <Reverse />
+            <StyledTitle>
+              {`$${formatBalance(item.strike)} ${month}/${date}/${year}`}
+            </StyledTitle>
+          </div>
+          <Spacer />
+          <CustomButton>
+            <Button variant="transparent" size="sm" onClick={() => clear()}>
+              <ClearIcon />
+            </Button>
+          </CustomButton>
+        </Box>
+        <CardContent>
+          <Spacer size="sm" />
           <Reverse />
-          <StyledTitle>
-            {`$${formatBalance(item.strike)} ${month}/${date} ${year}`}
-          </StyledTitle>
-        </div>
-        <Spacer />
-        <CustomButton>
-          <Button variant="transparent" size="sm" onClick={() => clear()}>
-            <ClearIcon />
-          </Button>
-        </CustomButton>
-      </Box>
-      <CardContent>
-        <Spacer size="sm" />
-        <Reverse />
-        <OrderContent />
-      </CardContent>
-    </Card>
+          <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
+            <OrderContent />
+          </ErrorBoundary>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 

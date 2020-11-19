@@ -210,6 +210,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               true
                             )
+                            console.log(reserves[0].toString())
                             calls.push({
                               entity: option,
                               asset: assetName,
@@ -256,7 +257,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               false
                             )
-
                             puts.push({
                               entity: option,
                               asset: assetName,
@@ -264,7 +264,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               change: 0,
                               premium: premium,
                               shortPremium: shortPremium,
-                              strike: strikePrice.quantity,
+                              strike: option.strikePrice.quantity,
                               volume: 0,
                               reserves: reserves,
                               token0: token0,

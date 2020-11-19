@@ -106,6 +106,7 @@ export enum QueryParameters {
 
 export enum LocalStorageKeys {
   Version = 'version',
+  Disclaimer = 'disclaimer',
   Deadline = 'deadline',
   Slippage = 'slippage',
   Transactions = 'transactions',

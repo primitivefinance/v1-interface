@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -38,6 +38,7 @@ import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import numeral from 'numeral'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
@@ -49,14 +50,10 @@ const AddLiquidity: React.FC = () => {
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
 
-  // approval
-  const [lpApproved, setLpApproved] = useState(false)
-  const [optionApproved, setOptionApproved] = useState(false)
-
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType, approved, loading } = useItem()
+  const { item, orderType, approved, lpApproved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -166,12 +163,13 @@ const AddLiquidity: React.FC = () => {
       typeof lpPair === 'undefined' ||
       lpPair === null ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
+    ) {
       return {
         shortPerLp: '0',
         underlyingPerLp: '0',
         totalUnderlyingPerLp: '0',
       }
+    }
     const SHORT: Token =
       lpPair.token0.address === item.entity.assetAddresses[2]
         ? lpPair.token0
@@ -203,6 +201,7 @@ const AddLiquidity: React.FC = () => {
     const underlyingPerLp = underlyingValue
       ? formatEther(underlyingValue.raw.toString())
       : '0'
+
     const totalUnderlyingPerLp = formatEther(
       BigNumber.from(shortValue.raw.toString())
         .mul(item.entity.optionParameters.base.quantity)
@@ -277,38 +276,27 @@ const AddLiquidity: React.FC = () => {
   }
 
   // FIX
-  const isLpApproved = useCallback(() => {
-    const approved: boolean = parseEther(tokenAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-    setLpApproved(approved)
-    return approved
-  }, [inputs, tokenAllowance, setLpApproved])
-
-  const isOptionApproved = useCallback(() => {
-    const approved: boolean = parseEther(optionAllowance).gt(
-      parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
-    )
-    setOptionApproved(approved)
-    return approved
-  }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
 
   useEffect(() => {
-    const lpApproved: boolean = isLpApproved()
-    const optionApproved: boolean = isOptionApproved()
-    if (lpApproved && optionApproved) {
-      updateItem(item, orderType, loading, true)
+    if (tokenAllowance) {
+      const approve: boolean = parseEther(tokenAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
+      console.log(lpApproved)
+      if (approve) {
+        updateItem(item, orderType, loading, approve)
+      }
     }
-  }, [
-    updateItem,
-    item,
-    loading,
-    orderType,
-    isLpApproved,
-    isOptionApproved,
-    tokenAllowance,
-    optionAllowance,
-  ])
+    if (optionAllowance) {
+      const app: boolean = parseEther(optionAllowance).gt(
+        parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+      )
+      console.log(approved)
+      if (app) {
+        updateItem(item, orderType, loading, approved, app)
+      }
+    }
+  }, [item, orderType, loading, optionAllowance, tokenAllowance])
   // END FIX
 
   return (
@@ -326,14 +314,13 @@ const AddLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-
       <Spacer />
-
-      <Box row alignItems="center">
-        <Label text={`Amount`} />
-        <Spacer size="md" />
-        <StyledRatio>{Math.round(10 * (ratio / 10)) / 10 + '%'}</StyledRatio>
-      </Box>
+      <LineItem
+        label={'Amount'}
+        data={Math.round(10 * (ratio / 10)) / 10 + '%'}
+        units={'%'}
+      ></LineItem>
+      <Spacer size="sm" />
       <Slider
         min={1}
         max={1000}
@@ -344,24 +331,31 @@ const AddLiquidity: React.FC = () => {
 
       <Box row justifyContent="flex-start">
         <Button
+          variant="secondary"
           text="25%"
           onClick={() => {
             handleRatio(250)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="50%"
           onClick={() => {
             handleRatio(500)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="75%"
           onClick={() => {
             handleRatio(750)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="100%"
           onClick={() => {
             handleRatio(1000)
@@ -372,16 +366,16 @@ const AddLiquidity: React.FC = () => {
       <Spacer />
       <LineItem
         label="This requires"
-        data={`${calculateBurn()}`}
+        data={`${numeral(calculateBurn()).format('0.00')}`}
         units={`UNI-V2 LP`}
       />
       <Spacer />
       <LineItem
         label="You will receive"
-        data={calculateUnderlyingOutput()}
+        data={numeral(calculateUnderlyingOutput()).format('0.00')}
         units={`${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -389,7 +383,7 @@ const AddLiquidity: React.FC = () => {
       >
         {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
       {advanced ? (
         <>
@@ -431,45 +425,41 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {lpApproved ? (
-          <> </>
+        {!lpApproved ? (
+          <Button
+            disabled={!tokenAllowance || submitting}
+            full
+            size="sm"
+            onClick={onApprove}
+            isLoading={submitting}
+            text="Approve LP"
+          />
         ) : (
-          <>
-            {' '}
-            <Button
-              disabled={!tokenAllowance || submitting}
-              full
-              size="sm"
-              onClick={onApprove}
-              isLoading={submitting}
-              text="Approve LP"
-            />
-          </>
+          <></>
         )}
 
-        {optionApproved ? (
-          <> </>
+        {!approved ? (
+          <Button
+            disabled={!optionAllowance || submitting}
+            full
+            size="sm"
+            onClick={onApproveOption.onApprove}
+            isLoading={submitting}
+            text="Approve SHORT"
+          />
         ) : (
-          <>
-            <Button
-              disabled={!optionAllowance || submitting}
-              full
-              size="sm"
-              onClick={onApproveOption.onApprove}
-              isLoading={submitting}
-              text="Approve PRM"
-            />
-          </>
+          <></>
         )}
-
-        <Button
-          disabled={!optionApproved || !lpApproved || !inputs || submitting}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={submitting}
-          text="Review"
-        />
+        {!approved || !lpApproved ? null : (
+          <Button
+            disabled={!inputs || submitting}
+            full
+            size="sm"
+            onClick={handleSubmitClick}
+            isLoading={submitting}
+            text="Review"
+          />
+        )}
       </Box>
     </>
   )

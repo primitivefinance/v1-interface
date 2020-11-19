@@ -12,9 +12,9 @@ export interface NewMarketRowProps {
 const NewMarketRow: React.FC<NewMarketRowProps> = ({ onClick }) => {
   return (
     <>
-      <TableRow isHead onClick={onClick}>
+      <TableRow isHead>
         <TableCell></TableCell>
-        <StyledButtonCellError key={'Open'}>
+        <StyledButtonCellError key={'Open'} onClick={onClick}>
           <AddIcon />
           <Spacer size="md" />
           Add a New Option Market
@@ -33,7 +33,7 @@ const StyledButtonCellError = styled.div`
   font-weight: inherit;
   color: ${(props) => props.theme.color.white};
   margin-right: ${(props) => props.theme.spacing[2]}px;
-  width: 100%;
+  width: 40%;
 `
 
 export default NewMarketRow

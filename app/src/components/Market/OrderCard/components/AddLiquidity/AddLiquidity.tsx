@@ -26,6 +26,7 @@ import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import AddIcon from '@material-ui/icons/Add'
 
 import {
   useItem,
@@ -54,6 +55,8 @@ const AddLiquidity: React.FC = () => {
     primary: '',
     secondary: '',
   })
+  // set null lp
+  const [hasLiquidity, setHasL] = useState(false)
   // web3
   const { library, chainId } = useWeb3React()
   // approval
@@ -71,11 +74,12 @@ const AddLiquidity: React.FC = () => {
     new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
   ).data
 
-  const hasLiquidity = lpPair
-    ? lpPair.reserve0.greaterThan('0')
-      ? true
-      : false
-    : false
+  useEffect(() => {
+    console.log('triggered')
+    console.log(item.reserves[0].toString())
+    setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
+  }, [item])
+
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
@@ -83,7 +87,6 @@ const AddLiquidity: React.FC = () => {
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  console.log(item.entity.assetAddresses[0])
   const tokenAllowance = useTokenAllowance(
     item.entity.assetAddresses[0],
     spender
@@ -272,9 +275,7 @@ const AddLiquidity: React.FC = () => {
         parseEther(inputs.primary || '0')
       )
 
-      console.log(parseEther(tokenAllowance).toString())
       if (approve) {
-        console.log('CHANGE?')
         updateItem(item, orderType, loading, approve)
       }
     }
@@ -315,8 +316,7 @@ const AddLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-
-      <Spacer />
+      <Spacer size="sm" />
       {hasLiquidity ? (
         <PriceInput
           name="primary"
@@ -340,9 +340,9 @@ const AddLiquidity: React.FC = () => {
             onChange={handleInputChange}
             onClick={() => console.log('Max unavailable.')} //
           />
-          <Spacer />
-          <StyledText>Per</StyledText>
-          <Spacer />
+          <StyledAdd>
+            <AddIcon />
+          </StyledAdd>
           <PriceInput
             name="secondary"
             title={`Underlyings Input`}
@@ -350,7 +350,7 @@ const AddLiquidity: React.FC = () => {
             onChange={handleInputChange}
             onClick={() => console.log('Max unavailable.')} //
             balance={underlyingAmount}
-          />{' '}
+          />
         </>
       )}
 
@@ -372,7 +372,7 @@ const AddLiquidity: React.FC = () => {
         data={caculatePoolShare()}
         units={`% of the Pool.`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -380,9 +380,9 @@ const AddLiquidity: React.FC = () => {
       >
         {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
-      {advanced ? (
+      {advanced && hasLiquidity ? (
         <>
           <Spacer size="sm" />
           <LineItem
@@ -450,6 +450,12 @@ const AddLiquidity: React.FC = () => {
   )
 }
 
+const StyledAdd = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  display: flex;
+  justify-content: center;
+  margin: 0.7em;
+`
 const StyledText = styled.h5`
   color: ${(props) => props.theme.color.white};
   display: flex;

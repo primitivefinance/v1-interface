@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import Spacer from '../Spacer'
@@ -33,10 +33,10 @@ const Input: React.FC<InputProps> = ({
   return (
     <StyledInputWrapper height={height}>
       {!!startAdornment && (
-        <Fragment>
+        <>
           {startAdornment}
           <Spacer size="sm" />
-        </Fragment>
+        </>
       )}
       <StyledInput
         name={name}
@@ -46,16 +46,19 @@ const Input: React.FC<InputProps> = ({
         value={value}
       />
       {!!endAdornment && (
-        <Fragment>
+        <StyledAd>
           <Spacer size="sm" />
           {endAdornment}
           <Spacer size="sm" />
-        </Fragment>
+        </StyledAd>
       )}
     </StyledInputWrapper>
   )
 }
 
+const StyledAd = styled.div`
+  margin-left: -4em;
+`
 interface StyledInputProps {
   height: number
 }

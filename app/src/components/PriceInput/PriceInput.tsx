@@ -40,12 +40,17 @@ const PriceInput: React.FC<PriceInputProps> = ({
         startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
         value={`${quantity ? quantity.toString() : ''}`}
-        endAdornment={<Button size="sm" text="Max" onClick={onClick} />}
+        endAdornment={
+          <Button size="sm" variant="secondary" text="Max" onClick={onClick} />
+        }
       />
+      <Spacer size="sm" />
       {balance ? (
         <ContainerSpan>
           <LeftSpan>
-            <OpacitySpan>Balance:</OpacitySpan>{' '}
+            <OpacitySpan>
+              <Label text={'balance'} />
+            </OpacitySpan>
           </LeftSpan>
           <RightSpan>
             {formatEtherBalance(balance.raw.toString())}{' '}

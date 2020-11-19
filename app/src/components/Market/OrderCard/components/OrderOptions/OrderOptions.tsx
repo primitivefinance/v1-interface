@@ -30,27 +30,6 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       : 'SHORT'
   return (
     <>
-      <Spacer size="sm" />
-      <Box row justifyContent="space-between" alignItems="center">
-        <Label text={'Reserves'} />
-        <Spacer />
-        <StyledR>
-          <StyledT>
-            {reserve0Units === item.asset.toUpperCase()
-              ? formatEtherBalance(item.reserves[0].toString())
-              : formatEtherBalance(item.reserves[1].toString())}{' '}
-            <Units>{item.asset.toUpperCase()}</Units>
-          </StyledT>
-          <Spacer size="sm" />
-          <span>
-            {reserve0Units === item.asset.toUpperCase()
-              ? formatEtherBalance(item.reserves[1].toString())
-              : formatEtherBalance(item.reserves[0].toString())}{' '}
-            <Units>SHORT</Units>
-          </span>
-        </StyledR>
-      </Box>
-
       <Spacer />
       <LineItem
         label={'LP Balance'}
@@ -59,16 +38,17 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       />
       <Spacer />
       <Box row justifyContent="center" alignItems="center">
-        <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
+        <Button full size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
           Provide
         </Button>
         <Spacer />
         {!balance ? (
-          <Button size="sm" variant="secondary" disabled>
+          <Button full size="sm" variant="secondary" disabled>
             Withdraw
           </Button>
         ) : (
           <Button
+            full
             size="sm"
             variant="secondary"
             onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
@@ -116,19 +96,23 @@ const OrderOptions: React.FC = () => {
           <Spacer />
           <TabPanel>
             <StyledColumn>
+              <Spacer />
               <Box row justifyContent="flex-start" alignItems="center">
-                <Label text={'Long Balance'} />
-                <Spacer />
-                <StyledBalance>
-                  {positions.loading ? (
-                    <Loader size="sm" />
-                  ) : !option.long ? (
-                    '0.00'
-                  ) : (
-                    formatEtherBalance(option.long)
-                  )}
-                </StyledBalance>
+                {!positions.loading ? (
+                  <LineItem
+                    label={'Long Balance'}
+                    data={
+                      option.long
+                        ? formatEtherBalance(option.long).toString()
+                        : '0'
+                    }
+                    units={'LONG'}
+                  />
+                ) : (
+                  <Loader size="sm" />
+                )}
               </Box>
+              <Spacer />
               <Box row justifyContent="space-between" alignItems="center">
                 <Button full size="sm" onClick={() => change(Operation.LONG)}>
                   Buy
@@ -148,19 +132,23 @@ const OrderOptions: React.FC = () => {
           </TabPanel>
           <TabPanel>
             <StyledColumn>
+              <Spacer />
               <Box row justifyContent="flex-start" alignItems="center">
-                <Label text={'Short Balance'} />
-                <Spacer />
-                <StyledBalance>
-                  {positions.loading ? (
-                    <Loader size="sm" />
-                  ) : !option.short ? (
-                    '0.00'
-                  ) : (
-                    formatEtherBalance(option.short)
-                  )}
-                </StyledBalance>
+                {!positions.loading ? (
+                  <LineItem
+                    label={'Short Balance'}
+                    data={
+                      option.short
+                        ? formatEtherBalance(option.short).toString()
+                        : '0'
+                    }
+                    units={'SHORT'}
+                  />
+                ) : (
+                  <Loader size="sm" />
+                )}
               </Box>
+              <Spacer />
               <Box row justifyContent="space-between" alignItems="center">
                 <Button full size="sm" onClick={() => change(Operation.SHORT)}>
                   Buy
@@ -168,7 +156,13 @@ const OrderOptions: React.FC = () => {
                 <Spacer />
                 <Button
                   full
-                  disabled={!positions.loading ? false : true}
+                  disabled={
+                    option.short
+                      ? formatEtherBalance(option.short).toString() !== '0.00'
+                        ? false
+                        : true
+                      : true
+                  }
                   size="sm"
                   variant="secondary"
                   onClick={() => change(Operation.CLOSE_SHORT)}

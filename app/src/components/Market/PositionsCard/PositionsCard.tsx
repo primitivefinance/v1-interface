@@ -11,6 +11,8 @@ import { Protocol } from '@/lib/protocol'
 
 import { useWeb3React } from '@web3-react/core'
 
+import Table from '@/components/Table'
+import TableRow from '@/components/TableRow'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
@@ -34,6 +36,7 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import LineItem from '@/components/LineItem'
 import { useClickAway } from '@/hooks/utils/useClickAway'
+import numeral from 'numeral'
 export interface TokenProps {
   option: any // replace with option type
 }
@@ -51,38 +54,20 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 
   return (
     <StyledPosition onClick={handleClick}>
-      <Box row justifyContent="space-around" alignItems="center">
+      <Spacer />
+      <Box row justifyContent="flex-start" alignItems="center">
         <Spacer size="sm" />
-        <StyledLogo
-          src={getIconForMarket(option.attributes.asset.toLowerCase())}
-          alt={''}
-        />
-        <Spacer />
-        <div>
-          <Spacer />
+        <Box row justifyContent="space-between" alignItems="center">
           <StyledTitle>
             {`${option.attributes.asset} ${
               option.attributes.entity.isCall ? 'Call' : 'Put'
-            }`}
+            } `}
+            {`${numeral(option.attributes.strike).format(
+              '$0.00a'
+            )} ${month}/${date}/${year}`}
           </StyledTitle>
-          <Reverse />
-          <StyledTitle>
-            {`$${option.attributes.strike} ${month}/${date} ${year}`}
-          </StyledTitle>
-        </div>
-        <Spacer />
-        <StyledLink
-          href={`${baseUrl}/${option.attributes.address}`}
-          target="_blank"
-        >
-          {option.attributes.address.length > 0
-            ? option.attributes.address.substr(0, 4) + '...'
-            : '-'}
-          <LaunchIcon style={{ fontSize: '14px' }} />
-        </StyledLink>
-        <Spacer size="sm" />
+        </Box>
       </Box>
-      <Spacer size="sm" />
       <StyledPrices row justifyContent="space-between" alignItems="center">
         <StyledPrice>
           <StyledT>Long</StyledT>
@@ -138,11 +123,10 @@ const PositionsCard: React.FC = () => {
         <Reverse />
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
-            <StyledBox row justifyContent="space-around" alignItems="center">
+            <StyledBox row justifyContent="space-between" alignItems="center">
               <Title>{`Active Positions (${positions.options.length})`}</Title>
-              <IconButton variant="tertiary">
-                {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
-              </IconButton>
+              <Spacer />
+              {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </StyledBox>
           </div>
         </CardTitle>
@@ -150,18 +134,25 @@ const PositionsCard: React.FC = () => {
         {!open ? (
           <Spacer size="sm" />
         ) : (
-          <>
+          <Scroll>
             <CardContent>
               {positions.options.map((pos, i) => {
                 return <Position key={i} option={pos} />
               })}
             </CardContent>
-          </>
+          </Scroll>
         )}
       </Card>
     </div>
   )
 }
+
+const Scroll = styled.div`
+  overflow: scroll;
+  height: 20em;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  background: ${(props) => props.theme.color.grey[800]};
+`
 
 const StyledBox = styled(Box)`
   cursor: pointer;
@@ -201,23 +192,19 @@ const StyledTitle = styled.h3`
   flex-direction: row;
   justify-content: flex-start;
   margin-top: -0.5em;
+  margin-bottom: 0em;
 `
 const StyledPosition = styled.a`
-  border: 1px solid ${(props) => props.theme.color.grey[800]};
+  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.black};
   min-height: 2em;
   border-radius: 4px;
-  padding-left: 0.8em;
-  padding-right: 0.8em;
-  padding-bottom: 1em;
-  padding-top: 0.5em;
   cursor: pointer;
-  margin-bottom: 0.5em;
-  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  margin-top: -0.3em;
+  padding: 0 0.5em 0.5em 0.5em;
   &:hover {
-    background: ${(props) => props.theme.color.grey[600]};
-    border: 1.5px solid ${(props) => props.theme.color.grey[400]};
+    background: ${(props) => props.theme.color.black};
   }
 `
 const StyledLink = styled.a`

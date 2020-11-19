@@ -9,10 +9,11 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import BetaBanner from '@/components/BetaBanner'
 import Spacer from '@/components/Spacer'
 
-import { ADDRESS_FOR_MARKET } from '@/constants/index'
+import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
+import { useItem } from '@/state/order/hooks'
 import Loader from '@/components/Loader'
 import {
   FilterBar,
@@ -40,7 +41,7 @@ const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active, account } = useActiveWeb3React()
-
+  const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
   useEffect(() => {
@@ -125,13 +126,14 @@ const Market = ({ market, data }) => {
 
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
-                <Spacer />
-                <BalanceCard />
-                <Spacer />
+                {item.address && orderType !== Operation.NONE ? null : (
+                  <BalanceCard />
+                )}
+                <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />
                 <NewMarketCard />
-                <Spacer />
+                <Spacer size="sm" />
                 <TransactionCard />
               </StyledSideBar>
             </StyledCol>
@@ -150,7 +152,6 @@ const StyledContainer = styled(Col)`
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  overflow: hidden;
   flex-grow: 1;
 `
 const StyledMain = styled.div``
