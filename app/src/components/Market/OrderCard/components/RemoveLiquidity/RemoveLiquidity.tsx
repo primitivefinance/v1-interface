@@ -53,7 +53,7 @@ const AddLiquidity: React.FC = () => {
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType, approved, lpApproved, loading } = useItem()
+  const { item, orderType, loading, approved, lpApproved } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -85,6 +85,7 @@ const AddLiquidity: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(lpToken, spender)
   const optionAllowance = useTokenAllowance(item.address, spender)
+  const optionBalance = useTokenBalance(item.address)
   const onApproveOption = useApprove(item.address, spender)
 
   const handleInputChange = useCallback(
@@ -261,6 +262,38 @@ const AddLiquidity: React.FC = () => {
     return totalUnderlyingPerLp
   }, [lpPair, lp, lpTotalSupply, inputs, ratio])
 
+  const calculateRequiredLong = useCallback(() => {
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return '0'
+
+    const liquidity = parseEther(lp).mul(ratio).div(1000)
+    if (liquidity.isZero()) return '0'
+    if (ratio === 0) return '0'
+    const base = item.entity.optionParameters.base.quantity
+    const quote = item.entity.optionParameters.quote.quantity
+    const SHORT: Token =
+      lpPair.token0.address === item.entity.assetAddresses[2]
+        ? lpPair.token0
+        : lpPair.token1
+    const shortValue = lpPair.getLiquidityValue(
+      SHORT,
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+    )
+
+    const totalRequiredLong = formatEther(
+      BigNumber.from(shortValue.raw.toString()).mul(base).div(quote)
+    )
+    return totalRequiredLong
+  }, [lpPair, lp, lpTotalSupply, inputs, ratio, item])
+
   const calculateBurn = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
     const liquidity = parseEther(lp)
@@ -282,21 +315,21 @@ const AddLiquidity: React.FC = () => {
       const approve: boolean = parseEther(tokenAllowance).gt(
         parseEther(inputs.primary || '0')
       )
-      console.log(lpApproved)
+      console.log({ lpApproved })
       if (approve) {
-        updateItem(item, orderType, loading, approve)
+        updateItem(item, orderType, loading, approve, lpApproved)
       }
     }
     if (optionAllowance) {
       const app: boolean = parseEther(optionAllowance).gt(
-        parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
+        parseEther(calculateRequiredLong() || '0')
       )
-      console.log(approved)
+      console.log({ approved })
       if (app) {
         updateItem(item, orderType, loading, approved, app)
       }
     }
-  }, [item, orderType, loading, optionAllowance, tokenAllowance])
+  }, [item, orderType, loading, optionAllowance, tokenAllowance, approved])
   // END FIX
 
   return (
@@ -369,6 +402,31 @@ const AddLiquidity: React.FC = () => {
         data={`${numeral(calculateBurn()).format('0.00')}`}
         units={`UNI-V2 LP`}
       />
+
+      <Spacer />
+      <LineItem
+        label="And requires"
+        data={`${numeral(calculateRequiredLong()).format('0.00')}`}
+        units={`Options`}
+      />
+      {parseEther(calculateRequiredLong()).gt(parseEther(optionBalance)) ? (
+        <>
+          <Spacer />
+          <LineItem
+            label="You need"
+            data={`${numeral(
+              formatEther(
+                parseEther(calculateRequiredLong()).sub(
+                  parseEther(optionBalance)
+                )
+              )
+            ).format('0.00')}`}
+            units={`Options`}
+          />{' '}
+        </>
+      ) : (
+        <> </>
+      )}
       <Spacer />
       <LineItem
         label="You will receive"
@@ -445,7 +503,7 @@ const AddLiquidity: React.FC = () => {
             size="sm"
             onClick={onApproveOption.onApprove}
             isLoading={submitting}
-            text="Approve SHORT"
+            text="Approve Options"
           />
         ) : (
           <></>
@@ -457,7 +515,7 @@ const AddLiquidity: React.FC = () => {
             size="sm"
             onClick={handleSubmitClick}
             isLoading={submitting}
-            text="Review"
+            text="Submit"
           />
         )}
       </Box>
