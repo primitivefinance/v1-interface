@@ -247,5 +247,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
 const OptionsContainer = styled.div`
   margin-left: 2em;
+  margin-top: -0.2em;
 `
 export default OptionsTable

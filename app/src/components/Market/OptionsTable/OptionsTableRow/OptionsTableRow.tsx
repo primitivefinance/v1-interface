@@ -67,6 +67,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   const nodeRef = useClickAway(() => {
     setToggle(false)
   })
+
   return (
     <StyledDiv ref={nodeRef}>
       <TableRow
@@ -80,9 +81,13 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         key={key}
         onClick={handleOnClick}
       >
-        <TableCell>${strike}</TableCell>
+        <TableCell>{numeral(strike).format('$0.00a')}</TableCell>
         <TableCell>
-          {premium !== '0.00' ? <>{`$${breakeven}`}</> : <>{`--`}</>}
+          {premium !== '0.00' ? (
+            <>{numeral(breakeven).format('$0.00a')}</>
+          ) : (
+            <>{`-`}</>
+          )}
         </TableCell>
         {premium !== '0.00' ? (
           <TableCell>
@@ -104,7 +109,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        {reserves[0] !== '0.00' ? (
+        {parseInt(reserves[1]) > 0 ? (
           <TableCell>
             <StyledR>
               <StyledT>

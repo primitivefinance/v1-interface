@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -278,7 +278,7 @@ const AddLiquidity: React.FC = () => {
   }
 
   // FIX
-  const isLpApproved = useCallback(() => {
+  const isLpApproved = useMemo(() => {
     const approved: boolean = parseEther(tokenAllowance).gt(
       parseEther(inputs.primary || '0')
     )
@@ -286,7 +286,7 @@ const AddLiquidity: React.FC = () => {
     return approved
   }, [inputs, tokenAllowance, setLpApproved])
 
-  const isOptionApproved = useCallback(() => {
+  const isOptionApproved = useMemo(() => {
     const approved: boolean = parseEther(optionAllowance).gt(
       parseEther(calculateLiquidityValuePerShare().shortPerLp || '0')
     )
@@ -294,22 +294,6 @@ const AddLiquidity: React.FC = () => {
     return approved
   }, [setOptionApproved, optionAllowance, calculateLiquidityValuePerShare])
 
-  useEffect(() => {
-    const lpApproved: boolean = isLpApproved()
-    const optionApproved: boolean = isOptionApproved()
-    if (lpApproved && optionApproved) {
-      updateItem(item, orderType, loading, true)
-    }
-  }, [
-    updateItem,
-    item,
-    loading,
-    orderType,
-    isLpApproved,
-    isOptionApproved,
-    tokenAllowance,
-    optionAllowance,
-  ])
   // END FIX
 
   return (
@@ -344,24 +328,31 @@ const AddLiquidity: React.FC = () => {
 
       <Box row justifyContent="flex-start">
         <Button
+          variant="secondary"
           text="25%"
           onClick={() => {
             handleRatio(250)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="50%"
           onClick={() => {
             handleRatio(500)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="75%"
           onClick={() => {
             handleRatio(750)
           }}
         />
+        <div style={{ width: '5px' }} />
         <Button
+          variant="secondary"
           text="100%"
           onClick={() => {
             handleRatio(1000)
