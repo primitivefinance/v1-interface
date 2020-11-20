@@ -135,11 +135,12 @@ const Market = ({ market, data }) => {
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
                 <BalanceCard />
-                <Spacer />
+                <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />
                 <NewMarketCard />
-                <Spacer />
+                <Spacer size="sm" />
+
                 <TransactionCard />
               </StyledSideBar>
             </StyledCol>
