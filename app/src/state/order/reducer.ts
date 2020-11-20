@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { updateItem, removeItem } from './actions'
+import { updateItem, removeItem, approve } from './actions'
 import { OptionsAttributes, EmptyAttributes } from '@/state/options/reducer'
 import { Operation } from '@/constants/index'
 
@@ -30,6 +30,9 @@ export default createReducer(initialState, (builder) =>
         return { ...state, item, orderType, loading, approved, lpApproved }
       }
     )
+    .addCase(approve, (state, { payload: { approved, lpApproved } }) => {
+      return { ...state, approved, lpApproved }
+    })
     .addCase(removeItem, () => {
       return initialState
     })

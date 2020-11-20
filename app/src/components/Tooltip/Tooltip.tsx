@@ -46,6 +46,8 @@ const StyledContainer = styled.div`
 const Tip = styled.h5`
   background: black;
   color: ${(props) => props.theme.color.white};
+  max-width: 20em;
+  min-width: 10em;
   text-align: center;
   padding: 10px;
   border-radius: 6px;

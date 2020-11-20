@@ -24,7 +24,7 @@ import Spacer from '@/components/Spacer'
 const Contracts: React.FC = () => {
   return (
     <>
-      <StyledTitle>Protocol</StyledTitle>
+      <StyledTitle>Deployed Contracts</StyledTitle>
       <Spacer />
       <Grid>
         <Row center="xs">

@@ -59,7 +59,7 @@ const Swap: React.FC = () => {
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
   // guard cap
-  const guardCap = useGuardCap(orderType)
+  const guardCap = useGuardCap(item.asset, orderType)
 
   // pair and option entities
   const entity = item.entity
@@ -159,18 +159,11 @@ const Swap: React.FC = () => {
     return debit
   }, [item, inputs])
 
-  const calculateInputValue = useCallback(() => {
-    const price = parseEther('1') // FIX WITH ACTUAL UNDERLYING PRICE
-    const input =
-      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
-    const totalValue = input.mul(price).div(parseEther('1'))
-    return totalValue
-  }, [inputs])
-
   const isAboveGuardCap = useCallback(() => {
-    const inputValue = calculateInputValue()
+    const inputValue =
+      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
     return inputValue.gt(guardCap) && chainId === 1
-  }, [calculateInputValue, guardCap])
+  }, [inputs, guardCap])
 
   //APPROVALS
   useEffect(() => {
@@ -275,12 +268,12 @@ const Swap: React.FC = () => {
 
       {isAboveGuardCap() ? (
         <>
-          <Spacer />
+          <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of $
+            This amount of underlying tokens is above our guardrail cap of{' '}
             {formatEtherBalance(guardCap)}
           </WarningLabel>
-          <Spacer />
+          <Spacer size="sm" />
         </>
       ) : (
         <></>

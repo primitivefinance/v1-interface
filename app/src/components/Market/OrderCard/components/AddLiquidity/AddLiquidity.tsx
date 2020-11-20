@@ -66,7 +66,7 @@ const AddLiquidity: React.FC = () => {
   // approval
   const addNotif = useAddNotif()
   // guard cap
-  const guardCap = useGuardCap(orderType)
+  const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -300,18 +300,13 @@ const AddLiquidity: React.FC = () => {
     return formatEther(quote.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
-  const calculateInputValue = useCallback(() => {
-    const price = parseEther('1') // FIX WITH ACTUAL UNDERLYING PRICE
-    const input =
-      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
-    const totalValue = input.mul(price).div(parseEther('1'))
-    return totalValue
-  }, [inputs])
-
   const isAboveGuardCap = useCallback(() => {
-    const inputValue = calculateInputValue()
+    const inputValue =
+      inputs.secondary !== '' ? parseEther(inputs.secondary) : parseEther('0')
+    console.log(inputValue.toString())
+    console.log(guardCap.toString())
     return inputValue.gt(guardCap) && chainId === 1
-  }, [calculateInputValue, guardCap])
+  }, [inputs, guardCap])
 
   useEffect(() => {
     if (tokenAllowance) {
@@ -385,7 +380,7 @@ const AddLiquidity: React.FC = () => {
               {noLiquidityTitle.text}
             </Tooltip>
           </StyledSubtitle>
-          <Spacer />
+          <Spacer size="sm" />
           <PriceInput
             name="primary"
             title={`Options Input`}
@@ -408,31 +403,30 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Spacer />
-      <LineItem
-        label="Providing liquidity for"
-        data={`${calculateInput()}`}
-        units={`Options`}
-      />
-      <Spacer />
+      <LineItem label="LP for" data={`${calculateInput()}`} units={`Options`} />
+      <Spacer size="sm" />
       <LineItem
         label="Implied Option Price"
         data={`${calculateImpliedPrice()}`}
         units={`${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="You will receive"
         data={caculatePoolShare()}
         units={`% of the Pool.`}
       />
       <Spacer size="sm" />
-      <IconButton
-        text="Advanced"
-        variant="transparent"
-        onClick={() => setAdvanced(!advanced)}
-      >
-        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
+      {hasLiquidity ? (
+        <IconButton
+          text="Advanced"
+          variant="transparent"
+          onClick={() => setAdvanced(!advanced)}
+        >
+          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+      ) : null}
+
       <Spacer size="sm" />
 
       {advanced && hasLiquidity ? (
@@ -475,12 +469,12 @@ const AddLiquidity: React.FC = () => {
       )}
       {isAboveGuardCap() ? (
         <>
-          <Spacer />
+          <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of $
+            This amount of underlying tokens is above our guardrail cap of {''}
             {formatEtherBalance(guardCap)}
           </WarningLabel>
-          <Spacer />
+          <Spacer size="sm" />
         </>
       ) : (
         <></>

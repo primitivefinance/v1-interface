@@ -17,11 +17,7 @@ import Submit from './components/Submit'
 import OrderOptions from './components/OrderOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
-import {
-  Operation,
-  getIconForMarket,
-  COINGECKO_ID_FOR_MARKET,
-} from '@/constants/index'
+import { Operation } from '@/constants/index'
 import { EmptyAttributes } from '@/state/options/reducer'
 
 const OrderContent: React.FC = () => {
@@ -80,19 +76,12 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
       <Spacer size="sm" />
       <Card border>
         <Box row justifyContent="space-between" alignItems="center">
-          <StyledLogo
-            src={getIconForMarket(item.asset.toLowerCase())}
-            alt={''}
-          />
-          <div>
-            <StyledTitle>
-              {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
-            </StyledTitle>
-            <Reverse />
-            <StyledTitle>
-              {`$${formatBalance(item.strike)} ${month}/${date}/${year}`}
-            </StyledTitle>
-          </div>
+          <Spacer size="sm" />
+          <Spacer size="sm" />
+          <StyledTitle>
+            {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
+            {` $${formatBalance(item.strike)} ${month}/${date}/${year}`}
+          </StyledTitle>
           <Spacer />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
@@ -120,7 +109,7 @@ const Reverse = styled.div`
   margin-top: -1.1em;
 `
 
-const StyledTitle = styled.h4`
+const StyledTitle = styled.h3`
   align-items: center;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;

@@ -34,6 +34,7 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
+  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -45,6 +46,7 @@ const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
+  const approve = useApproveItem()
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
@@ -316,14 +318,12 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   useEffect(() => {
-    // forcing update using block number
-    console.log(data)
     if (lpAllowance) {
       const app: boolean = parseEther(lpAllowance).gt(
         parseEther(inputs.primary || '0')
       )
       if (app) {
-        updateItem(item, orderType, loading, approved, app)
+        approve(approved, app)
       }
     }
     if (optionAllowance) {
@@ -331,7 +331,7 @@ const AddLiquidity: React.FC = () => {
         parseEther(calculateRequiredLong() || '0')
       )
       if (app) {
-        updateItem(item, orderType, loading, app, approved)
+        approve(app, approved)
       }
     }
   }, [
@@ -410,14 +410,14 @@ const AddLiquidity: React.FC = () => {
         />
       </Box>
 
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="This requires"
         data={`${numeral(calculateBurn()).format('0.00')}`}
         units={`UNI-V2 LP`}
       />
 
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="And requires"
         data={`${numeral(calculateRequiredLong()).format('0.00')}`}
@@ -425,7 +425,7 @@ const AddLiquidity: React.FC = () => {
       />
       {parseEther(calculateRequiredLong()).gt(parseEther(optionBalance)) ? (
         <>
-          <Spacer />
+          <Spacer size="sm" />
           <LineItem
             label="You need"
             data={`${numeral(
@@ -441,7 +441,7 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <> </>
       )}
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="You will receive"
         data={numeral(calculateUnderlyingOutput()).format('0.00')}
@@ -459,7 +459,6 @@ const AddLiquidity: React.FC = () => {
 
       {advanced ? (
         <>
-          <Spacer size="sm" />
           <LineItem
             label="Short per LP token"
             data={`${calculateLiquidityValuePerShare().shortPerLp}`}
