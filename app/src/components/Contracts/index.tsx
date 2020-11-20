@@ -35,29 +35,30 @@ const Contracts: React.FC = () => {
                   <CardTitle>
                     <Box row justifyContent="flex-end" alignItems="center">
                       <StyledSub>{contract.name}</StyledSub>
-                      <StyledLink
-                        target="__none"
-                        href={contract.audit !== 'N/A' ? contract.audit : null}
-                      >
-                        <IconButton variant="tertiary">
-                          {contract.audit !== 'N/A' ? (
-                            <Tooltip
-                              icon={false}
-                              text="This contract has been audited, click to view results"
-                            >
-                              <CheckIcon style={{ color: 'green' }} />
-                            </Tooltip>
-                          ) : (
-                            <Tooltip
-                              icon={false}
-                              text="This contract is awaiting audit"
-                            >
-                              <WarningIcon style={{ color: 'yellow' }} />
-                            </Tooltip>
-                          )}
-                        </IconButton>
-                      </StyledLink>
                     </Box>
+                    <Spacer />
+                    <StyledLink
+                      target="__none"
+                      href={contract.audit !== 'N/A' ? contract.audit : null}
+                    >
+                      <IconButton variant="tertiary">
+                        {contract.audit !== 'N/A' ? (
+                          <Tooltip
+                            icon={false}
+                            text="This contract has been audited, click to view results"
+                          >
+                            <CheckIcon style={{ color: 'green' }} />
+                          </Tooltip>
+                        ) : (
+                          <Tooltip
+                            icon={false}
+                            text="This contract is awaiting audit"
+                          >
+                            <WarningIcon style={{ color: 'yellow' }} />
+                          </Tooltip>
+                        )}
+                      </IconButton>
+                    </StyledLink>
                   </CardTitle>
                   <div style={{ marginBottom: '-2em' }} />
                   <CardContent>
@@ -100,5 +101,6 @@ const StyledCol = styled(Col)`
 
 const StyledTitle = styled.h2`
   color: white;
+  font-weight: bold;
 `
 export default Contracts

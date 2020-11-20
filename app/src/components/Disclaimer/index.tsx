@@ -18,8 +18,8 @@ const Disclaimer: React.FC = () => {
       <StyledCard>
         <StyledDis>Primitive Open Beta Disclosure</StyledDis>
         <Body>
-          Please use the Primitive Interface and Primitive Protocol at your own
-          risk.
+          The Primitive Interface is a open source. Please use the Primitive
+          Interface and Primitive Protocol at your own risk.
         </Body>
         <Body>
           Visit the{' '}
@@ -31,7 +31,7 @@ const Disclaimer: React.FC = () => {
           page for more information.
         </Body>
         <Button full onClick={handleConfirm}>
-          Accept Terms
+          Accept Risks
         </Button>
       </StyledCard>
     </Backdrop>
