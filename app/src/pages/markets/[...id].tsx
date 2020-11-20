@@ -88,7 +88,12 @@ const Market = ({ market, data }) => {
   }
 
   if (!active) {
-    return <Loader size="lg" />
+    return (
+      <>
+        <Spacer />
+        <Loader size="lg" />
+      </>
+    )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>

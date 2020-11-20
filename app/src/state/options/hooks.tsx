@@ -194,9 +194,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           depth = 0
                         }
                         if (typeof premium === 'undefined') premium = 0
-                        pairReserveTotal = pairReserveTotal.add(
-                          BigNumber.from(reserves1)
-                        )
 
                         if (option.isCall) {
                           if (
@@ -210,7 +207,9 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               true
                             )
-                            console.log(reserves[0].toString())
+                            pairReserveTotal = pairReserveTotal.add(
+                              BigNumber.from(reserves1)
+                            )
                             calls.push({
                               entity: option,
                               asset: assetName,
@@ -241,6 +240,9 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                             asset = 'WETH'
                           }
                           if (asset === assetName.toUpperCase()) {
+                            pairReserveTotal = pairReserveTotal.add(
+                              BigNumber.from(reserves1)
+                            )
                             const denominator = ethers.BigNumber.from(
                               option.optionParameters.quote.quantity
                             )
