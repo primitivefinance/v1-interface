@@ -210,6 +210,9 @@ const Swap: React.FC = () => {
         quantity={inputs.primary}
         onClick={handleSetMax}
         balance={tokenAmount}
+        valid={parseEther(underlyingTokenBalance).gt(
+          parseEther(calculateTotalCost())
+        )}
       />
       <Spacer />
       <LineItem

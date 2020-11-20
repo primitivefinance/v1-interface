@@ -84,6 +84,7 @@ const AddLiquidity: React.FC = () => {
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const optionTokenBalance = useTokenBalance(item.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
@@ -354,6 +355,9 @@ const AddLiquidity: React.FC = () => {
               parseEther(underlyingTokenBalance).toString()
             )
           }
+          valid={parseEther(underlyingTokenBalance).gt(
+            parseEther(inputs.primary || '0')
+          )}
         />
       ) : (
         <>

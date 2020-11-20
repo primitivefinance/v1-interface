@@ -19,6 +19,7 @@ export interface PriceInputProps {
   onClick: () => void
   startAdornment?: React.ReactNode
   balance?: TokenAmount
+  valid?: boolean
 }
 
 const PriceInput: React.FC<PriceInputProps> = ({
@@ -29,6 +30,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
   onClick,
   startAdornment,
   balance,
+  valid,
 }) => {
   return (
     <>
@@ -43,6 +45,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
         endAdornment={
           <Button size="sm" variant="secondary" text="Max" onClick={onClick} />
         }
+        valid={valid}
       />
       <Spacer size="sm" />
       {balance ? (
