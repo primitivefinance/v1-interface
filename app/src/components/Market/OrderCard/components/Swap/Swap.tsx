@@ -9,7 +9,10 @@ import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
+import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+
+import useGuardCap from '@/hooks/useGuardCap'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -35,6 +38,8 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 
+import formatEtherBalance from '@/utils/formatEtherBalance'
+
 const Swap: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
@@ -53,6 +58,8 @@ const Swap: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
+  // guard cap
+  const guardCap = useGuardCap(orderType)
 
   // pair and option entities
   const entity = item.entity
@@ -151,6 +158,19 @@ const Swap: React.FC = () => {
     }
     return debit
   }, [item, inputs])
+
+  const calculateInputValue = useCallback(() => {
+    const price = parseEther('1') // FIX WITH ACTUAL UNDERLYING PRICE
+    const input =
+      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
+    const totalValue = input.mul(price).div(parseEther('1'))
+    return totalValue
+  }, [inputs])
+
+  const isAboveGuardCap = useCallback(() => {
+    const inputValue = calculateInputValue()
+    return inputValue.gt(guardCap) && chainId === 1
+  }, [calculateInputValue, guardCap])
 
   //APPROVALS
   useEffect(() => {
@@ -253,6 +273,19 @@ const Swap: React.FC = () => {
         <> </>
       )}
 
+      {isAboveGuardCap() ? (
+        <>
+          <Spacer />
+          <WarningLabel>
+            This amount of underlying tokens is above our guardrail cap of $
+            {formatEtherBalance(guardCap)}
+          </WarningLabel>
+          <Spacer />
+        </>
+      ) : (
+        <></>
+      )}
+
       <Box row justifyContent="flex-start">
         {approved ? (
           <> </>
@@ -270,7 +303,7 @@ const Swap: React.FC = () => {
           </>
         )}
         <Button
-          disabled={!approved || !inputs || loading}
+          disabled={!approved || !inputs || loading || isAboveGuardCap()}
           full
           size="sm"
           onClick={handleSubmitClick}

@@ -9,6 +9,7 @@ import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
+import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -19,6 +20,7 @@ import useApprove from '@/hooks/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import useGuardCap from '@/hooks/useGuardCap'
 
 import { Trade } from '@/lib/entities/trade'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
@@ -38,6 +40,8 @@ import {
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
+
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
@@ -61,6 +65,8 @@ const AddLiquidity: React.FC = () => {
   const { library, chainId } = useWeb3React()
   // approval
   const addNotif = useAddNotif()
+  // guard cap
+  const guardCap = useGuardCap(orderType)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -294,6 +300,19 @@ const AddLiquidity: React.FC = () => {
     return formatEther(quote.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
+  const calculateInputValue = useCallback(() => {
+    const price = parseEther('1') // FIX WITH ACTUAL UNDERLYING PRICE
+    const input =
+      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
+    const totalValue = input.mul(price).div(parseEther('1'))
+    return totalValue
+  }, [inputs])
+
+  const isAboveGuardCap = useCallback(() => {
+    const inputValue = calculateInputValue()
+    return inputValue.gt(guardCap) && chainId === 1
+  }, [calculateInputValue, guardCap])
+
   useEffect(() => {
     if (tokenAllowance) {
       const approve: boolean = parseEther(tokenAllowance).gt(
@@ -454,7 +473,18 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <> </>
       )}
-
+      {isAboveGuardCap() ? (
+        <>
+          <Spacer />
+          <WarningLabel>
+            This amount of underlying tokens is above our guardrail cap of $
+            {formatEtherBalance(guardCap)}
+          </WarningLabel>
+          <Spacer />
+        </>
+      ) : (
+        <></>
+      )}
       <Box row justifyContent="flex-start">
         {approved ? (
           <> </>
@@ -472,12 +502,12 @@ const AddLiquidity: React.FC = () => {
         )}
 
         <Button
-          disabled={!approved || !inputs || submitting}
+          disabled={!approved || !inputs || submitting || isAboveGuardCap()}
           full
           size="sm"
           onClick={handleSubmitClick}
           isLoading={submitting}
-          text="Review Transaction"
+          text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
         />
       </Box>
     </>
