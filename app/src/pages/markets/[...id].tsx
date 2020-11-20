@@ -15,6 +15,8 @@ import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useItem } from '@/state/order/hooks'
 import Loader from '@/components/Loader'
+import Disclaimer from '@/components/Disclaimer'
+
 import {
   FilterBar,
   MarketHeader,
@@ -103,6 +105,7 @@ const Market = ({ market, data }) => {
   }
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
+      <Disclaimer />
       <StyledMarket>
         <Grid>
           <Row>
@@ -126,9 +129,7 @@ const Market = ({ market, data }) => {
 
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
-                {item.address && orderType !== Operation.NONE ? null : (
-                  <BalanceCard />
-                )}
+                <BalanceCard />
                 <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />

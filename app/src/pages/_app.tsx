@@ -11,7 +11,7 @@ import Button from '@/components/Button'
 import store from '@/state/index'
 import theme from '../theme'
 import TransactionUpdater from '@/state/transactions/updater'
-import { useDisclaimer } from '@/hooks/user/index'
+
 const GlobalStyle = createGlobalStyle`
   html,
   body {
@@ -95,7 +95,9 @@ export default function App({ Component, pageProps }) {
                     <Spacer />
                   </WaitingRoom>
                 ) : (
-                  <Component {...pageProps} />
+                  <>
+                    <Component {...pageProps} />
+                  </>
                 )}
               </Layout>
             </Provider>
