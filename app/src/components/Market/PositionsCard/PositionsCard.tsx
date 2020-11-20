@@ -98,7 +98,12 @@ const PositionsCard: React.FC = () => {
     return null
   }
   if (positions.loading) {
-    return <Loader size="lg" />
+    return (
+      <>
+        <Spacer />
+        <Loader size="lg" />
+      </>
+    )
   }
   if (!positions.loading && !positions.exists) {
     return (
@@ -149,7 +154,7 @@ const PositionsCard: React.FC = () => {
 
 const Scroll = styled.div`
   overflow: scroll;
-  height: 20em;
+  max-height: 20em;
   border-radius: ${(props) => props.theme.borderRadius}px;
   background: ${(props) => props.theme.color.grey[800]};
 `
@@ -196,7 +201,7 @@ const StyledTitle = styled.h3`
 `
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
-  border-radius: ${(props) => props.theme.borderRadius}px;
+  border-radius: 10px;
   min-height: 2em;
   border-radius: 4px;
   cursor: pointer;

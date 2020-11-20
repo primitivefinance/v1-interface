@@ -58,26 +58,31 @@ const BalanceCard: React.FC = () => {
   return (
     <Card>
       <CardContent>
-        <LineItem label={`DAI Balance`} data={daiBal} />
-        <Spacer size="sm" />
-        <LineItem
-          label={`${balance.asset.symbol} Balance`}
-          data={formatEther(balance.quantity)}
-        />
-        {chainId === 4 ? (
-          <>
-            <Spacer />
-            <Button
-              onClick={handleMintTestTokens}
-              text={'Get Testnet Tokens'}
-              variant="secondary"
-            />
-          </>
-        ) : null}
+        <StyledContainer>
+          <LineItem label={`DAI Balance`} data={daiBal} />
+          <Spacer size="sm" />
+          <LineItem
+            label={`${balance.asset.symbol} Balance`}
+            data={formatEther(balance.quantity)}
+          />
+          {chainId === 4 ? (
+            <>
+              <Spacer size="sm" />
+              <Button
+                full
+                onClick={handleMintTestTokens}
+                text={'Get Testnet Tokens'}
+                variant="secondary"
+              />
+            </>
+          ) : null}
+        </StyledContainer>
       </CardContent>
     </Card>
   )
 }
-const StyledContainer = styled.div``
+const StyledContainer = styled.div`
+  margin: 0 1em 0 1em;
+`
 
 export default BalanceCard

@@ -9,6 +9,8 @@ import { useUpdatePositions } from '@/state/positions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
+import { Operation } from '@/constants/index'
+import numeral from 'numeral'
 import Link from 'next/link'
 
 export function shouldCheck(
@@ -37,7 +39,7 @@ export default function Updater(): null {
   const options = useOptions()
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
-  const { item, orderType, loading, approved } = useItem()
+  const { item, orderType, loading, approved, lpApproved } = useItem()
   const updateItem = useUpdateItem()
 
   const { data } = useBlockNumber()
@@ -94,21 +96,23 @@ export default function Updater(): null {
                 addNotif(
                   2,
                   `Trade Confirmed`,
-                  `x${summary.amount} ${
+                  `${numeral(summary.amount).format('0.000a')} ${
                     summary.type
                   } ${market.toUpperCase()} ${type
                     .substr(0, type.length - 1)
-                    .toUpperCase()} $${summary.option.strikePrice.quantity.toString()} ${
-                    exp.month
-                  }/${exp.date}/${exp.year}`,
+                    .toUpperCase()} ${numeral(
+                    summary.option.strikePrice.quantity.toString()
+                  ).format('$0.00a')} ${exp.month}/${exp.date}/${exp.year}`,
                   `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimtiveFi`
                 )
               }
               const app = transactions[hash].approval
-              if (!approved && app) {
-                if (app.tokenAddress === item.entity.assetAddresses[0]) {
-                  updateItem(item, orderType, loading, true)
-                }
+              if (
+                (!approved && app) ||
+                (!lpApproved && app && orderType !== Operation.NONE)
+              ) {
+                console.log('approval found')
+                updateItem(item, orderType, loading, approved, lpApproved)
               }
             } else {
               dispatch(

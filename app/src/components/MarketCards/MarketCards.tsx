@@ -41,8 +41,8 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const poolActive = market.name !== 'Soon...'
 
   return (
-    <StyledCardWrapper>
-      <Card>
+    <StyledCardWrapper href={`/markets/${encodeURIComponent(market.id)}/calls`}>
+      <StyledCard>
         <CardContent>
           <StyledContent>
             <CardIcon>
@@ -61,13 +61,9 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             <StyledDetails>
               <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
             </StyledDetails>
-            <Spacer />
-            <Link href={`/markets/${encodeURIComponent(market.id)}/calls`}>
-              <Button to disabled={!poolActive} full text="Continue" />
-            </Link>
           </StyledContent>
         </CardContent>
-      </Card>
+      </StyledCard>
     </StyledCardWrapper>
   )
 }
@@ -89,7 +85,6 @@ const StyledLoadingWrapper = styled.div`
 
 const StyledRow = styled.div`
   display: flex;
-  margin-bottom: ${(props) => props.theme.spacing[4]}px;
   flex-flow: row wrap;
   @media (max-width: 768px) {
     width: 100%;
@@ -98,12 +93,13 @@ const StyledRow = styled.div`
   }
 `
 
-const StyledCardWrapper = styled.div`
+const StyledCard = styled.div`
   display: flex;
   width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
   margin: ${(props) => props.theme.spacing[2]}px;
-  //position: relative;
+  cursor: pointer;
 `
+const StyledCardWrapper = styled(Link)``
 
 const StyledTitle = styled.h4`
   color: ${(props) => props.theme.color.white};
@@ -115,8 +111,16 @@ const StyledTitle = styled.h4`
 
 const StyledContent = styled.div`
   align-items: center;
+  border: 2px solid black;
   display: flex;
+  background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
+  padding: 1em;
+  border-radius: 10px;
+  &: hover {
+    background: ${(props) => props.theme.color.black};
+    border 2px solid ${(props) => props.theme.color.grey[800]};
+  }
 `
 
 const StyledSpacer = styled.div`

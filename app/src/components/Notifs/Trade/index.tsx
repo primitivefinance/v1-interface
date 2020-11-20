@@ -53,17 +53,18 @@ const StyledContainer = styled.div`
   width: 25em;
 `
 const StyledTwitter = styled.a`
-  border-color: #1da1f2; //twitter blue
-  border-width: 2px;
-  border-style: solid;
   padding: 0px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  border-radius: 5px;
   text-decoration: none;
   color: #1da1f2;
+  &: hover {
+    background: #1da1f2;
+    color: ${(props) => props.theme.color.grey[600]};
+  }
 `
 const StyledButtonText = styled.h4``
 
@@ -73,7 +74,7 @@ const StyledCard = styled(Card)`
   width: 100%;
 `
 const StyledContent = styled.h4`
-  margin-top: -1em;
+  margin: 0.5em 1em 0.5em 1em;
   color: white;
   text-decoration: none;
   width: inherit;

@@ -66,6 +66,7 @@ const Input: React.FC<InputProps> = ({
         )}
         <StyledInput
           name={name}
+          type="number"
           height={height}
           onChange={onChange}
           placeholder={placeholder}

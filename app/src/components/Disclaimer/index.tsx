@@ -8,7 +8,6 @@ import { useDisclaimer } from '@/hooks/user/index'
 
 const Disclaimer: React.FC = () => {
   const [open, setOpen] = useDisclaimer()
-  console.log(open)
   const handleConfirm = () => {
     setOpen(false)
   }

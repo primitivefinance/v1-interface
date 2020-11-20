@@ -16,6 +16,7 @@ const useApprove = (tokenAddress: string, spender: string) => {
   const handleApprove = useCallback(async (): Promise<
     ethers.Transaction | any
   > => {
+    console.log(tokenAddress, spender)
     approve(await library.getSigner(), tokenAddress, account, spender)
       .then((tx) => {
         if (tx?.hash) {

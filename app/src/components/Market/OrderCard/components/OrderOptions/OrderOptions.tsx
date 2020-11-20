@@ -201,12 +201,12 @@ const StyledTab = styled(Tab)<TabProps>`
     !props.active ? props.theme.color.grey[800] : props.theme.color.black};
   color: ${(props) => props.theme.color.white};
   font-weight: ${(props) => (props.active ? 600 : 500)};
-  padding: 1em;
+  padding: 0.5em 0.5em 0.5em 1em;
   border-radius: 0.3em 0.3em 0 0;
   border-width: 1px 1px 0 1px;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
-  width: 25%;
+  width: 34%;
   list-style: none;
   cursor: pointer;
 `
@@ -218,7 +218,7 @@ const StyledColumn = styled.div`
   border-radius: 0.3em 0 0 0;
   border-width: 1px 1px 1px 1px;
   border-style: solid;
-  padding: 1em 2em 2em 2em;
+  padding: 0em 1em 1em 1em;
   border-color: ${(props) => props.theme.color.grey[600]};
   background: ${(props) => props.theme.color.black};
 `
