@@ -33,7 +33,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <Spacer />
       <LineItem
         label={'LP Balance'}
-        data={balance ? formatEther(balance).toString() : '0'}
+        data={balance ? formatEther(balance) : '0'}
         units={'UNI-V2'}
       />
       <Spacer />
@@ -102,9 +102,7 @@ const OrderOptions: React.FC = () => {
                   <LineItem
                     label={'Long Balance'}
                     data={
-                      option.long
-                        ? formatEtherBalance(option.long).toString()
-                        : '0'
+                      option.long ? formatEther(option.long).toString() : '0'
                     }
                     units={'LONG'}
                   />
@@ -137,11 +135,7 @@ const OrderOptions: React.FC = () => {
                 {!positions.loading ? (
                   <LineItem
                     label={'Short Balance'}
-                    data={
-                      option.short
-                        ? formatEtherBalance(option.short).toString()
-                        : '0'
-                    }
+                    data={option.short ? formatEther(option.short) : '0'}
                     units={'SHORT'}
                   />
                 ) : (
@@ -158,7 +152,7 @@ const OrderOptions: React.FC = () => {
                   full
                   disabled={
                     option.short
-                      ? formatEtherBalance(option.short).toString() !== '0.00'
+                      ? formatEther(option.short) !== '0.00'
                         ? false
                         : true
                       : true
@@ -182,24 +176,6 @@ const OrderOptions: React.FC = () => {
     </>
   )
 }
-const Units = styled.span`
-  opacity: 0.66;
-  font-size: 16px;
-  padding-left: 0.5em;
-`
-
-const StyledT = styled.span`
-  border-width: 0 0 1px 0;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  padding: 3px 0 6px 0;
-`
-const StyledR = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 160px;
-`
 
 const StyledTabs = styled(Tabs)`
   width: 100%;
@@ -245,9 +221,6 @@ const StyledColumn = styled.div`
   padding: 1em 2em 2em 2em;
   border-color: ${(props) => props.theme.color.grey[600]};
   background: ${(props) => props.theme.color.black};
-`
-const StyledBalance = styled.h5`
-  color: ${(props) => props.theme.color.white};
 `
 
 export default OrderOptions
