@@ -108,11 +108,7 @@ const AddLiquidity: React.FC = () => {
   // FIX
   const handleSetMax = () => {
     const max = Math.round(
-      ((+underlyingTokenBalance /
-        (+calculateLiquidityValuePerShare().totalUnderlyingPerLp +
-          Number.EPSILON)) *
-        100) /
-        100
+      ((+underlyingTokenBalance + Number.EPSILON) * 100) / 100
     )
     setInputs({ ...inputs, primary: max.toString() })
   }
@@ -166,9 +162,7 @@ const AddLiquidity: React.FC = () => {
     const reservesB = lpPair.reserveOf(
       new Token(chainId, item.entity.assetAddresses[0], 18)
     )
-    const input =
-      inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
-    const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
+    const inputShort = parseEther(calculateInput()) // pair has short tokens, so need to convert our desired options to short options
       .mul(item.entity.optionParameters.quote.quantity)
       .div(item.entity.optionParameters.base.quantity)
     const quote = Trade.getQuote(
@@ -176,8 +170,38 @@ const AddLiquidity: React.FC = () => {
       reservesA.raw.toString(),
       reservesB.raw.toString()
     )
-    const sum = BigNumber.from(quote).add(input)
+    const sum = BigNumber.from(quote).add(parseEther(calculateInput()))
     return formatEther(sum.toString())
+  }, [lpPair, lp, lpTotalSupply, inputs])
+
+  const calculateInput = useCallback(() => {
+    if (typeof lpPair === 'undefined' || lpPair === null) {
+      const input =
+        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+      const output =
+        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+      const sum = BigNumber.from(output).add(input)
+      return formatEther(sum.toString())
+    }
+    const reservesA = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[2], 18)
+    )
+    const reservesB = lpPair.reserveOf(
+      new Token(chainId, item.entity.assetAddresses[0], 18)
+    )
+    const input =
+      inputs.primary !== ''
+        ? parseEther(inputs.primary.toString())
+        : BigNumber.from('0')
+    const ratio = parseEther('1')
+      .mul(item.entity.optionParameters.quote.quantity)
+      .div(item.entity.optionParameters.base.quantity)
+    const denominator = ratio
+      .mul(reservesB.raw.toString())
+      .div(reservesA.raw.toString())
+      .add(parseEther('1'))
+    const optionsInput = input.mul(parseEther('1')).div(denominator)
+    return formatEther(optionsInput.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
@@ -261,8 +285,8 @@ const AddLiquidity: React.FC = () => {
     )
     const path = [item.entity.assetAddresses[2], item.entity.assetAddresses[0]]
     const quote = Trade.getSpotPremium(
-      item.entity.optionParameters.quote.quantity,
       item.entity.optionParameters.base.quantity,
+      item.entity.optionParameters.quote.quantity,
       path,
       [reservesA.raw.toString(), reservesB.raw.toString()]
     )
@@ -320,10 +344,16 @@ const AddLiquidity: React.FC = () => {
       {hasLiquidity ? (
         <PriceInput
           name="primary"
-          title={`Options Input`}
+          title={`Underlying Input`}
           quantity={inputs.primary}
           onChange={handleInputChange}
-          onClick={() => console.log('Max unavailable.')} //
+          onClick={handleSetMax}
+          balance={
+            new TokenAmount(
+              underlyingToken,
+              parseEther(underlyingTokenBalance).toString()
+            )
+          }
         />
       ) : (
         <>
@@ -356,9 +386,9 @@ const AddLiquidity: React.FC = () => {
 
       <Spacer />
       <LineItem
-        label="This requires"
-        data={`${calculateOutput()}`}
-        units={`${item.asset.toUpperCase()}`}
+        label="Providing liquidity for"
+        data={`${calculateInput()}`}
+        units={`Options`}
       />
       <Spacer />
       <LineItem
