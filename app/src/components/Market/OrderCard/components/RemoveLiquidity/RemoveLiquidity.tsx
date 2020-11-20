@@ -126,11 +126,12 @@ const AddLiquidity: React.FC = () => {
       const liquidity = formatEther(parseEther(lp).mul(value).div(1000))
       setInputs({ ...inputs, primary: liquidity })
     },
-    [setInputs, lp, ratio, inputs]
+    [setInputs, lp, ratio, inputs, setRatio]
   )
 
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
+    console.log(inputs.primary, inputs.secondary)
     submitOrder(
       library,
       item?.address,
