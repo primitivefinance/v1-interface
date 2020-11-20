@@ -50,7 +50,7 @@ export const Trade: React.FC<TradeProps> = ({ title, msg, link }) => {
   )
 }
 const StyledContainer = styled.div`
-  width: 30em;
+  width: 25em;
 `
 
 const StyledButton = styled(Button)`
@@ -58,19 +58,16 @@ const StyledButton = styled(Button)`
 `
 
 const StyledCard = styled(Card)`
-  position: absolute;
-  bottom: 4em;
-  left: 40px;
-  width: 20em !important;
   background: ${(props) => props.theme.color.grey[600]};
   border-radius: 5px;
   max-width: 30em !important;
 `
 const StyledContent = styled.h4`
-  margin-top: -1em;
+  margin-top: -0em;
   color: white;
   text-decoration: none;
   width: inherit;
+  padding: 1em 1em 0 1em;
 `
 const StyledTitle = styled(Box)`
   align-items: center;

@@ -15,6 +15,8 @@ import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useItem } from '@/state/order/hooks'
 import Loader from '@/components/Loader'
+import Disclaimer from '@/components/Disclaimer'
+
 import {
   FilterBar,
   MarketHeader,
@@ -86,7 +88,12 @@ const Market = ({ market, data }) => {
   }
 
   if (!active) {
-    return <Loader size="lg" />
+    return (
+      <>
+        <Spacer />
+        <Loader size="lg" />
+      </>
+    )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
     return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
@@ -103,6 +110,7 @@ const Market = ({ market, data }) => {
   }
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
+      <Disclaimer />
       <StyledMarket>
         <Grid>
           <Row>
@@ -126,14 +134,13 @@ const Market = ({ market, data }) => {
 
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
-                {item.address && orderType !== Operation.NONE ? null : (
-                  <BalanceCard />
-                )}
+                <BalanceCard />
                 <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />
                 <NewMarketCard />
                 <Spacer size="sm" />
+
                 <TransactionCard />
               </StyledSideBar>
             </StyledCol>

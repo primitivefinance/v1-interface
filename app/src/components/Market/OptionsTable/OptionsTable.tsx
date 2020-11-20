@@ -231,7 +231,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                 onClick={() => {
                   addNotif(
                     1,
-                    'Custom Option Markets Coming Soon',
+                    'Coming Soon',
                     'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
                     ''
                   )

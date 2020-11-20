@@ -13,7 +13,7 @@ export interface OrderState {
 
 export const initialState: OrderState = {
   item: EmptyAttributes,
-  orderType: Operation.NEUTRAL,
+  orderType: Operation.NONE,
   loading: false,
   approved: false,
   lpApproved: false,

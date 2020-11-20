@@ -20,6 +20,7 @@ import useApprove from '@/hooks/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
 import { Trade } from '@/lib/entities/trade'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
@@ -50,6 +51,7 @@ const AddLiquidity: React.FC = () => {
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
 
+  const { data } = useBlockNumber()
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
@@ -81,13 +83,15 @@ const AddLiquidity: React.FC = () => {
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(lpToken, spender)
+
+  const lpAllowance = useTokenAllowance(lpToken, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-  const { onApprove } = useApprove(lpToken, spender)
+
   const optionAllowance = useTokenAllowance(item.address, spender)
   const optionBalance = useTokenBalance(item.address)
-  const onApproveOption = useApprove(item.address, spender)
 
+  const onApproveOption = useApprove(item.address, spender)
+  const { onApprove } = useApprove(lpToken, spender)
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
@@ -311,25 +315,34 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   useEffect(() => {
-    if (tokenAllowance) {
-      const approve: boolean = parseEther(tokenAllowance).gt(
+    // forcing update using block number
+    console.log(data)
+    if (lpAllowance) {
+      const app: boolean = parseEther(lpAllowance).gt(
         parseEther(inputs.primary || '0')
       )
-      console.log({ lpApproved })
-      if (approve) {
-        updateItem(item, orderType, loading, approve, lpApproved)
+      if (app) {
+        updateItem(item, orderType, loading, approved, app)
       }
     }
     if (optionAllowance) {
       const app: boolean = parseEther(optionAllowance).gt(
         parseEther(calculateRequiredLong() || '0')
       )
-      console.log({ approved })
       if (app) {
-        updateItem(item, orderType, loading, approved, app)
+        updateItem(item, orderType, loading, app, approved)
       }
     }
-  }, [item, orderType, loading, optionAllowance, tokenAllowance, approved])
+  }, [
+    item,
+    data,
+    orderType,
+    loading,
+    optionAllowance,
+    lpAllowance,
+    approved,
+    lpApproved,
+  ])
   // END FIX
 
   return (
@@ -485,7 +498,7 @@ const AddLiquidity: React.FC = () => {
       <Box row justifyContent="flex-start">
         {!lpApproved ? (
           <Button
-            disabled={!tokenAllowance || submitting}
+            disabled={!lpAllowance || submitting}
             full
             size="sm"
             onClick={onApprove}

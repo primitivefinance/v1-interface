@@ -86,62 +86,64 @@ const TransactionCard: React.FC = () => {
                   <TableCell>Status</TableCell>
                 </TableRow>
                 <div style={{ marginTop: '-1em' }} />
-                {Object.keys(txs)
-                  .reverse()
-                  .map((hash, i) => {
-                    const date = new Date(txs[hash].confirmedTime)
-                    const start = new Date(txs[hash].addedTime)
-                    return (
-                      <StyledTableRow isHead key={i}>
-                        <TableCell>
-                          {!txs[hash].receipt ? (
-                            <StyledDate>
-                              {start.toUTCString().substr(16, 10)}
-                            </StyledDate>
-                          ) : (
-                            <StyledDate>
-                              {date.toUTCString().substr(16, 10)}
-                            </StyledDate>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {txs[hash].summary ? (
-                            <StyledText>
-                              {txs[hash].summary.type.substr(0, 8)}
-                            </StyledText>
-                          ) : !txs[hash].approval.tokenAddress ? null : (
-                            <StyledText>APPROVE</StyledText>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <StyledLink
-                            href={`${
-                              chainId !== 4
-                                ? ETHERSCAN_MAINNET
-                                : ETHERSCAN_RINKEBY
-                            }${txs[hash].hash}`}
-                            target="__blank"
-                          >
-                            <Box
-                              row
-                              justifyContent="flex-start"
-                              alignItems="center"
+                <Scroll>
+                  {Object.keys(txs)
+                    .reverse()
+                    .map((hash, i) => {
+                      const date = new Date(txs[hash].confirmedTime)
+                      const start = new Date(txs[hash].addedTime)
+                      return (
+                        <StyledTableRow isHead key={i}>
+                          <TableCell>
+                            {!txs[hash].receipt ? (
+                              <StyledDate>
+                                {start.toUTCString().substr(16, 10)}
+                              </StyledDate>
+                            ) : (
+                              <StyledDate>
+                                {date.toUTCString().substr(16, 10)}
+                              </StyledDate>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {txs[hash].summary ? (
+                              <StyledText>
+                                {txs[hash].summary.type.substr(0, 8)}
+                              </StyledText>
+                            ) : !txs[hash].approval.tokenAddress ? null : (
+                              <StyledText>APPROVE</StyledText>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <StyledLink
+                              href={`${
+                                chainId !== 4
+                                  ? ETHERSCAN_MAINNET
+                                  : ETHERSCAN_RINKEBY
+                              }${txs[hash].hash}`}
+                              target="__blank"
                             >
-                              {txs[hash].hash.substr(0, 4)}...
-                              <LaunchIcon style={{ fontSize: '14px' }} />
-                            </Box>
-                          </StyledLink>
-                        </TableCell>
-                        <TableCell>
-                          {!txs[hash].receipt ? (
-                            <StyledPending>Pending</StyledPending>
-                          ) : (
-                            <StyledConfirmed>Confirmed</StyledConfirmed>
-                          )}
-                        </TableCell>
-                      </StyledTableRow>
-                    )
-                  })}
+                              <Box
+                                row
+                                justifyContent="flex-start"
+                                alignItems="center"
+                              >
+                                {txs[hash].hash.substr(0, 4)}...
+                                <LaunchIcon style={{ fontSize: '14px' }} />
+                              </Box>
+                            </StyledLink>
+                          </TableCell>
+                          <TableCell>
+                            {!txs[hash].receipt ? (
+                              <StyledPending>Pending</StyledPending>
+                            ) : (
+                              <StyledConfirmed>Confirmed</StyledConfirmed>
+                            )}
+                          </TableCell>
+                        </StyledTableRow>
+                      )
+                    })}
+                </Scroll>
               </Table>
             </StyledContainer>
             <div style={{ marginTop: '-1em' }} />
@@ -153,6 +155,10 @@ const TransactionCard: React.FC = () => {
   )
 }
 
+const Scroll = styled.div`
+  overflow-y: scroll;
+  max-height: 13em;
+`
 const StyledBox = styled(Box)`
   cursor: pointer;
 `

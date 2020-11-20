@@ -84,9 +84,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
       <GreyBack />
       <Spacer />
       <GoBack to="/markets" />
-
       <LitContainer>
-        <Spacer />
+        <Spacer size="sm" />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
           <Spacer />
@@ -173,12 +172,17 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
               )}
             </StyledPrice>
           </StyledContent>
-          <Spacer size="lg" />
         </StyledTitle>
       </LitContainer>
+      <Reverse />
     </StyledHeader>
   )
 }
+
+const Reverse = styled.div`
+  margin-bottom: -1em;
+`
+
 const StyledL = styled(Box)`
   margin-top: -1.5em;
   margin-bottom: -1.1em;
@@ -188,7 +192,7 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 341px;
+  min-height: 310px;
   min-width: 1200px;
   left: 0;
 `

@@ -27,7 +27,7 @@ export function useSlippage() {
 }
 
 export function useDisclaimer() {
-  return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, false)
+  return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, true)
 }
 export function useTradeSettings(): TradeSettings {
   const [slippage] = useSlippage()
