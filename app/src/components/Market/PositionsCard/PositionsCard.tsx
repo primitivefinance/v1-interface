@@ -184,8 +184,8 @@ const StyledPrice = styled.div`
 `
 const StyledPrices = styled(Box)`
   border-radius: 5px;
-  border-width: 1px;
-  border-color: ${(props) => props.theme.color.grey[500]};
+  border-width: 2px;
+  border-color: ${(props) => props.theme.color.grey[400]};
   background: ${(props) => props.theme.color.black};
   border-style: solid;
   margin: 0 0.5em 0 0.5em;

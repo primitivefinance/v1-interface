@@ -42,20 +42,17 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
           Provide
         </Button>
         <Spacer />
-        {!balance ? (
-          <Button full size="sm" variant="secondary" disabled>
-            Withdraw
-          </Button>
-        ) : (
-          <Button
-            full
-            size="sm"
-            variant="secondary"
-            onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
-          >
-            Withdraw
-          </Button>
-        )}
+        <Button
+          full
+          size="sm"
+          variant="secondary"
+          onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
+          disabled={
+            balance ? (formatEther(balance) !== '0.00' ? false : true) : true
+          }
+        >
+          Withdraw
+        </Button>
       </Box>
     </>
   )
@@ -118,7 +115,13 @@ const OrderOptions: React.FC = () => {
                 <Spacer />
                 <Button
                   full
-                  disabled={!positions.loading ? false : true}
+                  disabled={
+                    option.long
+                      ? formatEther(option.short) !== '0.00'
+                        ? false
+                        : true
+                      : true
+                  }
                   size="sm"
                   variant="secondary"
                   onClick={() => change(Operation.CLOSE_LONG)}
