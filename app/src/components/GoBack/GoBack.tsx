@@ -13,25 +13,34 @@ const GoBack: React.FC<GoBackProps> = (props) => {
     <StyledGoBack>
       <ChevronLeftIcon />
       <StyledLink href={props.to ? props.to : '/markets'}>
-        <span>{props.text ? props.text : 'Back'}</span>
+        <h5>{props.text ? props.text : 'Back'}</h5>
       </StyledLink>
     </StyledGoBack>
   )
 }
 
-const StyledGoBack = styled.button`
+const StyledText = styled.h6`
+  color: ${(props) => props.theme.color.grey[400]};
+  &:hover {
+    color: ${(props) => props.theme.color.grey[600]};
+  }
+  margin: -1em 0 -1em 0;
+`
+
+const StyledGoBack = styled.a`
   align-items: center;
   background: transparent;
   border: 0px;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   cursor: pointer;
   display: flex;
   font-size: 14px;
-  margin: 0;
+  margin: -1em 0 -1em -0.6em;
   padding: 0;
   &:hover {
-    color: ${(props) => props.theme.color.white};
+    color: ${(props) => props.theme.color.grey[400]};
   }
+  text-decoration: none;
 `
 
 const StyledLink = styled(Link)`

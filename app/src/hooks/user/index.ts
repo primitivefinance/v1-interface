@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext } from 'react'
+import { useRouter } from 'next/router'
 import { useWeb3React } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { Web3Provider } from '@ethersproject/providers'
 
 import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
-import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '../../constants'
+import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '@/constants/index'
 
 import { TradeSettings } from '@/lib/types'
 import {
@@ -25,6 +26,9 @@ export function useSlippage() {
   return useLocalStorage<string>(LocalStorageKeys.Slippage, DEFAULT_SLIPPAGE)
 }
 
+export function useDisclaimer() {
+  return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, true)
+}
 export function useTradeSettings(): TradeSettings {
   const [slippage] = useSlippage()
   const { account, chainId } = useWeb3React()
@@ -73,15 +77,19 @@ export function useEagerConnect() {
 
 export function useInactiveListener(suppress = false) {
   const { active, error, activate } = useWeb3React()
-
+  const router = useRouter()
   useEffect(() => {
     const { ethereum } = window
 
     const handleChainChanged = () => {
       // eat errors
-      activate(injected, undefined, true).catch((error) => {
-        console.error('Failed to activate after chain changed', error)
-      })
+      activate(injected, undefined, true)
+        .catch((error) => {
+          console.error('Failed to activate after chain changed', error)
+        })
+        .finally(() => {
+          router.reload()
+        })
     }
 
     const handleAccountsChanged = (accounts: string[]) => {

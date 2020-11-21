@@ -6,7 +6,7 @@ export const approve = async (
   tokenAddress: string,
   account: string,
   spender: string
-): Promise<BigNumberish> => {
+): Promise<ethers.Transaction> => {
   try {
     if (
       !ethers.utils.isAddress(tokenAddress) ||
@@ -14,7 +14,7 @@ export const approve = async (
     ) {
       return null
     }
-    let code: any = await signer.provider.getCode(tokenAddress)
+    const code: any = await signer.provider.getCode(tokenAddress)
     let tx: any
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
@@ -38,7 +38,7 @@ export const getBalance = async (
     ) {
       return 0
     }
-    let code: any = await provider.getCode(tokenAddress)
+    const code: any = await provider.getCode(tokenAddress)
     let balance: BigNumberish = 0
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)
@@ -83,7 +83,7 @@ export const getAllowance = async (
     ) {
       return 0
     }
-    let code: any = await provider.getCode(tokenAddress)
+    const code: any = await provider.getCode(tokenAddress)
     let allowance: BigNumberish = 0
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, provider)

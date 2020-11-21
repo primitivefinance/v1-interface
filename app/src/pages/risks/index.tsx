@@ -12,7 +12,7 @@ const Risks: React.FC = () => {
     <>
       <StyledSpacer size={48} />
       <StyledRisks>
-        <StyledTitle>Risks of using Primitive Finance</StyledTitle>
+        <StyledTitle>Risks of Using Primitive Finance</StyledTitle>
         <StyledSpacer size={24} />
 
         <StyledText>
@@ -154,12 +154,14 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
 
 const StyledTitle = styled.div`
   font-size: 36px;
+  font-weight: bold;
   color: ${(props) => props.theme.color.white};
 `
 
 const StyledSubtitle = styled.div`
   font-size: 28px;
-  color: ${(props) => props.theme.color.grey[500]};
+  font-weight: bold;
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const StyledText = styled.div`

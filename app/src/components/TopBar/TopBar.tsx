@@ -12,9 +12,11 @@ import Spacer from '@/components/Spacer'
 import Logo from '@/components/Logo'
 import Settings from '@/components/Settings'
 import { Wallet } from '@/components/Wallet'
+import { useWeb3React } from '@web3-react/core'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
+  const { chainId } = useWeb3React()
   return (
     <StyledTopBar>
       <Container
@@ -33,13 +35,14 @@ const TopBar: React.FC = () => {
               />
             </StyledNavItem>
           </Link>
+          <div style={{ marginLeft: '-1em' }} />
           <Link href="/">
             <StyledNavItem active>
               <Logo />
             </StyledNavItem>
           </Link>
         </StyledFlex>
-        <StyledNav>
+        <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
             <StyledNavItem
               active={
@@ -47,6 +50,15 @@ const TopBar: React.FC = () => {
               }
             >
               Markets
+            </StyledNavItem>
+          </Link>
+          <Link href="/contracts">
+            <StyledNavItem
+              active={
+                location.pathname.indexOf('/contracts') !== -1 ? true : false
+              }
+            >
+              Contracts
             </StyledNavItem>
           </Link>
           <Link href="/faq">
@@ -63,7 +75,8 @@ const TopBar: React.FC = () => {
           </Link>
         </StyledNav>
         <StyledFlex>
-          <StyledFlex />
+          <Spacer size="lg" /> <Spacer size="lg" />
+          <Spacer size="lg" /> <Spacer size="lg" />
           <Wallet />
           <Spacer size="sm" />
           <Settings />
@@ -71,6 +84,10 @@ const TopBar: React.FC = () => {
       </Container>
     </StyledTopBar>
   )
+}
+
+interface NavProps {
+  isMain: boolean
 }
 
 const StyledTopBar = styled.div`
@@ -81,22 +98,26 @@ const StyledTopBar = styled.div`
   flex-direction: column;
   height: 72px;
   position: sticky;
-  top: 0;
-  width: 100%;
+  z-index: 100;
+  top: -1px;
 `
 
 const StyledFlex = styled.div`
   align-items: center;
   display: flex;
-  flex: 1;
+  flex: 0.2;
+  margin: 0 1em 0 1em;
 `
 
-const StyledNav = styled.div`
+const StyledNav = styled.div<NavProps>`
   align-items: center;
   display: flex;
   flex: 1;
   font-weight: 700;
   justify-content: center;
+  position: absolute;
+  left: ${(props) => (props.isMain ? 50 : 50)}%;
+  right: ${(props) => (props.isMain ? 50 : 50)}%;
 `
 
 interface StyledNavItemProps {

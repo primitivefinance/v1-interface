@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { initialState } from './reducer'
-import { removeItem, updateItem } from './actions'
+import { removeItem, updateItem, approve } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
@@ -41,6 +41,8 @@ export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
   loading: boolean
+  approved: boolean
+  lpApproved: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -69,6 +71,20 @@ export const useRemoveItem = (): (() => void) => {
   }, [dispatch])
 }
 
+export const useApproveItem = (): ((
+  approved: boolean,
+  lpApproved?: boolean
+) => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(
+    (approved: boolean, lpApproved?: boolean) => {
+      console.log(approved)
+      dispatch(approve({ approved, lpApproved }))
+    },
+    [dispatch]
+  )
+}
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   optionAddress: string,
@@ -276,8 +292,6 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.REMOVE_LIQUIDITY:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
@@ -304,8 +318,6 @@ export const useHandleSubmitOrder = (): ((
           ] // need to approve LP token
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
           trade.path = [
             assetAddresses[2], // redeem
             assetAddresses[0], // underlying
@@ -329,6 +341,7 @@ export const useHandleSubmitOrder = (): ((
           )
           transaction.tokensToApprove = [
             await factory.getPair(trade.path[0], trade.path[1]),
+            trade.option.address,
           ] // need to approve LP token
           break
         default:
@@ -339,45 +352,6 @@ export const useHandleSubmitOrder = (): ((
           break
       }
 
-      const approvalTxs: any[] = []
-      if (transaction.tokensToApprove.length > 0) {
-        // for each contract
-        for (let i = 0; i < transaction.contractsToApprove.length; i++) {
-          const contractAddress = transaction.contractsToApprove[i]
-          // for each token check allowance
-          for (let t = 0; t < transaction.tokensToApprove.length; t++) {
-            const tokenAddress = transaction.tokensToApprove[t]
-            checkAllowance(signer, tokenAddress, contractAddress).then(
-              (allowance) => {
-                if (BigNumber.from(allowance).lt(DEFAULT_ALLOWANCE)) {
-                  executeApprove(signer, tokenAddress, contractAddress)
-                    .then((tx) => {
-                      if (tx.hash) {
-                        approvalTxs.push(tx)
-                        console.log('Approval tx', tokenAddress)
-                        addTransaction(
-                          {
-                            approval: {
-                              tokenAddress: tokenAddress,
-                              spender: account,
-                            },
-                            hash: tx.hash,
-                            addedTime: now(),
-                            from: account,
-                          },
-                          operation
-                        )
-                      }
-                    })
-                    .catch((err) => {
-                      throwError(0, '', `${err.message}`, '')
-                    })
-                }
-              }
-            )
-          }
-        }
-      }
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
@@ -385,8 +359,7 @@ export const useHandleSubmitOrder = (): ((
               {
                 summary: {
                   type: Operation[operation].toString(),
-                  address: optionAddress,
-                  assetName: item.asset,
+                  option: item.entity,
                   amount: quantity,
                 },
                 hash: tx.hash,

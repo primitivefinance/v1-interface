@@ -15,6 +15,8 @@ import { useItem } from '@/state/order/hooks'
 
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
+import numeral from 'numeral'
+
 export interface TableColumns {
   key: string
   asset: string
@@ -54,7 +56,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     address,
   } = columns
   const handleOnClick = useCallback(() => {
-    setToggle(!toggle)
+    if (reserves[0] !== '0.00') {
+      setToggle(!toggle)
+    }
   }, [toggle, setToggle])
   const handleOnAdd = (e) => {
     e.stopPropagation()
@@ -63,8 +67,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   const nodeRef = useClickAway(() => {
     setToggle(false)
   })
+
   return (
-    <div ref={nodeRef}>
+    <StyledDiv ref={nodeRef}>
       <TableRow
         isActive={
           item.entity === null
@@ -76,25 +81,45 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         key={key}
         onClick={handleOnClick}
       >
-        <TableCell>${strike}</TableCell>
-        <TableCell>$ {breakeven}</TableCell>
-        {+premium > 0 ? (
+        <TableCell>{numeral(strike).format('$0.00a')}</TableCell>
+        <TableCell>
+          {premium !== '0.00' ? (
+            <>{numeral(breakeven).format('$0.00a')}</>
+          ) : (
+            <>{`-`}</>
+          )}
+        </TableCell>
+        {premium !== '0.00' ? (
           <TableCell>
-            $ {premium} / {premiumUnderlying} {asset}
+            <StyledR>
+              <StyledT>{numeral(premium).format('($0.00a)')}</StyledT>
+              <span>
+                {numeral(premiumUnderlying).format('(0.00a)')}{' '}
+                <Units>{asset}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+depth > 0 ? (
+        {parseInt(depth) > 0 ? (
           <TableCell>
-            {depth} {'Options'}
+            {depth} <Units>{'LONG'}</Units>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+reserves[0] > 0 ? (
+        {parseInt(reserves[1]) > 0 ? (
           <TableCell>
-            {reserves[0]} {asset.toUpperCase()} / {reserves[1]} {'SHORT'}
+            <StyledR>
+              <StyledT>
+                {numeral(reserves[0]).format('0a')}{' '}
+                <Units>{asset.toUpperCase()}</Units>
+              </StyledT>
+              <span>
+                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -114,9 +139,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
                 ? 'selected-outlined'
                 : 'outlined'
             }
+            size="sm"
           >
             {item.entity === null ? (
-              <AddIcon />
+              <AddIcon style={{ fontSize: '2em' }} />
             ) : item?.entity.address === key ? (
               <CheckIcon />
             ) : (
@@ -130,20 +156,42 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       ) : (
         <></>
       )}
-    </div>
+    </StyledDiv>
   )
 }
 
+const StyledT = styled.span`
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  padding-bottom: 3px;
+`
+const StyledR = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 90%;
+`
 const StyledARef = styled.a`
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   text-decoration: none;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
+`
+
+const StyledDiv = styled.div`
+  color: black;
 `
 
 const StyledButtonCell = styled.div`
   font-weight: inherit;
-  flex: 0.25;
-  justify-content: center;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
+  justify-content: flex-start;
+`
+
+const Units = styled.span`
+  opacity: 0.66;
+  font-size: 12px;
 `
 
 export default OptionsTableRow

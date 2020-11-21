@@ -7,7 +7,12 @@ export interface BoxProps {
   column?: boolean
   flex?: number | string
   height?: number
-  justifyContent?: 'center' | 'flex-end' | 'flex-start' | 'space-between'
+  justifyContent?:
+    | 'center'
+    | 'flex-end'
+    | 'flex-start'
+    | 'space-between'
+    | 'space-around'
   margin?: number
   marginBottom?: number
   marginHorizontal?: number

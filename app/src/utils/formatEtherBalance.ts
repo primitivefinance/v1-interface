@@ -1,5 +1,6 @@
 import { BigNumberish } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
+import numeral from 'numeral'
 const formatEtherBalance = (
   tokenBalance: string | number | BigNumberish
 ): BigNumberish => {

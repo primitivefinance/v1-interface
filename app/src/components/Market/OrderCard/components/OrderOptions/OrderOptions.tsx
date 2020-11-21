@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { formatEther } from 'ethers/lib/utils'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
@@ -23,52 +24,37 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
-
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
       ? item.asset.toUpperCase()
       : 'SHORT'
   return (
-    <StyledBottom>
-      <StyledSubtitle>Liquidity Provision</StyledSubtitle>
-      <Spacer size="sm" />
-      <MultiLineItem label={'Reserves'}>
-        {reserve0Units === item.asset.toUpperCase()
-          ? formatEtherBalance(item.reserves[0].toString())
-          : formatEtherBalance(item.reserves[1].toString())}{' '}
-        {item.asset.toUpperCase()} /{' '}
-        {reserve0Units === item.asset.toUpperCase()
-          ? formatEtherBalance(item.reserves[1].toString())
-          : formatEtherBalance(item.reserves[0].toString())}{' '}
-        {'SHORT'}
-      </MultiLineItem>
+    <>
       <Spacer />
       <LineItem
-        label={'LP Token Balance'}
-        data={balance ? formatEtherBalance(balance).toString() : '0.00'}
+        label={'LP Balance'}
+        data={balance ? formatEther(balance) : '0'}
         units={'UNI-V2'}
       />
       <Spacer />
       <Box row justifyContent="center" alignItems="center">
-        <Button size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
-          Provide Liquidity
+        <Button full size="sm" onClick={() => change(Operation.ADD_LIQUIDITY)}>
+          Provide
         </Button>
-        <Spacer size="sm" />
-        {balance ? (
-          <Button size="sm" variant="secondary" disabled>
-            Withdraw Liquidity
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => change(Operation.REMOVE_LIQUIDITY)}
-          >
-            Withdraw Liquidity
-          </Button>
-        )}
+        <Spacer />
+        <Button
+          full
+          size="sm"
+          variant="secondary"
+          onClick={() => change(Operation.REMOVE_LIQUIDITY_CLOSE)}
+          disabled={
+            balance ? (formatEther(balance) !== '0.00' ? false : true) : true
+          }
+        >
+          Withdraw
+        </Button>
       </Box>
-    </StyledBottom>
+    </>
   )
 }
 
@@ -82,113 +68,131 @@ const OrderOptions: React.FC = () => {
     const temp = positions.options.filter(
       (opt) => opt.attributes.address === item.address
     )[0]
-    console.log({ temp })
     if (temp) {
       if (temp.long || temp.redeem || temp.lp) {
         setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
       }
+    } else {
+      setOption({ long: null, short: null, lp: null })
     }
   }, [setOption, positions, item])
-
   const change = (t: Operation) => {
     updateItem(item, t)
   }
 
   return (
-    <Box row alignItems="flex-start" justifyContent="center">
-      <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-        <Box row justifyContent="flex-start">
+    <>
+      <Reverse />
+      <Box row alignItems="flex-start" justifyContent="center">
+        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
           <StyledTabList>
             <StyledTab active={tab === 0}>Long</StyledTab>
-            <Spacer />
             <StyledTab active={tab === 1}>Short</StyledTab>
-            <Spacer />
-            <StyledTab active={tab === 2}>Pool</StyledTab>
+            <StyledTab active={tab === 2}>Liquidity</StyledTab>
           </StyledTabList>
-        </Box>
-        <Spacer />
-        <TabPanel>
-          <StyledColumn>
-            <Box row justifyContent="flex-start" alignItems="center">
-              <Label text={'Balance'} />
+          <Spacer />
+          <TabPanel>
+            <StyledColumn>
               <Spacer />
-              <StyledBalance>
-                {positions.loading ? (
-                  <Loader size="sm" />
-                ) : !option.long ? (
-                  '0.00'
+              <Box row justifyContent="flex-start" alignItems="center">
+                {!positions.loading ? (
+                  <LineItem
+                    label={'Long Balance'}
+                    data={
+                      option.long ? formatEther(option.long).toString() : '0'
+                    }
+                    units={'LONG'}
+                  />
                 ) : (
-                  formatEtherBalance(option.long)
+                  <Loader size="sm" />
                 )}
-              </StyledBalance>
-            </Box>
-            <Button full size="sm" onClick={() => change(Operation.LONG)}>
-              Buy
-            </Button>
-            <Spacer size="sm" />
-            <Button
-              full
-              disabled={!positions.loading ? false : true}
-              size="sm"
-              variant="secondary"
-              onClick={() => change(Operation.CLOSE_LONG)}
-            >
-              Sell
-            </Button>
-          </StyledColumn>
-        </TabPanel>
-        <TabPanel>
-          <StyledColumn>
-            <Box row justifyContent="flex-start" alignItems="center">
-              <Label text={'Balance'} />
+              </Box>
               <Spacer />
-              <StyledBalance>
-                {positions.loading ? (
-                  <Loader size="sm" />
-                ) : !option.short ? (
-                  '0.00'
+              <Box row justifyContent="space-between" alignItems="center">
+                <Button full size="sm" onClick={() => change(Operation.LONG)}>
+                  Buy
+                </Button>
+                <Spacer />
+                <Button
+                  full
+                  disabled={
+                    option.long
+                      ? formatEther(option.short) !== '0.00'
+                        ? false
+                        : true
+                      : true
+                  }
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => change(Operation.CLOSE_LONG)}
+                >
+                  Sell
+                </Button>
+              </Box>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <StyledColumn>
+              <Spacer />
+              <Box row justifyContent="flex-start" alignItems="center">
+                {!positions.loading ? (
+                  <LineItem
+                    label={'Short Balance'}
+                    data={option.short ? formatEther(option.short) : '0'}
+                    units={'SHORT'}
+                  />
                 ) : (
-                  formatEtherBalance(option.short)
+                  <Loader size="sm" />
                 )}
-              </StyledBalance>
-            </Box>
-            <Button full size="sm" onClick={() => change(Operation.SHORT)}>
-              Buy
-            </Button>
-            <Spacer size="sm" />
-            <Button
-              full
-              disabled={!positions.loading ? false : true}
-              size="sm"
-              variant="secondary"
-              onClick={() => change(Operation.CLOSE_SHORT)}
-            >
-              Sell
-            </Button>
-          </StyledColumn>
-        </TabPanel>
-        <TabPanel>
-          <LPOptions balance={option.lp ? option.lp : null} />
-        </TabPanel>
-      </StyledTabs>
-    </Box>
+              </Box>
+              <Spacer />
+              <Box row justifyContent="space-between" alignItems="center">
+                <Button full size="sm" onClick={() => change(Operation.SHORT)}>
+                  Buy
+                </Button>
+                <Spacer />
+                <Button
+                  full
+                  disabled={
+                    option.short
+                      ? formatEther(option.short) !== '0.00'
+                        ? false
+                        : true
+                      : true
+                  }
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => change(Operation.CLOSE_SHORT)}
+                >
+                  Sell
+                </Button>
+              </Box>
+            </StyledColumn>
+          </TabPanel>
+          <TabPanel>
+            <StyledColumn>
+              <LPOptions balance={option.lp ? option.lp : '0'} />
+            </StyledColumn>
+          </TabPanel>
+        </StyledTabs>
+      </Box>
+    </>
   )
 }
+
 const StyledTabs = styled(Tabs)`
-  display: flex;
-  flex-direction: column;
   width: 100%;
+`
+const Reverse = styled.div`
+  margin-top: -1.1em;
 `
 
 const StyledTabList = styled(TabList)`
-  background-color: ${(props) => props.theme.color.grey[700]};
-  border-radius: ${(props) => props.theme.borderRadius}px;
-  border-bottom: 2px solid black;
   display: flex;
   flex-direction: row;
-  margin: 0px;
-  padding-left: 1em;
-  width: 100%;
+  justify-content: flex-start;
+  align-content: baseline;
+  margin-left: -2.5em;
 `
 
 interface TabProps {
@@ -197,30 +201,29 @@ interface TabProps {
 
 const StyledTab = styled(Tab)<TabProps>`
   background-color: ${(props) =>
-    props.active ? props.theme.color.grey[500] : 'transparent'};
+    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
   color: ${(props) => props.theme.color.white};
   font-weight: ${(props) => (props.active ? 600 : 500)};
+  padding: 0.5em 0.5em 0.5em 1em;
+  border-radius: 0.3em 0.3em 0 0;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  width: 34%;
   list-style: none;
-  margin-right: ${(props) => props.theme.spacing[2]}px;
+  cursor: pointer;
 `
 
 const StyledColumn = styled.div`
   display: flex;
   flex-direction: column;
-`
-const StyledBalance = styled.h5`
-  color: ${(props) => props.theme.color.white};
-`
-const StyledSubtitle = styled.h3`
-  color: ${(props) => props.theme.color.white};
-`
-const StyledBottom = styled.div`
-  padding: 0 2em 1em 2em;
-  background: black;
-  border-width: 1px;
-  border-radius: 5px;
-  border-color: ${(props) => props.theme.color.grey[400]};
+  margin-top: -2.5em;
+  border-radius: 0.3em 0 0 0;
+  border-width: 1px 1px 1px 1px;
   border-style: solid;
+  padding: 0em 1em 1em 1em;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  background: ${(props) => props.theme.color.black};
 `
 
 export default OrderOptions

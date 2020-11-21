@@ -17,6 +17,7 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import Button from '@/components/Button'
 import Box from '@/components/Box'
 import Table from '@/components/Table'
+import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 
 import { injected, walletconnect, getNetwork } from '../../connectors'
@@ -96,13 +97,36 @@ export const Wallet = () => {
         {error instanceof UnsupportedChainIdError ? (
           <h5>Unsupported Chain</h5>
         ) : (
-          <h5>Error Connecting, Please Refresh</h5>
+          <Button
+            variant="secondary"
+            isLoading={connecting}
+            leftIcon={
+              MetaMaskOnboarding.isMetaMaskInstalled()
+                ? ('metamask' as 'edit')
+                : undefined
+            }
+            onClick={(): void => {
+              setConnecting(true)
+              activate(injected, undefined, true).catch((error) => {
+                // ignore the error if it's a user rejected request
+                if (error instanceof UserRejectedRequestError) {
+                  setConnecting(false)
+                } else {
+                  setError(error)
+                }
+              })
+            }}
+          >
+            {MetaMaskOnboarding.isMetaMaskInstalled()
+              ? 'Connect to MetaMask'
+              : 'Connect to Wallet'}
+          </Button>
         )}
       </>
     )
   }
   if (!triedToEagerConnect) {
-    return <h5>Error Connecting</h5>
+    return <Loader />
   }
   if (typeof account !== 'string') {
     return (
@@ -112,6 +136,7 @@ export const Wallet = () => {
         (window as any)?.ethereum ||
         (window as any)?.web3 ? (
           <Button
+            variant="secondary"
             isLoading={connecting}
             leftIcon={
               MetaMaskOnboarding.isMetaMaskInstalled()
@@ -158,10 +183,6 @@ export const Wallet = () => {
     <Box row alignItems="center" justifyContent="flex-end">
       <Network id={chainId} />
       <Spacer size="md" />
-      {/*<Suspense fallback={null}>
-        <Balance amount={balance} />
-  </Suspense>*/}
-      {balance ? <Spacer size="md" /> : <Spacer size="sm" />}
       <AddressButton
         network={chainId}
         address={ENSName || account}

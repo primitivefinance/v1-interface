@@ -4,9 +4,9 @@ import ethers, { BigNumberish, BigNumber } from 'ethers'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
-import UniswapConnector from '@primitivefi/contracts/artifacts/UniswapConnector03.json'
-import UniswapConnectorTestnet from '@primitivefi/contracts/deployments/rinkeby/UniswapConnector03.json'
-//import UniswapConnectorMainnet from '@primitivefi/contracts/deployments/live_1/UniswapConnector03.json'
+import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
+import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
+import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import { TradeSettings, SinglePositionParameters } from './types'
 
 /**
@@ -21,7 +21,7 @@ export class Uniswap {
   ): SinglePositionParameters {
     const uniswapConnectorAddress =
       trade.option.chainId === 1
-        ? UniswapConnectorTestnet.address
+        ? UniswapConnectorMainnet.address
         : UniswapConnectorTestnet.address
 
     console.log({ uniswapConnectorAddress })
@@ -49,7 +49,7 @@ export class Uniswap {
 
     switch (trade.operation) {
       case Operation.LONG:
-        let orderQuantity: string = trade.inputAmount.quantity.toString()
+        const orderQuantity: string = trade.inputAmount.quantity.toString()
         let premium = Trade.getPremium(
           orderQuantity,
           trade.option.optionParameters.base.quantity,

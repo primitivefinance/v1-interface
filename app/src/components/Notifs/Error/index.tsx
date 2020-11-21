@@ -44,17 +44,14 @@ const StyledContainer = styled.div`
 `
 
 const StyledCard = styled(Card)`
-  left: 40px;
-  width: 20em !important;
   background: ${(props) => props.theme.color.grey[600]};
   border-color: red;
   border-width: 5px;
   border-style: solid;
   border-radius: 5px;
-  max-width: 30em !important;
 `
 const StyledContent = styled.h4`
-  margin-top: -1em;
+  margin: 0.5em 1em 0.5em 1em;
   color: red;
   width: inherit;
 `

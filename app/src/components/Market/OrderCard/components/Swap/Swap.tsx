@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
+import ethers from 'ethers'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
@@ -8,7 +9,10 @@ import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
+import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+
+import useGuardCap from '@/hooks/useGuardCap'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -19,18 +23,23 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { useAllTransactions } from '@/state/transactions/hooks'
 
 import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
+  useApproveItem,
 } from '@/state/order/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const Swap: React.FC = () => {
@@ -38,10 +47,13 @@ const Swap: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
+  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
-  // option entity in order
-  const { item, orderType, loading } = useItem()
+  // approval state
+  const { item, orderType, approved, loading, lpApproved } = useItem()
+  const txs = useAllTransactions()
+
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -49,6 +61,9 @@ const Swap: React.FC = () => {
   })
   // web3
   const { library, chainId } = useWeb3React()
+  const addNotif = useAddNotif()
+  // guard cap
+  const guardCap = useGuardCap(item.asset, orderType)
 
   // pair and option entities
   const entity = item.entity
@@ -56,15 +71,12 @@ const Swap: React.FC = () => {
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    entity.isPut ? 'DAI' : item.asset.toUpperCase()
   )
 
   let title = { text: '', tip: '' }
-  const spender =
-    Operation.CLOSE_SHORT || Operation.CLOSE_LONG
-      ? UNISWAP_ROUTER02_V2
-      : UNISWAP_CONNECTOR[chainId]
-  let tokenAddress
+  let tokenAddress: string
+  let balance: Token
   switch (orderType) {
     case Operation.LONG:
       title = {
@@ -72,33 +84,46 @@ const Swap: React.FC = () => {
         tip: 'Purchase and hold option tokens.',
       }
       tokenAddress = underlyingToken.address
+      balance = underlyingToken
       break
     case Operation.SHORT:
       title = {
-        text: 'Sell Short Tokens',
-        tip: 'Purchase tokenized written covered options.',
+        text: 'Buy Short Tokens',
+        tip: 'Purchase tokenized, written covered options.',
       }
       tokenAddress = underlyingToken.address
+      balance = underlyingToken
       break
     case Operation.CLOSE_LONG:
       title = {
         text: 'Close Long Position',
-        tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
+        tip: `Sell option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.address
+      balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     case Operation.CLOSE_SHORT:
       title = {
         text: 'Close Short Position',
-        tip: `Sell short option tokens for ${item.asset.toUpperCase()}`,
+        tip: `Sell short option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.assetAddresses[2]
+      balance = new Token(entity.chainId, tokenAddress, 18, 'SHORT')
       break
     default:
       break
   }
-
   const tokenBalance = useTokenBalance(tokenAddress)
+  const tokenAmount: TokenAmount = new TokenAmount(
+    balance,
+    parseEther(tokenBalance).toString()
+  )
+  const spender =
+    orderType === Operation.CLOSE_SHORT ||
+    orderType === Operation.CLOSE_LONG ||
+    orderType === Operation.SHORT
+      ? UNISWAP_ROUTER02_V2
+      : UNISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
@@ -115,6 +140,7 @@ const Swap: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
     )
+    console.log(max)
     setInputs({ ...inputs, primary: max.toString() })
   }
 
@@ -130,16 +156,42 @@ const Swap: React.FC = () => {
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
-  const calculateTotalDebit = useCallback(() => {
+  const calculateTotalCost = useCallback(() => {
     let debit = '0'
     if (item.premium) {
-      const premium = BigNumber.from(item.premium.toString())
+      const premiumWei = BigNumber.from(item.premium.toString())
       const size = inputs.primary === '' ? '0' : inputs.primary
       const sizeWei = parseEther(size)
-      debit = formatEther(premium.mul(sizeWei).div(parseEther('1')).toString())
+      debit = formatEther(
+        premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+      )
     }
     return debit
   }, [item, inputs])
+
+  const isAboveGuardCap = useCallback(() => {
+    const inputValue =
+      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
+    return inputValue.gt(guardCap) && chainId === 1
+  }, [inputs, guardCap])
+
+  //APPROVALS
+  useEffect(() => {
+    setTimeout(() => {
+      const app: boolean = parseEther(tokenAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
+      approve(app, lpApproved)
+    }, 5000)
+  })
+
+  const handleApproval = useCallback(() => {
+    onApprove()
+      .then((tx) => console.log(tx))
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [inputs, tokenAllowance, onApprove])
 
   return (
     <>
@@ -158,79 +210,106 @@ const Swap: React.FC = () => {
       </Box>
 
       <Spacer />
-      <LineItem
-        label="Option Premium"
-        data={formatEtherBalance(item.premium).toString()}
-        units={item.asset}
-      />
-      <Spacer />
+      {orderType === Operation.SHORT ? (
+        <LineItem
+          label="Short Premium"
+          data={formatEther(item.shortPremium)}
+          units={entity.isPut ? 'DAI' : item.asset}
+        />
+      ) : (
+        <LineItem
+          label="Option Premium"
+          data={formatEther(item.premium)}
+          units={entity.isPut ? 'DAI' : item.asset}
+        />
+      )}
+      <Spacer size="sm" />
       <PriceInput
         title="Quantity"
         name="primary"
         onChange={handleInputChange}
         quantity={inputs.primary}
         onClick={handleSetMax}
+        balance={tokenAmount}
+        valid={parseEther(underlyingTokenBalance).gt(
+          parseEther(calculateTotalCost())
+        )}
       />
-
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label={`Total ${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? 'Debit'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? 'Credit'
-            : 'Cost'
+            : 'Debit'
         }`}
-        data={calculateTotalDebit().toString()}
+        data={calculateTotalCost()}
         units={`${
-          Operation.LONG || Operation.SHORT
+          orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
-            : Operation.CLOSE_LONG || Operation.CLOSE_SHORT
+            : orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.CLOSE_SHORT
             ? '+'
             : '-'
-        } ${item.asset.toUpperCase()}`}
+        } ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
       />
-      <Spacer />
       <IconButton
         text="Advanced"
         variant="transparent"
         onClick={() => setAdvanced(!advanced)}
       >
-        <ExpandMoreIcon />
+        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer />
+      <Spacer size="sm" />
 
       {advanced ? ( // FIX
         <>
-          <Spacer size="sm" />
           <LineItem label="Price Impact" data={``} />
           <Spacer />
         </>
       ) : (
         <> </>
       )}
-      {parseEther(tokenAllowance).gt(parseEther(inputs.primary || '0')) ? (
+
+      {isAboveGuardCap() ? (
+        <>
+          <div style={{ marginTop: '-.5em' }} />
+          <WarningLabel>
+            This amount of underlying tokens is above our guardrail cap of
+            $10,000
+          </WarningLabel>
+          <Spacer size="sm" />
+        </>
+      ) : (
+        <></>
+      )}
+
+      <Box row justifyContent="flex-start">
+        {approved ? (
+          <> </>
+        ) : (
+          <>
+            <Button
+              disabled={!tokenAllowance || loading}
+              full
+              size="sm"
+              onClick={handleApproval}
+              isLoading={loading}
+              text="Approve"
+            />
+          </>
+        )}
         <Button
-          disabled={!inputs || loading}
+          disabled={!approved || !inputs || loading || isAboveGuardCap()}
           full
           size="sm"
           onClick={handleSubmitClick}
           isLoading={loading}
-          text="Review Transaction"
+          text="Submit"
         />
-      ) : (
-        <>
-          {' '}
-          <Button
-            disabled={!tokenAllowance || loading}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={loading}
-            text="Approve"
-          />
-        </>
-      )}
+      </Box>
     </>
   )
 }
@@ -241,5 +320,4 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-
 export default Swap

@@ -39,7 +39,7 @@ const Nav: React.FC = () => {
 
 const StyledNav = styled.nav`
   display: flex;
-  background-color: ${(props) => props.theme.color.grey[800]};
+  background-color: ${(props) => props.theme.color.black};
   border-radius: 10px;
   opacity: 90%;
   pointer-events: all;

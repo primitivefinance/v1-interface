@@ -8,9 +8,7 @@ const FAQ: React.FC = () => {
     <>
       <StyledSpacer size={24} />
       <StyledFAQ>
-        <StyledTitle>
-          Frequently Asked Questions of using Primitive Finance
-        </StyledTitle>
+        <StyledTitle>Frequently Asked Questions</StyledTitle>
         <StyledSpacer size={24} />
 
         <StyledText>A simple explainer to get you started.</StyledText>
@@ -157,12 +155,14 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
 
 const StyledTitle = styled.div`
   font-size: 36px;
+  font-weight: bold;
   color: ${(props) => props.theme.color.white};
 `
 
 const StyledSubtitle = styled.div`
   font-size: 28px;
-  color: ${(props) => props.theme.color.grey[500]};
+  font-weight: bold;
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const StyledText = styled.div`

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import styled from 'styled-components'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
@@ -200,45 +201,52 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 
   return (
-    <Table>
-      <OptionsTableHeader />
-      <LitContainer>
-        {options.loading ? (
-          <LoadingTable />
-        ) : (
-          <TableBody>
-            {options[type].map((option) => {
-              if (optionExp != option.expiry && option.expiry === 0) return null
-              const allGreeks: Greeks = calculateAllGreeks(option)
-              const tableColumns: TableColumns = formatTableColumns(option)
-              return (
-                <OptionsTableRow
-                  key={option.address}
-                  onClick={() => {
-                    setGreeks(!greeks)
-                    updateItem(option, Operation.NONE)
-                  }}
-                  href={`${baseUrl}/${option.address}`}
-                  columns={tableColumns}
-                  greeks={allGreeks}
-                />
-              )
-            })}
-            <NewMarketRow
-              onClick={() => {
-                addNotif(
-                  1,
-                  'Custom Option Markets Coming Soon',
-                  'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
-                  ''
+    <OptionsContainer>
+      <Table>
+        <OptionsTableHeader />
+        <LitContainer>
+          {options.loading ? (
+            <LoadingTable />
+          ) : (
+            <TableBody>
+              {options[type].map((option) => {
+                if (optionExp != option.expiry && option.expiry === 0)
+                  return null
+                const allGreeks: Greeks = calculateAllGreeks(option)
+                const tableColumns: TableColumns = formatTableColumns(option)
+                return (
+                  <OptionsTableRow
+                    key={option.address}
+                    onClick={() => {
+                      setGreeks(!greeks)
+                      updateItem(option, Operation.NONE)
+                    }}
+                    href={`${baseUrl}/${option.address}`}
+                    columns={tableColumns}
+                    greeks={allGreeks}
+                  />
                 )
-              }}
-            />
-          </TableBody>
-        )}
-      </LitContainer>
-    </Table>
+              })}
+              <NewMarketRow
+                onClick={() => {
+                  addNotif(
+                    1,
+                    'Coming Soon',
+                    'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
+                    ''
+                  )
+                }}
+              />
+            </TableBody>
+          )}
+        </LitContainer>
+      </Table>
+    </OptionsContainer>
   )
 }
 
+const OptionsContainer = styled.div`
+  margin-left: 2em;
+  margin-top: -0.2em;
+`
 export default OptionsTable

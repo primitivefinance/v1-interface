@@ -17,7 +17,7 @@ export function useBlockNumber(): responseInterface<number, any> {
     shouldFetch ? [DataType.BlockNumber] : null,
     getBlockNumber(library),
     {
-      refreshInterval: 10 * 1000,
+      refreshInterval: 10 * 500,
     }
   )
 }
