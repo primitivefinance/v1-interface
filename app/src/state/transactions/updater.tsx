@@ -7,7 +7,7 @@ import { checkedTransaction, finalizeTransaction } from './actions'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useUpdatePositions } from '@/state/positions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { useItem, useUpdateItem } from '@/state/order/hooks'
+import { useItem, useUpdateItem, useApproveItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 import numeral from 'numeral'
@@ -40,7 +40,7 @@ export default function Updater(): null {
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
   const { item, orderType, loading, approved, lpApproved } = useItem()
-  const updateItem = useUpdateItem()
+  const approve = useApproveItem()
 
   const { data } = useBlockNumber()
   const lastBlockNumber = data
@@ -111,8 +111,7 @@ export default function Updater(): null {
                 (!approved && app) ||
                 (!lpApproved && app && orderType !== Operation.NONE)
               ) {
-                console.log('approval found')
-                updateItem(item, orderType, loading, approved, lpApproved)
+                approve(approved, lpApproved)
               }
             } else {
               dispatch(

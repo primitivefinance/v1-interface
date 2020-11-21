@@ -10,6 +10,7 @@ const StyledWarningLabel = styled.div`
   display: flex;
   font-size: 14px;
   justify-content: center;
+  align-items: center;
   letter-spacing: 1px;
   text-transform: uppercase;
   opacity: 0.66;

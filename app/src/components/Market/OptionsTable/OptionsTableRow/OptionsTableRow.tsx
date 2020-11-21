@@ -170,7 +170,7 @@ const StyledR = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 75%;
+  width: 90%;
 `
 const StyledARef = styled.a`
   color: ${(props) => props.theme.color.grey[400]};

@@ -318,27 +318,18 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   useEffect(() => {
-    if (lpAllowance) {
-      const app: boolean = parseEther(lpAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      if (app) {
-        approve(approved, app)
-      }
-    }
-    if (optionAllowance) {
-      const app: boolean = parseEther(optionAllowance).gt(
-        parseEther(calculateRequiredLong() || '0')
-      )
-      if (app) {
-        approve(app, approved)
-      }
-    }
+    const lp: boolean = parseEther(lpAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+
+    const app: boolean = parseEther(optionAllowance).gt(
+      parseEther(calculateRequiredLong() || '0')
+    )
+    approve(app, lp)
   }, [
     item,
     data,
     orderType,
-    loading,
     optionAllowance,
     lpAllowance,
     approved,
@@ -535,14 +526,12 @@ const AddLiquidity: React.FC = () => {
     </>
   )
 }
-
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-
 const StyledRatio = styled.h4`
   color: ${(props) => props.theme.color.white};
 `

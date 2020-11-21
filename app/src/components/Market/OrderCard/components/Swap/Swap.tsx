@@ -32,6 +32,7 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
+  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -45,10 +46,11 @@ const Swap: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
+  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // approval state
-  const { item, orderType, approved, loading } = useItem()
+  const { item, orderType, approved, loading, lpApproved } = useItem()
 
   // inputs for user quantity
   const [inputs, setInputs] = useState({
@@ -83,21 +85,21 @@ const Swap: React.FC = () => {
     case Operation.SHORT:
       title = {
         text: 'Buy Short Tokens',
-        tip: 'Purchase tokenized written covered options.',
+        tip: 'Purchase tokenized, written covered options.',
       }
       tokenAddress = underlyingToken.address
       break
     case Operation.CLOSE_LONG:
       title = {
         text: 'Close Long Position',
-        tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
+        tip: `Sell option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.address
       break
     case Operation.CLOSE_SHORT:
       title = {
         text: 'Close Short Position',
-        tip: `Sell short option tokens for ${item.asset.toUpperCase()}`,
+        tip: `Sell short option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.assetAddresses[2]
       break
@@ -110,11 +112,14 @@ const Swap: React.FC = () => {
     parseEther(tokenBalance).toString()
   )
   const spender =
-    orderType === Operation.CLOSE_SHORT || orderType === Operation.CLOSE_LONG
+    orderType === Operation.CLOSE_SHORT ||
+    orderType === Operation.CLOSE_LONG ||
+    orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
-
+  console.log(spender)
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
+  console.log(tokenAllowance)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
@@ -167,19 +172,16 @@ const Swap: React.FC = () => {
 
   //APPROVALS
   useEffect(() => {
-    if (parseInt(tokenAllowance) > 0) {
-      const approve: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      if (approve) {
-        updateItem(item, orderType, loading, approve)
-      }
-    }
-  }, [updateItem, item, loading, orderType, tokenAllowance])
+    const app: boolean = parseEther(tokenAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+    console.log(app)
+    approve(app, lpApproved)
+  }, [approve, item, loading, orderType, tokenAllowance])
 
   const handleApproval = useCallback(() => {
     onApprove()
-      .then()
+      .then((tx) => console.log(tx))
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
@@ -204,7 +206,7 @@ const Swap: React.FC = () => {
       <Spacer />
       {orderType === Operation.SHORT ? (
         <LineItem
-          label="Short Option Premium"
+          label="Short Premium"
           data={formatEther(item.shortPremium)}
           units={entity.isPut ? 'DAI' : item.asset}
         />
@@ -215,7 +217,7 @@ const Swap: React.FC = () => {
           units={entity.isPut ? 'DAI' : item.asset}
         />
       )}
-      <Spacer />
+      <Spacer size="sm" />
       <PriceInput
         title="Quantity"
         name="primary"
@@ -227,7 +229,7 @@ const Swap: React.FC = () => {
           parseEther(calculateTotalCost())
         )}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label={`Total ${
           orderType === Operation.LONG || orderType === Operation.SHORT
@@ -247,7 +249,6 @@ const Swap: React.FC = () => {
             : '-'
         } ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
       />
-      <Spacer size="sm" />
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -270,8 +271,8 @@ const Swap: React.FC = () => {
         <>
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of{' '}
-            {formatEtherBalance(guardCap)}
+            This amount of underlying tokens is above our guardrail cap of
+            $10,000
           </WarningLabel>
           <Spacer size="sm" />
         </>
@@ -284,7 +285,6 @@ const Swap: React.FC = () => {
           <> </>
         ) : (
           <>
-            {' '}
             <Button
               disabled={!tokenAllowance || loading}
               full

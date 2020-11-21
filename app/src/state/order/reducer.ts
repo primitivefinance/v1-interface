@@ -21,15 +21,9 @@ export const initialState: OrderState = {
 
 export default createReducer(initialState, (builder) =>
   builder
-    .addCase(
-      updateItem,
-      (
-        state,
-        { payload: { item, orderType, loading, approved, lpApproved } }
-      ) => {
-        return { ...state, item, orderType, loading, approved, lpApproved }
-      }
-    )
+    .addCase(updateItem, (state, { payload: { item, orderType, loading } }) => {
+      return { ...state, item, orderType, loading }
+    })
     .addCase(approve, (state, { payload: { approved, lpApproved } }) => {
       return { ...state, approved, lpApproved }
     })

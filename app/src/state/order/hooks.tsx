@@ -51,21 +51,13 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  loading?: boolean,
-  approved?: boolean,
-  lpApproved?: boolean
+  loading?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (
-      item: OptionsAttributes,
-      orderType: Operation,
-      loading?: boolean,
-      approved?: boolean,
-      lpApproved?: boolean
-    ) => {
-      dispatch(updateItem({ item, orderType, loading, approved, lpApproved }))
+    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
+      dispatch(updateItem({ item, orderType, loading }))
     },
     [dispatch]
   )
@@ -87,6 +79,7 @@ export const useApproveItem = (): ((
 
   return useCallback(
     (approved: boolean, lpApproved?: boolean) => {
+      console.log(approved)
       dispatch(approve({ approved, lpApproved }))
     },
     [dispatch]

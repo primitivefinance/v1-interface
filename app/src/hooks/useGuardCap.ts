@@ -28,7 +28,6 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
 
   useEffect(() => {
     mutate()
-    console.log(data)
     if (data[key]) {
       switch (orderType) {
         case Operation.ADD_LIQUIDITY:
@@ -40,7 +39,6 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
       }
     }
   }, [mutate, setCap, orderType, data])
-  console.log(ethers.utils.parseEther(cap).toString())
   return ethers.utils.parseEther(cap)
 }
 export default useGuardCap

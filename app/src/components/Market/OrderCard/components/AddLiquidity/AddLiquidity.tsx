@@ -81,7 +81,6 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    console.log('triggered')
     console.log(item.reserves[0].toString())
     setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
   }, [item])
@@ -471,8 +470,8 @@ const AddLiquidity: React.FC = () => {
         <>
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of {''}
-            {formatEtherBalance(guardCap)}
+            This amount of underlying tokens is above our guardrail cap of
+            $15,000
           </WarningLabel>
           <Spacer size="sm" />
         </>
