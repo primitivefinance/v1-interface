@@ -154,11 +154,13 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
 
 const StyledTitle = styled.div`
   font-size: 36px;
+  font-weight: bold;
   color: ${(props) => props.theme.color.white};
 `
 
 const StyledSubtitle = styled.div`
   font-size: 28px;
+  font-weight: bold;
   color: ${(props) => props.theme.color.grey[400]};
 `
 

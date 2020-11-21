@@ -140,7 +140,6 @@ const Market = ({ market, data }) => {
                 <OrderCard orderState={data} />
                 <NewMarketCard />
                 <Spacer size="sm" />
-
                 <TransactionCard />
               </StyledSideBar>
             </StyledCol>

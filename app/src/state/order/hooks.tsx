@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { initialState } from './reducer'
-import { removeItem, updateItem } from './actions'
+import { removeItem, updateItem, approve } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
@@ -51,21 +51,13 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  loading?: boolean,
-  approved?: boolean,
-  lpApproved?: boolean
+  loading?: boolean
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (
-      item: OptionsAttributes,
-      orderType: Operation,
-      loading?: boolean,
-      approved?: boolean,
-      lpApproved?: boolean
-    ) => {
-      dispatch(updateItem({ item, orderType, loading, approved, lpApproved }))
+    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
+      dispatch(updateItem({ item, orderType, loading }))
     },
     [dispatch]
   )
@@ -79,6 +71,20 @@ export const useRemoveItem = (): (() => void) => {
   }, [dispatch])
 }
 
+export const useApproveItem = (): ((
+  approved: boolean,
+  lpApproved?: boolean
+) => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(
+    (approved: boolean, lpApproved?: boolean) => {
+      console.log(approved)
+      dispatch(approve({ approved, lpApproved }))
+    },
+    [dispatch]
+  )
+}
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   optionAddress: string,

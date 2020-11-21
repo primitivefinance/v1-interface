@@ -25,7 +25,6 @@ const StyledCard = styled.div<CardProps>`
   display: flex;
   flex: 1;
   flex-direction: column;
-  overflow: hidden;
 `
 
 export default Card

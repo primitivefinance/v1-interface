@@ -35,6 +35,7 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
+  useApproveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -42,12 +43,14 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
+import App from '../../../../../pages/_app'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
+  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -66,7 +69,7 @@ const AddLiquidity: React.FC = () => {
   // approval
   const addNotif = useAddNotif()
   // guard cap
-  const guardCap = useGuardCap(orderType)
+  const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
   const underlyingToken: Token = new Token(
@@ -81,8 +84,6 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    console.log('triggered')
-    console.log(item.reserves[0].toString())
     setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
   }, [item])
 
@@ -300,30 +301,20 @@ const AddLiquidity: React.FC = () => {
     return formatEther(quote.toString())
   }, [lpPair, lp, lpTotalSupply, inputs])
 
-  const calculateInputValue = useCallback(() => {
-    const price = parseEther('1') // FIX WITH ACTUAL UNDERLYING PRICE
-    const input =
-      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
-    const totalValue = input.mul(price).div(parseEther('1'))
-    return totalValue
-  }, [inputs])
-
   const isAboveGuardCap = useCallback(() => {
-    const inputValue = calculateInputValue()
+    const inputValue =
+      inputs.secondary !== '' ? parseEther(inputs.secondary) : parseEther('0')
     return inputValue.gt(guardCap) && chainId === 1
-  }, [calculateInputValue, guardCap])
+  }, [inputs, guardCap])
 
   useEffect(() => {
-    if (tokenAllowance) {
-      const approve: boolean = parseEther(tokenAllowance).gt(
+    setTimeout(() => {
+      const app: boolean = parseEther(tokenAllowance).gt(
         parseEther(inputs.primary || '0')
       )
-
-      if (approve) {
-        updateItem(item, orderType, loading, approve)
-      }
-    }
-  }, [updateItem, item, loading, orderType, tokenAllowance])
+      approve(app)
+    }, 5000)
+  })
 
   const handleApproval = useCallback(() => {
     onApprove()
@@ -385,7 +376,7 @@ const AddLiquidity: React.FC = () => {
               {noLiquidityTitle.text}
             </Tooltip>
           </StyledSubtitle>
-          <Spacer />
+          <Spacer size="sm" />
           <PriceInput
             name="primary"
             title={`Options Input`}
@@ -408,31 +399,30 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Spacer />
-      <LineItem
-        label="Providing liquidity for"
-        data={`${calculateInput()}`}
-        units={`Options`}
-      />
-      <Spacer />
+      <LineItem label="LP for" data={`${calculateInput()}`} units={`Options`} />
+      <Spacer size="sm" />
       <LineItem
         label="Implied Option Price"
         data={`${calculateImpliedPrice()}`}
         units={`${item.asset.toUpperCase()}`}
       />
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="You will receive"
         data={caculatePoolShare()}
         units={`% of the Pool.`}
       />
       <Spacer size="sm" />
-      <IconButton
-        text="Advanced"
-        variant="transparent"
-        onClick={() => setAdvanced(!advanced)}
-      >
-        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
+      {hasLiquidity ? (
+        <IconButton
+          text="Advanced"
+          variant="transparent"
+          onClick={() => setAdvanced(!advanced)}
+        >
+          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+      ) : null}
+
       <Spacer size="sm" />
 
       {advanced && hasLiquidity ? (
@@ -475,12 +465,12 @@ const AddLiquidity: React.FC = () => {
       )}
       {isAboveGuardCap() ? (
         <>
-          <Spacer />
+          <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of $
-            {formatEtherBalance(guardCap)}
+            This amount of underlying tokens is above our guardrail cap of
+            $15,000
           </WarningLabel>
-          <Spacer />
+          <Spacer size="sm" />
         </>
       ) : (
         <></>
