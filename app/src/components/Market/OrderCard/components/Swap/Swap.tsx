@@ -76,6 +76,7 @@ const Swap: React.FC = () => {
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
+  let balance: Token
   switch (orderType) {
     case Operation.LONG:
       title = {
@@ -83,6 +84,7 @@ const Swap: React.FC = () => {
         tip: 'Purchase and hold option tokens.',
       }
       tokenAddress = underlyingToken.address
+      balance = underlyingToken
       break
     case Operation.SHORT:
       title = {
@@ -90,6 +92,7 @@ const Swap: React.FC = () => {
         tip: 'Purchase tokenized, written covered options.',
       }
       tokenAddress = underlyingToken.address
+      balance = underlyingToken
       break
     case Operation.CLOSE_LONG:
       title = {
@@ -97,6 +100,7 @@ const Swap: React.FC = () => {
         tip: `Sell option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.address
+      balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     case Operation.CLOSE_SHORT:
       title = {
@@ -104,13 +108,14 @@ const Swap: React.FC = () => {
         tip: `Sell short option tokens for ${item.asset.toUpperCase()}.`,
       }
       tokenAddress = entity.assetAddresses[2]
+      balance = new Token(entity.chainId, tokenAddress, 18, 'SHORT')
       break
     default:
       break
   }
   const tokenBalance = useTokenBalance(tokenAddress)
   const tokenAmount: TokenAmount = new TokenAmount(
-    underlyingToken,
+    balance,
     parseEther(tokenBalance).toString()
   )
   const spender =
