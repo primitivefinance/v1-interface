@@ -28,7 +28,7 @@ import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-
+import { usePositions } from '@/state/positions/hooks'
 import {
   useItem,
   useUpdateItem,
@@ -52,6 +52,7 @@ const AddLiquidity: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
+  const positions = usePositions()
 
   const { data } = useBlockNumber()
   //slider
@@ -133,7 +134,6 @@ const AddLiquidity: React.FC = () => {
 
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
-    console.log(inputs.primary, inputs.secondary)
     submitOrder(
       library,
       item?.address,
@@ -318,23 +318,20 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   useEffect(() => {
-    const lp: boolean = parseEther(lpAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
+    setTimeout(() => {
+      const lp: boolean = parseEther(lpAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
 
-    const app: boolean = parseEther(optionAllowance).gt(
-      parseEther(calculateRequiredLong() || '0')
-    )
-    approve(app, lp)
-  }, [
-    item,
-    data,
-    orderType,
-    optionAllowance,
-    lpAllowance,
-    approved,
-    lpApproved,
-  ])
+      const app: boolean = parseEther(optionAllowance).gt(
+        parseEther(calculateRequiredLong() || '0')
+      )
+      approve(app, lp)
+      // 5sec tickrate, memleak
+    }, 5000)
+
+    // forcing reload using cleanup
+  })
   // END FIX
 
   return (

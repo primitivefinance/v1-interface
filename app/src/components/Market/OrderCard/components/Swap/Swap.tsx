@@ -26,6 +26,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { useAllTransactions } from '@/state/transactions/hooks'
 
 import {
   useItem,
@@ -51,6 +52,7 @@ const Swap: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // approval state
   const { item, orderType, approved, loading, lpApproved } = useItem()
+  const txs = useAllTransactions()
 
   // inputs for user quantity
   const [inputs, setInputs] = useState({
@@ -117,9 +119,7 @@ const Swap: React.FC = () => {
     orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
-  console.log(spender)
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
-  console.log(tokenAllowance)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
@@ -172,12 +172,13 @@ const Swap: React.FC = () => {
 
   //APPROVALS
   useEffect(() => {
-    const app: boolean = parseEther(tokenAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-    console.log(app)
-    approve(app, lpApproved)
-  }, [approve, item, loading, orderType, tokenAllowance])
+    setTimeout(() => {
+      const app: boolean = parseEther(tokenAllowance).gt(
+        parseEther(inputs.primary || '0')
+      )
+      approve(app, lpApproved)
+    }, 5000)
+  })
 
   const handleApproval = useCallback(() => {
     onApprove()

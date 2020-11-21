@@ -35,6 +35,7 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
+  useApproveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -42,12 +43,14 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
+import App from '../../../../../pages/_app'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
+  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -81,7 +84,6 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    console.log(item.reserves[0].toString())
     setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
   }, [item])
 
@@ -302,22 +304,17 @@ const AddLiquidity: React.FC = () => {
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
       inputs.secondary !== '' ? parseEther(inputs.secondary) : parseEther('0')
-    console.log(inputValue.toString())
-    console.log(guardCap.toString())
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
   useEffect(() => {
-    if (tokenAllowance) {
-      const approve: boolean = parseEther(tokenAllowance).gt(
+    setTimeout(() => {
+      const app: boolean = parseEther(tokenAllowance).gt(
         parseEther(inputs.primary || '0')
       )
-
-      if (approve) {
-        updateItem(item, orderType, loading, approve)
-      }
-    }
-  }, [updateItem, item, loading, orderType, tokenAllowance])
+      approve(app)
+    }, 5000)
+  })
 
   const handleApproval = useCallback(() => {
     onApprove()
