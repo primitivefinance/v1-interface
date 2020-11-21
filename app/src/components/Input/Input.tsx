@@ -120,6 +120,8 @@ const StyledInput = styled.input<StyledInputProps>`
   padding: 0;
   outline: none;
   text-indent: ${(props) => props.theme.spacing[3]}px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield !important;
 `
 
 interface StyledIconProps {
