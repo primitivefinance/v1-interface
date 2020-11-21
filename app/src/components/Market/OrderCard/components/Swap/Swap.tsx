@@ -175,7 +175,7 @@ const Swap: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  //APPROVALS
+  //APPROVALs
   useEffect(() => {
     setTimeout(() => {
       const app: boolean = parseEther(tokenAllowance).gt(
