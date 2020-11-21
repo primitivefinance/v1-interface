@@ -6,7 +6,7 @@ import Link from 'next/link'
 const FAQ: React.FC = () => {
   return (
     <>
-      <StyledSpacer size={24} />
+      <StyledSpacer size={48} />
       <StyledFAQ>
         <StyledTitle>Frequently Asked Questions</StyledTitle>
         <StyledSpacer size={24} />
