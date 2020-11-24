@@ -119,9 +119,7 @@ const Swap: React.FC = () => {
     parseEther(tokenBalance).toString()
   )
   const spender =
-    orderType === Operation.CLOSE_SHORT ||
-    orderType === Operation.CLOSE_LONG ||
-    orderType === Operation.SHORT
+    orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(tokenAddress, spender)
