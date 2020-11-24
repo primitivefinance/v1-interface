@@ -27,6 +27,7 @@ export interface TableColumns {
   depth: string
   reserves: string[]
   address: string
+  isCall: boolean
 }
 
 export interface OptionsTableRowProps {
@@ -54,6 +55,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     depth,
     reserves,
     address,
+    isCall,
   } = columns
   const handleOnClick = useCallback(() => {
     if (reserves[0] !== '0.00') {
@@ -67,6 +69,8 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   const nodeRef = useClickAway(() => {
     setToggle(false)
   })
+
+  const units = isCall ? asset.toUpperCase() : 'DAI'
 
   return (
     <StyledDiv ref={nodeRef}>
@@ -95,7 +99,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
               <StyledT>{numeral(premium).format('($0.00a)')}</StyledT>
               <span>
                 {numeral(premiumUnderlying).format('(0.00a)')}{' '}
-                <Units>{asset}</Units>
+                <Units>{units}</Units>
               </span>
             </StyledR>
           </TableCell>
@@ -113,8 +117,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <TableCell>
             <StyledR>
               <StyledT>
-                {numeral(reserves[0]).format('0a')}{' '}
-                <Units>{asset.toUpperCase()}</Units>
+                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
               </StyledT>
               <span>
                 {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>

@@ -138,7 +138,6 @@ const Swap: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
     )
-    console.log(max)
     setInputs({ ...inputs, primary: max.toString() })
   }
 

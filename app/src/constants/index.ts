@@ -137,7 +137,7 @@ export const STABLECOINS: { [key: number]: Token } = {
   ),
   4: getToken(
     ChainId.RINKEBY,
-    '0x95b58a6bff3d14b7db2f5cb5f0ad413dc2940658',
+    '0x49ac2A6588864375F0D194F5DA1BC87B9436E175',
     ASSETS.DAI
   ),
 }

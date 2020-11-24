@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import numeral from 'numeral'
 import styled from 'styled-components'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
@@ -161,7 +162,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         calculateBreakeven(option.premium, option.entity.isCall)
       ).toString()
       const tablePremium: string = formatBalance(
-        calculatePremiumInDollars(option.premium)
+        option.entity.isPut
+          ? formatEther(option.premium)
+          : calculatePremiumInDollars(option.premium)
       ).toString()
       const tablePremiumUnderlying: string = formatEtherBalance(
         option.premium
@@ -194,6 +197,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         depth: tableDepth,
         reserves: tableReserves,
         address: tableAddress,
+        isCall: option.entity.isCall,
       }
       return tableColumns
     },
