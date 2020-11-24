@@ -268,8 +268,8 @@ export class Trade {
       reserves[1]
     )
     const premium = BigNumber.from(amountsOut[1])
-      .mul(100101)
-      .add(amountsOut[1])
+      .mul(100000)
+      .add(BigNumber.from(amountsOut[1]).mul(301))
       .div(100000)
     return premium
   }
