@@ -246,7 +246,6 @@ export class Uniswap {
         methodName = 'removeShortLiquidityThenCloseOptions'
         args = [
           trade.option.address,
-          trade.path[1],
           trade.inputAmount.quantity.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
