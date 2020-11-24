@@ -72,11 +72,12 @@ const AddLiquidity: React.FC = () => {
   const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
+  const isPut = item.entity.isPut
   const underlyingToken: Token = new Token(
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    isPut ? 'DAI' : item.asset.toUpperCase()
   )
   const lpPair = useReserves(
     underlyingToken,
@@ -84,7 +85,7 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
+    setHasL(BigNumber.from(item.reserves[0].toString()).gt(0) ? true : false)
   }, [item])
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
@@ -238,7 +239,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString() // 1%
+      )
     )
 
     const underlyingValue = lpPair.getLiquidityValue(
@@ -247,7 +251,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
@@ -320,7 +327,12 @@ const AddLiquidity: React.FC = () => {
     onApprove()
       .then()
       .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+        addNotif(
+          0,
+          `Approving ${underlyingToken.symbol.toUpperCase()}`,
+          error.message,
+          ''
+        )
       })
   }, [inputs, tokenAllowance, onApprove])
 
@@ -404,7 +416,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="Implied Option Price"
         data={`${calculateImpliedPrice()}`}
-        units={`${item.asset.toUpperCase()}`}
+        units={`${underlyingToken.symbol.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <LineItem
@@ -439,7 +451,7 @@ const AddLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${item.asset.toUpperCase()} per LP Token`}
+            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
@@ -486,7 +498,7 @@ const AddLiquidity: React.FC = () => {
               size="sm"
               onClick={handleApproval}
               isLoading={submitting}
-              text={`Approve ${item.asset.toUpperCase()}`}
+              text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
             />
           </>
         )}

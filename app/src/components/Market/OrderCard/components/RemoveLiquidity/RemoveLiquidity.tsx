@@ -69,11 +69,12 @@ const AddLiquidity: React.FC = () => {
   // pair and option entities
   const addNotif = useAddNotif()
   const entity = item.entity
+  const isPut = item.entity.isPut
   const underlyingToken: Token = new Token(
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    isPut ? 'DAI' : item.asset.toUpperCase()
   )
   const lpPair = useReserves(
     underlyingToken,
@@ -193,7 +194,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const underlyingValue = lpPair.getLiquidityValue(
@@ -202,7 +206,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
@@ -433,7 +440,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="You will receive"
         data={numeral(calculateUnderlyingOutput()).format('0.00')}
-        units={`${item.asset.toUpperCase()}`}
+        units={`${underlyingToken.symbol.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <IconButton
@@ -458,7 +465,7 @@ const AddLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${item.asset.toUpperCase()} per LP Token`}
+            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
