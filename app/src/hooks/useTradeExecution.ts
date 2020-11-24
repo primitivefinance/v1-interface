@@ -243,7 +243,6 @@ const useTradeExecution = (
 ] => {
   const { library } = useWeb3React()
   const transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
-  console.log(transaction)
   const handleExecution = useCallback(async (): Promise<Transaction> => {
     const tx = await executeTransaction(await library.getSigner(), transaction)
     return tx

@@ -187,7 +187,7 @@ const Swap: React.FC = () => {
 
   const handleApproval = useCallback(() => {
     onApprove()
-      .then((tx) => console.log(tx))
+      .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })

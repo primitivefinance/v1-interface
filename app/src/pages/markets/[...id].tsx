@@ -150,7 +150,9 @@ const Market = ({ market, data }) => {
   )
 }
 
-const StyledCol = styled(Col)``
+const StyledCol = styled(Col)`
+  overflow: hidden;
+`
 
 const StyledContainer = styled(Col)`
   height: 100%;

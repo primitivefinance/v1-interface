@@ -56,29 +56,32 @@ const BalanceCard: React.FC = () => {
   if (loading) return null
   if (calls.length === 0) return null
   return (
-    <Card>
-      <CardContent>
-        <StyledContainer>
-          <LineItem label={`DAI Balance`} data={daiBal} />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${balance.asset.symbol} Balance`}
-            data={formatEther(balance.quantity)}
-          />
-          {chainId === 4 ? (
-            <>
-              <Spacer size="sm" />
-              <Button
-                full
-                onClick={handleMintTestTokens}
-                text={'Get Testnet Tokens'}
-                variant="secondary"
-              />
-            </>
-          ) : null}
-        </StyledContainer>
-      </CardContent>
-    </Card>
+    <>
+      <div style={{ marginTop: '-.1em' }} />
+      <Card border>
+        <CardContent>
+          <StyledContainer>
+            <LineItem label={`DAI Balance`} data={daiBal} />
+            <Spacer size="sm" />
+            <LineItem
+              label={`${balance.asset.symbol} Balance`}
+              data={formatEther(balance.quantity)}
+            />
+            {chainId === 4 ? (
+              <>
+                <Spacer size="sm" />
+                <Button
+                  full
+                  onClick={handleMintTestTokens}
+                  text={'Get Testnet Tokens'}
+                  variant="secondary"
+                />
+              </>
+            ) : null}
+          </StyledContainer>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 const StyledContainer = styled.div`

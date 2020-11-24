@@ -79,7 +79,6 @@ export const useApproveItem = (): ((
 
   return useCallback(
     (approved: boolean, lpApproved?: boolean) => {
-      console.log(approved)
       dispatch(approve({ approved, lpApproved }))
     },
     [dispatch]

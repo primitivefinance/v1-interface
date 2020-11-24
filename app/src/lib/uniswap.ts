@@ -24,8 +24,6 @@ export class Uniswap {
         ? UniswapConnectorMainnet.address
         : UniswapConnectorTestnet.address
 
-    console.log({ uniswapConnectorAddress })
-
     let transaction: any
     let contract: ethers.Contract
     let methodName: string

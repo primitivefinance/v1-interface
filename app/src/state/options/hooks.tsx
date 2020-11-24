@@ -254,7 +254,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               option.quote.asset,
                               numerator.div(denominator)
                             )
-                            console.log(strikePrice)
                             breakEven = calculateBreakeven(
                               parseEther(strikePrice.quantity.toString()),
                               premium,
