@@ -14,6 +14,7 @@ import { Trade, Option, Quantity } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
+import { STABLECOINS } from '@/constants/index'
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -230,16 +231,15 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                         if (option.isPut) {
-                          let asset
-                          if (chainId !== 1) {
-                            asset = Base.asset.symbol.toUpperCase()
-                          } else {
-                            asset = Quote.asset.symbol.toUpperCase()
-                          }
+                          let asset = Quote.asset.symbol.toUpperCase()
                           if (asset === 'ETH') {
                             asset = 'WETH'
                           }
-                          if (asset === assetName.toUpperCase()) {
+                          if (
+                            asset === assetName.toUpperCase() &&
+                            option.assetAddresses[0] ===
+                              STABLECOINS[chainId].address
+                          ) {
                             pairReserveTotal = pairReserveTotal.add(
                               BigNumber.from(reserves1)
                             )
