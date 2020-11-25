@@ -118,10 +118,12 @@ const AddLiquidity: React.FC = () => {
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setRatio(Number(e.currentTarget.value))
-      const liquidity = formatEther(parseEther(lp).mul(ratio).div(1000))
+      const liquidity = formatEther(
+        parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
+      )
       setInputs({ ...inputs, primary: liquidity })
     },
-    [setRatio, lp]
+    [setRatio, lp, setInputs, inputs, ratio]
   )
 
   const handleRatio = useCallback(
@@ -143,7 +145,18 @@ const AddLiquidity: React.FC = () => {
       Number(inputs.secondary)
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType, lp, ratio])
+  }, [
+    submitOrder,
+    removeItem,
+    item,
+    library,
+    inputs,
+    orderType,
+    lp,
+    ratio,
+    handleRatio,
+    handleRatioChange,
+  ])
 
   const calculateToken0PerToken1 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
