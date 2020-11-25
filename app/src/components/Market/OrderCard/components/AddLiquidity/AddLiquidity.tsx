@@ -36,7 +36,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -51,14 +50,12 @@ const AddLiquidity: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
-  const [checking, setChecking] = useState(true)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
   // option entity in order
-  const { item, orderType, approved, loading, checked } = useItem()
+  const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -316,16 +313,6 @@ const AddLiquidity: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  useEffect(() => {
-    const app: boolean = parseEther(tokenAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-    approve(app)
-    setTimeout(() => {
-      setChecking(false)
-    }, 1500)
-  }, [tokenAllowance, checked, setChecking])
-
   const handleApproval = useCallback(() => {
     onApprove()
       .then()
@@ -491,7 +478,7 @@ const AddLiquidity: React.FC = () => {
         <></>
       )}
       <Box row justifyContent="flex-start">
-        {checking ? (
+        {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Loader />
@@ -504,7 +491,7 @@ const AddLiquidity: React.FC = () => {
             ) : (
               <>
                 <Button
-                  disabled={!tokenAllowance || submitting}
+                  disabled={submitting}
                   full
                   size="sm"
                   onClick={handleApproval}

@@ -19,7 +19,9 @@ import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import useApprove from '@/hooks/useApprove'
-import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
@@ -34,7 +36,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -48,12 +49,11 @@ const Swap: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   const [checking, setChecking] = useState(true)
   // approval state
-  const { item, orderType, approved, loading, lpApproved, checked } = useItem()
+  const { item, orderType, approved, loading, lpApproved } = useItem()
   const txs = useAllTransactions()
 
   // inputs for user quantity
@@ -124,7 +124,6 @@ const Swap: React.FC = () => {
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(tokenAddress, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
@@ -144,7 +143,6 @@ const Swap: React.FC = () => {
   }
 
   const handleSubmitClick = useCallback(() => {
-    updateItem(item, orderType, true)
     submitOrder(
       library,
       item?.address,
@@ -174,25 +172,13 @@ const Swap: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  //APPROVALs
-  useEffect(() => {
-    console.log(tokenAllowance)
-    const app: boolean = parseEther(tokenAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-    approve(app, lpApproved)
-    setTimeout(() => {
-      setChecking(false)
-    }, 1000)
-  }, [tokenAllowance, checked, setChecking])
-
   const handleApproval = useCallback(() => {
     onApprove()
       .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, tokenAllowance, onApprove])
+  }, [inputs, onApprove])
 
   return (
     <>
@@ -294,7 +280,7 @@ const Swap: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {checking ? (
+        {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Loader />
@@ -307,7 +293,7 @@ const Swap: React.FC = () => {
             ) : (
               <>
                 <Button
-                  disabled={!tokenAllowance || loading}
+                  disabled={loading}
                   full
                   size="sm"
                   onClick={handleApproval}

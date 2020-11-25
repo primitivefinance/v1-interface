@@ -181,7 +181,7 @@ const StyledSideBar = styled.div`
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
-  height: 85%;
+  height: 90vh;
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;

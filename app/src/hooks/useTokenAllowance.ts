@@ -32,4 +32,27 @@ const useTokenAllowance = (tokenAddress: string, spender: string) => {
   }, [account, library, setAllowance, tokenAddress])
   return allowance
 }
+
+export const useGetTokenAllowance = (): ((
+  tokenAddress: string,
+  spender: string
+) => Promise<any>) => {
+  const { account, library } = useWeb3React()
+  const fetchAllowance = async (tokenAddress, spender) => {
+    if (typeof tokenAddress === 'undefined' || tokenAddress === '') return
+    if (!isAddress(getAddress(tokenAddress))) return
+    const code: any = await library.getCode(tokenAddress)
+    let allowance: BigNumberish = '0'
+    if (code > 0) {
+      allowance = await getAllowance(library, tokenAddress, account, spender)
+    }
+    return formatEther(allowance).toString()
+  }
+  return useCallback(
+    async (tokenAddress: string, spender: string) => {
+      return await fetchAllowance(tokenAddress, spender)
+    },
+    [fetchAllowance]
+  )
+}
 export default useTokenAllowance

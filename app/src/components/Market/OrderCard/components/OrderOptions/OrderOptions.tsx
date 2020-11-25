@@ -60,7 +60,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
 
 const OrderOptions: React.FC = () => {
   const [tab, setTab] = useState(0)
-  const { item } = useItem()
+  const { item, orderType, approved } = useItem()
   const updateItem = useUpdateItem()
   const positions = usePositions()
   const [option, setOption] = useState({ long: null, short: null, lp: null })
@@ -78,6 +78,8 @@ const OrderOptions: React.FC = () => {
   }, [setOption, positions, item])
   const change = (t: Operation) => {
     updateItem(item, t)
+
+    console.log(orderType)
   }
 
   return (

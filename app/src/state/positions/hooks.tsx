@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { OptionPosition } from './reducer'
-import { updatePositions, updatePositionsLoading } from './actions'
+import { updatePositions } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
@@ -14,6 +14,7 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import { Quantity, Asset } from '@/lib/entities'
 
 export const usePositions = (): {
+  loading: boolean
   exists: boolean
   balance: Quantity
   options: OptionPosition[]

@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { initialState } from './reducer'
-import { removeItem, updateItem, checkItem, approve } from './actions'
+import { removeItem, updateItem } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
+import { Token, TokenAmount } from '@uniswap/sdk'
 
 import { OptionsAttributes } from '../options/reducer'
 import {
@@ -15,10 +16,10 @@ import {
   DEFAULT_TIMELIMIT,
   STABLECOINS,
   DEFAULT_ALLOWANCE,
-  Operation,
 } from '@/constants/index'
 
 import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
+import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
 import { parseEther } from 'ethers/lib/utils'
 import { Asset, Trade, Quantity } from '@/lib/entities'
@@ -26,7 +27,11 @@ import { Trader } from '@/lib/trader'
 import { Uniswap } from '@/lib/uniswap'
 import { TradeSettings, SinglePositionParameters } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
-
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
+import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { useReserves } from '@/hooks/data'
 import executeTransaction, {
   checkAllowance,
   executeApprove,
@@ -51,16 +56,124 @@ export const useItem = (): {
 
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
-  orderType: Operation,
-  loading?: boolean
+  orderType: Operation
 ) => void) => {
+  const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
-
+  const getAllowance = useGetTokenAllowance()
   return useCallback(
-    (item: OptionsAttributes, orderType: Operation, loading?: boolean) => {
-      dispatch(updateItem({ item, orderType, loading }))
+    async (item: OptionsAttributes, orderType: Operation) => {
+      let approved = false
+      let lpApproved = false
+      const underlyingToken: Token = new Token(
+        item.entity.chainId,
+        item.entity.assetAddresses[0],
+        18,
+        item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
+      )
+      console.log(Operation[orderType])
+      if (orderType === Operation.NONE) {
+        console.log('NOPE')
+        dispatch(
+          updateItem({
+            item,
+            orderType,
+            loading: false,
+            approved: false,
+            lpApporved: false,
+          })
+        )
+        return
+      } else {
+        if (
+          orderType === Operation.ADD_LIQUIDITY ||
+          orderType === Operation.REMOVE_LIQUIDITY_CLOSE
+        ) {
+          const spender = UNISWAP_CONNECTOR[chainId]
+          if (orderType === Operation.ADD_LIQUIDITY) {
+            const tokenAllowance = await getAllowance(
+              item.entity.assetAddresses[0],
+              spender
+            )
+            approved = parseEther(tokenAllowance).gt(parseEther('0'))
+            dispatch(
+              updateItem({
+                item,
+                orderType,
+                loading: false,
+                approved,
+                lpApproved,
+              })
+            )
+            return
+          }
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+            const lpPair = useReserves(
+              underlyingToken,
+              new Token(
+                item.entity.chainId,
+                item.entity.assetAddresses[2],
+                18,
+                'SHORT'
+              )
+            ).data
+            const lpToken = lpPair ? lpPair.liquidityToken.address : ''
+            const optionAllowance = await getAllowance(item.address, spender)
+            approved = parseEther(optionAllowance).gt(parseEther('0'))
+            const lpAllowance = await getAllowance(lpToken, spender)
+            lpApproved = parseEther(lpAllowance).gt(parseEther('0'))
+            dispatch(
+              updateItem({
+                item,
+                orderType,
+                loading: false,
+                approved,
+                lpApproved,
+              })
+            )
+            return
+          }
+        } else {
+          const spender =
+            orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
+              ? UNISWAP_ROUTER02_V2
+              : UNISWAP_CONNECTOR[chainId]
+          let tokenAddress
+          switch (orderType) {
+            case Operation.LONG:
+              tokenAddress = underlyingToken.address
+              break
+            case Operation.SHORT:
+              tokenAddress = underlyingToken.address
+              break
+            case Operation.CLOSE_LONG:
+              tokenAddress = item.entity.address
+              break
+            case Operation.CLOSE_SHORT:
+              tokenAddress = item.entity.assetAddresses[2]
+              break
+            default:
+              break
+          }
+          const tokenAllowance = await getAllowance(tokenAddress, spender)
+          console.log(tokenAllowance)
+          approved = parseEther(tokenAllowance).gt(parseEther('0'))
+          console.log(approved)
+          lpApproved = false
+          dispatch(
+            updateItem({
+              item,
+              orderType,
+              loading: false,
+              approved,
+              lpApproved,
+            })
+          )
+          return
+        }
+      }
     },
-    [dispatch]
+    [dispatch, chainId, updateItem]
   )
 }
 
@@ -68,33 +181,8 @@ export const useRemoveItem = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(() => {
-    dispatch(updateItem(initialState))
+    dispatch(removeItem())
   }, [dispatch])
-}
-
-export const useApproveItem = (): ((
-  approved: boolean,
-  lpApproved?: boolean
-) => void) => {
-  const dispatch = useDispatch<AppDispatch>()
-
-  return useCallback(
-    (approved: boolean, lpApproved?: boolean) => {
-      dispatch(approve({ approved, lpApproved }))
-    },
-    [dispatch]
-  )
-}
-
-export const useCheckItem = (): ((checked: boolean) => void) => {
-  const dispatch = useDispatch<AppDispatch>()
-
-  return useCallback(
-    (checked: boolean) => {
-      dispatch(checkItem({ checked }))
-    },
-    [dispatch]
-  )
 }
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,

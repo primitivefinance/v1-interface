@@ -18,7 +18,9 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/useApprove'
-import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
@@ -35,7 +37,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -47,20 +48,17 @@ const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const approve = useApproveItem()
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
-  const [checking, setChecking] = useState(true)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
-  const positions = usePositions()
 
   const { data } = useBlockNumber()
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType, loading, approved, lpApproved, checked } = useItem()
+  const { item, orderType, loading, approved, lpApproved } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -90,10 +88,8 @@ const AddLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
 
-  const lpAllowance = useTokenAllowance(lpToken, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
 
-  const optionAllowance = useTokenAllowance(item.address, spender)
   const optionBalance = useTokenBalance(item.address)
 
   const onApproveOption = useApprove(item.address, spender)
@@ -324,25 +320,6 @@ const AddLiquidity: React.FC = () => {
       'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
   }
 
-  // FIX
-
-  useEffect(() => {
-    const lp: boolean = parseEther(lpAllowance).gt(
-      parseEther(inputs.primary || '0')
-    )
-
-    const app: boolean = parseEther(optionAllowance).gt(
-      parseEther(calculateRequiredLong() || '0')
-    )
-    approve(app, lp)
-    // 5sec tickrate, memleak
-    setTimeout(() => {
-      setChecking(false)
-    }, 1500)
-    // forcing reload using cleanup
-  }, [lpAllowance, optionAllowance, checked, setChecking])
-  // END FIX
-
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -493,7 +470,7 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {checking ? (
+        {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Loader />
@@ -503,7 +480,7 @@ const AddLiquidity: React.FC = () => {
           <>
             {!lpApproved ? (
               <Button
-                disabled={!lpAllowance || submitting}
+                disabled={submitting}
                 full
                 size="sm"
                 onClick={onApprove}
@@ -516,7 +493,7 @@ const AddLiquidity: React.FC = () => {
 
             {!approved ? (
               <Button
-                disabled={!optionAllowance || submitting}
+                disabled={submitting}
                 full
                 size="sm"
                 onClick={onApproveOption.onApprove}
