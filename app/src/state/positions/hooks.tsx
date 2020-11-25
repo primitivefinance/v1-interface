@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { OptionPosition } from './reducer'
-import { updatePositions } from './actions'
+import { updatePositions, updatePositionsLoading } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
@@ -14,7 +14,6 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 import { Quantity, Asset } from '@/lib/entities'
 
 export const usePositions = (): {
-  loading: boolean
   exists: boolean
   balance: Quantity
   options: OptionPosition[]
@@ -30,7 +29,6 @@ export const useUpdatePositions = (): ((
 ) => void) => {
   const { library, account } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
-
   return useCallback(
     async (options: OptionsAttributes[]) => {
       let positionExists = false
@@ -51,18 +49,23 @@ export const useUpdatePositions = (): ((
         options[0].entity.assetAddresses[0],
         account
       )
+
       const balance = new Quantity(options[0].entity.base.asset, bal)
+      // underlying balance
+
       for (let i = 0; i < options.length; i++) {
         const long = await getBalance(
           library,
           options[i].entity.address,
           account
         )
+
         const redeem = await getBalance(
           library,
           options[i].entity.assetAddresses[2],
           account
         )
+
         const lp = await getBalance(library, options[i].entity.pair, account)
         if (
           formatEtherBalance(long) !== '0.00' ||

@@ -179,3 +179,11 @@ export enum Operation {
   NONE,
   APPROVE,
 }
+
+export const POSITIONS_LOADING: { [key: number]: string } = {
+  0: 'Loading Options',
+  33: 'Pulling Underlying Balance',
+  66: 'Finding Active Positions',
+}
+
+export const OPTIONS_LOADING: { [key: number]: string } = {}

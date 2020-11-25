@@ -6,6 +6,7 @@ import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import LineItem from '@/components/LineItem'
+import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
@@ -50,8 +51,9 @@ const Swap: React.FC = () => {
   const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  const [checking, setChecking] = useState(true)
   // approval state
-  const { item, orderType, approved, loading, lpApproved } = useItem()
+  const { item, orderType, approved, loading, lpApproved, checked } = useItem()
   const txs = useAllTransactions()
 
   // inputs for user quantity
@@ -174,13 +176,15 @@ const Swap: React.FC = () => {
 
   //APPROVALs
   useEffect(() => {
+    console.log(tokenAllowance)
+    const app: boolean = parseEther(tokenAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+    approve(app, lpApproved)
     setTimeout(() => {
-      const app: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      approve(app, lpApproved)
-    }, 5000)
-  })
+      setChecking(false)
+    }, 1000)
+  }, [tokenAllowance, checked, setChecking])
 
   const handleApproval = useCallback(() => {
     onApprove()
@@ -248,7 +252,7 @@ const Swap: React.FC = () => {
             ? 'Credit'
             : 'Debit'
         }`}
-        data={calculateTotalCost()}
+        data={Math.abs(parseInt(calculateTotalCost()))}
         units={`${
           orderType === Operation.LONG || orderType === Operation.SHORT
             ? '-'
@@ -290,28 +294,38 @@ const Swap: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {approved ? (
-          <> </>
+        {checking ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
           <>
+            {approved ? (
+              <> </>
+            ) : (
+              <>
+                <Button
+                  disabled={!tokenAllowance || loading}
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  isLoading={loading}
+                  text="Approve"
+                />
+              </>
+            )}
             <Button
-              disabled={!tokenAllowance || loading}
+              disabled={!approved || !inputs || loading || isAboveGuardCap()}
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={handleSubmitClick}
               isLoading={loading}
-              text="Approve"
+              text="Submit"
             />
           </>
         )}
-        <Button
-          disabled={!approved || !inputs || loading || isAboveGuardCap()}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={loading}
-          text="Submit"
-        />
       </Box>
     </>
   )

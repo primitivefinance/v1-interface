@@ -6,6 +6,7 @@ import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
+import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
@@ -50,6 +51,7 @@ const AddLiquidity: React.FC = () => {
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  const [checking, setChecking] = useState(true)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
   const positions = usePositions()
@@ -58,7 +60,7 @@ const AddLiquidity: React.FC = () => {
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved, lpApproved, checked } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -325,20 +327,20 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   useEffect(() => {
+    const lp: boolean = parseEther(lpAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+
+    const app: boolean = parseEther(optionAllowance).gt(
+      parseEther(calculateRequiredLong() || '0')
+    )
+    approve(app, lp)
+    // 5sec tickrate, memleak
     setTimeout(() => {
-      const lp: boolean = parseEther(lpAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-
-      const app: boolean = parseEther(optionAllowance).gt(
-        parseEther(calculateRequiredLong() || '0')
-      )
-      approve(app, lp)
-      // 5sec tickrate, memleak
-    }, 5000)
-
+      setChecking(false)
+    }, 1500)
     // forcing reload using cleanup
-  })
+  }, [lpAllowance, optionAllowance, checked, setChecking])
   // END FIX
 
   return (
@@ -491,40 +493,50 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {!lpApproved ? (
-          <Button
-            disabled={!lpAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={submitting}
-            text="Approve LP"
-          />
+        {checking ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
-          <></>
-        )}
+          <>
+            {!lpApproved ? (
+              <Button
+                disabled={!lpAllowance || submitting}
+                full
+                size="sm"
+                onClick={onApprove}
+                isLoading={submitting}
+                text="Approve LP"
+              />
+            ) : (
+              <></>
+            )}
 
-        {!approved ? (
-          <Button
-            disabled={!optionAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApproveOption.onApprove}
-            isLoading={submitting}
-            text="Approve Options"
-          />
-        ) : (
-          <></>
-        )}
-        {!approved || !lpApproved ? null : (
-          <Button
-            disabled={!inputs || submitting}
-            full
-            size="sm"
-            onClick={handleSubmitClick}
-            isLoading={submitting}
-            text="Submit"
-          />
+            {!approved ? (
+              <Button
+                disabled={!optionAllowance || submitting}
+                full
+                size="sm"
+                onClick={onApproveOption.onApprove}
+                isLoading={submitting}
+                text="Approve Options"
+              />
+            ) : (
+              <></>
+            )}
+            {!approved || !lpApproved ? null : (
+              <Button
+                disabled={!inputs || submitting}
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                isLoading={submitting}
+                text="Submit"
+              />
+            )}
+          </>
         )}
       </Box>
     </>

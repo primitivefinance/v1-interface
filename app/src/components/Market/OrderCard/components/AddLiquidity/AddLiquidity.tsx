@@ -5,6 +5,7 @@ import ethers from 'ethers'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Loader from '@/components/Loader'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
@@ -53,10 +54,11 @@ const AddLiquidity: React.FC = () => {
   const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  const [checking, setChecking] = useState(true)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
   // option entity in order
-  const { item, orderType, approved, loading } = useItem()
+  const { item, orderType, approved, loading, checked } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -315,13 +317,14 @@ const AddLiquidity: React.FC = () => {
   }, [inputs, guardCap])
 
   useEffect(() => {
+    const app: boolean = parseEther(tokenAllowance).gt(
+      parseEther(inputs.primary || '0')
+    )
+    approve(app)
     setTimeout(() => {
-      const app: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      approve(app)
-    }, 5000)
-  })
+      setChecking(false)
+    }, 1500)
+  }, [tokenAllowance, checked, setChecking])
 
   const handleApproval = useCallback(() => {
     onApprove()
@@ -488,29 +491,39 @@ const AddLiquidity: React.FC = () => {
         <></>
       )}
       <Box row justifyContent="flex-start">
-        {approved ? (
-          <> </>
+        {checking ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
           <>
+            {approved ? (
+              <> </>
+            ) : (
+              <>
+                <Button
+                  disabled={!tokenAllowance || submitting}
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  isLoading={submitting}
+                  text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+                />
+              </>
+            )}
+
             <Button
-              disabled={!tokenAllowance || submitting}
+              disabled={!approved || !inputs || submitting || isAboveGuardCap()}
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={handleSubmitClick}
               isLoading={submitting}
-              text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+              text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
             />
           </>
         )}
-
-        <Button
-          disabled={!approved || !inputs || submitting || isAboveGuardCap()}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={submitting}
-          text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
-        />
       </Box>
     </>
   )

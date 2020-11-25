@@ -73,7 +73,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   }
   return (
     <>
-      <Spacer size="sm" />
       <Card border>
         <Box row justifyContent="space-between" alignItems="center">
           <Spacer size="sm" />

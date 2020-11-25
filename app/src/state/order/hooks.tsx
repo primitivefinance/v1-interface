@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { initialState } from './reducer'
-import { removeItem, updateItem, approve } from './actions'
+import { removeItem, updateItem, checkItem, approve } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
@@ -43,6 +43,7 @@ export const useItem = (): {
   loading: boolean
   approved: boolean
   lpApproved: boolean
+  checked: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
   return state
@@ -80,6 +81,17 @@ export const useApproveItem = (): ((
   return useCallback(
     (approved: boolean, lpApproved?: boolean) => {
       dispatch(approve({ approved, lpApproved }))
+    },
+    [dispatch]
+  )
+}
+
+export const useCheckItem = (): ((checked: boolean) => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(
+    (checked: boolean) => {
+      dispatch(checkItem({ checked }))
     },
     [dispatch]
   )

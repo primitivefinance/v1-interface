@@ -151,7 +151,7 @@ const Market = ({ market, data }) => {
 }
 
 const StyledCol = styled(Col)`
-  overflow: hidden;
+  overflow-x: hidden;
 `
 
 const StyledContainer = styled(Col)`
@@ -166,22 +166,26 @@ const StyledMain = styled.div``
 
 const StyledMarket = styled.div`
   width: 100%;
+  height: 90%;
   position: absolute;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 `
 
 const StyledSideBar = styled.div`
   background: ${(props) => props.theme.color.black};
-  border-left: 1px solid ${(props) => props.theme.color.grey[600]};
+  border: 0px solid ${(props) => props.theme.color.grey[400]};
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
   padding: ${(props) => props.theme.spacing[4]}px 0
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
-  height: 100%;
+  height: 85%;
   overflow: auto;
   flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: scroll;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
