@@ -167,15 +167,11 @@ const Swap: React.FC = () => {
     let credit = '0'
     let short = '0'
     let size = inputs.primary === '' ? '0' : inputs.primary
-    size = item.entity.isCall
-      ? size
-      : formatEther(
-          parseEther(size)
-            .mul(item.entity.quote.quantity.toString())
-            .div(item.entity.base.quantity.toString())
-        )
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
+    size = item.entity.isCall
+      ? size
+      : formatEther(parseEther(size).mul(quote).div(base))
 
     // buy long
     if (item.premium) {
