@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
+import { Contract } from '@ethersproject/contracts'
 
 import { initialState } from './reducer'
 import { removeItem, updateItem } from './actions'
@@ -8,7 +9,7 @@ import { removeItem, updateItem } from './actions'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair } from '@uniswap/sdk'
 
 import { OptionsAttributes } from '../options/reducer'
 import {
@@ -56,13 +57,14 @@ export const useItem = (): {
 
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
-  orderType: Operation
+  orderType: Operation,
+  lpPair?: Pair
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
   return useCallback(
-    async (item: OptionsAttributes, orderType: Operation) => {
+    async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
       let approved = false
       let lpApproved = false
       const underlyingToken: Token = new Token(
@@ -108,16 +110,7 @@ export const useUpdateItem = (): ((
             return
           }
           if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
-            const lpPair = useReserves(
-              underlyingToken,
-              new Token(
-                item.entity.chainId,
-                item.entity.assetAddresses[2],
-                18,
-                'SHORT'
-              )
-            ).data
-            const lpToken = lpPair ? lpPair.liquidityToken.address : ''
+            const lpToken = lpPair.liquidityToken.address
             const optionAllowance = await getAllowance(item.address, spender)
             approved = parseEther(optionAllowance).gt(parseEther('0'))
             const lpAllowance = await getAllowance(lpToken, spender)

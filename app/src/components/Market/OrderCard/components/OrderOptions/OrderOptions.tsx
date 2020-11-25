@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { formatEther } from 'ethers/lib/utils'
+import { Token, TokenAmount } from '@uniswap/sdk'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
@@ -12,7 +13,7 @@ import LineItem from '@/components/LineItem'
 import MultiLineItem from '@/components/MultiLineItem'
 import { Operation } from '@/constants/index'
 import formatEtherBalance from '@/utils/formatEtherBalance'
-
+import { useReserves } from '@/hooks/data/useReserves'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import { usePositions } from '@/state/positions/hooks'
 
@@ -21,8 +22,22 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const { item } = useItem()
   const updateItem = useUpdateItem()
+  const underlyingToken: Token = new Token(
+    item.entity.chainId,
+    item.entity.assetAddresses[0],
+    18,
+    item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
+  )
+  const lpPair = useReserves(
+    underlyingToken,
+    new Token(item.entity.chainId, item.entity.assetAddresses[2], 18, 'SHORT')
+  ).data
   const change = (t: Operation) => {
-    updateItem(item, t)
+    if (t === Operation.REMOVE_LIQUIDITY_CLOSE) {
+      updateItem(item, t, lpPair)
+    } else {
+      updateItem(item, t)
+    }
   }
   const reserve0Units =
     item.token0 === item.entity.assetAddresses[0]
