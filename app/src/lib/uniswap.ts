@@ -72,12 +72,13 @@ export class Uniswap {
         break
       case Operation.SHORT:
         // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountIn = trade
-          .maximumAmountIn(tradeSettings.slippage)
-          .quantity.toString()
-        amountOut = trade
-          .minimumAmountOut(tradeSettings.slippage)
-          .quantity.toString()
+        amountOut = trade.inputAmount.quantity.toString()
+        amountIn = Trade.getAmountsInPure(
+          amountOut,
+          trade.path,
+          trade.reserves[0],
+          trade.reserves[1]
+        )[0].toString()
         contract = new ethers.Contract(
           UNISWAP_ROUTER02_V2,
           UniswapV2Router02.abi,

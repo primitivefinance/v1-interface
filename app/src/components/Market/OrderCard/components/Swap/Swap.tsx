@@ -153,17 +153,41 @@ const Swap: React.FC = () => {
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
+  const premiumMulSize = (premium, size) => {
+    const premiumWei = BigNumber.from(premium)
+    const sizeWei = parseEther(size)
+    const debit = formatEther(
+      premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+    )
+    return debit
+  }
+
   const calculateTotalCost = useCallback(() => {
     let debit = '0'
+    let credit = '0'
+    let short = '0'
+    let size = inputs.primary === '' ? '0' : inputs.primary
+    const base = item.entity.base.quantity.toString()
+    const quote = item.entity.quote.quantity.toString()
+    size = item.entity.isCall
+      ? size
+      : formatEther(parseEther(size).mul(quote).div(base))
+
+    // buy long
     if (item.premium) {
-      const premiumWei = BigNumber.from(item.premium.toString())
-      const size = inputs.primary === '' ? '0' : inputs.primary
-      const sizeWei = parseEther(size)
-      debit = formatEther(
-        premiumWei.mul(sizeWei).div(parseEther('1')).toString()
-      )
+      debit = premiumMulSize(item.premium.toString(), size)
     }
-    return debit
+
+    // sell long
+    if (item.closePremium) {
+      credit = premiumMulSize(item.closePremium.toString(), size)
+    }
+
+    // buy short && sell short
+    if (item.shortPremium) {
+      short = premiumMulSize(item.shortPremium.toString(), size)
+    }
+    return { debit, credit, short }
   }, [item, inputs])
 
   const isAboveGuardCap = useCallback(() => {
@@ -207,7 +231,7 @@ const Swap: React.FC = () => {
       </Box>
 
       <Spacer />
-      {orderType === Operation.SHORT ? (
+      {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT ? (
         <LineItem
           label="Short Premium"
           data={formatEther(item.shortPremium)}
@@ -235,29 +259,42 @@ const Swap: React.FC = () => {
         onClick={handleSetMax}
         balance={tokenAmount}
         valid={parseEther(underlyingTokenBalance).gt(
-          parseEther(calculateTotalCost())
+          parseEther(calculateTotalCost().debit)
         )}
       />
       <Spacer size="sm" />
-      <LineItem
-        label={`Total ${
-          orderType === Operation.LONG || orderType === Operation.SHORT
-            ? 'Debit'
-            : orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.CLOSE_SHORT
-            ? 'Credit'
-            : 'Debit'
-        }`}
-        data={calculateTotalCost()}
-        units={`${
-          orderType === Operation.LONG || orderType === Operation.SHORT
-            ? '-'
-            : orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.CLOSE_SHORT
-            ? '+'
-            : '-'
-        } ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
-      />
+      {orderType === Operation.LONG ? (
+        <>
+          <LineItem
+            label={'Total Debit'}
+            data={calculateTotalCost().debit}
+            units={`- ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
+          />
+        </>
+      ) : orderType === Operation.CLOSE_LONG ? (
+        <>
+          <LineItem
+            label={'Total Credit'}
+            data={calculateTotalCost().credit}
+            units={`+ ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
+          />
+        </>
+      ) : orderType === Operation.SHORT ||
+        orderType === Operation.CLOSE_SHORT ? (
+        <>
+          <LineItem
+            label={`Total ${
+              orderType === Operation.SHORT ? 'Debit' : 'Credit'
+            }`}
+            data={calculateTotalCost().short}
+            units={`${orderType === Operation.SHORT ? '-' : '+'} ${
+              entity.isPut ? 'DAI' : item.asset.toUpperCase()
+            }`}
+          />
+        </>
+      ) : (
+        <></>
+      )}
       <IconButton
         text="Advanced"
         variant="transparent"
