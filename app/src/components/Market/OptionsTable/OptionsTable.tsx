@@ -212,7 +212,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           {options.loading ? (
             <LoadingTable />
           ) : (
-            <TableBody>
+            <ScrollBody>
               {options[type].map((option) => {
                 if (optionExp != option.expiry && option.expiry === 0)
                   return null
@@ -241,13 +241,15 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   )
                 }}
               />
-            </TableBody>
+            </ScrollBody>
           )}
         </LitContainer>
       </Table>
     </OptionsContainer>
   )
 }
+
+const ScrollBody = styled(TableBody)``
 
 const OptionsContainer = styled.div`
   margin-left: 2em;

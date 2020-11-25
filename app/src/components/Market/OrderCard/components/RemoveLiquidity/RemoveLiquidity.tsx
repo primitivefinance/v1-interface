@@ -6,6 +6,7 @@ import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
+import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
@@ -17,7 +18,9 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/useApprove'
-import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
@@ -34,7 +37,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -46,13 +48,11 @@ const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const approve = useApproveItem()
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
-  const positions = usePositions()
 
   const { data } = useBlockNumber()
   //slider
@@ -88,10 +88,8 @@ const AddLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
 
-  const lpAllowance = useTokenAllowance(lpToken, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
 
-  const optionAllowance = useTokenAllowance(item.address, spender)
   const optionBalance = useTokenBalance(item.address)
 
   const onApproveOption = useApprove(item.address, spender)
@@ -335,25 +333,6 @@ const AddLiquidity: React.FC = () => {
       'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
   }
 
-  // FIX
-
-  useEffect(() => {
-    setTimeout(() => {
-      const lp: boolean = parseEther(lpAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-
-      const app: boolean = parseEther(optionAllowance).gt(
-        parseEther(calculateRequiredLong() || '0')
-      )
-      approve(app, lp)
-      // 5sec tickrate, memleak
-    }, 5000)
-
-    // forcing reload using cleanup
-  })
-  // END FIX
-
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -504,40 +483,50 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {!lpApproved ? (
-          <Button
-            disabled={!lpAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={submitting}
-            text="Approve LP"
-          />
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
-          <></>
-        )}
+          <>
+            {!lpApproved ? (
+              <Button
+                disabled={submitting}
+                full
+                size="sm"
+                onClick={onApprove}
+                isLoading={submitting}
+                text="Approve LP"
+              />
+            ) : (
+              <></>
+            )}
 
-        {!approved ? (
-          <Button
-            disabled={!optionAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApproveOption.onApprove}
-            isLoading={submitting}
-            text="Approve Options"
-          />
-        ) : (
-          <></>
-        )}
-        {!approved || !lpApproved ? null : (
-          <Button
-            disabled={!inputs || submitting}
-            full
-            size="sm"
-            onClick={handleSubmitClick}
-            isLoading={submitting}
-            text="Submit"
-          />
+            {!approved ? (
+              <Button
+                disabled={submitting}
+                full
+                size="sm"
+                onClick={onApproveOption.onApprove}
+                isLoading={submitting}
+                text="Approve Options"
+              />
+            ) : (
+              <></>
+            )}
+            {!approved || !lpApproved ? null : (
+              <Button
+                disabled={!inputs || submitting}
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                isLoading={submitting}
+                text="Submit"
+              />
+            )}
+          </>
         )}
       </Box>
     </>

@@ -5,6 +5,7 @@ import ethers from 'ethers'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Loader from '@/components/Loader'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
@@ -35,7 +36,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -50,7 +50,6 @@ const AddLiquidity: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -314,15 +313,6 @@ const AddLiquidity: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  useEffect(() => {
-    setTimeout(() => {
-      const app: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      approve(app)
-    }, 5000)
-  })
-
   const handleApproval = useCallback(() => {
     onApprove()
       .then()
@@ -488,29 +478,39 @@ const AddLiquidity: React.FC = () => {
         <></>
       )}
       <Box row justifyContent="flex-start">
-        {approved ? (
-          <> </>
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
           <>
+            {approved ? (
+              <> </>
+            ) : (
+              <>
+                <Button
+                  disabled={submitting}
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  isLoading={submitting}
+                  text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+                />
+              </>
+            )}
+
             <Button
-              disabled={!tokenAllowance || submitting}
+              disabled={!approved || !inputs || submitting || isAboveGuardCap()}
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={handleSubmitClick}
               isLoading={submitting}
-              text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+              text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
             />
           </>
         )}
-
-        <Button
-          disabled={!approved || !inputs || submitting || isAboveGuardCap()}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={submitting}
-          text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
-        />
       </Box>
     </>
   )

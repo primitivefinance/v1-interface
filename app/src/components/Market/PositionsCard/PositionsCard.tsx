@@ -28,6 +28,7 @@ import {
   Operation,
   getIconForMarket,
   COINGECKO_ID_FOR_MARKET,
+  POSITIONS_LOADING,
 } from '@/constants/index'
 
 import { usePositions } from '@/state/positions/hooks'
@@ -89,20 +90,17 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 const PositionsCard: React.FC = () => {
   const item = useItem()
   const positions = usePositions()
-  const [open, setOpen] = useState(false)
-  const nodeRef = useClickAway(() => {
-    setOpen(false)
-  })
+  const [open, setOpen] = useState(true)
 
   if (item.item.asset) {
     return null
   }
   if (positions.loading) {
     return (
-      <>
+      <Box column alignItems="center">
         <Spacer />
         <Loader size="lg" />
-      </>
+      </Box>
     )
   }
   if (!positions.loading && !positions.exists) {
@@ -123,7 +121,7 @@ const PositionsCard: React.FC = () => {
     )
   }
   return (
-    <div ref={nodeRef}>
+    <div>
       <Card border>
         <Reverse />
         <CardTitle>
@@ -151,6 +149,10 @@ const PositionsCard: React.FC = () => {
     </div>
   )
 }
+
+const LoadingMess = styled.h3`
+  color: ${(props) => props.theme.color.grey[400]};
+`
 
 const Scroll = styled.div`
   overflow: scroll;

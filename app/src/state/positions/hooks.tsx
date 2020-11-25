@@ -30,7 +30,6 @@ export const useUpdatePositions = (): ((
 ) => void) => {
   const { library, account } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
-
   return useCallback(
     async (options: OptionsAttributes[]) => {
       let positionExists = false
@@ -51,18 +50,23 @@ export const useUpdatePositions = (): ((
         options[0].entity.assetAddresses[0],
         account
       )
+
       const balance = new Quantity(options[0].entity.base.asset, bal)
+      // underlying balance
+
       for (let i = 0; i < options.length; i++) {
         const long = await getBalance(
           library,
           options[i].entity.address,
           account
         )
+
         const redeem = await getBalance(
           library,
           options[i].entity.assetAddresses[2],
           account
         )
+
         const lp = await getBalance(library, options[i].entity.pair, account)
         if (
           formatEtherBalance(long) !== '0.00' ||
