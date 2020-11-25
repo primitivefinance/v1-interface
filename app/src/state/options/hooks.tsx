@@ -193,12 +193,6 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           [option.assetAddresses[0], option.assetAddresses[2]],
                           [underlyingReserve, shortReserve]
                         )
-                        if (
-                          option.address ===
-                          '0x5687FB863696fa2ACCCb6F7ea9708551D09505d4'
-                        ) {
-                          console.log(closePremium.toString())
-                        }
                         const shortPremium: BigNumberish = Trade.getSpotShortPremium(
                           [shortReserve, underlyingReserve]
                         )
