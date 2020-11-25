@@ -2866,10 +2866,10 @@
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
-"@primitivefi/v1-connectors@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.0.tgz#72905bf5916d24b3d4ad4b8b0046d33d7be0ea71"
-  integrity sha512-P29yJ4xjxIWYABT9sHYYeUO0rl4ucXIvFoQAufBCpD2HaIWzilDIiY/9gAg0Sl86UCv7HFPu+DyKETi1MlmuFA==
+"@primitivefi/v1-connectors@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.1.tgz#b5ac690c14a133e239c786590bc397ac3bad23b6"
+  integrity sha512-23RZGeCBrzU30hcmW4Pphcayd6PpsSVlVD/g54bvbOqNNCsO91MlKnETUDedpE95GNXBzq5Nc21NDsk1AENATg==
   dependencies:
     "@openzeppelin/contracts" "^3.2.0"
     "@primitivefi/contracts" "^0.4.2"
