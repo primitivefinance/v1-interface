@@ -291,6 +291,12 @@ export const useHandleSubmitOrder = (): ((
             assetAddresses[0], // underlying
             assetAddresses[2], // redeem
           ]
+          trade.reserves = await trade.getReserves(
+            signer,
+            factory,
+            trade.path[0],
+            trade.path[1]
+          )
           amountsOut = await trade.getAmountsOut(
             signer,
             factory,
