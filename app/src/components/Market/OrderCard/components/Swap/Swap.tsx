@@ -213,6 +213,12 @@ const Swap: React.FC = () => {
           data={formatEther(item.shortPremium)}
           units={entity.isPut ? 'DAI' : item.asset}
         />
+      ) : orderType === Operation.CLOSE_LONG ? (
+        <LineItem
+          label="Option Premium"
+          data={formatEther(item.closePremium)}
+          units={entity.isPut ? 'DAI' : item.asset}
+        />
       ) : (
         <LineItem
           label="Option Premium"

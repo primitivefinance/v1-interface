@@ -187,6 +187,12 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           path,
                           [shortReserve, underlyingReserve]
                         )
+                        let closePremium: BigNumberish = Trade.getCloseSpotPremium(
+                          Base.quantity,
+                          Quote.quantity,
+                          [option.assetAddresses[0], option.assetAddresses[2]],
+                          [underlyingReserve, shortReserve]
+                        )
                         const shortPremium: BigNumberish = Trade.getSpotShortPremium(
                           [shortReserve, underlyingReserve]
                         )
@@ -220,6 +226,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              closePremium: closePremium,
                               shortPremium: shortPremium,
                               strike: option.strikePrice.quantity,
                               volume: 0,
@@ -268,6 +275,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              closePremium: closePremium,
                               shortPremium: shortPremium,
                               strike: strikePrice.quantity,
                               volume: 0,

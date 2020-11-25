@@ -11,6 +11,7 @@ export type OptionsAttributes = {
   breakEven: BigNumberish
   change: BigNumberish
   premium: BigNumberish
+  closePremium: BigNumberish
   shortPremium: BigNumberish
   strike: BigNumberish
   volume: BigNumberish
@@ -36,6 +37,7 @@ export const EmptyAttributes = {
   breakEven: 0,
   change: 0,
   premium: 0,
+  closePremium: 0,
   shortPremium: 0,
   strike: 0,
   volume: 0,
