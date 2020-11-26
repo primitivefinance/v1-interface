@@ -38,7 +38,6 @@ const Layout: React.FC<PageProps> = (props) => {
       </Banner> */}
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
-        <Notifs />
       </StyledPage>
       <Footer />
     </>
