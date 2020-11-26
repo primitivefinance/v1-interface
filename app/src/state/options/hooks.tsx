@@ -14,6 +14,7 @@ import { Trade, Option, Quantity } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
+import { STABLECOINS } from '@/constants/index'
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -153,6 +154,10 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           token0 === option.assetAddresses[0]
                             ? reserve0ForDepth
                             : reserve1ForDepth
+                        const shortReserve =
+                          token0 === option.assetAddresses[0]
+                            ? reserve1ForDepth
+                            : reserve0ForDepth
 
                         const twoPercentOfReserve = underlyingReserve
                           .mul(2)
@@ -180,13 +185,18 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           Base.quantity,
                           Quote.quantity,
                           path,
-                          [reserves0, reserves1]
+                          [shortReserve, underlyingReserve]
                         )
-
+                        let closePremium: BigNumberish = Trade.getCloseSpotPremium(
+                          Base.quantity,
+                          Quote.quantity,
+                          [option.assetAddresses[0], option.assetAddresses[2]],
+                          [underlyingReserve, shortReserve]
+                        )
                         const shortPremium: BigNumberish = Trade.getSpotShortPremium(
-                          [reserves0, reserves1]
+                          [shortReserve, underlyingReserve]
                         )
-                        let reserve: BigNumberish = reserves1.toString()
+                        let reserve: BigNumberish = underlyingReserve.toString()
                         let depth: BigNumberish = redeemCostDivMinted
                         if (+depth < 0) depth = 0
                         if (typeof reserve === 'undefined') {
@@ -208,7 +218,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               true
                             )
                             pairReserveTotal = pairReserveTotal.add(
-                              BigNumber.from(reserves1)
+                              BigNumber.from(underlyingReserve)
                             )
                             calls.push({
                               entity: option,
@@ -216,6 +226,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              closePremium: closePremium,
                               shortPremium: shortPremium,
                               strike: option.strikePrice.quantity,
                               volume: 0,
@@ -230,18 +241,17 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           }
                         }
                         if (option.isPut) {
-                          let asset
-                          if (chainId !== 1) {
-                            asset = Base.asset.symbol.toUpperCase()
-                          } else {
-                            asset = Quote.asset.symbol.toUpperCase()
-                          }
+                          let asset = Quote.asset.symbol.toUpperCase()
                           if (asset === 'ETH') {
                             asset = 'WETH'
                           }
-                          if (asset === assetName.toUpperCase()) {
+                          if (
+                            asset === assetName.toUpperCase() &&
+                            option.assetAddresses[0] ===
+                              STABLECOINS[chainId].address
+                          ) {
                             pairReserveTotal = pairReserveTotal.add(
-                              BigNumber.from(reserves1)
+                              BigNumber.from(underlyingReserve)
                             )
                             const denominator = ethers.BigNumber.from(
                               option.optionParameters.quote.quantity
@@ -265,6 +275,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               breakEven: breakEven,
                               change: 0,
                               premium: premium,
+                              closePremium: closePremium,
                               shortPremium: shortPremium,
                               strike: strikePrice.quantity,
                               volume: 0,

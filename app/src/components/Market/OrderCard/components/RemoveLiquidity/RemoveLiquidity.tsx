@@ -6,6 +6,7 @@ import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
+import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
@@ -17,7 +18,9 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/useApprove'
-import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
@@ -34,7 +37,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -46,13 +48,11 @@ const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const approve = useApproveItem()
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
-  const positions = usePositions()
 
   const { data } = useBlockNumber()
   //slider
@@ -69,11 +69,12 @@ const AddLiquidity: React.FC = () => {
   // pair and option entities
   const addNotif = useAddNotif()
   const entity = item.entity
+  const isPut = item.entity.isPut
   const underlyingToken: Token = new Token(
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    isPut ? 'DAI' : item.asset.toUpperCase()
   )
   const lpPair = useReserves(
     underlyingToken,
@@ -87,10 +88,8 @@ const AddLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
 
-  const lpAllowance = useTokenAllowance(lpToken, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
 
-  const optionAllowance = useTokenAllowance(item.address, spender)
   const optionBalance = useTokenBalance(item.address)
 
   const onApproveOption = useApprove(item.address, spender)
@@ -117,10 +116,12 @@ const AddLiquidity: React.FC = () => {
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setRatio(Number(e.currentTarget.value))
-      const liquidity = formatEther(parseEther(lp).mul(ratio).div(1000))
+      const liquidity = formatEther(
+        parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
+      )
       setInputs({ ...inputs, primary: liquidity })
     },
-    [setRatio, lp]
+    [setRatio, lp, setInputs, inputs, ratio]
   )
 
   const handleRatio = useCallback(
@@ -142,7 +143,18 @@ const AddLiquidity: React.FC = () => {
       Number(inputs.secondary)
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType, lp, ratio])
+  }, [
+    submitOrder,
+    removeItem,
+    item,
+    library,
+    inputs,
+    orderType,
+    lp,
+    ratio,
+    handleRatio,
+    handleRatioChange,
+  ])
 
   const calculateToken0PerToken1 = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
@@ -193,7 +205,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const underlyingValue = lpPair.getLiquidityValue(
@@ -202,7 +217,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
@@ -315,25 +333,6 @@ const AddLiquidity: React.FC = () => {
       'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
   }
 
-  // FIX
-
-  useEffect(() => {
-    setTimeout(() => {
-      const lp: boolean = parseEther(lpAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-
-      const app: boolean = parseEther(optionAllowance).gt(
-        parseEther(calculateRequiredLong() || '0')
-      )
-      approve(app, lp)
-      // 5sec tickrate, memleak
-    }, 5000)
-
-    // forcing reload using cleanup
-  })
-  // END FIX
-
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -433,7 +432,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="You will receive"
         data={numeral(calculateUnderlyingOutput()).format('0.00')}
-        units={`${item.asset.toUpperCase()}`}
+        units={`${underlyingToken.symbol.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <IconButton
@@ -458,7 +457,7 @@ const AddLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${item.asset.toUpperCase()} per LP Token`}
+            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
@@ -484,40 +483,50 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {!lpApproved ? (
-          <Button
-            disabled={!lpAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApprove}
-            isLoading={submitting}
-            text="Approve LP"
-          />
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
-          <></>
-        )}
+          <>
+            {!lpApproved ? (
+              <Button
+                disabled={submitting}
+                full
+                size="sm"
+                onClick={onApprove}
+                isLoading={submitting}
+                text="Approve LP"
+              />
+            ) : (
+              <></>
+            )}
 
-        {!approved ? (
-          <Button
-            disabled={!optionAllowance || submitting}
-            full
-            size="sm"
-            onClick={onApproveOption.onApprove}
-            isLoading={submitting}
-            text="Approve Options"
-          />
-        ) : (
-          <></>
-        )}
-        {!approved || !lpApproved ? null : (
-          <Button
-            disabled={!inputs || submitting}
-            full
-            size="sm"
-            onClick={handleSubmitClick}
-            isLoading={submitting}
-            text="Submit"
-          />
+            {!approved ? (
+              <Button
+                disabled={submitting}
+                full
+                size="sm"
+                onClick={onApproveOption.onApprove}
+                isLoading={submitting}
+                text="Approve Options"
+              />
+            ) : (
+              <></>
+            )}
+            {!approved || !lpApproved ? null : (
+              <Button
+                disabled={submitting}
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                isLoading={submitting}
+                text="Confirm Transaction"
+              />
+            )}
+          </>
         )}
       </Box>
     </>

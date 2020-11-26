@@ -5,6 +5,7 @@ import ethers from 'ethers'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Loader from '@/components/Loader'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
@@ -35,7 +36,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -50,7 +50,6 @@ const AddLiquidity: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -72,11 +71,12 @@ const AddLiquidity: React.FC = () => {
   const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
+  const isPut = item.entity.isPut
   const underlyingToken: Token = new Token(
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    item.asset.toUpperCase()
+    isPut ? 'DAI' : item.asset.toUpperCase()
   )
   const lpPair = useReserves(
     underlyingToken,
@@ -84,7 +84,7 @@ const AddLiquidity: React.FC = () => {
   ).data
 
   useEffect(() => {
-    setHasL(parseInt(item.reserves[0].toString()) > 0 ? true : false)
+    setHasL(BigNumber.from(item.reserves[0].toString()).gt(0) ? true : false)
   }, [item])
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
@@ -238,7 +238,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString() // 1%
+      )
     )
 
     const underlyingValue = lpPair.getLiquidityValue(
@@ -247,7 +250,10 @@ const AddLiquidity: React.FC = () => {
         lpPair.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, parseEther('1').toString())
+      new TokenAmount(
+        lpPair.liquidityToken,
+        parseEther(lpTotalSupply).mul(1).div(100).toString()
+      )
     )
 
     const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
@@ -307,20 +313,16 @@ const AddLiquidity: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  useEffect(() => {
-    setTimeout(() => {
-      const app: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      approve(app)
-    }, 5000)
-  })
-
   const handleApproval = useCallback(() => {
     onApprove()
       .then()
       .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+        addNotif(
+          0,
+          `Approving ${underlyingToken.symbol.toUpperCase()}`,
+          error.message,
+          ''
+        )
       })
   }, [inputs, tokenAllowance, onApprove])
 
@@ -404,7 +406,7 @@ const AddLiquidity: React.FC = () => {
       <LineItem
         label="Implied Option Price"
         data={`${calculateImpliedPrice()}`}
-        units={`${item.asset.toUpperCase()}`}
+        units={`${underlyingToken.symbol.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <LineItem
@@ -439,7 +441,7 @@ const AddLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${item.asset.toUpperCase()} per LP Token`}
+            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
@@ -476,29 +478,41 @@ const AddLiquidity: React.FC = () => {
         <></>
       )}
       <Box row justifyContent="flex-start">
-        {approved ? (
-          <> </>
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
           <>
+            {approved ? (
+              <> </>
+            ) : (
+              <>
+                <Button
+                  disabled={submitting}
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  isLoading={submitting}
+                  text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+                />
+              </>
+            )}
+
             <Button
-              disabled={!tokenAllowance || submitting}
+              disabled={
+                !approved || !inputs.primary || submitting || isAboveGuardCap()
+              }
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={handleSubmitClick}
               isLoading={submitting}
-              text={`Approve ${item.asset.toUpperCase()}`}
+              text={isAboveGuardCap() ? 'Above Cap' : 'Confirm Transaction'}
             />
           </>
         )}
-
-        <Button
-          disabled={!approved || !inputs || submitting || isAboveGuardCap()}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={submitting}
-          text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
-        />
       </Box>
     </>
   )

@@ -10,6 +10,7 @@ const StyledCardTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   font-weight: 700;
+  user-select: none;
   font-size: 18px;
   padding-top: ${(props) => props.theme.spacing[2]}px;
   padding-left: ${(props) => props.theme.spacing[3]}px;
