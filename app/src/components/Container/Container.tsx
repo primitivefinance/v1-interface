@@ -7,7 +7,7 @@ export interface ContainerProps {
   display?: 'flex'
   flexDirection?: 'row' | 'column'
   height?: number
-  justifyContent?: 'center' | 'flex-start' | 'flex-end'
+  justifyContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'
 }
 
 const Container: React.FC<ContainerProps> = (props) => {
@@ -20,7 +20,7 @@ interface StyleProps {
   display?: 'flex'
   flexDirection?: 'row' | 'column'
   height?: number
-  justifyContent?: 'center' | 'flex-start' | 'flex-end'
+  justifyContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between'
 }
 
 const StyledContainer = styled.div<StyleProps>`
@@ -30,7 +30,7 @@ const StyledContainer = styled.div<StyleProps>`
   height: ${(props) => (props.height ? props.height + 'px' : undefined)};
   justify-content: ${(props) => props.justifyContent};
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 1800px;
   width: 100%;
 `
 

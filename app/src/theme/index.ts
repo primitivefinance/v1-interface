@@ -1,13 +1,21 @@
-import { black, grey, white, green, red, yellow, percentage } from './colors'
+import {
+  black,
+  grey,
+  white,
+  green,
+  red,
+  yellow,
+  orange,
+  percentage,
+} from './colors'
 
 const theme = {
   barHeight: 72,
-  rowHeight: 64,
   borderRadius: 4,
-  buttonSize: 44,
   breakpoints: {
     mobile: 400,
   },
+  buttonSize: 44,
   color: {
     black,
     grey,
@@ -15,6 +23,7 @@ const theme = {
     green,
     red,
     yellow,
+    orange,
     percentage,
     primary: {
       light: red[200],
@@ -25,6 +34,8 @@ const theme = {
     },
   },
   contentWidth: 1200,
+  rowHeight: 64,
+  sidebarWidth: 25,
   spacing: {
     1: 4,
     2: 8,
@@ -34,6 +45,8 @@ const theme = {
     6: 40,
     7: 48,
   },
+  tableWidth: 100,
+  units: 'em',
 }
 
 export default theme

@@ -1,0 +1,24 @@
+name: Build CI
+
+on:
+  push:
+    tags-ignore:
+      - "**"
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    if: contains(github.event.head_commit.message, 'skip ci') == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+      - name: Install dependencies
+        working-directory: ./app
+        run: yarn install
+      - name: Build app
+        working-directory: ./app
+        run: yarn build
