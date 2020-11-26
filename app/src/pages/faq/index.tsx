@@ -91,18 +91,20 @@ const FAQ: React.FC = () => {
         </StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
-          - Increased Security - Contracts are physically settled and do not
-          rely on oracles - No special permissions given to any other contract
+          <strong>Increased Security</strong> - Contracts are physically settled
+          and do not rely on oracles. No special permissions given to any other
+          contract
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          Flash loan capability - The underlying collateral can be temporarily
-          borrowed to exercise an option, rather than having to put up the
-          capital required upfront to do so
+          <strong>Flash Loan Capability</strong> - The underlying collateral can
+          be temporarily borrowed to exercise an option, rather than having to
+          put up the capital required upfront to do so
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          Permissionless - Anyone can create any option on any standard ERC-20
+          <strong>Permissionless</strong> - Anyone can create any option on any
+          standard ERC-20
         </StyledText>
         <StyledSpacer size={24} />
 
