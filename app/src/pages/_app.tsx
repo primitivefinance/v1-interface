@@ -15,12 +15,9 @@ import TransactionUpdater from '@/state/transactions/updater'
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-    width: 100%;
+
     line-height: 1.5;
     margin: 0;
-    max-width: 100%;
-    overflow-x: initial !important;
-    overflow-y: visible;
   }
   body {
     background-color: #040404;

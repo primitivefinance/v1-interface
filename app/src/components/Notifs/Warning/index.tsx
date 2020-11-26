@@ -60,7 +60,7 @@ const StyledButton = styled(Button)`
 const StyledCard = styled(Card)`
   background: ${(props) => props.theme.color.grey[600]};
   border-radius: 5px;
-  max-width: 30em !important;
+  max-width: 30em;
 `
 const StyledContent = styled.h4`
   margin-top: -0em;

@@ -35,7 +35,6 @@ class MyDocument extends Document {
       styledComponentsSheet.seal()
     }
   }
-
   render() {
     return (
       <Html>
