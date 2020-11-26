@@ -34,6 +34,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   ).data
   const change = (t: Operation) => {
     if (t === Operation.REMOVE_LIQUIDITY_CLOSE) {
+      console.log(lpPair)
       updateItem(item, t, lpPair)
     } else {
       updateItem(item, t)
