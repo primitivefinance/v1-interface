@@ -340,12 +340,14 @@ const Swap: React.FC = () => {
               </>
             )}
             <Button
-              disabled={!approved || !inputs || loading || isAboveGuardCap()}
+              disabled={
+                !approved || !inputs.primary || loading || isAboveGuardCap()
+              }
               full
               size="sm"
               onClick={handleSubmitClick}
               isLoading={loading}
-              text="Submit"
+              text="Confirm Transaction"
             />
           </>
         )}

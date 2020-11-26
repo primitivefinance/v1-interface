@@ -518,12 +518,12 @@ const AddLiquidity: React.FC = () => {
             )}
             {!approved || !lpApproved ? null : (
               <Button
-                disabled={!inputs || submitting}
+                disabled={submitting}
                 full
                 size="sm"
                 onClick={handleSubmitClick}
                 isLoading={submitting}
-                text="Submit"
+                text="Confirm Transaction"
               />
             )}
           </>

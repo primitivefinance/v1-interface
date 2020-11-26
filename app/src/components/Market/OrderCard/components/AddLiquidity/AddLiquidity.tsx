@@ -502,12 +502,14 @@ const AddLiquidity: React.FC = () => {
             )}
 
             <Button
-              disabled={!approved || !inputs || submitting || isAboveGuardCap()}
+              disabled={
+                !approved || !inputs.primary || submitting || isAboveGuardCap()
+              }
               full
               size="sm"
               onClick={handleSubmitClick}
               isLoading={submitting}
-              text={isAboveGuardCap() ? 'Above Cap' : 'Review Transaction'}
+              text={isAboveGuardCap() ? 'Above Cap' : 'Confirm Transaction'}
             />
           </>
         )}
