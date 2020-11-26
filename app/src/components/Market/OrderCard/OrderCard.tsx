@@ -45,7 +45,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
     if (orderState[1] && orderState[2] && orderState[3]) {
       if (!options.loading) {
         const opts = options.calls.concat(options.puts)
-        opts.map((opt) => {
+        opts.map(async (opt) => {
           if (opt.address === orderState[2]) {
             // force ts compiler
             const id: string = orderState[3]
@@ -73,7 +73,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   }
   return (
     <>
-      <Spacer size="sm" />
       <Card border>
         <Box row justifyContent="space-between" alignItems="center">
           <Spacer size="sm" />
@@ -100,7 +99,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
     </>
   )
 }
-
 const CustomButton = styled.div`
   margin-top: -1.1em;
   background: none;

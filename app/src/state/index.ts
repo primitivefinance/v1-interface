@@ -27,7 +27,6 @@ const store = configureStore({
         'options/updateOptions',
         'order/updateItem',
         'order/removeItem',
-        'order/approve',
         'positions/updatePositions',
         'transactions/addTransaction',
         'transactions/clearAllTransactions',

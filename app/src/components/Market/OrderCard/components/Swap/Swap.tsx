@@ -6,6 +6,7 @@ import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import LineItem from '@/components/LineItem'
+import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
@@ -18,7 +19,9 @@ import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import useApprove from '@/hooks/useApprove'
-import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useTokenAllowance, {
+  useGetTokenAllowance,
+} from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
@@ -33,7 +36,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
   useRemoveItem,
-  useApproveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -47,9 +49,9 @@ const Swap: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  const approve = useApproveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
+  const [checking, setChecking] = useState(true)
   // approval state
   const { item, orderType, approved, loading, lpApproved } = useItem()
   const txs = useAllTransactions()
@@ -119,12 +121,9 @@ const Swap: React.FC = () => {
     parseEther(tokenBalance).toString()
   )
   const spender =
-    orderType === Operation.CLOSE_SHORT ||
-    orderType === Operation.CLOSE_LONG ||
-    orderType === Operation.SHORT
+    orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(tokenAddress, spender)
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
@@ -140,12 +139,10 @@ const Swap: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
     )
-    console.log(max)
     setInputs({ ...inputs, primary: max.toString() })
   }
 
   const handleSubmitClick = useCallback(() => {
-    updateItem(item, orderType, true)
     submitOrder(
       library,
       item?.address,
@@ -156,17 +153,41 @@ const Swap: React.FC = () => {
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
+  const premiumMulSize = (premium, size) => {
+    const premiumWei = BigNumber.from(premium)
+    const sizeWei = parseEther(size)
+    const debit = formatEther(
+      premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+    )
+    return debit
+  }
+
   const calculateTotalCost = useCallback(() => {
     let debit = '0'
+    let credit = '0'
+    let short = '0'
+    let size = inputs.primary === '' ? '0' : inputs.primary
+    const base = item.entity.base.quantity.toString()
+    const quote = item.entity.quote.quantity.toString()
+    size = item.entity.isCall
+      ? size
+      : formatEther(parseEther(size).mul(quote).div(base))
+
+    // buy long
     if (item.premium) {
-      const premiumWei = BigNumber.from(item.premium.toString())
-      const size = inputs.primary === '' ? '0' : inputs.primary
-      const sizeWei = parseEther(size)
-      debit = formatEther(
-        premiumWei.mul(sizeWei).div(parseEther('1')).toString()
-      )
+      debit = premiumMulSize(item.premium.toString(), size)
     }
-    return debit
+
+    // sell long
+    if (item.closePremium) {
+      credit = premiumMulSize(item.closePremium.toString(), size)
+    }
+
+    // buy short && sell short
+    if (item.shortPremium) {
+      short = premiumMulSize(item.shortPremium.toString(), size)
+    }
+    return { debit, credit, short }
   }, [item, inputs])
 
   const isAboveGuardCap = useCallback(() => {
@@ -175,23 +196,13 @@ const Swap: React.FC = () => {
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
-  //APPROVALs
-  useEffect(() => {
-    setTimeout(() => {
-      const app: boolean = parseEther(tokenAllowance).gt(
-        parseEther(inputs.primary || '0')
-      )
-      approve(app, lpApproved)
-    }, 5000)
-  })
-
   const handleApproval = useCallback(() => {
     onApprove()
       .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, tokenAllowance, onApprove])
+  }, [inputs, onApprove])
 
   return (
     <>
@@ -210,10 +221,16 @@ const Swap: React.FC = () => {
       </Box>
 
       <Spacer />
-      {orderType === Operation.SHORT ? (
+      {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT ? (
         <LineItem
           label="Short Premium"
           data={formatEther(item.shortPremium)}
+          units={entity.isPut ? 'DAI' : item.asset}
+        />
+      ) : orderType === Operation.CLOSE_LONG ? (
+        <LineItem
+          label="Option Premium"
+          data={formatEther(item.closePremium)}
           units={entity.isPut ? 'DAI' : item.asset}
         />
       ) : (
@@ -232,29 +249,42 @@ const Swap: React.FC = () => {
         onClick={handleSetMax}
         balance={tokenAmount}
         valid={parseEther(underlyingTokenBalance).gt(
-          parseEther(calculateTotalCost())
+          parseEther(calculateTotalCost().debit)
         )}
       />
       <Spacer size="sm" />
-      <LineItem
-        label={`Total ${
-          orderType === Operation.LONG || orderType === Operation.SHORT
-            ? 'Debit'
-            : orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.CLOSE_SHORT
-            ? 'Credit'
-            : 'Debit'
-        }`}
-        data={calculateTotalCost()}
-        units={`${
-          orderType === Operation.LONG || orderType === Operation.SHORT
-            ? '-'
-            : orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.CLOSE_SHORT
-            ? '+'
-            : '-'
-        } ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
-      />
+      {orderType === Operation.LONG ? (
+        <>
+          <LineItem
+            label={'Total Debit'}
+            data={calculateTotalCost().debit}
+            units={`- ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
+          />
+        </>
+      ) : orderType === Operation.CLOSE_LONG ? (
+        <>
+          <LineItem
+            label={'Total Credit'}
+            data={calculateTotalCost().credit}
+            units={`+ ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
+          />
+        </>
+      ) : orderType === Operation.SHORT ||
+        orderType === Operation.CLOSE_SHORT ? (
+        <>
+          <LineItem
+            label={`Total ${
+              orderType === Operation.SHORT ? 'Debit' : 'Credit'
+            }`}
+            data={calculateTotalCost().short}
+            units={`${orderType === Operation.SHORT ? '-' : '+'} ${
+              entity.isPut ? 'DAI' : item.asset.toUpperCase()
+            }`}
+          />
+        </>
+      ) : (
+        <></>
+      )}
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -287,28 +317,40 @@ const Swap: React.FC = () => {
       )}
 
       <Box row justifyContent="flex-start">
-        {approved ? (
-          <> </>
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
+              <Loader />
+            </Box>
+          </div>
         ) : (
           <>
+            {approved ? (
+              <> </>
+            ) : (
+              <>
+                <Button
+                  disabled={loading}
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  isLoading={loading}
+                  text="Approve"
+                />
+              </>
+            )}
             <Button
-              disabled={!tokenAllowance || loading}
+              disabled={
+                !approved || !inputs.primary || loading || isAboveGuardCap()
+              }
               full
               size="sm"
-              onClick={handleApproval}
+              onClick={handleSubmitClick}
               isLoading={loading}
-              text="Approve"
+              text="Confirm Transaction"
             />
           </>
         )}
-        <Button
-          disabled={!approved || !inputs || loading || isAboveGuardCap()}
-          full
-          size="sm"
-          onClick={handleSubmitClick}
-          isLoading={loading}
-          text="Submit"
-        />
       </Box>
     </>
   )

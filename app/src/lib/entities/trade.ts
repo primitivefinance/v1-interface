@@ -268,22 +268,61 @@ export class Trade {
       reserves[1]
     )
     const premium = BigNumber.from(amountsOut[1])
-      .mul(100101)
-      .add(amountsOut[1])
+      .mul(100000)
+      .add(BigNumber.from(amountsOut[1]).mul(301))
       .div(100000)
     return premium
   }
 
-  public static getShortPremium = (
-    quantityOptions: BigNumberish,
+  public static getClosePremium = (
+    quantityShort: BigNumberish,
+    base: BigNumberish,
+    quote: BigNumberish,
+    path: string[], // redeem -> underlying
     reserves: BigNumberish[]
   ): BigNumberish => {
     if (BigNumber.from(reserves[0]).isZero()) {
       return 0
     }
-    const amountOut = Trade.getQuote(quantityOptions, reserves[0], reserves[1])
+    const underlyingsMinted = ethers.BigNumber.from(quantityShort)
+      .mul(base)
+      .div(quote)
+    // CLOSE PREMIUM MATH
+    const amountsIn = Trade.getAmountsInPure(
+      quote,
+      path,
+      reserves[0],
+      reserves[1]
+    )
+    const underlyingsRequired = amountsIn[0]
+    console.log(base.toString(), underlyingsRequired.toString())
+    const underlyingPayout = BigNumber.from(base).gt(underlyingsRequired)
+      ? BigNumber.from(base).sub(underlyingsRequired)
+      : parseEther('0')
+    return underlyingPayout
+  }
+
+  public static getShortPremium = (
+    quantityShort: BigNumberish,
+    reserves: BigNumberish[]
+  ): BigNumberish => {
+    if (BigNumber.from(reserves[0]).isZero()) {
+      return 0
+    }
+    const amountOut = Trade.getQuote(quantityShort, reserves[0], reserves[1])
     const shortPremium = BigNumber.from(amountOut)
     return shortPremium
+  }
+
+  public static getCloseSpotPremium = (
+    base: BigNumberish,
+    quote: BigNumberish,
+    path: string[], // redeem -> underlying
+    reserves: BigNumberish[]
+  ): BigNumberish => {
+    const quantity = parseEther('1')
+    const premium = Trade.getClosePremium(quantity, base, quote, path, reserves)
+    return premium
   }
 
   public static getSpotPremium = (

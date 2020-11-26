@@ -10,7 +10,7 @@ import { useContract, useKeepSWRDataLiveAsBlocksArrive } from '../utils/index'
 import { STABLECOIN_ADDRESS } from '../../lib/constants'
 import { isAddress, getAddress } from '@ethersproject/address'
 
-function getReserves(
+export function getReserves(
   contract: Contract,
   token0: Token,
   token1: Token
