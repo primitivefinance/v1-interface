@@ -46,7 +46,8 @@ const Notifs: React.FC = () => {
 const StyledBox = styled.div`
   max-width: 30em !important;
   position: fixed;
-  bottom: 4em;
-  left: 40px;
+  bottom: 3em;
+  left: 20px;
+  z-index: 200;
 `
 export default Notifs

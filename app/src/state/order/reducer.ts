@@ -27,7 +27,6 @@ export default createReducer(initialState, (builder) =>
         state,
         { payload: { item, orderType, loading, approved, lpApproved } }
       ) => {
-        console.log(approved)
         return {
           ...state,
           item,

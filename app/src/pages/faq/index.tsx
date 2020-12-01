@@ -76,12 +76,7 @@ const FAQ: React.FC = () => {
         <StyledText>2. Sell the Long Token for a premium on an AMM.</StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          3a. If the option expires Out of the Money (OTM), you use your redeem
-          token to withdraw the original 1 ETH you deposited to mint the option.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          3a. If the option expires Out of the Money (OTM), you use your redeem
+          3. If the option expires Out of the Money (OTM), you use your redeem
           token to withdraw the original 1 ETH you deposited to mint the option.
         </StyledText>
         <StyledSpacer size={24} />
