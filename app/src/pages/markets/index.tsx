@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import PageHeader from '@/components/PageHeader'
 import MarketCards from '@/components/MarketCards'
+import Spacer from '@/components/Spacer'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
 
@@ -126,6 +127,7 @@ const Markets: React.FC = () => {
         <Row center="xs">
           <MarketCards />
         </Row>
+        <Spacer />
       </Col>
     </Grid>
   )
