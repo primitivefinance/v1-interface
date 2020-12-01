@@ -143,6 +143,7 @@ const Market = ({ market, data }) => {
                 <NewMarketCard />
                 <Spacer size="sm" />
                 <TransactionCard />
+                <Spacer />
               </StyledSideBar>
             </StyledCol>
           </Row>

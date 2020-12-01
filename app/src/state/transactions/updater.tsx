@@ -12,6 +12,7 @@ import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 import numeral from 'numeral'
 import Link from 'next/link'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -97,14 +98,14 @@ export default function Updater(): null {
                   addNotif(
                     2,
                     `Trade Confirmed`,
-                    `${numeral(summary.amount).format('0.000a')} ${
+                    `${summary.amount} ${
                       summary.type
                     } ${market.toUpperCase()} ${type
                       .substr(0, type.length - 1)
                       .toUpperCase()} ${numeral(
                       summary.option.strikePrice.quantity.toString()
                     ).format('$0.00a')} ${exp.month}/${exp.date}/${exp.year}`,
-                    `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimtiveFi`
+                    `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimitiveFi`
                   )
                 }
                 const app = transactions[hash].approval
