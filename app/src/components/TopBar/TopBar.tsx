@@ -114,7 +114,7 @@ const StyledNav = styled.div<NavProps>`
   display: flex;
   flex: 1;
   font-weight: 700;
-  width: 40px;
+  width: 1px;
   justify-content: center;
   position: absolute;
   left: ${(props) => (props.isMain ? 50 : 50)}%;

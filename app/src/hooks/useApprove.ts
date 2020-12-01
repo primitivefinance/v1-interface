@@ -35,7 +35,7 @@ const useApprove = (tokenAddress: string, spender: string) => {
         return tx
       })
       .catch((err) => {
-        throwError(0, '', `${err.message}`, '')
+        throwError(0, 'Approvals Error', `${err.message}`, '')
       })
   }, [account, tokenAddress, spender])
 

@@ -187,13 +187,13 @@ const StyledPrice = styled.div`
 const StyledPrices = styled(Box)`
   border-radius: 5px;
   border-width: 2px;
-  border-color: ${(props) => props.theme.color.grey[400]};
+  border-color: ${(props) => props.theme.color.grey[600]};
   background: ${(props) => props.theme.color.black};
   border-style: solid;
   margin: 0 0.5em 0 0.5em;
   padding: 0 1em 0 1em;
 `
-const StyledTitle = styled.h3`
+const StyledTitle = styled.h4`
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: row;
@@ -203,9 +203,8 @@ const StyledTitle = styled.h3`
 `
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
-  border-radius: 10px;
+  border-radius: 1em;
   min-height: 2em;
-  border-radius: 4px;
   cursor: pointer;
   margin-bottom: 0.3em;
   margin-top: -0.3em;

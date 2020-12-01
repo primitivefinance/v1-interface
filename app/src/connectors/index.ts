@@ -11,7 +11,7 @@ export const injected = new InjectedConnector({
 // no coinbase testnet, requires infura mainnet node URL
 export const walletconnect = new WalletConnectConnector({
   rpc: {
-    1: `https://${INFURA_PREFIXES[1]}.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
+    1: `https://${INFURA_PREFIXES[1]}.infura.io/v3/${process.env.INFURA_ID}`,
   },
   bridge: 'https://bridge.walletconnect.org',
 })

@@ -7,6 +7,7 @@ import { useActiveWeb3React } from '@/hooks/user/index'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
 import BetaBanner from '@/components/BetaBanner'
+import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
 
 import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
@@ -111,6 +112,7 @@ const Market = ({ market, data }) => {
   return (
     <ErrorBoundary fallback={'Error Loading Market'}>
       <Disclaimer />
+      <Notifs />
       <StyledMarket>
         <Grid>
           <Row>
@@ -141,6 +143,7 @@ const Market = ({ market, data }) => {
                 <NewMarketCard />
                 <Spacer size="sm" />
                 <TransactionCard />
+                <Spacer />
               </StyledSideBar>
             </StyledCol>
           </Row>

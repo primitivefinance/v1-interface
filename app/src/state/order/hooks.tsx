@@ -9,8 +9,8 @@ import { removeItem, updateItem } from './actions'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { Token, TokenAmount, Pair } from '@uniswap/sdk'
-
+import numeral from 'numeral'
+import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
 import { OptionsAttributes } from '../options/reducer'
 import {
   DEFAULT_DEADLINE,
@@ -22,7 +22,7 @@ import {
 import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
-import { parseEther } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 import { Asset, Trade, Quantity } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
 import { Uniswap } from '@/lib/uniswap'
@@ -73,9 +73,7 @@ export const useUpdateItem = (): ((
         18,
         item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
       )
-      console.log(Operation[orderType])
       if (orderType === Operation.NONE) {
-        console.log('NOPE')
         dispatch(
           updateItem({
             item,
@@ -109,7 +107,7 @@ export const useUpdateItem = (): ((
             )
             return
           }
-          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE && lpPair) {
             const lpToken = lpPair.liquidityToken.address
             const optionAllowance = await getAllowance(item.address, spender)
             approved = parseEther(optionAllowance).gt(parseEther('0'))
@@ -149,9 +147,7 @@ export const useUpdateItem = (): ((
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
-          console.log(tokenAllowance)
           approved = parseEther(tokenAllowance).gt(parseEther('0'))
-          console.log(approved)
           lpApproved = false
           dispatch(
             updateItem({
@@ -180,9 +176,9 @@ export const useRemoveItem = (): (() => void) => {
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   optionAddress: string,
-  quantity: number,
+  quantity: BigInt,
   operation: Operation,
-  secondaryQuantity?: number
+  secondaryQuantity?: BigInt
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
@@ -197,9 +193,9 @@ export const useHandleSubmitOrder = (): ((
     async (
       provider: Web3Provider,
       optionAddress: string,
-      quantity: number,
+      quantity: BigInt,
       operation: Operation,
-      secondaryQuantity?: number
+      secondaryQuantity?: BigInt
     ) => {
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
@@ -209,18 +205,20 @@ export const useHandleSubmitOrder = (): ((
         deadline: DEFAULT_DEADLINE,
         stablecoin: STABLECOINS[chainId].address,
       }
-
+      console.log(tradeSettings)
       const optionEntity: Option = createOptionEntityWithAddress(
         chainId,
         optionAddress
       )
+
+      //console.log(parseInt(quantity) * 1000000000000000000)
       const inputAmount: Quantity = new Quantity(
         new Asset(18), // fix with actual metadata
-        parseEther(quantity.toString())
+        BigNumber.from(BigInt(quantity.toString()).toString())
       )
       const outputAmount: Quantity = new Quantity(
         new Asset(18), // fix with actual metadata
-        '0'
+        BigNumber.from('0')
       )
       const optionInstance: ethers.Contract = optionEntity.optionInstance(
         signer
@@ -378,12 +376,17 @@ export const useHandleSubmitOrder = (): ((
             trade.path[0],
             trade.path[1]
           )
-
           // The actual function will take the redeemQuantity rather than the optionQuantity.
+          const out =
+            secondaryQuantity !== BigInt('0')
+              ? BigNumber.from(BigInt(secondaryQuantity.toString()).toString())
+              : BigNumber.from('0')
+
           trade.outputAmount = new Quantity(
             new Asset(18), // fix with actual metadata
-            parseEther(secondaryQuantity ? secondaryQuantity.toString() : '0')
+            out
           )
+
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -458,7 +461,9 @@ export const useHandleSubmitOrder = (): ((
                 summary: {
                   type: Operation[operation].toString(),
                   option: item.entity,
-                  amount: quantity,
+                  amount: numeral(parseInt(formatEther(quantity.toString())))
+                    .format('0.00(a)')
+                    .toString(),
                 },
                 hash: tx.hash,
                 addedTime: now(),

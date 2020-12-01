@@ -160,7 +160,6 @@ export class Uniswap {
             trade.reserves[1]
           )
         }
-
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,
           tradeSettings.slippage

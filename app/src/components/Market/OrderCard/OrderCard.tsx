@@ -19,6 +19,7 @@ import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 import { EmptyAttributes } from '@/state/options/reducer'
+import numeral from 'numeral'
 
 const OrderContent: React.FC = () => {
   const { orderType } = useItem()
@@ -79,7 +80,9 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           <Spacer size="sm" />
           <StyledTitle>
             {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
-            {` $${formatBalance(item.strike)} ${month}/${date}/${year}`}
+            {` ${numeral(formatBalance(item.strike)).format(
+              '$0.00a'
+            )} ${month}/${date}/${year}`}
           </StyledTitle>
           <Spacer />
           <CustomButton>
@@ -107,7 +110,7 @@ const Reverse = styled.div`
   margin-top: -1.1em;
 `
 
-const StyledTitle = styled.h3`
+const StyledTitle = styled.h4`
   align-items: center;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;

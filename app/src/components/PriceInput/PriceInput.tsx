@@ -7,14 +7,14 @@ import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
 import { BigNumberish } from 'ethers'
 
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount, JSBI } from '@uniswap/sdk'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
 export interface PriceInputProps {
   name?: string
   title: string
-  quantity: BigNumberish | number
+  quantity: BigNumberish | number | BigInt
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
   onClick: () => void
   startAdornment?: React.ReactNode
@@ -41,7 +41,13 @@ const PriceInput: React.FC<PriceInputProps> = ({
         placeholder={'0.00'}
         startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
-        value={`${quantity ? quantity.toString() : ''}`}
+        value={`${
+          quantity
+            ? (
+                Math.ceil(parseFloat(quantity.toString()) * 10000) / 10000
+              ).toString()
+            : ''
+        }`}
         endAdornment={
           <Button size="sm" variant="secondary" text="Max" onClick={onClick} />
         }
