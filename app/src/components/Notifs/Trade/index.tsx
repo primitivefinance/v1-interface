@@ -38,7 +38,9 @@ export const Trade: React.FC<TradeProps> = ({ title, msg, link }) => {
           </Button>
         </CardTitle>
         <CardContent>
-          <StyledContent>{msg}</StyledContent>
+          <StyledContent>
+            <h4>{msg}</h4>
+          </StyledContent>
           <StyledTwitter href={link} target="__none">
             <StyledButtonText>Tweet Your Trade</StyledButtonText>
             <Spacer size="sm" />
@@ -73,11 +75,14 @@ const StyledCard = styled(Card)`
   border-radius: 5px;
   width: 100%;
 `
-const StyledContent = styled.h4`
-  margin: 0.5em 1em 0.5em 1em;
+const StyledContent = styled.div`
+  margin: 0 1em 0 1em;
   color: white;
   text-decoration: none;
   width: inherit;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 `
 const StyledTitle = styled(Box)`
   align-items: center;

@@ -40,7 +40,7 @@ import {
 import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
@@ -129,33 +129,47 @@ const Swap: React.FC = () => {
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
+      setInputs({
+        ...inputs,
+        [e.currentTarget.name]: e.currentTarget.value,
+      })
     },
     [setInputs, inputs]
   )
 
   // FIX
   const handleSetMax = () => {
-    const max = Math.round(
+    const max =
       ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
-    )
-    setInputs({ ...inputs, primary: max.toString() })
+
+    setInputs({
+      ...inputs,
+      primary: parseFloat(tokenBalance).toFixed(10).toString(),
+    })
   }
 
   const handleSubmitClick = useCallback(() => {
+    const imp = BigInt(
+      (parseFloat(inputs.primary) * 1000000000000000000).toString()
+    )
+    console.log(imp.toString())
+    console.log(
+      BigInt(parseFloat(tokenBalance) * 1000000000000000000).toString()
+    )
     submitOrder(
       library,
       item?.address,
-      Number(inputs.primary),
+      imp,
       orderType,
-      Number(inputs.secondary)
+      BigInt(inputs.secondary)
     )
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
   const premiumMulSize = (premium, size) => {
     const premiumWei = BigNumber.from(premium)
-    const sizeWei = parseEther(size)
+    if (size === '') return '0'
+    const sizeWei = parseEther(parseFloat(size).toString())
     const debit = formatEther(
       premiumWei.mul(sizeWei).div(parseEther('1')).toString()
     )
@@ -169,10 +183,12 @@ const Swap: React.FC = () => {
     let size = inputs.primary === '' ? '0' : inputs.primary
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
+    console.log(size)
     size = item.entity.isCall
       ? size
       : formatEther(parseEther(size).mul(quote).div(base))
 
+    console.log(size)
     // buy long
     if (item.premium) {
       debit = premiumMulSize(item.premium.toString(), size)
@@ -192,8 +208,10 @@ const Swap: React.FC = () => {
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
-      inputs.primary !== '' ? parseEther(inputs.primary) : parseEther('0')
-    return inputValue.gt(guardCap) && chainId === 1
+      inputs.primary !== ''
+        ? parseEther(parseFloat(inputs.primary).toString())
+        : parseEther('0')
+    return BigNumber.from(inputValue).gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
   const handleApproval = useCallback(() => {
@@ -355,7 +373,6 @@ const Swap: React.FC = () => {
     </>
   )
 }
-
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;

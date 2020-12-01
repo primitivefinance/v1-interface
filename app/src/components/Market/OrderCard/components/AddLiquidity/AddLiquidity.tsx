@@ -58,8 +58,8 @@ const AddLiquidity: React.FC = () => {
   const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
+    primary: BigInt(''),
+    secondary: BigInt(''),
   })
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
@@ -108,7 +108,10 @@ const AddLiquidity: React.FC = () => {
 
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
+      setInputs({
+        ...inputs,
+        [e.currentTarget.name]: BigInt(e.currentTarget.value.toString()),
+      })
     },
     [setInputs, inputs]
   )
@@ -118,18 +121,14 @@ const AddLiquidity: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance + Number.EPSILON) * 100) / 100
     )
-    setInputs({ ...inputs, primary: max.toString() })
+    setInputs({ ...inputs, primary: BigInt(max.toString()) })
   }
 
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
-    submitOrder(
-      library,
-      item?.address,
-      Number(inputs.primary),
-      orderType,
-      Number(inputs.secondary)
-    )
+    const imp = inputs.primary * BigInt('1000000000000000000')
+    const sec = inputs.secondary * BigInt('1000000000000000000')
+    submitOrder(library, item?.address, imp, orderType, sec)
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
@@ -158,9 +157,13 @@ const AddLiquidity: React.FC = () => {
   const calculateOutput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const input =
-        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+        inputs.primary !== BigInt('')
+          ? parseEther(inputs.primary.toString())
+          : '0'
       const output =
-        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+        inputs.secondary !== BigInt('')
+          ? parseEther(inputs.secondary.toString())
+          : '0'
       const sum = BigNumber.from(output).add(input)
       return formatEther(sum.toString())
     }
@@ -185,9 +188,13 @@ const AddLiquidity: React.FC = () => {
   const calculateInput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const input =
-        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+        inputs.primary !== BigInt('')
+          ? parseEther(inputs.primary.toString())
+          : '0'
       const output =
-        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+        inputs.secondary !== BigInt('')
+          ? parseEther(inputs.secondary.toString())
+          : '0'
       const sum = BigNumber.from(output).add(input)
       return formatEther(sum.toString())
     }
@@ -198,7 +205,7 @@ const AddLiquidity: React.FC = () => {
       new Token(chainId, item.entity.assetAddresses[0], 18)
     )
     const input =
-      inputs.primary !== ''
+      inputs.primary !== BigInt('')
         ? parseEther(inputs.primary.toString())
         : BigNumber.from('0')
     const ratio = parseEther('1')
@@ -273,12 +280,16 @@ const AddLiquidity: React.FC = () => {
   const calculateImpliedPrice = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const input =
-        inputs.primary !== '' ? parseEther(inputs.primary.toString()) : '0'
+        inputs.primary !== BigInt('')
+          ? parseEther(inputs.primary.toString())
+          : '0'
       const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
         .mul(item.entity.optionParameters.quote.quantity)
         .div(item.entity.optionParameters.base.quantity)
       const output =
-        inputs.secondary !== '' ? parseEther(inputs.secondary.toString()) : '0'
+        inputs.secondary !== BigInt('')
+          ? parseEther(inputs.secondary.toString())
+          : '0'
       const path = [
         item.entity.assetAddresses[2],
         item.entity.assetAddresses[0],
@@ -309,7 +320,9 @@ const AddLiquidity: React.FC = () => {
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
-      inputs.secondary !== '' ? parseEther(inputs.secondary) : parseEther('0')
+      inputs.secondary !== BigInt('')
+        ? parseEther(inputs.secondary.toString())
+        : parseEther('0')
     return inputValue.gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
 
@@ -368,7 +381,7 @@ const AddLiquidity: React.FC = () => {
             )
           }
           valid={parseEther(underlyingTokenBalance).gt(
-            parseEther(inputs.primary || '0')
+            parseEther(inputs.primary.toString() || '0')
           )}
         />
       ) : (

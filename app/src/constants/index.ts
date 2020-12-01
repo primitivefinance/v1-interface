@@ -161,6 +161,8 @@ export const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 
 export const DEFAULT_ALLOWANCE = parseEther('10000000')
 
+export const WEI_ADJ = 1000000000000000000
+
 export enum Operation {
   MINT,
   EXERCISE,

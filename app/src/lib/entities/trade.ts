@@ -295,7 +295,6 @@ export class Trade {
       reserves[1]
     )
     const underlyingsRequired = amountsIn[0]
-    console.log(base.toString(), underlyingsRequired.toString())
     const underlyingPayout = BigNumber.from(base).gt(underlyingsRequired)
       ? BigNumber.from(base).sub(underlyingsRequired)
       : parseEther('0')

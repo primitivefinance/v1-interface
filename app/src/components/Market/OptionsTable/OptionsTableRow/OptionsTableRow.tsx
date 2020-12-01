@@ -85,23 +85,39 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         key={key}
         onClick={handleOnClick}
       >
-        <TableCell>{numeral(strike).format('$0.00a')}</TableCell>
+        <TableCell>
+          <span>
+            {numeral(strike).format('0.00a')} <Units>DAI</Units>
+          </span>
+        </TableCell>
         <TableCell>
           {premium !== '0.00' ? (
-            <>{numeral(breakeven).format('$0.00a')}</>
+            <span>
+              {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
+            </span>
           ) : (
             <>{`-`}</>
           )}
         </TableCell>
         {premium !== '0.00' ? (
           <TableCell>
-            <StyledR>
-              <StyledT>{numeral(premium).format('($0.00a)')}</StyledT>
+            {isCall ? (
+              <StyledR>
+                <StyledT>
+                  <span>
+                    {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
+                  </span>
+                </StyledT>
+                <span>
+                  {numeral(premiumUnderlying).format('(0.00a)')}{' '}
+                  <Units>{units}</Units>
+                </span>
+              </StyledR>
+            ) : (
               <span>
-                {numeral(premiumUnderlying).format('(0.00a)')}{' '}
-                <Units>{units}</Units>
+                {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
               </span>
-            </StyledR>
+            )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>

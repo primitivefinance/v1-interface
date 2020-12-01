@@ -28,14 +28,16 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
 
   useEffect(() => {
     mutate()
-    if (data[key]) {
-      switch (orderType) {
-        case Operation.ADD_LIQUIDITY:
-          setCap((15000 / data[key].usd).toString())
-          break
-        default:
-          setCap((10000 / data[key].usd).toString())
-          break
+    if (key) {
+      if (data[key]) {
+        switch (orderType) {
+          case Operation.ADD_LIQUIDITY:
+            setCap((15000 / data[key].usd).toString())
+            break
+          default:
+            setCap((10000 / data[key].usd).toString())
+            break
+        }
       }
     }
   }, [mutate, setCap, orderType, data])

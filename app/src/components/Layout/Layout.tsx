@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 
 import Banner from '@/components/Banner'
 import Footer from '@/components/Footer'
-import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
 import TopBar from '@/components/TopBar'
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { formatEther } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useWeb3React } from '@web3-react/core'
 
@@ -14,7 +14,7 @@ const useTokenBalance = (tokenAddress: string) => {
   const fetchBalance = useCallback(async () => {
     if (typeof tokenAddress === 'undefined' || tokenAddress === '') return
     if (!isAddress(getAddress(tokenAddress))) return
-    let code: any = await library.getCode(tokenAddress)
+    const code: any = await library.getCode(tokenAddress)
     let balance: BigNumberish = 0
     if (code > 0) {
       balance = await getBalance(library, tokenAddress, account)

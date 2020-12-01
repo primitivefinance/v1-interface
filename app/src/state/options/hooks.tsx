@@ -187,7 +187,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           path,
                           [shortReserve, underlyingReserve]
                         )
-                        let closePremium: BigNumberish = Trade.getCloseSpotPremium(
+                        const closePremium: BigNumberish = Trade.getCloseSpotPremium(
                           Base.quantity,
                           Quote.quantity,
                           [option.assetAddresses[0], option.assetAddresses[2]],
@@ -259,13 +259,12 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                             const numerator = ethers.BigNumber.from(
                               option.optionParameters.base.quantity
                             )
+                            const strikePrice =
+                              parseInt(numerator.toString()) /
+                              parseInt(denominator.toString())
 
-                            const strikePrice = new Quantity(
-                              option.quote.asset,
-                              numerator.div(denominator)
-                            )
                             breakEven = calculateBreakeven(
-                              parseEther(strikePrice.quantity.toString()),
+                              parseEther(strikePrice.toString()),
                               premium,
                               false
                             )
@@ -277,7 +276,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium: premium,
                               closePremium: closePremium,
                               shortPremium: shortPremium,
-                              strike: strikePrice.quantity,
+                              strike: strikePrice,
                               volume: 0,
                               reserves: reserves,
                               token0: token0,

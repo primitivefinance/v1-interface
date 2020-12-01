@@ -41,10 +41,10 @@ import {
 import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 import numeral from 'numeral'
 
-const AddLiquidity: React.FC = () => {
+const RemoveLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
@@ -61,8 +61,8 @@ const AddLiquidity: React.FC = () => {
   const { item, orderType, loading, approved, lpApproved } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
+    primary: BigInt(''),
+    secondary: BigInt(''),
   })
   // web3
   const { library, chainId } = useWeb3React()
@@ -110,7 +110,7 @@ const AddLiquidity: React.FC = () => {
         100) /
         100
     )
-    setInputs({ ...inputs, primary: max.toString() })
+    setInputs({ ...inputs, primary: BigInt(max.toString()) })
   }
 
   const handleRatioChange = useCallback(
@@ -119,7 +119,7 @@ const AddLiquidity: React.FC = () => {
       const liquidity = formatEther(
         parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
       )
-      setInputs({ ...inputs, primary: liquidity })
+      setInputs({ ...inputs, primary: BigInt(liquidity.toString()) })
     },
     [setRatio, lp, setInputs, inputs, ratio]
   )
@@ -127,7 +127,7 @@ const AddLiquidity: React.FC = () => {
   const handleRatio = useCallback(
     (value) => {
       setRatio(value)
-      const liquidity = formatEther(parseEther(lp).mul(value).div(1000))
+      const liquidity = BigInt(parseEther(lp).mul(value).div(1000))
       setInputs({ ...inputs, primary: liquidity })
     },
     [setInputs, lp, ratio, inputs, setRatio]
@@ -138,9 +138,9 @@ const AddLiquidity: React.FC = () => {
     submitOrder(
       library,
       item?.address,
-      Number(inputs.primary),
+      inputs.primary,
       orderType,
-      Number(inputs.secondary)
+      inputs.secondary
     )
     removeItem()
   }, [
@@ -541,5 +541,4 @@ const StyledTitle = styled.h5`
 const StyledRatio = styled.h4`
   color: ${(props) => props.theme.color.white};
 `
-
-export default AddLiquidity
+export default RemoveLiquidity
