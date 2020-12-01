@@ -56,78 +56,75 @@ export default function Updater(): null {
     if (!options.loading) {
       updatePositions(options.calls.concat(options.puts))
     }
-    const pull = async () => {
-      Object.keys(transactions)
-        .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
-        .forEach((hash) => {
-          library
-            .getTransactionReceipt(hash)
-            .then((receipt) => {
-              if (receipt) {
-                dispatch(
-                  finalizeTransaction({
-                    chainId,
-                    hash,
-                    receipt: {
-                      blockHash: receipt.blockHash,
-                      blockNumber: receipt.blockNumber,
-                      contractAddress: receipt.contractAddress,
-                      from: receipt.from,
-                      status: receipt.status,
-                      to: receipt.to,
-                      transactionHash: receipt.transactionHash,
-                      transactionIndex: receipt.transactionIndex,
-                    },
-                  })
-                )
-                const summary = transactions[hash].summary
-                if (summary) {
-                  const type = summary.option.isCall ? 'calls' : 'puts'
-                  let market
-                  if (type === 'calls') {
-                    market = summary.option.base.asset.symbol
-                  } else {
-                    market = summary.option.quote.asset.symbol
-                  }
-                  if (market === 'weth') {
-                    market = 'eth'
-                  }
-                  const link = `https://app.primitive.finance/markets/${market}/${type}/${summary.option.address}/${summary.type}`
+    Object.keys(transactions)
+      .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
+      .forEach((hash) => {
+        library
+          .getTransactionReceipt(hash)
+          .then((receipt) => {
+            if (receipt) {
+              dispatch(
+                finalizeTransaction({
+                  chainId,
+                  hash,
+                  receipt: {
+                    blockHash: receipt.blockHash,
+                    blockNumber: receipt.blockNumber,
+                    contractAddress: receipt.contractAddress,
+                    from: receipt.from,
+                    status: receipt.status,
+                    to: receipt.to,
+                    transactionHash: receipt.transactionHash,
+                    transactionIndex: receipt.transactionIndex,
+                  },
+                })
+              )
+              const summary = transactions[hash].summary
+              if (summary) {
+                const type = summary.option.isCall ? 'calls' : 'puts'
+                let market
+                if (type === 'calls') {
+                  market = summary.option.base.asset.symbol
+                } else {
+                  market = summary.option.quote.asset.symbol
+                }
+                if (market === 'weth') {
+                  market = 'eth'
+                }
+                const link = `https://app.primitive.finance/markets/${market}/${type}/${summary.option.address}/${summary.type}`
 
-                  const exp = formatExpiry(summary.option.expiry)
-                  addNotif(
-                    2,
-                    `Trade Confirmed`,
-                    `${summary.amount} ${
-                      summary.type
-                    } ${market.toUpperCase()} ${type
-                      .substr(0, type.length - 1)
-                      .toUpperCase()} ${numeral(
-                      summary.option.strikePrice.quantity.toString()
-                    ).format('$0.00a')} ${exp.month}/${exp.date}/${exp.year}`,
-                    `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimitiveFi`
-                  )
-                }
-                const app = transactions[hash].approval
-                if ((!approved && app) || (!lpApproved && app)) {
-                  updateItem(item, orderType)
-                }
-              } else {
-                dispatch(
-                  checkedTransaction({
-                    chainId,
-                    hash,
-                    blockNumber: lastBlockNumber,
-                  })
+                const exp = formatExpiry(summary.option.expiry)
+                addNotif(
+                  2,
+                  `Trade Confirmed`,
+                  `${summary.amount} ${
+                    summary.type
+                  } ${market.toUpperCase()} ${type
+                    .substr(0, type.length - 1)
+                    .toUpperCase()} ${numeral(
+                    summary.option.strikePrice.quantity.toString()
+                  ).format('$0.00a')} ${exp.month}/${exp.date}/${exp.year}`,
+                  `http://twitter.com/share?url=${link}&text=I+just+traded+${market.toUpperCase()}+options+on+%40PrimitiveFi`
                 )
               }
-            })
-            .catch((error) => {
-              console.error(`failed to check transaction hash: ${hash}`, error)
-            })
-        })
-    }
-    pull()
+              const app = transactions[hash].approval
+              if ((!approved && app) || (!lpApproved && app)) {
+                updateItem(item, orderType)
+              }
+            } else {
+              dispatch(
+                checkedTransaction({
+                  chainId,
+                  hash,
+                  blockNumber: lastBlockNumber,
+                })
+              )
+            }
+          })
+          .catch((error) => {
+            console.error(`failed to check transaction hash: ${hash}`, error)
+          })
+      })
   }, [
     chainId,
     state,
