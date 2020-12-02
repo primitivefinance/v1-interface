@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import LitContainer from '@/components/LitContainer'
 import Table from '@/components/Table'
 import TableBody from '@/components/TableBody'
+import Spacer from '@/components/Spacer'
 
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
@@ -245,6 +246,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           )}
         </LitContainer>
       </Table>
+      <Spacer />
     </OptionsContainer>
   )
 }

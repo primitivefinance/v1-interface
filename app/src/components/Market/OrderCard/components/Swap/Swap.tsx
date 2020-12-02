@@ -13,12 +13,12 @@ import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
-import useGuardCap from '@/hooks/useGuardCap'
+import useGuardCap from '@/hooks/transactions/useGuardCap'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import useApprove from '@/hooks/useApprove'
+import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
@@ -161,10 +161,7 @@ const Swap: React.FC = () => {
     const imp = BigInt(
       (parseFloat(inputs.primary) * 1000000000000000000).toString()
     )
-    console.log(imp.toString())
-    console.log(
-      BigInt(parseFloat(tokenBalance) * 1000000000000000000).toString()
-    )
+
     submitOrder(
       library,
       item?.address,

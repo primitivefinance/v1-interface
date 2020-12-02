@@ -63,6 +63,7 @@ export const useUpdateItem = (): ((
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
+
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
       let approved = false
@@ -73,6 +74,7 @@ export const useUpdateItem = (): ((
         18,
         item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
       )
+
       if (orderType === Operation.NONE) {
         dispatch(
           updateItem({
@@ -80,7 +82,7 @@ export const useUpdateItem = (): ((
             orderType,
             loading: false,
             approved: false,
-            lpApporved: false,
+            lpApproved: false,
           })
         )
         return
@@ -251,7 +253,6 @@ export const useHandleSubmitOrder = (): ((
         operation,
         signer
       )
-
       const factory = new ethers.Contract(
         UNISWAP_FACTORY_V2,
         UniswapV2Factory.abi,
@@ -400,9 +401,10 @@ export const useHandleSubmitOrder = (): ((
           // The actual function will take the redeemQuantity rather than the optionQuantity.
           const out =
             secondaryQuantity !== BigInt('0')
-              ? BigNumber.from(BigInt(secondaryQuantity.toString()).toString())
+              ? BigNumber.from(secondaryQuantity.toString())
               : BigNumber.from('0')
 
+          console.log(out.toString())
           trade.outputAmount = new Quantity(
             new Asset(18), // fix with actual metadata
             out
@@ -473,7 +475,6 @@ export const useHandleSubmitOrder = (): ((
           )
           break
       }
-
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
@@ -495,7 +496,7 @@ export const useHandleSubmitOrder = (): ((
           }
         })
         .catch((err) => {
-          throwError(0, '', `${err.message}`, '')
+          throwError(0, 'Order Error', `${err.message}`, '')
         })
     },
     [dispatch, account, addTransaction]
