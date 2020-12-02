@@ -140,7 +140,7 @@ export const useUpdateItem = (): ((
               tokenAddress = underlyingToken.address
               break
             case Operation.WRITE:
-              tokenAddress = item.entity.address //underlyingToken.address
+              tokenAddress = item.entity.address //underlyingToken.address FIX: double approval
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address

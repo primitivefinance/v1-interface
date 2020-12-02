@@ -102,7 +102,7 @@ const Swap: React.FC = () => {
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
       }
-      tokenAddress = item.entity.address //underlyingToken.address
+      tokenAddress = item.entity.address //underlyingToken.address FIX: double approval
       balance = underlyingToken
       break
     case Operation.CLOSE_LONG:
