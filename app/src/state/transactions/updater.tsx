@@ -10,8 +10,11 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
+import { useReserves } from '@/hooks/data/useReserves'
+
 import numeral from 'numeral'
 import Link from 'next/link'
+import { Token, TokenAmount } from '@uniswap/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export function shouldCheck(
@@ -42,7 +45,6 @@ export default function Updater(): null {
   const addNotif = useAddNotif()
   const { item, orderType, loading, approved, lpApproved } = useItem()
   const updateItem = useUpdateItem()
-
   const { data } = useBlockNumber()
   const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
@@ -109,7 +111,12 @@ export default function Updater(): null {
               }
               const app = transactions[hash].approval
               if ((!approved && app) || (!lpApproved && app)) {
-                updateItem(item, orderType)
+                if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+                  // EXTREMELY DIRTY SOLUTION...
+                  updateItem(item, Operation.NONE)
+                } else {
+                  updateItem(item, orderType)
+                }
               }
             } else {
               dispatch(
