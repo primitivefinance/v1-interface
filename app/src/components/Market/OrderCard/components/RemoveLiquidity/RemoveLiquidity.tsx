@@ -17,7 +17,7 @@ import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
-import useApprove from '@/hooks/useApprove'
+import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
@@ -491,7 +491,9 @@ const RemoveLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {!lpApproved ? (
+            {lpApproved ? (
+              <></>
+            ) : (
               <Button
                 disabled={submitting}
                 full
@@ -500,11 +502,11 @@ const RemoveLiquidity: React.FC = () => {
                 isLoading={submitting}
                 text="Approve LP"
               />
-            ) : (
-              <></>
             )}
 
-            {!approved ? (
+            {approved ? (
+              <></>
+            ) : (
               <Button
                 disabled={submitting}
                 full
@@ -513,8 +515,6 @@ const RemoveLiquidity: React.FC = () => {
                 isLoading={submitting}
                 text="Approve Options"
               />
-            ) : (
-              <></>
             )}
             {!approved || !lpApproved ? null : (
               <Button

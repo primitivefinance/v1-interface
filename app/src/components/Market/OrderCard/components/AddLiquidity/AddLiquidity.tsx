@@ -17,11 +17,11 @@ import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
-import useApprove from '@/hooks/useApprove'
+import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import useGuardCap from '@/hooks/useGuardCap'
+import useGuardCap from '@/hooks/transactions/useGuardCap'
 
 import { Trade } from '@/lib/entities/trade'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
@@ -58,8 +58,8 @@ const AddLiquidity: React.FC = () => {
   const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
-    primary: BigInt(''),
-    secondary: BigInt(''),
+    primary: '',
+    secondary: '',
   })
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
@@ -78,14 +78,21 @@ const AddLiquidity: React.FC = () => {
     18,
     isPut ? 'DAI' : item.asset.toUpperCase()
   )
-  const lpPair = useReserves(
-    underlyingToken,
-    new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
-  ).data
+  const shortToken = new Token(
+    entity.chainId,
+    entity.assetAddresses[2],
+    18,
+    'SHORT'
+  )
+
+  const lpPair = useReserves(underlyingToken, shortToken).data
 
   useEffect(() => {
-    setHasL(BigNumber.from(item.reserves[0].toString()).gt(0) ? true : false)
-  }, [item])
+    if (lpPair) {
+      console.log(lpPair.reserveOf(shortToken).numerator[0])
+      setHasL(lpPair.reserveOf(shortToken).numerator[0] > 10000)
+    }
+  }, [setHasL, lpPair])
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
@@ -110,7 +117,7 @@ const AddLiquidity: React.FC = () => {
     (e: React.FormEvent<HTMLInputElement>) => {
       setInputs({
         ...inputs,
-        [e.currentTarget.name]: BigInt(e.currentTarget.value.toString()),
+        [e.currentTarget.name]: e.currentTarget.value,
       })
     },
     [setInputs, inputs]
@@ -121,13 +128,26 @@ const AddLiquidity: React.FC = () => {
     const max = Math.round(
       ((+underlyingTokenBalance + Number.EPSILON) * 100) / 100
     )
-    setInputs({ ...inputs, primary: BigInt(max.toString()) })
+    setInputs({
+      ...inputs,
+      secondary: parseFloat(underlyingTokenBalance).toFixed(10).toString(),
+    })
   }
 
   const handleSubmitClick = useCallback(() => {
-    setSubmit(true)
-    const imp = inputs.primary * BigInt('1000000000000000000')
-    const sec = inputs.secondary * BigInt('1000000000000000000')
+    const imp = BigInt(
+      parseInt((parseFloat(inputs.primary) * 100).toString()) * 1000000000000000
+    )
+
+    const sec =
+      inputs.secondary === ''
+        ? BigInt(0)
+        : BigInt(
+            parseInt((parseFloat(inputs.secondary) * 100).toString()) *
+              1000000000000000
+          )
+    console.log(imp)
+    console.log(sec)
     submitOrder(library, item?.address, imp, orderType, sec)
     removeItem()
   }, [submitOrder, removeItem, item, library, inputs, orderType])
@@ -144,26 +164,33 @@ const AddLiquidity: React.FC = () => {
     return ratio
   }, [lpPair])
 
-  const caculatePoolShare = useCallback(() => {
+  const calculatePoolShare = useCallback(() => {
+    const inputValue =
+      parseFloat(inputs.primary) > 0
+        ? BigNumber.from(
+            BigInt(parseFloat(inputs.primary).toString()).toString()
+          )
+        : BigNumber.from('0')
+    const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
-      ? BigNumber.from(parseEther(lp))
-          .mul(parseEther('1'))
-          .div(parseEther(lpTotalSupply))
-      : '0'
-    return (Number(formatEther(poolShare)) * 100).toFixed(2)
-  }, [lpPair, lp, lpTotalSupply])
+    const poolShare =
+      supply.gt(0) && inputValue.gt(0)
+        ? Number(parseInt(supply.div(inputValue.mul(100000)).toString()))
+        : 0
+
+    return 0
+  }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateOutput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const input =
-        inputs.primary !== BigInt('')
-          ? parseEther(inputs.primary.toString())
-          : '0'
+        inputs.primary !== ''
+          ? parseEther(parseFloat(inputs.primary).toString())
+          : parseEther('0')
       const output =
-        inputs.secondary !== BigInt('')
-          ? parseEther(inputs.secondary.toString())
-          : '0'
+        inputs.secondary !== ''
+          ? parseEther(parseFloat(inputs.secondary).toString())
+          : parseEther('0')
       const sum = BigNumber.from(output).add(input)
       return formatEther(sum.toString())
     }
@@ -188,13 +215,13 @@ const AddLiquidity: React.FC = () => {
   const calculateInput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const input =
-        inputs.primary !== BigInt('')
-          ? parseEther(inputs.primary.toString())
-          : '0'
+        inputs.primary !== ''
+          ? parseEther(parseFloat(inputs.primary).toString())
+          : BigNumber.from('0')
       const output =
-        inputs.secondary !== BigInt('')
-          ? parseEther(inputs.secondary.toString())
-          : '0'
+        inputs.secondary !== ''
+          ? parseEther(parseFloat(inputs.secondary).toString())
+          : BigNumber.from('0')
       const sum = BigNumber.from(output).add(input)
       return formatEther(sum.toString())
     }
@@ -205,8 +232,8 @@ const AddLiquidity: React.FC = () => {
       new Token(chainId, item.entity.assetAddresses[0], 18)
     )
     const input =
-      inputs.primary !== BigInt('')
-        ? parseEther(inputs.primary.toString())
+      inputs.primary !== ''
+        ? parseEther(parseFloat(inputs.primary).toString())
         : BigNumber.from('0')
     const ratio = parseEther('1')
       .mul(item.entity.optionParameters.quote.quantity)
@@ -278,18 +305,22 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair, lp, lpTotalSupply, inputs])
 
   const calculateImpliedPrice = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) {
+    if (typeof lpPair === 'undefined' || lpPair === null || !hasLiquidity) {
       const input =
-        inputs.primary !== BigInt('')
-          ? parseEther(inputs.primary.toString())
-          : '0'
+        inputs.primary !== ''
+          ? parseEther(parseFloat(inputs.primary).toString())
+          : parseEther('0')
+
+      console.log(input)
       const inputShort = BigNumber.from(input) // pair has short tokens, so need to convert our desired options to short options
         .mul(item.entity.optionParameters.quote.quantity)
         .div(item.entity.optionParameters.base.quantity)
+      console.log(inputShort)
       const output =
-        inputs.secondary !== BigInt('')
-          ? parseEther(inputs.secondary.toString())
-          : '0'
+        inputs.secondary !== ''
+          ? parseEther(parseFloat(inputs.secondary).toString())
+          : parseEther('0')
+      console.log(output)
       const path = [
         item.entity.assetAddresses[2],
         item.entity.assetAddresses[0],
@@ -320,10 +351,10 @@ const AddLiquidity: React.FC = () => {
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
-      inputs.secondary !== BigInt('')
+      inputs.secondary !== ''
         ? parseEther(inputs.secondary.toString())
         : parseEther('0')
-    return inputValue.gt(guardCap) && chainId === 1
+    return inputValue.gt(guardCap)
   }, [inputs, guardCap])
 
   const handleApproval = useCallback(() => {
@@ -399,9 +430,6 @@ const AddLiquidity: React.FC = () => {
             onChange={handleInputChange}
             onClick={() => console.log('Max unavailable.')} //
           />
-          <StyledAdd>
-            <AddIcon />
-          </StyledAdd>
           <PriceInput
             name="secondary"
             title={`Underlyings Input`}
@@ -416,26 +444,35 @@ const AddLiquidity: React.FC = () => {
       <Spacer />
       <LineItem label="LP for" data={`${calculateInput()}`} units={`Options`} />
       <Spacer size="sm" />
-      <LineItem
-        label="Implied Option Price"
-        data={`${calculateImpliedPrice()}`}
-        units={`${underlyingToken.symbol.toUpperCase()}`}
-      />
-      <Spacer size="sm" />
-      <LineItem
-        label="You will receive"
-        data={caculatePoolShare()}
-        units={`% of the Pool.`}
-      />
-      <Spacer size="sm" />
+      {!hasLiquidity ? (
+        <>
+          <LineItem
+            label="Implied Option Price"
+            data={`${calculateImpliedPrice()}`}
+            units={`${underlyingToken.symbol.toUpperCase()}`}
+          />
+          <Spacer size="sm" />{' '}
+        </>
+      ) : (
+        <></>
+      )}
+
       {hasLiquidity ? (
-        <IconButton
-          text="Advanced"
-          variant="transparent"
-          onClick={() => setAdvanced(!advanced)}
-        >
-          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
+        <>
+          <LineItem
+            label="You will receive"
+            data={calculatePoolShare()}
+            units={`% of the Pool.`}
+          />
+          <Spacer size="sm" />
+          <IconButton
+            text="Advanced"
+            variant="transparent"
+            onClick={() => setAdvanced(!advanced)}
+          >
+            {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </IconButton>
+        </>
       ) : null}
 
       <Spacer size="sm" />
@@ -470,7 +507,7 @@ const AddLiquidity: React.FC = () => {
           <Spacer size="sm" />
           <LineItem
             label={`Your Share % of Pool`}
-            data={caculatePoolShare()}
+            data={calculatePoolShare()}
             units={`%`}
           />
           <Spacer />
@@ -483,7 +520,7 @@ const AddLiquidity: React.FC = () => {
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
             This amount of underlying tokens is above our guardrail cap of
-            $15,000
+            $150,000
           </WarningLabel>
           <Spacer size="sm" />
         </>
@@ -516,7 +553,11 @@ const AddLiquidity: React.FC = () => {
 
             <Button
               disabled={
-                !approved || !inputs.primary || submitting || isAboveGuardCap()
+                !approved ||
+                !inputs.primary ||
+                (hasLiquidity ? null : !inputs.secondary) ||
+                submitting ||
+                isAboveGuardCap()
               }
               full
               size="sm"
@@ -530,13 +571,6 @@ const AddLiquidity: React.FC = () => {
     </>
   )
 }
-
-const StyledAdd = styled.div`
-  color: ${(props) => props.theme.color.grey[400]};
-  display: flex;
-  justify-content: center;
-  margin: 0.7em;
-`
 const StyledText = styled.h5`
   color: ${(props) => props.theme.color.white};
   display: flex;
