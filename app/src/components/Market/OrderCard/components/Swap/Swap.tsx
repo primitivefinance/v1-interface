@@ -53,7 +53,7 @@ const Swap: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   const [checking, setChecking] = useState(true)
   // approval state
-  const { item, orderType, approved, loading, lpApproved } = useItem()
+  const { item, orderType, loading, approved, lpApproved } = useItem()
   const txs = useAllTransactions()
 
   // inputs for user quantity
@@ -94,6 +94,15 @@ const Swap: React.FC = () => {
         tip: 'Purchase tokenized, written covered options.',
       }
       tokenAddress = underlyingToken.address
+      balance = underlyingToken
+      break
+    case Operation.WRITE:
+      title = {
+        text: 'Write Options',
+        tip:
+          'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
+      }
+      tokenAddress = item.entity.address //underlyingToken.address
       balance = underlyingToken
       break
     case Operation.CLOSE_LONG:
@@ -183,12 +192,10 @@ const Swap: React.FC = () => {
     let size = inputs.primary === '' ? '0' : inputs.primary
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
-    console.log(size)
     size = item.entity.isCall
       ? size
       : formatEther(parseEther(size).mul(quote).div(base))
 
-    console.log(size)
     // buy long
     if (item.premium) {
       debit = premiumMulSize(item.premium.toString(), size)
@@ -245,7 +252,8 @@ const Swap: React.FC = () => {
           data={formatEther(item.shortPremium)}
           units={entity.isPut ? 'DAI' : item.asset}
         />
-      ) : orderType === Operation.CLOSE_LONG ? (
+      ) : orderType === Operation.WRITE ||
+        orderType === Operation.CLOSE_LONG ? (
         <LineItem
           label="Option Premium"
           data={formatEther(item.closePremium)}
@@ -279,7 +287,8 @@ const Swap: React.FC = () => {
             units={`- ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
           />
         </>
-      ) : orderType === Operation.CLOSE_LONG ? (
+      ) : orderType === Operation.WRITE ||
+        orderType === Operation.CLOSE_LONG ? (
         <>
           <LineItem
             label={'Total Credit'}

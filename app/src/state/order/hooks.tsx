@@ -137,6 +137,9 @@ export const useUpdateItem = (): ((
             case Operation.SHORT:
               tokenAddress = underlyingToken.address
               break
+            case Operation.WRITE:
+              tokenAddress = item.entity.address //underlyingToken.address
+              break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
               break
@@ -144,6 +147,7 @@ export const useUpdateItem = (): ((
               tokenAddress = item.entity.assetAddresses[2]
               break
             default:
+              tokenAddress = underlyingToken.address
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
@@ -302,6 +306,23 @@ export const useHandleSubmitOrder = (): ((
             trade.path
           )
           trade.outputAmount.quantity = amountsOut[1]
+          transaction = Uniswap.singlePositionCallParameters(
+            trade,
+            tradeSettings
+          )
+          break
+        case Operation.WRITE:
+          trade.path = [
+            assetAddresses[0], // underlying
+            assetAddresses[2], // redeem
+          ]
+          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
+          trade.reserves = await trade.getReserves(
+            signer,
+            factory,
+            trade.path[0],
+            trade.path[1]
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
