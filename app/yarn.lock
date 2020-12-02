@@ -2857,19 +2857,19 @@
     fastq "^1.6.0"
 
 "@openzeppelin/contracts@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.2.0.tgz#3e6b3a7662d8ed64271ade96ef42655db983fd9d"
-  integrity sha512-bUOmkSoPkjnUyMiKo6RYnb0VHBk5D9KKDAgNLzF41aqAM3TeE0yGdFF5dVRcV60pZdJLlyFT/jjXIZCWyyEzAQ==
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.3.0.tgz#ffdb693c5c349fc33bba420248dd3ac0a2d7c408"
+  integrity sha512-AemZEsQYtUp1WRkcmZm1div5ORfTpLquLaziCIrSagjxyKdmObxuaY1yjQ5SHFMctR8rLwp706NXTbiIRJg7pw==
 
 "@primitivefi/contracts@0.4.4", "@primitivefi/contracts@^0.4.2":
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
-"@primitivefi/v1-connectors@1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.1.tgz#b5ac690c14a133e239c786590bc397ac3bad23b6"
-  integrity sha512-23RZGeCBrzU30hcmW4Pphcayd6PpsSVlVD/g54bvbOqNNCsO91MlKnETUDedpE95GNXBzq5Nc21NDsk1AENATg==
+"@primitivefi/v1-connectors@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.2.tgz#78b4447704f11e1b8e2ecd62058f71667556cd42"
+  integrity sha512-1vIEMbJOBpO+iQ+748UFFRRLIR0DYAFyIOWRXYGML5cdd0RoMpmkjWwpyJiXTDGfSf/81W650b2VmWTJtRmkyA==
   dependencies:
     "@openzeppelin/contracts" "^3.2.0"
     "@primitivefi/contracts" "^0.4.2"
