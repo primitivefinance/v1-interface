@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import ethers, { BigNumber } from 'ethers'
-import { Operation } from '../constants'
+import { Operation } from '../../constants'
 import {
   COINGECKO_ID_FOR_MARKET,
   NAME_FOR_MARKET,
