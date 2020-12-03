@@ -13,23 +13,18 @@ import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
-import useGuardCap from '@/hooks/transactions/useGuardCap'
-
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-
-import useApprove from '@/hooks/transactions/useApprove'
-import useTokenAllowance, {
-  useGetTokenAllowance,
-} from '@/hooks/useTokenAllowance'
-import useTokenBalance from '@/hooks/useTokenBalance'
-
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
+import useGuardCap from '@/hooks/transactions/useGuardCap'
+import useApprove from '@/hooks/transactions/useApprove'
+
+import useTokenBalance from '@/hooks/useTokenBalance'
+
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
-import { useAllTransactions } from '@/state/transactions/hooks'
 
 import {
   useItem,
@@ -38,11 +33,14 @@ import {
   useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
+import {
+  useSwapActionHandlers,
+  useSwap,
+  tryParseAmount,
+} from '@/state/swap/hooks'
 
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
-
-import formatEtherBalance from '@/utils/formatEtherBalance'
+import { Token, TokenAmount } from '@uniswap/sdk'
 
 const Swap: React.FC = () => {
   // executes transactions
@@ -51,17 +49,14 @@ const Swap: React.FC = () => {
   const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
-  const [checking, setChecking] = useState(true)
   // approval state
-  const { item, orderType, loading, approved, lpApproved } = useItem()
-  const txs = useAllTransactions()
+  const { item, orderType, loading, approved } = useItem()
 
-  // inputs for user quantity
-  const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
-  })
-  // web3
+  // inputs for quant
+  const { typedValue } = useSwap()
+  const { onUserInput } = useSwapActionHandlers()
+  const parsedAmount = tryParseAmount(typedValue)
+  // web3/
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
   // guard cap
@@ -136,49 +131,41 @@ const Swap: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
-  const handleInputChange = useCallback(
-    (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({
-        ...inputs,
-        [e.currentTarget.name]: e.currentTarget.value,
-      })
+  const handleTypeInput = useCallback(
+    (value: string) => {
+      onUserInput(value)
+      console.log(parsedAmount)
     },
-    [setInputs, inputs]
+    [onUserInput]
   )
 
-  // FIX
-  const handleSetMax = () => {
-    const max =
-      ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
-
-    setInputs({
-      ...inputs,
-      primary: parseFloat(tokenBalance).toFixed(10).toString(),
-    })
-  }
+  const handleSetMax = useCallback(() => {
+    tokenBalance && onUserInput(tokenBalance)
+  }, [tokenBalance, onUserInput])
 
   const handleSubmitClick = useCallback(() => {
-    const imp = BigInt(
-      (parseFloat(inputs.primary) * 1000000000000000000).toString()
-    )
-
+    console.log(parsedAmount)
+    console.log(typedValue)
     submitOrder(
       library,
       item?.address,
-      imp,
+      BigInt(parsedAmount.toString()),
       orderType,
-      BigInt(inputs.secondary)
+      BigInt('0')
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType])
+  }, [submitOrder, removeItem, item, library, parsedAmount, orderType])
 
   const premiumMulSize = (premium, size) => {
-    const premiumWei = BigNumber.from(premium)
-    if (size === '') return '0'
-    const sizeWei = parseEther(parseFloat(size).toString())
+    const premiumWei = BigNumber.from(BigInt(parseFloat(premium)).toString())
+
+    if (size?.toString() === '0' || !size || premiumWei.toString() === '')
+      return '0'
+
     const debit = formatEther(
-      premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+      premiumWei.mul(size).div(BigNumber.from('1000000000000000000')).toString()
     )
+    console.log(debit)
     return debit
   }
 
@@ -186,13 +173,10 @@ const Swap: React.FC = () => {
     let debit = '0'
     let credit = '0'
     let short = '0'
-    let size = inputs.primary === '' ? '0' : inputs.primary
+    let size = parsedAmount
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
-    size = item.entity.isCall
-      ? size
-      : formatEther(parseEther(size).mul(quote).div(base))
-
+    size = item.entity.isCall ? size : size.mul(quote).div(base)
     // buy long
     if (item.premium) {
       debit = premiumMulSize(item.premium.toString(), size)
@@ -208,15 +192,12 @@ const Swap: React.FC = () => {
       short = premiumMulSize(item.shortPremium.toString(), size)
     }
     return { debit, credit, short }
-  }, [item, inputs])
+  }, [item, parsedAmount])
 
   const isAboveGuardCap = useCallback(() => {
-    const inputValue =
-      inputs.primary !== ''
-        ? parseEther(parseFloat(inputs.primary).toString())
-        : parseEther('0')
-    return BigNumber.from(inputValue).gt(guardCap) && chainId === 1
-  }, [inputs, guardCap])
+    const inputValue = parsedAmount
+    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
+  }, [parsedAmount, guardCap])
 
   const handleApproval = useCallback(() => {
     onApprove()
@@ -224,7 +205,7 @@ const Swap: React.FC = () => {
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, onApprove])
+  }, [item, onApprove])
 
   return (
     <>
@@ -267,8 +248,8 @@ const Swap: React.FC = () => {
       <PriceInput
         title="Quantity"
         name="primary"
-        onChange={handleInputChange}
-        quantity={inputs.primary}
+        onChange={handleTypeInput}
+        quantity={typedValue}
         onClick={handleSetMax}
         balance={tokenAmount}
         valid={parseEther(underlyingTokenBalance).gt(
@@ -331,8 +312,7 @@ const Swap: React.FC = () => {
         <>
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of
-            $10,000
+            This amount of tokens is above our guardrail cap of $100,000
           </WarningLabel>
           <Spacer size="sm" />
         </>
@@ -349,23 +329,62 @@ const Swap: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved ? (
-              <> </>
+            {orderType === Operation.MINT ? (
+              <>
+                {approved[0] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
+                {approved[1] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
+              </>
             ) : (
               <>
-                <Button
-                  disabled={loading}
-                  full
-                  size="sm"
-                  onClick={handleApproval}
-                  isLoading={loading}
-                  text="Approve"
-                />
+                {approved[0] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
               </>
             )}
+
             <Button
               disabled={
-                !approved || !inputs.primary || loading || isAboveGuardCap()
+                !approved[0] ||
+                !parsedAmount?.gt(0) ||
+                loading ||
+                isAboveGuardCap()
               }
               full
               size="sm"

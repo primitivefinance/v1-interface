@@ -93,7 +93,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
-          <Spacer />
           <CustomButton>
             <Button
               variant="transparent"
@@ -103,6 +102,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               {manage ? <NavigateBeforeIcon /> : <NavigateNextIcon />}
             </Button>
           </CustomButton>
+          <Spacer />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
               <ClearIcon />
@@ -121,7 +121,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   )
 }
 const CustomButton = styled.div`
-  margin-top: -1.1em;
+  margin-top: -0.2em;
   background: none;
 `
 const Reverse = styled.div`
