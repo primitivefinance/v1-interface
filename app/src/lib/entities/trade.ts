@@ -289,14 +289,16 @@ export class Trade {
       .div(quote)
     // CLOSE PREMIUM MATH
     const amountsIn = Trade.getAmountsInPure(
-      quote,
+      quantityShort,
       path,
       reserves[0],
       reserves[1]
     )
     const underlyingsRequired = amountsIn[0]
-    const underlyingPayout = BigNumber.from(base).gt(underlyingsRequired)
-      ? BigNumber.from(base).sub(underlyingsRequired)
+    const underlyingPayout = BigNumber.from(underlyingsMinted).gt(
+      underlyingsRequired
+    )
+      ? BigNumber.from(underlyingsMinted).sub(underlyingsRequired)
       : parseEther('0')
     return underlyingPayout
   }
@@ -319,8 +321,7 @@ export class Trade {
     path: string[], // redeem -> underlying
     reserves: BigNumberish[]
   ): BigNumberish => {
-    const quantity = parseEther('1')
-    const premium = Trade.getClosePremium(quantity, base, quote, path, reserves)
+    const premium = Trade.getClosePremium(quote, base, quote, path, reserves)
     return premium
   }
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import ethers, { BigNumber } from 'ethers'
-import { Operation } from '../constants'
+import { Operation } from '../../constants'
 import {
   COINGECKO_ID_FOR_MARKET,
   NAME_FOR_MARKET,
@@ -32,10 +32,10 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
       if (data[key]) {
         switch (orderType) {
           case Operation.ADD_LIQUIDITY:
-            setCap((15000 / data[key].usd).toString())
+            setCap((150000 / data[key].usd).toString())
             break
           default:
-            setCap((10000 / data[key].usd).toString())
+            setCap((100000 / data[key].usd).toString())
             break
         }
       }

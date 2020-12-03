@@ -130,7 +130,17 @@ const OrderOptions: React.FC = () => {
                 <Button full size="sm" onClick={() => change(Operation.LONG)}>
                   Buy
                 </Button>
-                <Spacer />
+                <Spacer size="sm" />
+                <Button
+                  full
+                  disabled={false}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => change(Operation.CLOSE_LONG)}
+                >
+                  Sell
+                </Button>
+                <Spacer size="sm" />
                 <Button
                   full
                   disabled={
@@ -142,9 +152,9 @@ const OrderOptions: React.FC = () => {
                   }
                   size="sm"
                   variant="secondary"
-                  onClick={() => change(Operation.CLOSE_LONG)}
+                  onClick={() => change(Operation.WRITE)}
                 >
-                  Sell
+                  Write
                 </Button>
               </Box>
             </StyledColumn>

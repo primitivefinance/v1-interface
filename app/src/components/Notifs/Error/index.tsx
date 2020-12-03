@@ -26,7 +26,7 @@ const Error: React.FC<ErrorProps> = ({ title, msg, link }) => {
         <CardTitle>
           <StyledTitle>
             <ErrorIcon /> <Spacer size="sm" />
-            Error
+            {title === '' ? 'Error' : title}
           </StyledTitle>
           <Button variant="transparent" size="sm" onClick={() => clearNotif(0)}>
             <ClearIcon />

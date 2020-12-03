@@ -8,6 +8,7 @@ import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/Uniswa
 import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
 import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import { TradeSettings, SinglePositionParameters } from './types'
+import { UNISWAP_CONNECTOR } from '../constants'
 
 /**
  * Represents the UniswapConnector contract.
@@ -89,6 +90,34 @@ export class Uniswap {
         value = '0'
 
         contractsToApprove = [UNISWAP_ROUTER02_V2]
+        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
+      case Operation.WRITE:
+        // Just purchase redeemTokens from a redeem<>underlying token pair
+        amountIn = trade.inputAmount.quantity.toString()
+        const amountInShort = BigNumber.from(amountIn)
+          .mul(trade.option.quote.quantity)
+          .div(trade.option.base.quantity)
+        let minPayout = Trade.getClosePremium(
+          amountInShort,
+          trade.option.base.quantity,
+          trade.option.quote.quantity,
+          trade.path,
+          trade.reserves
+        )
+        if (BigNumber.from(minPayout).lte(0)) {
+          minPayout = '1'
+        }
+        contract = new ethers.Contract(
+          uniswapConnectorAddress,
+          UniswapConnector.abi,
+          trade.signer
+        )
+        methodName = 'mintOptionsThenFlashCloseLong'
+        args = [trade.option.address, amountIn, minPayout.toString()]
+        value = '0'
+
+        contractsToApprove = [uniswapConnectorAddress]
         tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.CLOSE_LONG:

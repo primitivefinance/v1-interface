@@ -63,6 +63,7 @@ export const useUpdateItem = (): ((
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
+
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
       let approved = false
@@ -97,7 +98,7 @@ export const useUpdateItem = (): ((
             orderType,
             loading: false,
             approved: false,
-            lpApporved: false,
+            lpApproved: false,
           })
         )
         return
@@ -186,6 +187,9 @@ export const useUpdateItem = (): ((
             case Operation.SHORT:
               tokenAddress = underlyingToken.address
               break
+            case Operation.WRITE:
+              tokenAddress = item.entity.address //underlyingToken.address FIX: double approval
+              break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
               break
@@ -193,6 +197,7 @@ export const useUpdateItem = (): ((
               tokenAddress = item.entity.assetAddresses[2]
               break
             default:
+              tokenAddress = underlyingToken.address
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
@@ -296,7 +301,6 @@ export const useHandleSubmitOrder = (): ((
         operation,
         signer
       )
-
       const factory = new ethers.Contract(
         UNISWAP_FACTORY_V2,
         UniswapV2Factory.abi,
@@ -351,6 +355,23 @@ export const useHandleSubmitOrder = (): ((
             trade.path
           )
           trade.outputAmount.quantity = amountsOut[1]
+          transaction = Uniswap.singlePositionCallParameters(
+            trade,
+            tradeSettings
+          )
+          break
+        case Operation.WRITE:
+          trade.path = [
+            assetAddresses[0], // underlying
+            assetAddresses[2], // redeem
+          ]
+          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
+          trade.reserves = await trade.getReserves(
+            signer,
+            factory,
+            trade.path[0],
+            trade.path[1]
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -428,9 +449,10 @@ export const useHandleSubmitOrder = (): ((
           // The actual function will take the redeemQuantity rather than the optionQuantity.
           const out =
             secondaryQuantity !== BigInt('0')
-              ? BigNumber.from(BigInt(secondaryQuantity.toString()).toString())
+              ? BigNumber.from(secondaryQuantity.toString())
               : BigNumber.from('0')
 
+          console.log(out.toString())
           trade.outputAmount = new Quantity(
             new Asset(18), // fix with actual metadata
             out
@@ -501,7 +523,6 @@ export const useHandleSubmitOrder = (): ((
           )
           break
       }
-
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
@@ -523,7 +544,7 @@ export const useHandleSubmitOrder = (): ((
           }
         })
         .catch((err) => {
-          throwError(0, '', `${err.message}`, '')
+          throwError(0, 'Order Error', `${err.message}`, '')
         })
     },
     [dispatch, account, addTransaction]
