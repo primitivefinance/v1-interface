@@ -280,7 +280,12 @@ const AddLiquidity: React.FC = () => {
   }, [lpPair, lp, lpTotalSupply])
 
   const calculateImpliedPrice = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null || !hasLiquidity) {
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      !hasLiquidity ||
+      parsedOptionAmount !== undefined
+    ) {
       const inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options
         .mul(item.entity.optionParameters.quote.quantity)
         .div(item.entity.optionParameters.base.quantity)
