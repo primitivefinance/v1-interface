@@ -30,7 +30,11 @@ import {
   useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-
+import {
+  useSwapActionHandlers,
+  useSwap,
+  tryParseAmount,
+} from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 
@@ -40,14 +44,14 @@ const Manage: React.FC = () => {
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
   // approval state
-  const { item, orderType, approved, loading, lpApproved } = useItem()
+  const { item, orderType, approved, loading } = useItem()
   const txs = useAllTransactions()
 
   // inputs for user quantity
-  const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
-  })
+  // inputs for quant
+  const { typedValue } = useSwap()
+  const { onUserInput } = useSwapActionHandlers()
+  const parsedAmount = tryParseAmount(typedValue)
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
@@ -112,57 +116,41 @@ const Manage: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
-  const strikeBalance = useTokenBalance(
-    entity.assetAddresses[2],
-    entity.address
-  )
+  const strikeBalance = useTokenBalance(entity.assetAddresses[2])
 
   const handleInputChange = useCallback(
-    (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({
-        ...inputs,
-        [e.currentTarget.name]: e.currentTarget.value,
-      })
+    (value: string) => {
+      onUserInput(value)
     },
-    [setInputs, inputs]
+    [onUserInput]
   )
 
   // FIX
-  const handleSetMax = () => {
-    const max =
-      ((+underlyingTokenBalance / (+item.premium + Number.EPSILON)) * 100) / 100
-
-    setInputs({
-      ...inputs,
-      primary: parseFloat(tokenBalance).toFixed(10).toString(),
-    })
-  }
+  const handleSetMax = useCallback(() => {
+    tokenBalance && onUserInput(tokenBalance)
+  }, [tokenBalance, onUserInput])
 
   const handleSubmitClick = useCallback(() => {
-    const imp = BigInt(
-      (parseFloat(inputs.primary) * 1000000000000000000).toString()
-    )
-    console.log(imp.toString())
-    console.log(
-      BigInt(parseFloat(tokenBalance) * 1000000000000000000).toString()
-    )
     submitOrder(
       library,
       item?.address,
-      imp,
+      BigInt(parsedAmount.toString()),
       orderType,
-      BigInt(inputs.secondary)
+      BigInt('0')
     )
     removeItem()
-  }, [submitOrder, removeItem, item, library, inputs, orderType])
+  }, [submitOrder, removeItem, item, library, parsedAmount, orderType])
 
   const premiumMulSize = (premium, size) => {
-    const premiumWei = BigNumber.from(premium)
-    if (size === '') return '0'
-    const sizeWei = parseEther(parseFloat(size).toString())
+    const premiumWei = BigNumber.from(BigInt(parseFloat(premium)).toString())
+
+    if (size?.toString() === '0' || !size || premiumWei.toString() === '')
+      return '0'
+
     const debit = formatEther(
-      premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+      premiumWei.mul(size).div(BigNumber.from('1000000000000000000')).toString()
     )
+    console.log(debit)
     return debit
   }
 
@@ -171,48 +159,42 @@ const Manage: React.FC = () => {
     let short = '0'
     let underlying = '0'
     let strike = '0'
-    let size = inputs.primary === '' ? '0' : inputs.primary
+    const size = parsedAmount
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
     switch (orderType) {
       case Operation.MINT:
-        long = size
-        short = BigNumber.from(size).mul(quote).div(base).toString()
+        long = size.toString()
+        short = size.mul(quote).div(base).toString()
         underlying = long
         break
       case Operation.EXERCISE:
-        long = size
+        long = size.toString()
         underlying = long
-        strike = BigNumber.from(size).mul(quote).div(base).toString()
+        strike = size.mul(quote).div(base).toString()
         break
       case Operation.REDEEM:
-        short = size
+        short = size.toString()
         strike = short
         break
       case Operation.CLOSE:
-        long = size
+        long = size.toString()
         underlying = long
-        short = BigNumber.from(size).mul(quote).div(base).toString()
+        short = size.mul(quote).div(base).toString()
         break
       default:
         break
     }
     return { long, short, underlying, strike }
-  }, [item, inputs, orderType])
+  }, [item, orderType, parsedAmount])
 
   const isAboveGuardCap = useCallback(() => {
-    const inputValue =
-      inputs.primary !== ''
-        ? parseEther(parseFloat(inputs.primary).toString())
-        : parseEther('0')
-    return BigNumber.from(inputValue).gt(guardCap) && chainId === 1
-  }, [inputs, guardCap])
+    const inputValue = parsedAmount
+    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
+  }, [parsedAmount, guardCap])
 
   const hasEnoughStrikeTokens = useCallback(() => {
-    const inputValue =
-      inputs.primary !== ''
-        ? parseEther(parseFloat(inputs.primary).toString())
-        : parseEther('0')
+    const inputValue = parsedAmount
     if (orderType === Operation.REDEEM) {
       return parseEther(parseFloat(strikeBalance).toString()).gt(
         BigNumber.from(inputValue)
@@ -220,7 +202,7 @@ const Manage: React.FC = () => {
     } else {
       return true
     }
-  }, [inputs, strikeBalance])
+  }, [parsedAmount, strikeBalance])
 
   const handleApproval = useCallback(() => {
     onApprove()
@@ -228,7 +210,7 @@ const Manage: React.FC = () => {
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [inputs, onApprove])
+  }, [item, onApprove])
 
   return (
     <>
@@ -251,7 +233,7 @@ const Manage: React.FC = () => {
         title="Quantity"
         name="primary"
         onChange={handleInputChange}
-        quantity={inputs.primary}
+        quantity={typedValue}
         onClick={handleSetMax}
         balance={tokenAmount}
         valid={parseEther(underlyingTokenBalance).gt(
@@ -358,7 +340,7 @@ const Manage: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved ? (
+            {approved[0] ? (
               <> </>
             ) : (
               <>
@@ -374,8 +356,8 @@ const Manage: React.FC = () => {
             )}
             <Button
               disabled={
-                !approved ||
-                !inputs.primary ||
+                !approved[0] ||
+                !parsedAmount.gt(0) ||
                 loading ||
                 isAboveGuardCap() ||
                 !hasEnoughStrikeTokens()
