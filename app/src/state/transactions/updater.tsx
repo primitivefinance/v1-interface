@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useBlockNumber } from '@/hooks/data/index'
@@ -40,10 +41,11 @@ export function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
+  const router = useRouter()
   const options = useOptions()
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   const updateItem = useUpdateItem()
   const { data } = useBlockNumber()
   const lastBlockNumber = data
@@ -110,10 +112,10 @@ export default function Updater(): null {
                 )
               }
               const app = transactions[hash].approval
-              if ((!approved && app) || (!lpApproved && app)) {
+              if ((!approved[0] && app) || (!approved[1] && app)) {
                 if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
                   // EXTREMELY DIRTY SOLUTION...
-                  updateItem(item, Operation.NONE)
+                  router.reload()
                 } else {
                   updateItem(item, orderType)
                 }

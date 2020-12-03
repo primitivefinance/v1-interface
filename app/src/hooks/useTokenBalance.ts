@@ -7,7 +7,7 @@ import { getBalance } from '../lib/erc20'
 import { BigNumberish } from 'ethers'
 import { isAddress, getAddress } from '@ethersproject/address'
 
-const useTokenBalance = (tokenAddress: string) => {
+const useTokenBalance = (tokenAddress: string, from?: string) => {
   const [balance, setBalance] = useState('0')
   const { account, library } = useWeb3React()
 
@@ -17,12 +17,12 @@ const useTokenBalance = (tokenAddress: string) => {
     const code: any = await library.getCode(tokenAddress)
     let balance: BigNumberish = 0
     if (code > 0) {
-      balance = await getBalance(library, tokenAddress, account)
+      balance = await getBalance(library, tokenAddress, from ? from : account)
     }
     if (balance) {
       setBalance(formatEther(balance))
     }
-  }, [account, library, tokenAddress])
+  }, [account, library, tokenAddress, from])
 
   useEffect(() => {
     if (account && library) {

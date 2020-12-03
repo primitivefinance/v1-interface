@@ -25,7 +25,6 @@ import {
   TransactionCard,
   OrderCard,
   PositionsCard,
-  NewMarketCard,
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
 
@@ -140,7 +139,6 @@ const Market = ({ market, data }) => {
                 <Spacer size="sm" />
                 <PositionsCard />
                 <OrderCard orderState={data} />
-                <NewMarketCard />
                 <Spacer size="sm" />
                 <TransactionCard />
                 <Spacer />

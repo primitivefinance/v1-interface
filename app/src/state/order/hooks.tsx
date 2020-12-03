@@ -1,9 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { Contract } from '@ethersproject/contracts'
 
-import { initialState } from './reducer'
 import { removeItem, updateItem } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
@@ -31,7 +29,7 @@ import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
 import { useReserves } from '@/hooks/data'
 import executeTransaction, {
   checkAllowance,
@@ -42,13 +40,14 @@ import { useSlippage } from '@/hooks/user'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
+import { useClearSwap } from '@/state/swap/hooks'
+import { useClearLP } from '@/state/liquidity/hooks'
 
 export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
   loading: boolean
-  approved: boolean
-  lpApproved: boolean
+  approved: boolean[]
   checked: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
@@ -63,26 +62,42 @@ export const useUpdateItem = (): ((
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
-
+  const clear = useClearSwap()
+  const clearLP = useClearLP()
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
-      let approved = false
-      let lpApproved = false
       const underlyingToken: Token = new Token(
         item.entity.chainId,
         item.entity.assetAddresses[0],
         18,
         item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
       )
-
+      let manage = false
+      switch (orderType) {
+        case Operation.MINT:
+          manage = true
+          break
+        case Operation.EXERCISE:
+          manage = true
+          break
+        case Operation.REDEEM:
+          manage = true
+          break
+        case Operation.CLOSE:
+          manage = true
+          break
+        default:
+          break
+      }
       if (orderType === Operation.NONE) {
+        clear()
+        clearLP()
         dispatch(
           updateItem({
             item,
             orderType,
             loading: false,
-            approved: false,
-            lpApproved: false,
+            approved: [false, false],
           })
         )
         return
@@ -97,14 +112,15 @@ export const useUpdateItem = (): ((
               item.entity.assetAddresses[0],
               spender
             )
-            approved = parseEther(tokenAllowance).gt(parseEther('0'))
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved,
-                lpApproved,
+                approved: [
+                  parseEther(tokenAllowance).gt(parseEther('0')),
+                  false,
+                ],
               })
             )
             return
@@ -112,20 +128,49 @@ export const useUpdateItem = (): ((
           if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE && lpPair) {
             const lpToken = lpPair.liquidityToken.address
             const optionAllowance = await getAllowance(item.address, spender)
-            approved = parseEther(optionAllowance).gt(parseEther('0'))
             const lpAllowance = await getAllowance(lpToken, spender)
-            lpApproved = parseEther(lpAllowance).gt(parseEther('0'))
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved,
-                lpApproved,
+                approved: [
+                  parseEther(optionAllowance).gt(parseEther('0')),
+                  parseEther(lpAllowance).gt(parseEther('0')),
+                ],
               })
             )
             return
           }
+        } else if (manage) {
+          let tokenAddress
+          switch (orderType) {
+            case Operation.MINT:
+              tokenAddress = underlyingToken.address
+              break
+            case Operation.EXERCISE:
+              tokenAddress = item.entity.address // item.entity.assetAddresses[1] FIX DOUBLE APPROVAL
+              break
+            case Operation.REDEEM:
+              tokenAddress = item.entity.assetAddresses[2]
+              break
+            case Operation.CLOSE:
+              tokenAddress = item.entity.address // item.entity.assetAddresses[2] FIX DOUBLE APPROVAL
+              break
+            default:
+              break
+          }
+          const spender = TRADER[chainId]
+          const tokenAllowance = await getAllowance(tokenAddress, spender)
+          dispatch(
+            updateItem({
+              item,
+              orderType,
+              loading: false,
+              approved: [parseEther(tokenAllowance).gt(parseEther('0')), false],
+            })
+          )
+          return
         } else {
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
@@ -153,15 +198,12 @@ export const useUpdateItem = (): ((
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
-          approved = parseEther(tokenAllowance).gt(parseEther('0'))
-          lpApproved = false
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
-              approved,
-              lpApproved,
+              approved: [parseEther(tokenAllowance).gt(parseEther('0')), false],
             })
           )
           return
@@ -475,6 +517,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
       }
+      console.log(trade)
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {

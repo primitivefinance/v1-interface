@@ -14,8 +14,8 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 export interface PriceInputProps {
   name?: string
   title: string
-  quantity: BigNumberish | number | BigInt
-  onChange: (e: React.FormEvent<HTMLInputElement>) => void
+  quantity: string | undefined
+  onChange: (input: string) => void
   onClick: () => void
   startAdornment?: React.ReactNode
   balance?: TokenAmount
@@ -41,13 +41,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
         placeholder={'0.00'}
         startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
-        value={`${
-          quantity
-            ? (
-                Math.ceil(parseFloat(quantity.toString()) * 10000) / 10000
-              ).toString()
-            : ''
-        }`}
+        value={quantity ? quantity : ''}
         endAdornment={
           <Button size="sm" variant="secondary" text="Max" onClick={onClick} />
         }
