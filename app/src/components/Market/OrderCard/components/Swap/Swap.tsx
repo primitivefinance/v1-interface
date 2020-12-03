@@ -26,6 +26,8 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 
+import formatBalance from '@/utils/formatBalance'
+
 import {
   useItem,
   useUpdateItem,
@@ -41,6 +43,7 @@ import {
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const Swap: React.FC = () => {
   // executes transactions
@@ -194,6 +197,14 @@ const Swap: React.FC = () => {
     return { debit, credit, short }
   }, [item, parsedAmount])
 
+  const calculateProportionalShort = useCallback(() => {
+    const sizeWei = parsedAmount
+    const base = item.entity.base.quantity.toString()
+    const quote = item.entity.quote.quantity.toString()
+    const amount = BigNumber.from(sizeWei).mul(quote).div(base)
+    return formatEtherBalance(amount)
+  }, [item, parsedAmount])
+
   const isAboveGuardCap = useCallback(() => {
     const inputValue = parsedAmount
     return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
@@ -257,7 +268,7 @@ const Swap: React.FC = () => {
         )}
       />
       <Spacer size="sm" />
-      {orderType === Operation.LONG ? (
+      {/* {orderType === Operation.LONG ? (
         <>
           <LineItem
             label={'Total Debit'}
@@ -289,7 +300,109 @@ const Swap: React.FC = () => {
         </>
       ) : (
         <></>
+      )} */}
+      {parsedAmount.gt(0) ? (
+        <>
+          {' '}
+          <Spacer />
+          <PurchaseInfo>
+            You will{' '}
+            <StyledData>
+              {orderType === Operation.LONG || orderType === Operation.SHORT
+                ? 'BUY'
+                : orderType === Operation.WRITE
+                ? 'SELL TO OPEN'
+                : 'SELL'}
+            </StyledData>{' '}
+            <StyledData>
+              {' '}
+              {formatEtherBalance(parsedAmount)}{' '}
+              {orderType === Operation.SHORT ||
+              orderType === Operation.CLOSE_SHORT
+                ? 'SHORT'
+                : ''}{' '}
+              {entity.isPut ? 'PUT' : 'CALL'}{' '}
+            </StyledData>
+            {orderType === Operation.CLOSE_LONG ||
+            orderType === Operation.CLOSE_SHORT ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : orderType === Operation.SHORT ? (
+              <>
+                which gives you the right to right to withdraw{' '}
+                <StyledData>
+                  {formatEtherBalance(parsedAmount)}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                when the options expire unexercised, or the right to redeem them
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>{' '}
+                if they are exercised.{' '}
+              </>
+            ) : orderType === Operation.WRITE ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : orderType === Operation.LONG ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().debit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>{' '}
+                which gives you the right to purchase{' '}
+                <StyledData>
+                  {formatEtherBalance(parsedAmount)}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : (
+              <>
+                which gives you the right to purchase{' '}
+                <StyledData>
+                  {formatEtherBalance(parsedAmount)}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            )}
+          </PurchaseInfo>
+        </>
+      ) : (
+        <> </>
       )}
+
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -404,4 +517,16 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
+
+const PurchaseInfo = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+`
+
+const StyledData = styled.span`
+  color: ${(props) => props.theme.color.white};
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+`
+
 export default Swap
