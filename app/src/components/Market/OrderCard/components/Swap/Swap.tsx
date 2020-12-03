@@ -312,8 +312,7 @@ const Swap: React.FC = () => {
         <>
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of
-            $10,000
+            This amount of tokens is above our guardrail cap of $100,000
           </WarningLabel>
           <Spacer size="sm" />
         </>

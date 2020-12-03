@@ -58,7 +58,7 @@ const RemoveLiquidity: React.FC = () => {
   //slider
   const [ratio, setRatio] = useState(100)
   // option entity in order
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: BigInt(''),
@@ -408,7 +408,7 @@ const RemoveLiquidity: React.FC = () => {
       <LineItem
         label="And requires"
         data={`${numeral(calculateRequiredLong()).format('0.00')}`}
-        units={`Options`}
+        units={`LONG`}
       />
       {parseEther(calculateRequiredLong()).gt(parseEther(optionBalance)) ? (
         <>
@@ -422,7 +422,7 @@ const RemoveLiquidity: React.FC = () => {
                 )
               )
             ).format('0.00')}`}
-            units={`Options`}
+            units={`LONG`}
           />{' '}
         </>
       ) : (
@@ -491,7 +491,7 @@ const RemoveLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {lpApproved ? (
+            {approved[1] ? (
               <></>
             ) : (
               <Button
@@ -504,7 +504,7 @@ const RemoveLiquidity: React.FC = () => {
               />
             )}
 
-            {approved ? (
+            {approved[0] ? (
               <></>
             ) : (
               <Button
@@ -516,7 +516,7 @@ const RemoveLiquidity: React.FC = () => {
                 text="Approve Options"
               />
             )}
-            {!approved || !lpApproved ? null : (
+            {!approved[0] || !approved[1] ? null : (
               <Button
                 disabled={submitting}
                 full

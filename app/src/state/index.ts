@@ -26,7 +26,8 @@ const store = configureStore({
       // Ignore these action types
       ignoredActions: [
         '<root>',
-        'liquidity/typeInput',
+        'liquidity/optionInput',
+        'liquidity/underInput',
         'liquidity/clearInput',
         'notifs/clearNotif',
         'nofifs/addNotif',

@@ -204,7 +204,7 @@ const StyledTitle = styled.h4`
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
   border-radius: 0.5em;
-  min-height: 2em;
+  min-height: 1.5em;
   cursor: pointer;
   margin-bottom: 0.3em;
   margin-top: -0.3em;
