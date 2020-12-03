@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useRouter } from 'next/router'
 import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
+import SettingsIcon from '@material-ui/icons/Settings'
+import NavigateNextIcon from '@material-ui/icons/NavigateNext'
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore'
 
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
@@ -15,20 +18,25 @@ import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Submit from './components/Submit'
 import OrderOptions from './components/OrderOptions'
+import ManageOptions from './components/ManageOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 import { EmptyAttributes } from '@/state/options/reducer'
 import numeral from 'numeral'
 
-const OrderContent: React.FC = () => {
+export interface OrderContentProps {
+  manage: boolean
+}
+
+const OrderContent: React.FC<OrderContentProps> = ({ manage }) => {
   const { orderType } = useItem()
 
   if (orderType !== Operation.NONE) {
     return <Submit orderType={orderType} />
   }
   if (orderType === Operation.NONE) {
-    return <OrderOptions />
+    return <>{manage ? <ManageOptions /> : <OrderOptions />} </>
   }
 }
 
@@ -37,6 +45,7 @@ export interface OrderProps {
 }
 
 const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
+  const [manage, setManage] = useState(false)
   const { item } = useItem()
   const removeItem = useRemoveItem()
   const updateItem = useUpdateItem()
@@ -86,6 +95,15 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </StyledTitle>
           <Spacer />
           <CustomButton>
+            <Button
+              variant="transparent"
+              size="sm"
+              onClick={() => setManage(!manage)}
+            >
+              {manage ? <NavigateBeforeIcon /> : <NavigateNextIcon />}
+            </Button>
+          </CustomButton>
+          <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
               <ClearIcon />
             </Button>
@@ -95,7 +113,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           <Spacer size="sm" />
           <Reverse />
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
-            <OrderContent />
+            <OrderContent manage={manage} />
           </ErrorBoundary>
         </CardContent>
       </Card>
