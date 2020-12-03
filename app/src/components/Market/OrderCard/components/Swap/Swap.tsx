@@ -31,6 +31,8 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { useAllTransactions } from '@/state/transactions/hooks'
 
+import formatBalance from '@/utils/formatBalance'
+
 import {
   useItem,
   useUpdateItem,
@@ -210,6 +212,15 @@ const Swap: React.FC = () => {
     return { debit, credit, short }
   }, [item, inputs])
 
+  const calculateProportionalShort = useCallback(() => {
+    const size = inputs.primary === '' ? '0' : inputs.primary
+    const sizeWei = parseEther(parseFloat(size).toString())
+    const base = item.entity.base.quantity.toString()
+    const quote = item.entity.quote.quantity.toString()
+    const amount = BigNumber.from(sizeWei).mul(quote).div(base)
+    return formatEtherBalance(amount)
+  }, [item, inputs])
+
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
       inputs.primary !== ''
@@ -276,7 +287,7 @@ const Swap: React.FC = () => {
         )}
       />
       <Spacer size="sm" />
-      {orderType === Operation.LONG ? (
+      {/* {orderType === Operation.LONG ? (
         <>
           <LineItem
             label={'Total Debit'}
@@ -308,7 +319,109 @@ const Swap: React.FC = () => {
         </>
       ) : (
         <></>
+      )} */}
+      {inputs.primary.length > 0 ? (
+        <>
+          {' '}
+          <Spacer />
+          <PurchaseInfo>
+            You will{' '}
+            <StyledData>
+              {orderType === Operation.LONG || orderType === Operation.SHORT
+                ? 'BUY'
+                : orderType === Operation.WRITE
+                ? 'SELL TO OPEN'
+                : 'SELL'}
+            </StyledData>{' '}
+            <StyledData>
+              {' '}
+              {inputs.primary}{' '}
+              {orderType === Operation.SHORT ||
+              orderType === Operation.CLOSE_SHORT
+                ? 'SHORT'
+                : ''}{' '}
+              {entity.isPut ? 'PUT' : 'CALL'}{' '}
+            </StyledData>
+            {orderType === Operation.CLOSE_LONG ||
+            orderType === Operation.CLOSE_SHORT ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : orderType === Operation.SHORT ? (
+              <>
+                which gives you the right to right to withdraw{' '}
+                <StyledData>
+                  {inputs.primary}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                when the options expire unexercised, or the right to redeem them
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>{' '}
+                if they are exercised.{' '}
+              </>
+            ) : orderType === Operation.WRITE ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : orderType === Operation.LONG ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().debit)}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>{' '}
+                which gives you the right to purchase{' '}
+                <StyledData>
+                  {inputs.primary}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            ) : (
+              <>
+                which gives you the right to purchase{' '}
+                <StyledData>
+                  {inputs.primary}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {calculateProportionalShort()}{' '}
+                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                </StyledData>
+                .{' '}
+              </>
+            )}
+          </PurchaseInfo>
+        </>
+      ) : (
+        <> </>
       )}
+
       <IconButton
         text="Advanced"
         variant="transparent"
@@ -385,4 +498,16 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
+
+const PurchaseInfo = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+`
+
+const StyledData = styled.span`
+  color: ${(props) => props.theme.color.white};
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+`
+
 export default Swap
