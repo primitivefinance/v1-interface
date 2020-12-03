@@ -12,12 +12,12 @@ import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import { Operation, TRADER } from '@/constants/index'
 
-import useGuardCap from '@/hooks/useGuardCap'
+import useGuardCap from '@/hooks/transactions/useGuardCap'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import useApprove from '@/hooks/useApprove'
+import useApprove from '@/hooks/transactions/useApprove'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
