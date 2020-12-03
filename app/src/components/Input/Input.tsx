@@ -15,10 +15,11 @@ import CheckIcon from '@material-ui/icons/Check'
 import { Container } from '@material-ui/core'
 import ClearIcon from '@material-ui/icons/Clear'
 
+import escapeRegExp from '@/utils/escapeRegExp'
 export interface InputProps {
   name?: string
   endAdornment?: React.ReactNode
-  onChange?: (e: React.FormEvent<HTMLInputElement>) => void
+  onChange?: (input: string) => void
   placeholder?: string
   size?: 'sm' | 'md' | 'lg'
   startAdornment?: React.ReactNode
@@ -38,6 +39,8 @@ const Validated: React.FC<ValidatedProps> = ({ valid }) => {
   )
 }
 
+const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`)
+
 const Input: React.FC<InputProps> = ({
   name,
   endAdornment,
@@ -54,7 +57,11 @@ const Input: React.FC<InputProps> = ({
   } else if (size === 'lg') {
     height = 72
   }
-
+  const enforcer = (nextUserInput: string) => {
+    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
+      onChange(nextUserInput)
+    }
+  }
   return (
     <Box row alignItems="center" justifyContent="space-between">
       <StyledInputWrapper height={height}>
@@ -66,9 +73,18 @@ const Input: React.FC<InputProps> = ({
         )}
         <StyledInput
           name={name}
-          type="number"
           height={height}
-          onChange={onChange}
+          onChange={(event) => {
+            enforcer(event.target.value.replace(/,/g, '.'))
+          }}
+          autoComplete="off"
+          autoCorrect="off"
+          inputMode="decimal"
+          title="Token Amount"
+          pattern="^[0-9]*[.,]?[0-9]*$"
+          minLength={1}
+          maxLength={79}
+          spellCheck="false"
           placeholder={placeholder}
           value={value}
         />
