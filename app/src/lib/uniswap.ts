@@ -1,4 +1,4 @@
-import { STABLECOIN_ADDRESS, Operation } from './constants'
+import { Operation } from '@/constants/index'
 import { Trade } from './entities'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'

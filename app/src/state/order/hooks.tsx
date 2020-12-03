@@ -31,7 +31,7 @@ import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
 import { useReserves } from '@/hooks/data'
 import executeTransaction, {
   checkAllowance,
@@ -73,6 +73,23 @@ export const useUpdateItem = (): ((
         18,
         item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
       )
+      let manage = false
+      switch (orderType) {
+        case Operation.MINT:
+          manage = true
+          break
+        case Operation.EXERCISE:
+          manage = true
+          break
+        case Operation.REDEEM:
+          manage = true
+          break
+        case Operation.CLOSE:
+          manage = true
+          break
+        default:
+          break
+      }
       if (orderType === Operation.NONE) {
         dispatch(
           updateItem({
@@ -124,6 +141,38 @@ export const useUpdateItem = (): ((
             )
             return
           }
+        } else if (manage) {
+          let tokenAddress
+          switch (orderType) {
+            case Operation.MINT:
+              tokenAddress = underlyingToken.address
+              break
+            case Operation.EXERCISE:
+              tokenAddress = item.entity.address // item.entity.assetAddresses[1] FIX DOUBLE APPROVAL
+              break
+            case Operation.REDEEM:
+              tokenAddress = item.entity.assetAddresses[2]
+              break
+            case Operation.CLOSE:
+              tokenAddress = item.entity.address // item.entity.assetAddresses[2] FIX DOUBLE APPROVAL
+              break
+            default:
+              break
+          }
+          const spender = TRADER[chainId]
+          const tokenAllowance = await getAllowance(tokenAddress, spender)
+          approved = parseEther(tokenAllowance).gt(parseEther('0'))
+          lpApproved = false
+          dispatch(
+            updateItem({
+              item,
+              orderType,
+              loading: false,
+              approved,
+              lpApproved,
+            })
+          )
+          return
         } else {
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT

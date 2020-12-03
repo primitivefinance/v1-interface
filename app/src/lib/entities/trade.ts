@@ -37,7 +37,7 @@ export class Trade {
     this.totalSupply = totalSupply
     this.amountsIn = amountsIn
     this.amountsOut = amountsOut
-    this.operation = operation ? operation : null
+    this.operation = operation
     this.signer = signer
   }
 
