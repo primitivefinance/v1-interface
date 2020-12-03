@@ -53,15 +53,15 @@ const Swap: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   const [checking, setChecking] = useState(true)
   // approval state
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   const txs = useAllTransactions()
 
   // inputs for user quantity
   const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
+    primary: 0,
+    secondary: 0,
   })
-  // web3
+  // web3/
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
   // guard cap
@@ -153,15 +153,12 @@ const Swap: React.FC = () => {
 
     setInputs({
       ...inputs,
-      primary: parseFloat(tokenBalance).toFixed(10).toString(),
+      primary: parseInt(tokenBalance),
     })
   }
 
   const handleSubmitClick = useCallback(() => {
-    const imp = BigInt(
-      (parseFloat(inputs.primary) * 1000000000000000000).toString()
-    )
-
+    const imp = BigInt((inputs.primary * 1000000000000000000).toString())
     submitOrder(
       library,
       item?.address,
@@ -173,12 +170,17 @@ const Swap: React.FC = () => {
   }, [submitOrder, removeItem, item, library, inputs, orderType])
 
   const premiumMulSize = (premium, size) => {
-    const premiumWei = BigNumber.from(premium)
-    if (size === '') return '0'
-    const sizeWei = parseEther(parseFloat(size).toString())
-    const debit = formatEther(
-      premiumWei.mul(sizeWei).div(parseEther('1')).toString()
+    const premiumWei = BigNumber.from(BigInt(parseFloat(premium)).toString())
+    console.log(premiumWei.toString())
+    console.log(size.toString())
+    if (
+      size.toString() === '0' ||
+      size.toString() === '' ||
+      premiumWei.toString() === ''
     )
+      return '0'
+
+    const debit = formatEther(premiumWei.mul(size).toString())
     return debit
   }
 
@@ -186,13 +188,13 @@ const Swap: React.FC = () => {
     let debit = '0'
     let credit = '0'
     let short = '0'
-    let size = inputs.primary === '' ? '0' : inputs.primary
+    let size = inputs.primary === 0 ? '0' : inputs.primary.toString()
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
     size = item.entity.isCall
       ? size
-      : formatEther(parseEther(size).mul(quote).div(base))
-
+      : formatEther(BigNumber.from(parseFloat(size)).mul(quote).div(base))
+    console.log(size)
     // buy long
     if (item.premium) {
       debit = premiumMulSize(item.premium.toString(), size)
@@ -212,8 +214,8 @@ const Swap: React.FC = () => {
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue =
-      inputs.primary !== ''
-        ? parseEther(parseFloat(inputs.primary).toString())
+      inputs.primary.toString() !== ''
+        ? parseEther(inputs.primary.toString())
         : parseEther('0')
     return BigNumber.from(inputValue).gt(guardCap) && chainId === 1
   }, [inputs, guardCap])
@@ -349,23 +351,59 @@ const Swap: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved ? (
-              <> </>
+            {orderType === Operation.MINT ? (
+              <>
+                {approved[0] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
+                {approved[1] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
+              </>
             ) : (
               <>
-                <Button
-                  disabled={loading}
-                  full
-                  size="sm"
-                  onClick={handleApproval}
-                  isLoading={loading}
-                  text="Approve"
-                />
+                {approved[0] ? (
+                  <></>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
               </>
             )}
+
             <Button
               disabled={
-                !approved || !inputs.primary || loading || isAboveGuardCap()
+                !approved[0] || !inputs.primary || loading || isAboveGuardCap()
               }
               full
               size="sm"
