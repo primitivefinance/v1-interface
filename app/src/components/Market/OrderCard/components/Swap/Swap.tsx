@@ -43,6 +43,7 @@ import {
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import formatEtherBalance from '@/utils/formatEtherBalance'
 
 const Swap: React.FC = () => {
   // executes transactions
@@ -197,13 +198,12 @@ const Swap: React.FC = () => {
   }, [item, parsedAmount])
 
   const calculateProportionalShort = useCallback(() => {
-    const size = inputs.primary === '' ? '0' : inputs.primary
-    const sizeWei = parseEther(parseFloat(size).toString())
+    const sizeWei = parsedAmount
     const base = item.entity.base.quantity.toString()
     const quote = item.entity.quote.quantity.toString()
     const amount = BigNumber.from(sizeWei).mul(quote).div(base)
     return formatEtherBalance(amount)
-  }, [item, inputs])
+  }, [item, parsedAmount])
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue = parsedAmount
@@ -301,7 +301,7 @@ const Swap: React.FC = () => {
       ) : (
         <></>
       )} */}
-      {inputs.primary.length > 0 ? (
+      {parsedAmount.gt(0) ? (
         <>
           {' '}
           <Spacer />
@@ -316,7 +316,7 @@ const Swap: React.FC = () => {
             </StyledData>{' '}
             <StyledData>
               {' '}
-              {inputs.primary}{' '}
+              {formatEtherBalance(parsedAmount)}{' '}
               {orderType === Operation.SHORT ||
               orderType === Operation.CLOSE_SHORT
                 ? 'SHORT'
@@ -338,7 +338,7 @@ const Swap: React.FC = () => {
               <>
                 which gives you the right to right to withdraw{' '}
                 <StyledData>
-                  {inputs.primary}{' '}
+                  {formatEtherBalance(parsedAmount)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 when the options expire unexercised, or the right to redeem them
@@ -370,7 +370,7 @@ const Swap: React.FC = () => {
                 </StyledData>{' '}
                 which gives you the right to purchase{' '}
                 <StyledData>
-                  {inputs.primary}{' '}
+                  {formatEtherBalance(parsedAmount)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 for{' '}
@@ -385,7 +385,7 @@ const Swap: React.FC = () => {
               <>
                 which gives you the right to purchase{' '}
                 <StyledData>
-                  {inputs.primary}{' '}
+                  {formatEtherBalance(parsedAmount)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 for{' '}
