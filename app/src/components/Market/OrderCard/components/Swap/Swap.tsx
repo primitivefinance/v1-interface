@@ -330,12 +330,18 @@ const Swap: React.FC = () => {
                 <StyledData>
                   {' '}
                   {formatBalance(calculateTotalCost().credit)}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>
                 .{' '}
               </>
             ) : orderType === Operation.SHORT ? (
               <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(calculateTotalCost().short)}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>{' '}
                 which gives you the right to right to withdraw{' '}
                 <StyledData>
                   {formatEtherBalance(parsedAmount)}{' '}
@@ -356,7 +362,7 @@ const Swap: React.FC = () => {
                 <StyledData>
                   {' '}
                   {formatBalance(calculateTotalCost().credit)}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>
                 .{' '}
               </>
@@ -366,7 +372,7 @@ const Swap: React.FC = () => {
                 <StyledData>
                   {' '}
                   {formatBalance(calculateTotalCost().debit)}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 which gives you the right to purchase{' '}
                 <StyledData>
