@@ -36,6 +36,7 @@ const store = configureStore({
         'order/removeItem',
         'positions/updatePositions',
         'swap/typeInput',
+        'swap/clearInput',
         'transactions/addTransaction',
         'transactions/clearAllTransactions',
         'transactions/checkedTransaction',

@@ -109,7 +109,10 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         ])
                       }
 
-                      let pairReserveTotal: BigNumber = BigNumber.from(0)
+                      const pairReserveTotal = [
+                        BigNumber.from(0),
+                        BigNumber.from(0),
+                      ]
                       for (let i = 0; i < allKeys.length; i++) {
                         const key: string = allKeys[i]
                         const option: Option = optionEntitiesObject[key]
@@ -217,7 +220,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium,
                               true
                             )
-                            pairReserveTotal = pairReserveTotal.add(
+                            pairReserveTotal[0] = pairReserveTotal[0].add(
                               BigNumber.from(underlyingReserve)
                             )
                             calls.push({
@@ -250,7 +253,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                             option.assetAddresses[0] ===
                               STABLECOINS[chainId].address
                           ) {
-                            pairReserveTotal = pairReserveTotal.add(
+                            pairReserveTotal[1] = pairReserveTotal[1].add(
                               BigNumber.from(underlyingReserve)
                             )
                             const denominator = ethers.BigNumber.from(

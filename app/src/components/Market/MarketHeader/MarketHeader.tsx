@@ -36,9 +36,10 @@ const formatName = (name: any) => {
 
 export interface MarketHeaderProps {
   marketId: string
+  isCall: number
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const options = useOptions()
@@ -134,13 +135,15 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             <StyledSymbol>Total Liquidity</StyledSymbol>
             <StyledPrice size="sm">
               {!options.loading ? (
-                formatEtherBalance(options.reservesTotal) !== '0.00' ? (
+                formatEtherBalance(options.reservesTotal[isCall]) !== '0.00' ? (
                   <>
                     <div style={{ minHeight: '.4em' }} />
 
                     {`${numeral(
-                      formatEtherBalance(options.reservesTotal)
-                    ).format('0.00a')} ${' '} ${symbol.toUpperCase()}`}
+                      formatEtherBalance(options.reservesTotal[isCall])
+                    ).format('0.00a')} ${' '} ${
+                      isCall === 0 ? symbol.toUpperCase() : 'DAI'
+                    }`}
                     <div style={{ minHeight: '.25em' }} />
                   </>
                 ) : (
