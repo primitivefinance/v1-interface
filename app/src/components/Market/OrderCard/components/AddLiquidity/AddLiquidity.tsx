@@ -82,9 +82,8 @@ const AddLiquidity: React.FC = () => {
     18,
     'SHORT'
   )
-
   const lpPair = useReserves(underlyingToken, shortToken).data
-
+  // has liquidity?
   useEffect(() => {
     if (lpPair) {
       setHasL(lpPair.reserveOf(shortToken).numerator[2])
@@ -499,7 +498,7 @@ const AddLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved ? (
+            {approved[0] ? (
               <> </>
             ) : (
               <>

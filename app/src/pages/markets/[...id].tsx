@@ -187,7 +187,7 @@ const StyledSideBar = styled.div`
   position: fixed;
   overflow: auto;
   flex-grow: 1;
-  overflow-x: hidden;
+  overflow-x: show;
   overflow-y: scroll;
 `
 const StyledText = styled.h4`

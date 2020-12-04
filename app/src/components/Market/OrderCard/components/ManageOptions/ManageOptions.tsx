@@ -104,7 +104,7 @@ const ManageOptions: React.FC = () => {
       <Box row alignItems="flex-start" justifyContent="center">
         <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
           <StyledTabList>
-            <StyledTab active={tab === 0}>Manage</StyledTab>
+            <StyledTab active={tab === 0}>Manage Options</StyledTab>
           </StyledTabList>
           <Spacer />
           <TabPanel>
@@ -263,7 +263,7 @@ const StyledTab = styled(Tab)<TabProps>`
   border-width: 1px 1px 0 1px;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
-  width: 34%;
+  width: 50%;
   list-style: none;
   cursor: pointer;
 `

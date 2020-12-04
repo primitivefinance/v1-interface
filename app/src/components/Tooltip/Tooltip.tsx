@@ -51,9 +51,8 @@ const Tip = styled.h5`
   text-align: center;
   padding: 10px;
   border-radius: 6px;
-  top: 1.5em;
-  left: 2em;
+  bottom: 1em;
   /* Position the tooltip text - see examples below! */
   position: absolute;
-  z-index: 200;
+  z-index: 200 !important;
 `
