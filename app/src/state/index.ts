@@ -8,6 +8,7 @@ import positions from './positions/reducer'
 import transactions from './transactions/reducer'
 import swap from './swap/reducer'
 import liquidity from './liquidity/reducer'
+import price from './price/reducer'
 
 const PERSISTED_KEYS: string[] = ['transactions']
 
@@ -17,6 +18,7 @@ const store = configureStore({
     notifs,
     options,
     order,
+    price,
     positions,
     swap,
     transactions,
@@ -35,6 +37,7 @@ const store = configureStore({
         'order/updateItem',
         'order/removeItem',
         'positions/updatePositions',
+        'price/updatePrice',
         'swap/typeInput',
         'swap/clearInput',
         'transactions/addTransaction',

@@ -12,7 +12,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 
 import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
-
+import { useUpdatePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 
@@ -59,8 +59,11 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
     `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
 
+  const updatePrice = useUpdatePrice()
+
   useEffect(() => {
     const refreshInterval = setInterval(() => {
+      updatePrice(data[key].usd)
       mutate()
     }, 1000)
     return () => clearInterval(refreshInterval)

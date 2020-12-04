@@ -19,7 +19,6 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import WarningIcon from '@material-ui/icons/Warning'
-
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
 import { useReserves } from '@/hooks/data'
@@ -41,7 +40,7 @@ import {
   useSwap,
   tryParseAmount,
 } from '@/state/swap/hooks'
-
+import { usePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -67,7 +66,8 @@ const Swap: React.FC = () => {
   // guard cap
   const guardCap = useGuardCap(item.asset, orderType)
 
-  // pair and option entities
+  // price
+  const price = usePrice()
   // pair and option entities
   const entity = item.entity
   const isPut = item.entity.isPut
@@ -83,7 +83,6 @@ const Swap: React.FC = () => {
     18,
     'SHORT'
   )
-
   const lpPair = useReserves(underlyingToken, shortToken).data
   // has liquidity?
   useEffect(() => {
@@ -252,13 +251,13 @@ const Swap: React.FC = () => {
         </StyledTitle>
       </Box>
       <Spacer size="sm" />
-      {!hasLiquidity ? (
+      {hasLiquidity ? null : (
         <WarningTooltip>
           <WarningIcon />
           <Spacer size="sm" />
           <h5>There is no liquidity in this option market</h5>
         </WarningTooltip>
-      ) : null}
+      )}
       {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT ? (
         <LineItem
           label="Short Premium"
