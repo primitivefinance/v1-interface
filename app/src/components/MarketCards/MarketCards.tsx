@@ -128,7 +128,7 @@ const StyledCard = styled.div`
 const DisabledContent = styled.div`
   align-items: center;
   display: flex;
-  background: ${(props) => props.theme.color.black};
+  background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
   padding: 1em;
   border-radius: 10px;
