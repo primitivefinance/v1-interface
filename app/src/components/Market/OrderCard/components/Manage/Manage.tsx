@@ -164,8 +164,7 @@ const Manage: React.FC = () => {
     const quote = item.entity.quote.quantity.toString()
     switch (orderType) {
       case Operation.MINT:
-        long = size.div(BigNumber.from('1000000000000000000'))
-        toString()
+        long = size.div(BigNumber.from('1000000000000000000')).toString()
         short = size
           .mul(quote)
           .div(base)
