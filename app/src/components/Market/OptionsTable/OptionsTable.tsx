@@ -54,7 +54,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   const [greeks, setGreeks] = useState(false)
-
   const getMarketDetails = useCallback(() => {
     const key: string = COINGECKO_ID_FOR_MARKET[asset]
     return { key }
@@ -66,12 +65,27 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 
   useEffect(() => {
+    const timer = setInterval(
+      () => {
+        if (library) {
+          if (asset === 'eth') {
+            updateOptions('WETH')
+          } else {
+            updateOptions(asset.toUpperCase())
+          }
+        }
+      },
+      30000 // 30sec
+    )
     if (library) {
       if (asset === 'eth') {
         updateOptions('WETH')
       } else {
         updateOptions(asset.toUpperCase())
       }
+    }
+    return () => {
+      clearInterval(timer)
     }
   }, [library, asset, updateOptions, options])
   const calculateBreakeven = useCallback(
