@@ -28,7 +28,7 @@ export interface OptionsState {
   loading: boolean
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
-  reservesTotal: BigNumberish
+  reservesTotal: BigNumberish[]
 }
 
 export const EmptyAttributes = {
@@ -54,7 +54,7 @@ export const initialState: OptionsState = {
   loading: true,
   calls: [EmptyAttributes],
   puts: [EmptyAttributes],
-  reservesTotal: 0,
+  reservesTotal: [0, 0],
 }
 
 export default createReducer(initialState, (builder) =>

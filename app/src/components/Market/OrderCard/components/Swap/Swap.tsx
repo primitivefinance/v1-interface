@@ -18,10 +18,10 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-
+import WarningIcon from '@material-ui/icons/Warning'
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
-
+import { useReserves } from '@/hooks/data'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
@@ -40,7 +40,7 @@ import {
   useSwap,
   tryParseAmount,
 } from '@/state/swap/hooks'
-
+import { usePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -54,25 +54,42 @@ const Swap: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // approval state
   const { item, orderType, loading, approved } = useItem()
-
+  // set null lp
+  const [hasLiquidity, setHasL] = useState(false)
   // inputs for quant
   const { typedValue } = useSwap()
   const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
-  // web3/
+  // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
   // guard cap
   const guardCap = useGuardCap(item.asset, orderType)
 
+  // price
+  const price = usePrice()
   // pair and option entities
   const entity = item.entity
+  const isPut = item.entity.isPut
   const underlyingToken: Token = new Token(
     entity.chainId,
     entity.assetAddresses[0],
     18,
-    entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    isPut ? 'DAI' : item.asset.toUpperCase()
   )
+  const shortToken = new Token(
+    entity.chainId,
+    entity.assetAddresses[2],
+    18,
+    'SHORT'
+  )
+  const lpPair = useReserves(underlyingToken, shortToken).data
+  // has liquidity?
+  useEffect(() => {
+    if (lpPair) {
+      setHasL(lpPair.reserveOf(shortToken).numerator[2])
+    }
+  }, [setHasL, lpPair])
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
@@ -233,8 +250,14 @@ const Swap: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-
-      <Spacer />
+      <Spacer size="sm" />
+      {hasLiquidity ? null : (
+        <WarningTooltip>
+          <WarningIcon />
+          <Spacer size="sm" />
+          <h5>There is no liquidity in this option market</h5>
+        </WarningTooltip>
+      )}
       {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT ? (
         <LineItem
           label="Short Premium"
@@ -517,6 +540,13 @@ const Swap: React.FC = () => {
     </>
   )
 }
+
+const WarningTooltip = styled.div`
+  color: yellow;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+`
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;

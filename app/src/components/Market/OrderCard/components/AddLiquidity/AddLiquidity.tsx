@@ -82,9 +82,8 @@ const AddLiquidity: React.FC = () => {
     18,
     'SHORT'
   )
-
   const lpPair = useReserves(underlyingToken, shortToken).data
-
+  // has liquidity?
   useEffect(() => {
     if (lpPair) {
       setHasL(

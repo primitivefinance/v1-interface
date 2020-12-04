@@ -117,7 +117,10 @@ const Market = ({ market, data }) => {
           <Row>
             <StyledContainer sm={12} md={8} lg={8}>
               <StyledMain>
-                <MarketHeader marketId={market} />
+                <MarketHeader
+                  marketId={market}
+                  isCall={callPutActive ? 0 : 1}
+                />
                 <FilterBar
                   active={callPutActive}
                   setCallActive={handleFilterType}
@@ -187,7 +190,7 @@ const StyledSideBar = styled.div`
   position: fixed;
   overflow: auto;
   flex-grow: 1;
-  overflow-x: hidden;
+  overflow-x: show;
   overflow-y: scroll;
 `
 const StyledText = styled.h4`

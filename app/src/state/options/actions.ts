@@ -7,7 +7,7 @@ export interface OptionsData {
   loading: boolean
   calls: OptionsAttributes[]
   puts: OptionsAttributes[]
-  reservesTotal: BigNumberish
+  reservesTotal: BigNumberish[]
 }
 
 export type OptionsAttributes = {
