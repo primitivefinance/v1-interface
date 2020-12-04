@@ -86,7 +86,10 @@ const AddLiquidity: React.FC = () => {
   // has liquidity?
   useEffect(() => {
     if (lpPair) {
-      setHasL(lpPair.reserveOf(shortToken).numerator[2])
+      setHasL(
+        lpPair.reserveOf(shortToken).numerator[2] ||
+          lpPair.reserveOf(shortToken).raw.toString() !== '0.00'
+      )
     }
   }, [setHasL, lpPair])
 
@@ -366,8 +369,8 @@ const AddLiquidity: React.FC = () => {
         <PriceInput
           name="primary"
           title={`Underlying Input`}
-          quantity={underlyingValue}
-          onChange={handleUnderInput}
+          quantity={optionValue}
+          onChange={handleOptionInput}
           onClick={handleSetMax}
           balance={
             new TokenAmount(
@@ -513,8 +516,8 @@ const AddLiquidity: React.FC = () => {
 
             <Button
               disabled={
-                !approved ||
-                !parsedUnderlyingAmount?.gt(0) ||
+                !approved[0] ||
+                (hasLiquidity ? null : !parsedUnderlyingAmount?.gt(0)) ||
                 (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
                 isAboveGuardCap()
               }

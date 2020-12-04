@@ -6,6 +6,7 @@ import ethers from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 import { formatEther } from 'ethers/lib/utils'
 import { Pair, Token } from '@uniswap/sdk'
+import { STABLECOINS } from '@/constants/index'
 
 export interface OptionParameters {
   base: Quantity
@@ -123,19 +124,36 @@ export class Option extends Token {
 
   public get isCall(): boolean {
     const baseValue = this.optionParameters.base.quantity
+    const quoteValue = this.optionParameters.quote.quantity
     let isCall = false
     if (+formatEther(baseValue) === 1) {
-      isCall = true
+      if (+formatEther(quoteValue) === 1) {
+        const quoteToken = this.optionParameters.base.asset.symbol
+        if (quoteToken === STABLECOINS[this.chainId].symbol) {
+          isCall = true
+        }
+      } else {
+        isCall = true
+      }
     }
     return isCall
   }
 
   public get isPut(): boolean {
     const quoteValue = this.optionParameters.quote.quantity
+    const baseValue = this.optionParameters.base.quantity
     let isPut = false
     if (+formatEther(quoteValue) === 1) {
-      isPut = true
+      if (+formatEther(baseValue) === 1) {
+        const baseToken = this.optionParameters.quote.asset.symbol
+        if (baseToken === STABLECOINS[this.chainId].symbol) {
+          isPut = true
+        }
+      } else {
+        isPut = true
+      }
     }
+
     return isPut
   }
 
