@@ -2,7 +2,7 @@ const path = require('path')
 
 module.exports = {
   siteMetadata: {
-    title: `Primitive Ecosystem`,
+    title: `Primitive Protocol`,
     description: `Library of documentation, resources, and interfaces for the Primitive protocol.`,
     author: `@primitivefinance`,
   },
