@@ -27,6 +27,7 @@ export default function Index() {
             property="og:image"
             content="https://storage.googleapis.com/app-image-cdn/Screen%20Shot%202020-11-16%20at%207.21.02%20PM.png"
           />
+          <link rel="icon" type="image/png" href="https://storage.googleapis.com/app-image-cdn/primitive-logo.png"/>
           <link rel="canonical" href="http://primitive.finance" />
         </Helmet>
       <TopBar />
