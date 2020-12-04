@@ -21,6 +21,7 @@ export interface Market {
   id: string
   sort: number
   address: string
+  active?: boolean
 }
 
 export const WALLETS: { [key: string]: Wallet } = {
@@ -85,6 +86,18 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
   mkr: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
 }
 
+export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
+  yfi: false,
+  eth: true,
+  sushi: false,
+  comp: false,
+  uni: false,
+  link: false,
+  aave: false,
+  snx: false,
+  mkr: false,
+}
+
 export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
   (key): Market => {
     return {
@@ -93,6 +106,7 @@ export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
       id: key,
       sort: SORT_FOR_MARKET[key],
       address: ADDRESS_FOR_MARKET[key],
+      active: ACTIVE_FOR_MARKET[key],
     }
   }
 )

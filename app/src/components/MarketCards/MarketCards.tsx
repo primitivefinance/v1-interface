@@ -40,6 +40,32 @@ export interface MarketCardProps {
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const poolActive = market.name !== 'Soon...'
 
+  if (!market.active) {
+    return (
+      <StyledCard>
+        <CardContent>
+          <DisabledContent>
+            <CardIcon>
+              {market.icon !== '' ? (
+                <img
+                  height="64"
+                  src={market.icon}
+                  style={{ borderRadius: '50%' }}
+                  alt={'icon'}
+                />
+              ) : (
+                <></>
+              )}
+            </CardIcon>
+            <StyledTitle>{market.name}</StyledTitle>
+            <StyledDetails>
+              <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
+            </StyledDetails>
+          </DisabledContent>
+        </CardContent>
+      </StyledCard>
+    )
+  }
   return (
     <StyledCardWrapper href={`/markets/${encodeURIComponent(market.id)}/calls`}>
       <StyledCard>
@@ -97,7 +123,20 @@ const StyledCard = styled.div`
   display: flex;
   width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
   margin: ${(props) => props.theme.spacing[2]}px;
-  cursor: pointer;
+`
+
+const DisabledContent = styled.div`
+  align-items: center;
+  display: flex;
+  background: ${(props) => props.theme.color.black};
+  flex-direction: column;
+  padding: 1em;
+  border-radius: 10px;
+  cursor: not-allowed;
+  &: hover {
+    background: ${(props) => props.theme.color.black};
+    border 2px solid ${(props) => props.theme.color.red[500]};
+  }
 `
 const StyledCardWrapper = styled(Link)``
 
@@ -111,6 +150,7 @@ const StyledTitle = styled.h4`
 
 const StyledContent = styled.div`
   align-items: center;
+  cursor: pointer;
   border: 2px solid black;
   display: flex;
   background: ${(props) => props.theme.color.grey[800]};
@@ -119,7 +159,7 @@ const StyledContent = styled.div`
   border-radius: 10px;
   &: hover {
     background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.grey[800]};
+    border 2px solid ${(props) => props.theme.color.green[500]};
   }
 `
 
