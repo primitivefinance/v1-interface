@@ -229,7 +229,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                if (optionExp != option.expiry && option.expiry === 0)
+                if (
+                  (optionExp != option.expiry && option.expiry === 0) ||
+                  option.strike !== 720
+                )
                   return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
