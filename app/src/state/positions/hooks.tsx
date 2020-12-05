@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { OptionPosition } from './reducer'
-import { updatePositions } from './actions'
+import { updatePositions, setLoading } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
@@ -25,6 +25,12 @@ export const usePositions = (): {
   return state
 }
 
+export const useSetLoading = (): (() => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => {
+    dispatch(setLoading())
+  }, [dispatch])
+}
 export const useUpdatePositions = (): ((
   options: OptionsAttributes[]
 ) => void) => {

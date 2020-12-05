@@ -15,6 +15,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useItem } from '@/state/order/hooks'
+
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
 
@@ -27,6 +28,8 @@ import {
   PositionsCard,
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
+import { useSetLoading } from '@/state/positions/hooks'
+import { useOptions } from '@/state/options/hooks'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -46,6 +49,9 @@ const Market = ({ market, data }) => {
   const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
+  const options = useOptions()
+  const setLoading = useSetLoading()
+
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
@@ -58,11 +64,20 @@ const Market = ({ market, data }) => {
       clear(0)
       router.reload()
     }
+    const handleAccountChanged = () => {
+      if (!options.loading) {
+        clear(0)
+        setLoading()
+      }
+    }
 
     ethereum?.on('chainChanged', handleChainChanged)
+    ethereum?.on('accountsChanged', handleAccountChanged)
+
     return () => {
       if (ethereum?.removeListener) {
         ethereum.removeListener('chainChanged', handleChainChanged)
+        ethereum.removeListener('accountsChanged', handleAccountChanged)
       }
     }
   })
