@@ -407,7 +407,11 @@ const AddLiquidity: React.FC = () => {
       )}
 
       <Spacer />
-      <LineItem label="LP for" data={underlyingValue} units={`LONG`} />
+      <LineItem
+        label="LP for"
+        data={!optionValue ? '0.00' : optionValue}
+        units={`LONG`}
+      />
       <Spacer size="sm" />
       {!hasLiquidity ? (
         <>
