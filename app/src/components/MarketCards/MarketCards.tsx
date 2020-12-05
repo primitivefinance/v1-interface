@@ -8,8 +8,10 @@ import CardContent from '../CardContent'
 import Spacer from '../Spacer'
 import CardIcon from '../CardIcon'
 import Loader from '../Loader'
+import LockIcon from '@material-ui/icons/Lock'
 
 import { MARKETS, Market } from '@/constants/index'
+import { useWeb3React } from '@web3-react/core'
 
 const MarketCards: React.FC = () => {
   const markets = MARKETS
@@ -39,12 +41,15 @@ export interface MarketCardProps {
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const poolActive = market.name !== 'Soon...'
-
-  if (!market.active) {
+  const { chainId } = useWeb3React()
+  if (!market.active && chainId === 1) {
     return (
       <StyledCard>
+        <Overlay>
+          <LockIcon style={{ fontSize: '60px' }} />
+        </Overlay>
         <CardContent>
-          <DisabledContent>
+          <StyledContent>
             <CardIcon>
               {market.icon !== '' ? (
                 <img
@@ -61,7 +66,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             <StyledDetails>
               <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
             </StyledDetails>
-          </DisabledContent>
+          </StyledContent>
         </CardContent>
       </StyledCard>
     )
@@ -121,21 +126,26 @@ const StyledRow = styled.div`
 
 const StyledCard = styled.div`
   display: flex;
+  position: relative;
   width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
   margin: ${(props) => props.theme.spacing[2]}px;
 `
 
-const DisabledContent = styled.div`
-  align-items: center;
+const Overlay = styled.div`
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: -1em;
+  z-index: 200;
+  width: 100%;
+  height: 100%;
+  position: absolute;
   display: flex;
-  background: ${(props) => props.theme.color.grey[800]};
-  flex-direction: column;
-  padding: 1em;
-  border-radius: 10px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: ${(props) => props.theme.color.grey[400]};
   cursor: not-allowed;
   &: hover {
-    background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.red[500]};
+    background-color: rgba(0, 0, 0, 0.7);
   }
 `
 const StyledCardWrapper = styled(Link)``
@@ -156,10 +166,10 @@ const StyledContent = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
   padding: 1em;
-  border-radius: 10px;
+  border-radius: 5px;
   &: hover {
     background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.green[500]};
+    border 2px solid ${(props) => props.theme.color.grey[400]};
   }
 `
 
