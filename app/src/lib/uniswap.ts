@@ -9,6 +9,7 @@ import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rink
 import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import { TradeSettings, SinglePositionParameters } from './types'
 import { UNISWAP_CONNECTOR } from '../constants'
+import { parseEther } from 'ethers/lib/utils'
 
 /**
  * Represents the UniswapConnector contract.
@@ -170,9 +171,23 @@ export class Uniswap {
         tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
       case Operation.ADD_LIQUIDITY:
+        const ratio = parseEther('1')
+          .mul(trade.option.optionParameters.quote.quantity)
+          .div(trade.option.optionParameters.base.quantity)
+
+        const redeemReserves = trade.reserves[0]
+        const underlyingReserves = trade.reserves[1]
+        const denominator = ratio
+          .mul(underlyingReserves.toString())
+          .div(redeemReserves.toString())
+          .add(parseEther('1'))
         const amountOptions = trade.inputAmount.quantity
+        const optionsInput = BigNumber.from(amountOptions)
+          .mul(parseEther('1'))
+          .div(denominator)
+
         // amount of redeems that will be minted and added to the pool
-        const amountADesired = ethers.BigNumber.from(amountOptions)
+        const amountADesired = ethers.BigNumber.from(optionsInput)
           .mul(trade.option.optionParameters.quote.quantity)
           .div(trade.option.optionParameters.base.quantity)
 
@@ -205,7 +220,7 @@ export class Uniswap {
         methodName = 'addShortLiquidityWithUnderlying'
         args = [
           trade.option.address,
-          trade.inputAmount.quantity.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
+          optionsInput.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
           amountBDesired.toString(),
           amountBMin.toString(),
           to,
