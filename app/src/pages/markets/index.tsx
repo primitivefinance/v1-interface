@@ -120,8 +120,8 @@ const Markets: React.FC = () => {
         <Row center="xs">
           <PageHeader
             icon={days[day]}
-            title="Choose an option market."
-            subtitle="View available options and trade."
+            title="Option Markets"
+            subtitle="View available options, trade tokens, and manage positions."
           />
         </Row>
         <Row center="xs">

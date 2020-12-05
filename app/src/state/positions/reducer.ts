@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { updatePositions } from './actions'
+import { updatePositions, setLoading } from './actions'
 
 import { Quantity } from '@/lib/entities'
 import { BigNumberish } from 'ethers'
@@ -35,10 +35,14 @@ export const initialState: PositionsState = {
 }
 
 export default createReducer(initialState, (builder) =>
-  builder.addCase(
-    updatePositions,
-    (state, { payload: { loading, exists, balance, options } }) => {
-      return { ...state, loading, exists, balance, options }
-    }
-  )
+  builder
+    .addCase(
+      updatePositions,
+      (state, { payload: { loading, exists, balance, options } }) => {
+        return { ...state, loading, exists, balance, options }
+      }
+    )
+    .addCase(setLoading, () => {
+      return initialState
+    })
 )
