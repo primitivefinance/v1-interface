@@ -11,85 +11,102 @@ import {
 import { ETHERSCAN_MAINNET } from '@/constants/index'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import CheckIcon from '@material-ui/icons/Check'
+import LaunchIcon from '@material-ui/icons/Launch'
 import WarningIcon from '@material-ui/icons/Warning'
+
 import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
 import Tooltip from '@/components/Tooltip'
 import Box from '@/components/Box'
-import Card from '@/components/Card'
-import CardTitle from '@/components/CardTitle'
-import CardContent from '@/components/CardContent'
+import Table from '@/components/Table'
+import TableBody from '@/components/TableBody'
+import TableCell from '@/components/TableCell'
+import TableRow from '@/components/TableRow'
+import LitContainer from '@/components/LitContainer'
 import Spacer from '@/components/Spacer'
 
 const Contracts: React.FC = () => {
+  const headers = [
+    {
+      name: 'Name',
+    },
+    {
+      name: 'Address',
+    },
+    {
+      name: 'Audit',
+    },
+  ]
   return (
     <>
       <StyledTitle>Deployed Contracts</StyledTitle>
       <Spacer />
-      <Grid>
-        <Row center="xs">
+      <LitContainer>
+        <StyledTableBody>
+          <TableRow isHead>
+            {headers.map((header, index) => {
+              return <TableCell key={header.name}>{header.name}</TableCell>
+            })}
+          </TableRow>
+          <StyledDiv />
+          <Spacer size="sm" />
           {CONTRACTS.map((contract, i) => {
             return (
-              <StyledCol sm={12} md={3} key={i}>
-                <Card border>
-                  <CardTitle>
-                    <Box row justifyContent="flex-end" alignItems="center">
-                      <StyledSub>{contract.name}</StyledSub>
-                    </Box>
-                    <Spacer />
-                    <StyledLink
-                      target="__none"
-                      href={contract.audit !== 'N/A' ? contract.audit : null}
-                    >
-                      <IconButton variant="tertiary">
-                        {contract.audit !== 'N/A' ? (
-                          <Tooltip
-                            icon={false}
-                            text="This contract has been audited, click to view results"
-                          >
-                            <CheckIcon style={{ color: 'green' }} />
-                          </Tooltip>
-                        ) : (
-                          <Tooltip
-                            icon={false}
-                            text="This contract is awaiting audit"
-                          >
-                            <WarningIcon style={{ color: 'yellow' }} />
-                          </Tooltip>
-                        )}
-                      </IconButton>
-                    </StyledLink>
-                  </CardTitle>
-                  <div style={{ marginBottom: '-2em' }} />
-                  <CardContent>
-                    {contract.receipt?.dateConfirmed ? (
-                      <Box row>{contract.receipt.dateConfirmed}</Box>
-                    ) : null}
-
-                    <Spacer />
-                    <StyledLink
-                      target="__none"
-                      href={`${ETHERSCAN_MAINNET}/${contract.address}`}
-                    >
-                      <Button full variant="secondary">
-                        View on Etherscan
-                      </Button>
-                    </StyledLink>
-                  </CardContent>
-                </Card>
-                <Spacer />
-              </StyledCol>
+              <TableRow key={i}>
+                <TableCell>
+                  <StyledSub>{contract.name}</StyledSub>
+                </TableCell>
+                <TableCell>
+                  <StyledARef
+                    href={`https://etherscan.io/address/${contract.address}`}
+                    target="__blank"
+                  >
+                    {contract.address.substr(0, 12)}
+                    {'... '}
+                    <LaunchIcon style={{ fontSize: '14px' }} />
+                  </StyledARef>
+                </TableCell>
+                <TableCell>
+                  <StyledLink
+                    target="__none"
+                    href={contract.audit !== 'N/A' ? contract.audit : null}
+                  >
+                    <IconButton variant="tertiary">
+                      {contract.audit !== 'N/A' ? (
+                        <CheckIcon style={{ color: 'green' }} />
+                      ) : (
+                        <Tooltip
+                          icon={false}
+                          text="This contract is awaiting audit"
+                        >
+                          <WarningIcon style={{ color: 'yellow' }} />
+                        </Tooltip>
+                      )}
+                    </IconButton>
+                  </StyledLink>
+                </TableCell>
+              </TableRow>
             )
           })}
-        </Row>
-      </Grid>
+        </StyledTableBody>
+        <Spacer />
+        <Spacer />
+      </LitContainer>
     </>
   )
 }
 
+const StyledDiv = styled.div`
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
+`
+
+const StyledTableBody = styled(TableBody)`
+  width: 50em;
+`
 const StyledLink = styled.a`
   color: white;
   text-decoration: none;
+  width: 30%;
 `
 const StyledSub = styled.h4`
   color: white;
@@ -98,7 +115,13 @@ const StyledCol = styled(Col)`
   margin: 0.5em;
   overflow: visible;
 `
-
+const StyledARef = styled.a`
+  color: ${(props) => props.theme.color.grey[400]};
+  text-decoration: none;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
+`
 const StyledTitle = styled.h2`
   color: white;
   font-weight: bold;
