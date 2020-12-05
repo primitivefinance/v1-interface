@@ -86,7 +86,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
   return (
     <StyledHeader>
       <GreyBack />
-      <Spacer />
+      <Spacer size="sm" />
+      <Spacer size="sm" />
       <GoBack to="/markets" />
       <LitContainer>
         <Spacer size="sm" />
