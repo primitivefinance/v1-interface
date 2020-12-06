@@ -43,12 +43,12 @@ export const Settings = () => {
             <StyledSetting>Slippage Tolerance</StyledSetting>
             <Spacer size="sm" />
             <StyledRow>
-              <StyledSlip>{(slippage * 100).toFixed(2)}%</StyledSlip>
+              <StyledSlip>{(+slippage * 100).toFixed(2)}%</StyledSlip>
               <Slider
                 min={0.001}
                 max={0.3}
                 step={0.001}
-                value={slippage}
+                value={parseFloat(slippage)}
                 onChange={handleSlippageChange}
               />
             </StyledRow>
