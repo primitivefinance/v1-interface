@@ -212,24 +212,33 @@ const Swap: React.FC = () => {
       const base = item.entity.base.quantity.toString()
       const quote = item.entity.quote.quantity.toString()
       size = item.entity.isCall ? size : size.mul(quote).div(base)
-      let minPayout = ''
+      let actualPremium = ''
+      let spot = ''
       // buy long
       if (orderType === Operation.LONG) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getAmountsInPure(
-            size,
+          spot = Trade.getSpotPremium(
+            item.entity.base.quantity,
+            item.entity.quote.quantity,
             [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            item.reserves[1],
-            item.reserves[0]
-          )[0].toString()
+            [item.reserves[0], item.reserves[1]]
+          ).toString()
+          actualPremium = Trade.getPremium(
+            size,
+            item.entity.base.quantity,
+            item.entity.quote.quantity,
+            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            [item.reserves[0], item.reserves[1]]
+          ).toString()
+          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
-              parseInt(parseEther(minPayout).toString()) /
-              parseInt(parseEther(item.reserves[0].toString()).toString())
+              (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
+              100
             ).toString()
           )
-          setPrem(formatEther(minPayout))
-          debit = premiumMulSize(minPayout, size)
+          setPrem(formatEther(spot))
+          debit = formatEther(actualPremium)
         } else {
           setImpact('0.00')
           setPrem(formatEther(item.premium))
@@ -237,7 +246,7 @@ const Swap: React.FC = () => {
         // sell long
       } else if (orderType === Operation.CLOSE_LONG) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getClosePremium(
+          actualPremium = Trade.getClosePremium(
             size,
             base,
             quote,
@@ -246,12 +255,12 @@ const Swap: React.FC = () => {
           ).toString()
           setImpact(
             (
-              parseInt(parseEther(minPayout).toString()) /
+              parseInt(parseEther(actualPremium).toString()) /
               parseInt(parseEther(item.reserves[0].toString()).toString())
             ).toString()
           )
-          setPrem(formatEther(minPayout))
-          credit = premiumMulSize(minPayout, size)
+          setPrem(formatEther(actualPremium))
+          credit = premiumMulSize(actualPremium, size)
         } else {
           setImpact('0.00')
           setPrem(formatEther(item.premium))
@@ -262,7 +271,7 @@ const Swap: React.FC = () => {
         orderType === Operation.CLOSE_SHORT
       ) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getAmountsInPure(
+          actualPremium = Trade.getAmountsInPure(
             size,
             [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
             item.reserves[1],
@@ -270,12 +279,12 @@ const Swap: React.FC = () => {
           )[0].toString()
           setImpact(
             (
-              parseInt(parseEther(minPayout).toString()) /
+              parseInt(parseEther(actualPremium).toString()) /
               parseInt(parseEther(item.reserves[0].toString()).toString())
             ).toString()
           )
-          setPrem(formatEther(minPayout))
-          short = premiumMulSize(minPayout, size)
+          setPrem(formatEther(actualPremium))
+          short = premiumMulSize(actualPremium, size)
         } else {
           setImpact('0.00')
           setPrem(formatEther(item.premium))
@@ -375,7 +384,7 @@ const Swap: React.FC = () => {
       {inputLoading ? (
         <Loader />
       ) : (
-        <LineItem label="Price Impact" data={`${impact}`} units="%" />
+        <LineItem label="Slippage" data={`${impact}`} units="%" />
       )}
       {/* {orderType === Operation.LONG ? (
         <>
