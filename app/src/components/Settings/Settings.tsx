@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
@@ -7,11 +7,11 @@ import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 import { useClickAway } from '@/hooks/utils/useClickAway'
 import { useSlippage } from '@/hooks/user'
+import Slider from '@/components/Slider'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
   const [slippage, setSlippage] = useSlippage()
-
   const onClick = () => {
     setOpen(true)
   }
@@ -24,6 +24,12 @@ export const Settings = () => {
   const handleSlip = (s: string) => {
     setSlippage(s)
   }
+  const handleSlippageChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      setSlippage(e.currentTarget.value.toString())
+    },
+    [setSlippage, slippage]
+  )
   if (open) {
     return (
       <>
@@ -34,53 +40,39 @@ export const Settings = () => {
           <StyledContent>
             <StyledTitle>Settings</StyledTitle>
             <Spacer size="sm" />
-            <StyledSetting>Slippage tolerance</StyledSetting>
+            <StyledSetting>Slippage Tolerance</StyledSetting>
             <Spacer size="sm" />
             <StyledRow>
-              {slippage === '0.001' ? (
-                <Button
-                  size="sm"
-                  text="0.10%"
-                  disabled
-                  onClick={() => handleSlip('0.001')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="0.10%"
-                  onClick={() => handleSlip('0.001')}
-                ></Button>
-              )}
+              <StyledSlip>{(slippage * 100).toFixed(2)}%</StyledSlip>
+              <Slider
+                min={0.001}
+                max={0.3}
+                step={0.001}
+                value={slippage}
+                onChange={handleSlippageChange}
+              />
+            </StyledRow>
+            <StyledRow>
+              <Button
+                variant="secondary"
+                size="sm"
+                text="0.50%"
+                onClick={() => handleSlip('0.005')}
+              ></Button>
               <Spacer size="sm" />
-              {slippage === '0.005' ? (
-                <Button
-                  size="sm"
-                  text="0.50%"
-                  disabled
-                  onClick={() => handleSlip('0.005')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="0.50%"
-                  onClick={() => handleSlip('0.005')}
-                ></Button>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                text="1.00%"
+                onClick={() => handleSlip('0.01')}
+              ></Button>
               <Spacer size="sm" />
-              {slippage === '0.01' ? (
-                <Button
-                  size="sm"
-                  text="1.00%"
-                  disabled
-                  onClick={() => handleSlip('0.01')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="1.00%"
-                  onClick={() => handleSlip('0.01')}
-                ></Button>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                text="2.00%"
+                onClick={() => handleSlip('0.02')}
+              ></Button>
             </StyledRow>
           </StyledContent>
         </StyledModal>
@@ -93,6 +85,15 @@ export const Settings = () => {
     </IconButton>
   )
 }
+
+const StyledSlip = styled.div`
+  margin: 0 0.4em 0 0;
+  color: ${(props) => props.theme.color.white} !important;
+  width: 5em;
+  height: 2.3em;
+  display: flex;
+  align-items: center;
+`
 
 const StyledTitle = styled.div`
   font-weight: 700;
@@ -115,6 +116,7 @@ const StyledRow = styled(Box)`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  width: 15em;
 `
 
 const StyledModal = styled.div`

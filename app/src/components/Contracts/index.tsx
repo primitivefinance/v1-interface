@@ -52,7 +52,7 @@ const Contracts: React.FC = () => {
           <Spacer size="sm" />
           {CONTRACTS.map((contract, i) => {
             return (
-              <TableRow key={i}>
+              <TableRow key={i} isHead>
                 <TableCell>
                   <StyledSub>{contract.name}</StyledSub>
                 </TableCell>
