@@ -52,26 +52,28 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const options = useOptions()
   const router = useRouter()
   useEffect(() => {
-    if (orderState[1] && orderState[2] && orderState[3]) {
-      if (!options.loading) {
+    if (!options.loading) {
+      if (orderState[1] && orderState[2] && orderState[3]) {
         const opts = options.calls.concat(options.puts)
         opts.map(async (opt) => {
           if (opt.address === orderState[2]) {
             // force ts compiler
             const id: string = orderState[3]
             updateItem(opt, Operation[id])
-            setTimeout(() => {
-              router.push(
-                `/markets/[...id]`,
-                `/markets/${options.calls[0].asset.toLowerCase()}`,
-                {
-                  shallow: true,
-                }
-              )
-            }, 1000)
           }
         })
       }
+      setTimeout(() => {
+        router.push(
+          `/markets/[...id]`,
+          `/markets/${options.calls[0].asset.toLowerCase()}/${
+            orderState[1] === 'puts' ? 'puts' : 'calls'
+          }`,
+          {
+            shallow: true,
+          }
+        )
+      }, 1000)
     }
   }, [orderState, updateItem, options])
   if (!item.expiry) {

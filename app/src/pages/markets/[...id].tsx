@@ -150,7 +150,6 @@ const Market = ({ market, data }) => {
                 />
               </StyledMain>
             </StyledContainer>
-
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
                 <BalanceCard />
@@ -192,12 +191,11 @@ const StyledMarket = styled.div`
 `
 
 const StyledSideBar = styled.div`
-  background: ${(props) => props.theme.color.black};
-  border: 0px solid ${(props) => props.theme.color.grey[400]};
+  background: none;
   width: 25em;
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  padding: ${(props) => props.theme.spacing[4]}px 0
+  padding: ${(props) => props.theme.spacing[2]}px 0px
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;

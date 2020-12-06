@@ -25,6 +25,7 @@ import { useReserves } from '@/hooks/data'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { Trade } from '@/lib/entities'
 
 import formatBalance from '@/utils/formatBalance'
 
@@ -39,6 +40,7 @@ import {
   useSwapActionHandlers,
   useSwap,
   tryParseAmount,
+  useSetSwapLoaded,
 } from '@/state/swap/hooks'
 import { usePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
@@ -54,18 +56,30 @@ const Swap: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // approval state
   const { item, orderType, loading, approved } = useItem()
+  // cost state
+  const [cost, setCost] = useState({
+    debit: '0',
+    credit: '0',
+    short: '0',
+  })
+  const [prem, setPrem] = useState(
+    orderType === Operation.CLOSE_LONG || orderType === Operation.LONG
+      ? formatEther(item.premium)
+      : formatEther(item.shortPremium)
+  )
+  const [impact, setImpact] = useState('0.00')
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
   // inputs for quant
-  const { typedValue } = useSwap()
+  const { typedValue, inputLoading } = useSwap()
   const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
+  const swapLoaded = useSetSwapLoaded()
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
   // guard cap
   const guardCap = useGuardCap(item.asset, orderType)
-
   // price
   const price = usePrice()
   // pair and option entities
@@ -189,29 +203,90 @@ const Swap: React.FC = () => {
     return debit
   }
 
-  const calculateTotalCost = useCallback(() => {
-    let debit = '0'
-    let credit = '0'
-    let short = '0'
-    let size = parsedAmount
-    const base = item.entity.base.quantity.toString()
-    const quote = item.entity.quote.quantity.toString()
-    size = item.entity.isCall ? size : size.mul(quote).div(base)
-    // buy long
-    if (item.premium) {
-      debit = premiumMulSize(item.premium.toString(), size)
+  useEffect(() => {
+    const calculateTotalCost = async () => {
+      let debit = '0'
+      let credit = '0'
+      let short = '0'
+      let size = parsedAmount
+      const base = item.entity.base.quantity.toString()
+      const quote = item.entity.quote.quantity.toString()
+      size = item.entity.isCall ? size : size.mul(quote).div(base)
+      let minPayout = ''
+      // buy long
+      if (orderType === Operation.LONG) {
+        if (parsedAmount.gt(BigNumber.from(0))) {
+          minPayout = Trade.getAmountsInPure(
+            size,
+            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            item.reserves[1],
+            item.reserves[0]
+          )[0].toString()
+          setImpact(
+            (
+              parseInt(parseEther(minPayout).toString()) /
+              parseInt(parseEther(item.reserves[0].toString()).toString())
+            ).toString()
+          )
+          setPrem(formatEther(minPayout))
+          debit = premiumMulSize(minPayout, size)
+        } else {
+          setImpact('0.00')
+          setPrem(formatEther(item.premium))
+        }
+        // sell long
+      } else if (orderType === Operation.CLOSE_LONG) {
+        if (parsedAmount.gt(BigNumber.from(0))) {
+          minPayout = Trade.getClosePremium(
+            size,
+            base,
+            quote,
+            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            [item.reserves[1], item.reserves[0]]
+          ).toString()
+          setImpact(
+            (
+              parseInt(parseEther(minPayout).toString()) /
+              parseInt(parseEther(item.reserves[0].toString()).toString())
+            ).toString()
+          )
+          setPrem(formatEther(minPayout))
+          credit = premiumMulSize(minPayout, size)
+        } else {
+          setImpact('0.00')
+          setPrem(formatEther(item.premium))
+        }
+        // buy short && sell short
+      } else if (
+        orderType === Operation.SHORT ||
+        orderType === Operation.CLOSE_SHORT
+      ) {
+        if (parsedAmount.gt(BigNumber.from(0))) {
+          minPayout = Trade.getAmountsInPure(
+            size,
+            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            item.reserves[1],
+            item.reserves[0]
+          )[0].toString()
+          setImpact(
+            (
+              parseInt(parseEther(minPayout).toString()) /
+              parseInt(parseEther(item.reserves[0].toString()).toString())
+            ).toString()
+          )
+          setPrem(formatEther(minPayout))
+          short = premiumMulSize(minPayout, size)
+        } else {
+          setImpact('0.00')
+          setPrem(formatEther(item.premium))
+        }
+      }
+      swapLoaded()
+      setCost({ debit, credit, short })
     }
-
-    // sell long
-    if (item.closePremium) {
-      credit = premiumMulSize(item.closePremium.toString(), size)
+    if (lpPair && inputLoading) {
+      calculateTotalCost()
     }
-
-    // buy short && sell short
-    if (item.shortPremium) {
-      short = premiumMulSize(item.shortPremium.toString(), size)
-    }
-    return { debit, credit, short }
   }, [item, parsedAmount])
 
   const calculateProportionalShort = useCallback(() => {
@@ -258,26 +333,34 @@ const Swap: React.FC = () => {
           <h5>There is no liquidity in this option market</h5>
         </WarningTooltip>
       )}
-      {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT ? (
-        <LineItem
-          label="Short Premium"
-          data={formatEther(item.shortPremium)}
-          units={entity.isPut ? 'DAI' : item.asset}
-        />
-      ) : orderType === Operation.WRITE ||
-        orderType === Operation.CLOSE_LONG ? (
-        <LineItem
-          label="Option Premium"
-          data={formatEther(item.closePremium)}
-          units={entity.isPut ? 'DAI' : item.asset}
-        />
+      {!inputLoading ? (
+        <>
+          {orderType === Operation.SHORT ||
+          orderType === Operation.CLOSE_SHORT ? (
+            <LineItem
+              label="Short Premium"
+              data={formatBalance(prem)}
+              units={entity.isPut ? 'DAI' : item.asset}
+            />
+          ) : orderType === Operation.WRITE ||
+            orderType === Operation.CLOSE_LONG ? (
+            <LineItem
+              label="Option Premium"
+              data={formatBalance(prem)}
+              units={entity.isPut ? 'DAI' : item.asset}
+            />
+          ) : (
+            <LineItem
+              label="Option Premium"
+              data={formatBalance(prem)}
+              units={entity.isPut ? 'DAI' : item.asset}
+            />
+          )}
+        </>
       ) : (
-        <LineItem
-          label="Option Premium"
-          data={formatEther(item.premium)}
-          units={entity.isPut ? 'DAI' : item.asset}
-        />
+        <Loader />
       )}
+
       <Spacer size="sm" />
       <PriceInput
         title="Quantity"
@@ -286,11 +369,14 @@ const Swap: React.FC = () => {
         quantity={typedValue}
         onClick={handleSetMax}
         balance={tokenAmount}
-        valid={parseEther(underlyingTokenBalance).gt(
-          parseEther(calculateTotalCost().debit)
-        )}
+        valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
       />
       <Spacer size="sm" />
+      {inputLoading ? (
+        <Loader />
+      ) : (
+        <LineItem label="Price Impact" data={`${impact}`} units="%" />
+      )}
       {/* {orderType === Operation.LONG ? (
         <>
           <LineItem
@@ -352,7 +438,7 @@ const Swap: React.FC = () => {
                 for{' '}
                 <StyledData>
                   {' '}
-                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {formatBalance(cost.credit)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>
                 .{' '}
@@ -362,7 +448,7 @@ const Swap: React.FC = () => {
                 for{' '}
                 <StyledData>
                   {' '}
-                  {formatBalance(calculateTotalCost().short)}{' '}
+                  {formatBalance(cost.short)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 which gives you the right to right to withdraw{' '}
@@ -384,7 +470,7 @@ const Swap: React.FC = () => {
                 for{' '}
                 <StyledData>
                   {' '}
-                  {formatBalance(calculateTotalCost().credit)}{' '}
+                  {formatBalance(cost.credit)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>
                 .{' '}
@@ -394,7 +480,7 @@ const Swap: React.FC = () => {
                 for{' '}
                 <StyledData>
                   {' '}
-                  {formatBalance(calculateTotalCost().debit)}{' '}
+                  {formatBalance(cost.debit)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>{' '}
                 which gives you the right to purchase{' '}
@@ -431,24 +517,7 @@ const Swap: React.FC = () => {
       ) : (
         <> </>
       )}
-
-      <IconButton
-        text="Advanced"
-        variant="transparent"
-        onClick={() => setAdvanced(!advanced)}
-      >
-        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
-      <Spacer size="sm" />
-
-      {advanced ? ( // FIX
-        <>
-          <LineItem label="Price Impact" data={``} />
-          <Spacer />
-        </>
-      ) : (
-        <> </>
-      )}
+      <Spacer />
 
       {isAboveGuardCap() ? (
         <>
@@ -540,7 +609,6 @@ const Swap: React.FC = () => {
     </>
   )
 }
-
 const WarningTooltip = styled.div`
   color: yellow;
   font-size: 18px;
@@ -564,5 +632,4 @@ const StyledData = styled.span`
   font-weight: 600;
   text-transform: uppercase;
 `
-
 export default Swap

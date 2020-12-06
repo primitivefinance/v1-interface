@@ -231,7 +231,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               {options[type].map((option) => {
                 if (
                   (optionExp != option.expiry && option.expiry === 0) ||
-                  option.strike !== 720
+                  (chainId === 1 ? option.strike !== 720 : !option.strike)
                 )
                   return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
