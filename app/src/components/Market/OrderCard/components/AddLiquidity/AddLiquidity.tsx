@@ -86,10 +86,7 @@ const AddLiquidity: React.FC = () => {
   // has liquidity?
   useEffect(() => {
     if (lpPair) {
-      setHasL(
-        lpPair.reserveOf(shortToken).numerator[2] ||
-          lpPair.reserveOf(shortToken).raw.toString() !== '0.00'
-      )
+      setHasL(lpPair.reserveOf(shortToken).numerator[2])
     }
   }, [setHasL, lpPair])
 

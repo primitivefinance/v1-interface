@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import router from 'next/router'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes } from './actions'
@@ -26,7 +26,7 @@ export const useOptions = (): OptionsState => {
 export const useUpdateOptions = (): ((assetName: string) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
-
+  const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
 
   const calculateBreakeven = (
@@ -59,6 +59,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
             .then((optionEntitiesObject) => {
               let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
+              if (!allKeys) router.reload()
               const allPairAddresses: string[] = []
               const allTokensArray: string[][] = []
               for (let i = 0; i < allKeys.length; i++) {
@@ -302,21 +303,19 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      addNotif(0, 'Getting reserves', error.message, '')
+                      addNotif(0, 'Reserves Error', error.message, '')
                     })
                 })
-                .catch((error) =>
-                  addNotif(0, 'Getting pairs', error.message, '')
-                )
+                .catch((error) => addNotif(0, 'Pair Error', error.message, ''))
             })
             .catch((error) => {
               if (error) {
-                addNotif(0, 'Getting options', error.message, '')
+                addNotif(0, 'Options Error', error.message, '')
               }
             })
         })
         .catch((error) =>
-          addNotif(0, 'Getting all option clones', error.message, '')
+          addNotif(0, 'Option Multicall Error', error.message, '')
         )
     },
     [dispatch, library, chainId, updateOptions, addNotif]

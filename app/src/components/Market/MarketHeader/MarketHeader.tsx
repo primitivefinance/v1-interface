@@ -200,7 +200,7 @@ const GreyBack = styled.div`
   position: absolute;
   z-index: -100;
   min-height: 310px;
-  min-width: 1200px;
+  min-width: 4500px;
   left: 0;
 `
 const StyledContent = styled(Box)`

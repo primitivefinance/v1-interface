@@ -105,17 +105,17 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
               <StyledR>
                 <StyledT>
                   <span>
-                    {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
+                    {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
                   </span>
                 </StyledT>
                 <span>
-                  {numeral(premiumUnderlying).format('(0.00a)')}{' '}
+                  {numeral(premiumUnderlying).format('(0.000a)')}{' '}
                   <Units>{units}</Units>
                 </span>
               </StyledR>
             ) : (
               <span>
-                {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
+                {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
               </span>
             )}
           </TableCell>

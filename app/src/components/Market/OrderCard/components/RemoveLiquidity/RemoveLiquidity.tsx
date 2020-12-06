@@ -410,7 +410,9 @@ const RemoveLiquidity: React.FC = () => {
         data={`${numeral(calculateRequiredLong()).format('0.00')}`}
         units={`LONG`}
       />
-      {parseEther(calculateRequiredLong()).gt(parseEther(optionBalance)) ? (
+      {!formatEther(
+        parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
+      ) ? (
         <>
           <Spacer size="sm" />
           <LineItem
