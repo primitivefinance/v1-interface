@@ -5,11 +5,11 @@ import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
 import SettingsIcon from '@material-ui/icons/Settings'
-import NavigateNextIcon from '@material-ui/icons/NavigateNext'
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore'
-
+import AccountBalanceIcon from '@material-ui/icons/AccountBalance'
+import BuildIcon from '@material-ui/icons/Build'
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
+import Tooltip from '@/components/Tooltip'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 import Box from '@/components/Box'
@@ -95,6 +95,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
+          <Spacer size="sm" />
           <CustomButton>
             <Button
               variant="transparent"
@@ -103,11 +104,20 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
                 updateItem(item, Operation.NONE)
                 setManage(!manage)
               }}
+              round
             >
-              {manage ? <NavigateBeforeIcon /> : <NavigateNextIcon />}
+              {!manage ? (
+                <Tooltip icon={false} text="Manage Position">
+                  <BuildIcon />
+                </Tooltip>
+              ) : (
+                <Tooltip icon={false} text="Use Market">
+                  <AccountBalanceIcon />
+                </Tooltip>
+              )}
             </Button>
           </CustomButton>
-          <Spacer />
+          <Spacer size="sm" />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
               <ClearIcon />
@@ -126,7 +136,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   )
 }
 const CustomButton = styled.div`
-  margin-top: -0.2em;
+  margin-top: -0.1em;
   background: none;
 `
 const Reverse = styled.div`

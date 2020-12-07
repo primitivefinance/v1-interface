@@ -47,9 +47,9 @@ const Tip = styled.h5`
   background: black;
   color: ${(props) => props.theme.color.white};
   max-width: 20em;
-  min-width: 10em;
+  min-width: 2em;
   text-align: center;
-  padding: 10px;
+  padding: 5px;
   border-radius: 6px;
   top: 0.8em;
   /* Position the tooltip text - see examples below! */
