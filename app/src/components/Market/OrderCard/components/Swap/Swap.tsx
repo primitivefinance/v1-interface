@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
-import ethers from 'ethers'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
@@ -16,8 +15,6 @@ import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import WarningIcon from '@material-ui/icons/Warning'
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
@@ -170,7 +167,6 @@ const Swap: React.FC = () => {
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(value)
-      console.log(parsedAmount)
     },
     [onUserInput]
   )
@@ -180,8 +176,6 @@ const Swap: React.FC = () => {
   }, [tokenBalance, onUserInput])
 
   const handleSubmitClick = useCallback(() => {
-    console.log(parsedAmount)
-    console.log(typedValue)
     submitOrder(
       library,
       item?.address,
@@ -191,19 +185,6 @@ const Swap: React.FC = () => {
     )
     removeItem()
   }, [submitOrder, removeItem, item, library, parsedAmount, orderType])
-
-  const premiumMulSize = (premium, size) => {
-    const premiumWei = BigNumber.from(BigInt(parseFloat(premium)).toString())
-
-    if (size?.toString() === '0' || !size || premiumWei.toString() === '')
-      return '0'
-
-    const debit = formatEther(
-      premiumWei.mul(size).div(BigNumber.from('1000000000000000000')).toString()
-    )
-    console.log(debit)
-    return debit
-  }
 
   useEffect(() => {
     const calculateTotalCost = async () => {
@@ -450,8 +431,17 @@ const Swap: React.FC = () => {
                 : ''}{' '}
               {entity.isPut ? 'PUT' : 'CALL'}{' '}
             </StyledData>
-            {orderType === Operation.CLOSE_LONG ||
-            orderType === Operation.CLOSE_SHORT ? (
+            {orderType === Operation.CLOSE_LONG ? (
+              <>
+                for{' '}
+                <StyledData>
+                  {' '}
+                  {formatBalance(cost.credit)}{' '}
+                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                </StyledData>
+                .{' '}
+              </>
+            ) : orderType === Operation.CLOSE_SHORT ? (
               <>
                 for{' '}
                 <StyledData>

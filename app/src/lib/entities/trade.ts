@@ -62,7 +62,8 @@ export class Trade {
   ): ethers.ethers.BigNumber {
     if (
       this.operation === Operation.SHORT ||
-      this.operation === Operation.ADD_LIQUIDITY
+      this.operation === Operation.ADD_LIQUIDITY ||
+      this.operation === Operation.ADD_LIQUIDITY_CUSTOM
     ) {
       return amount
     }

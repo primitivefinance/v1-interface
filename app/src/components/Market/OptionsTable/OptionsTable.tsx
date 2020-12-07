@@ -89,7 +89,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     }
   }, [library, asset, updateOptions, options])
   const calculateBreakeven = useCallback(
-    (premiumWei, isCall) => {
+    (option) => {
       const price = data
         ? data[key]
           ? data[key].usd
@@ -99,12 +99,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         : '0'
       const spotPrice = price.toString()
       const spotPriceWei = parseEther(spotPrice)
-      let breakeven = BigNumber.from(premiumWei.toString())
+      const spotPriceDai = BigNumber.from(option.premium.toString())
         .mul(spotPriceWei)
         .div(parseEther('1'))
-      breakeven = isCall
-        ? breakeven.add(spotPriceWei)
-        : spotPriceWei.sub(breakeven)
+      const breakeven = option.entity.isCall
+        ? BigNumber.from(option.entity.quote.quantity).add(spotPriceDai)
+        : BigNumber.from(option.entity.base.quantity).sub(option.premium)
       return breakeven.toString()
     },
     [key, data]
@@ -174,7 +174,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       const tableAssset: string = asset.toUpperCase()
       const tableStrike: string = formatBalance(option.strike).toString()
       const tableBreakeven: string = formatEtherBalance(
-        calculateBreakeven(option.premium, option.entity.isCall)
+        calculateBreakeven(option)
       ).toString()
       const tablePremium: string = formatBalance(
         option.entity.isPut
