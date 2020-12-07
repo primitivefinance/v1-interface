@@ -46,11 +46,16 @@ export interface OrderProps {
 
 const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const [manage, setManage] = useState(false)
-  const { item } = useItem()
+  const { item, orderType } = useItem()
   const removeItem = useRemoveItem()
   const updateItem = useUpdateItem()
   const options = useOptions()
   const router = useRouter()
+  useEffect(() => {
+    if (orderType !== Operation.NONE) {
+      setManage(false)
+    }
+  }, [orderType])
   useEffect(() => {
     if (!options.loading) {
       if (orderState[1] && orderState[2] && orderState[3]) {
