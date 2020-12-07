@@ -277,7 +277,7 @@ export const useHandleSubmitOrder = (): ((
       optionEntity.setAssetAddresses(assetAddresses)
       optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
       optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
-
+      let out: BigNumberish
       const path: string[] = []
       const amountsIn: BigNumberish[] = []
       let amountsOut: BigNumberish[] = []
@@ -441,12 +441,42 @@ export const useHandleSubmitOrder = (): ((
             trade.path[1]
           )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
-          const out =
+          out =
             secondaryQuantity !== BigInt('0')
               ? BigNumber.from(secondaryQuantity.toString())
               : BigNumber.from('0')
 
           console.log(out.toString())
+          trade.outputAmount = new Quantity(
+            new Asset(18), // fix with actual metadata
+            out
+          )
+
+          transaction = Uniswap.singlePositionCallParameters(
+            trade,
+            tradeSettings
+          )
+          break
+        case Operation.ADD_LIQUIDITY_CUSTOM:
+          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
+          // with the path of underlyingTokens to redeemTokens.
+          trade.path = [
+            assetAddresses[2], // redeem
+            assetAddresses[0], // underlying
+          ]
+          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
+          trade.reserves = await trade.getReserves(
+            signer,
+            factory,
+            trade.path[0],
+            trade.path[1]
+          )
+          // The actual function will take the redeemQuantity rather than the optionQuantity.
+          out =
+            secondaryQuantity !== BigInt('0')
+              ? BigNumber.from(secondaryQuantity.toString())
+              : BigNumber.from('0')
+
           trade.outputAmount = new Quantity(
             new Asset(18), // fix with actual metadata
             out
