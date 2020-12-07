@@ -50,6 +50,26 @@ const BalanceCard: React.FC = () => {
       .catch((err) =>
         console.log(`Issue when minting test tokens in component ${err}`)
       )
+    mintTestTokens(
+      account,
+      STABLECOINS[chainId].address,
+      await library.getSigner()
+    )
+      .then((tx) => {
+        if (tx?.hash) {
+          addTransaction(
+            {
+              hash: tx.hash,
+              addedTime: now(),
+              from: account,
+            },
+            Operation.MINT
+          )
+        }
+      })
+      .catch((err) =>
+        console.log(`Issue when minting test tokens in component ${err}`)
+      )
 
     return tx
   }
