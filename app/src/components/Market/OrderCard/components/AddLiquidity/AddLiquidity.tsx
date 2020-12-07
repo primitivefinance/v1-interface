@@ -28,6 +28,7 @@ import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 
 import {
   useItem,
@@ -61,6 +62,7 @@ const AddLiquidity: React.FC = () => {
   const parsedUnderlyingAmount = tryParseAmount(underlyingValue)
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
+  const [tab, setTab] = useState(0)
   // web3
   const { library, chainId } = useWeb3React()
   // approval
@@ -361,22 +363,60 @@ const AddLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-      <Spacer size="sm" />
       {hasLiquidity ? (
-        <PriceInput
-          name="primary"
-          title={`Underlying Input`}
-          quantity={optionValue}
-          onChange={handleOptionInput}
-          onClick={handleSetMax}
-          balance={
-            new TokenAmount(
-              underlyingToken,
-              parseEther(underlyingTokenBalance).toString()
-            )
-          }
-          valid={parseEther(underlyingTokenBalance).gt(parsedUnderlyingAmount)}
-        />
+        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
+          <StyledTabList>
+            <StyledTab active={tab === 0}>
+              <Tooltip
+                text={
+                  'Add underlying to the liquidity pool at the current premium'
+                }
+              >
+                Pile-On
+              </Tooltip>
+            </StyledTab>
+            <StyledTab active={tab === 1}>
+              <Tooltip text={'Add liquidity at a custom ratio'}>
+                Set Ratio
+              </Tooltip>
+            </StyledTab>
+          </StyledTabList>
+          <StyledTabPanel>
+            <PriceInput
+              name="primary"
+              title={`Underlying Input`}
+              quantity={optionValue}
+              onChange={handleOptionInput}
+              onClick={handleSetMax}
+              balance={
+                new TokenAmount(
+                  underlyingToken,
+                  parseEther(underlyingTokenBalance).toString()
+                )
+              }
+              valid={parseEther(underlyingTokenBalance).gt(
+                parsedUnderlyingAmount
+              )}
+            />
+          </StyledTabPanel>
+          <StyledTabPanel>
+            <PriceInput
+              name="primary"
+              title={`Options Input`}
+              quantity={optionValue}
+              onChange={handleOptionInput}
+              onClick={() => console.log('Max unavailable.')} //
+            />
+            <PriceInput
+              name="secondary"
+              title={`Underlyings Input`}
+              quantity={underlyingValue}
+              onChange={handleUnderInput}
+              onClick={() => console.log('Max unavailable.')} //
+              balance={underlyingAmount}
+            />
+          </StyledTabPanel>
+        </StyledTabs>
       ) : (
         <>
           <StyledSubtitle>
@@ -410,7 +450,7 @@ const AddLiquidity: React.FC = () => {
         units={`LONG`}
       />
       <Spacer size="sm" />
-      {!hasLiquidity ? (
+      {!hasLiquidity || tab === 1 ? (
         <>
           <LineItem
             label="Implied Option Price"
@@ -445,7 +485,6 @@ const AddLiquidity: React.FC = () => {
 
       {advanced && hasLiquidity ? (
         <>
-          <Spacer size="sm" />
           <LineItem
             label="Short per LP token"
             data={`${calculateLiquidityValuePerShare().shortPerLp}`}
@@ -533,6 +572,34 @@ const AddLiquidity: React.FC = () => {
     </>
   )
 }
+interface TabProps {
+  active?: boolean
+}
+const StyledTabPanel = styled(TabPanel)``
+const StyledTab = styled(Tab)<TabProps>`
+  background-color: ${(props) =>
+    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
+  color: ${(props) => props.theme.color.white};
+  font-weight: ${(props) => (props.active ? 600 : 500)};
+  padding: 0.5em 0.5em 0.5em 1em;
+  border-radius: 0.3em 0.3em 0 0;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  width: 50%;
+  list-style: none;
+  cursor: pointer;
+`
+const StyledTabList = styled(TabList)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: baseline;
+  margin-left: -2.5em;
+`
+const StyledTabs = styled(Tabs)`
+  width: 100%;
+`
 const StyledText = styled.h5`
   color: ${(props) => props.theme.color.white};
   display: flex;

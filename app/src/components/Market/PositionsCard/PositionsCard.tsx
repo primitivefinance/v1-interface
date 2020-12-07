@@ -105,7 +105,7 @@ const PositionsCard: React.FC = () => {
   }
   if (!positions.loading && !positions.exists) {
     return (
-      <Card border>
+      <Card border dark>
         <CardTitle>Active Positions</CardTitle>
         <CardContent>
           <StyledEmptyContent>
@@ -122,7 +122,7 @@ const PositionsCard: React.FC = () => {
   }
   return (
     <div>
-      <Card border>
+      <Card border dark>
         <Reverse />
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
@@ -158,7 +158,6 @@ const Scroll = styled.div`
   overflow: scroll;
   max-height: 20em;
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.grey[800]};
 `
 
 const StyledBox = styled(Box)`
@@ -202,7 +201,7 @@ const StyledTitle = styled.h4`
   margin-bottom: 0em;
 `
 const StyledPosition = styled.a`
-  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
+  border: 1.5px solid ${(props) => props.theme.color.black};
   border-radius: 0.5em;
   min-height: 1.5em;
   cursor: pointer;
@@ -210,8 +209,8 @@ const StyledPosition = styled.a`
   margin-top: -0.3em;
   padding: 0 0.5em 0.5em 0.5em;
   &:hover {
-    border: 1.5px solid ${(props) => props.theme.color.grey[600]};
-    background: ${(props) => props.theme.color.black};
+    border: 1.5px solid ${(props) => props.theme.color.grey[400]};
+    background: ${(props) => props.theme.color.grey[800]};
   }
 `
 const StyledLink = styled.a`

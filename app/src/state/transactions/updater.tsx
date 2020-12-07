@@ -115,7 +115,7 @@ export default function Updater(): null {
               if ((!approved[0] && app) || (!approved[1] && app)) {
                 if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
                   // EXTREMELY DIRTY SOLUTION...
-                  router.reload()
+                  updateItem(item, Operation.NONE)
                 } else {
                   updateItem(item, orderType)
                 }

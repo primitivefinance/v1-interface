@@ -85,7 +85,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   }
   return (
     <>
-      <Card border>
+      <Card border dark>
         <Box row justifyContent="space-between" alignItems="center">
           <Spacer size="sm" />
           <Spacer size="sm" />
@@ -99,7 +99,10 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
             <Button
               variant="transparent"
               size="sm"
-              onClick={() => setManage(!manage)}
+              onClick={() => {
+                updateItem(item, Operation.NONE)
+                setManage(!manage)
+              }}
             >
               {manage ? <NavigateBeforeIcon /> : <NavigateNextIcon />}
             </Button>
