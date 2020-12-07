@@ -195,7 +195,8 @@ const StyledSideBar = styled.div`
   width: 25em;
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  padding: ${(props) => props.theme.spacing[2]}px 0px
+  padding: ${(props) => props.theme.spacing[2]}px
+    ${(props) => props.theme.spacing[2]}px
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
@@ -203,7 +204,7 @@ const StyledSideBar = styled.div`
   position: fixed;
   overflow: auto;
   flex-grow: 1;
-  overflow-x: show;
+  overflow-x: hidden;
   overflow-y: scroll;
 `
 const StyledText = styled.h4`

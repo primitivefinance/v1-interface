@@ -22,7 +22,7 @@ const Error: React.FC<ErrorProps> = ({ title, msg, link }) => {
   const clearNotif = useClearNotif()
   return (
     <StyledContainer>
-      <StyledCard>
+      <StyledCard border>
         <CardTitle>
           <StyledTitle>
             <ErrorIcon /> <Spacer size="sm" />

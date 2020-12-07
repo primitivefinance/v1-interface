@@ -79,6 +79,7 @@ const TopBar: React.FC = () => {
           <Spacer size="lg" /> <Spacer size="lg" />
           <Wallet />
           <Spacer size="sm" />
+          <Spacer size="sm" />
           <Settings />
         </StyledFlex>
       </Container>

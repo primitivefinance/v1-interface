@@ -27,7 +27,7 @@ export const Trade: React.FC<TradeProps> = ({ title, msg, link }) => {
   if (!title) return null
   return (
     <StyledContainer>
-      <StyledCard>
+      <StyledCard border>
         <CardTitle>
           <StyledTitle>
             <CheckCircleIcon /> <Spacer size="sm" />

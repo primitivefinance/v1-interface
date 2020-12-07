@@ -56,7 +56,7 @@ const TransactionCard: React.FC = () => {
   if (Object.keys(txs).length === 0 && txs.constructor === Object) return null
   return (
     <div ref={nodeRef}>
-      <Card border>
+      <Card border dark>
         <Spacer size="sm" />
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
