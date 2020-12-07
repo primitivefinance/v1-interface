@@ -63,6 +63,13 @@ const AddLiquidity: React.FC = () => {
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
   const [tab, setTab] = useState(0)
+  useEffect(() => {
+    if (tab === 1) {
+      updateItem(item, Operation.ADD_LIQUIDITY_CUSTOM)
+    } else {
+      updateItem(item, Operation.ADD_LIQUIDITY)
+    }
+  }, [tab])
   // web3
   const { library, chainId } = useWeb3React()
   // approval
@@ -96,7 +103,7 @@ const AddLiquidity: React.FC = () => {
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-  const optionTokenBalance = useTokenBalance(item.address)
+  const shortTokenBalance = useTokenBalance(entity.assetAddresses[2])
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
@@ -109,6 +116,10 @@ const AddLiquidity: React.FC = () => {
   const underlyingAmount: TokenAmount = new TokenAmount(
     underlyingToken,
     parseEther(underlyingTokenBalance).toString()
+  )
+  const shortAmount: TokenAmount = new TokenAmount(
+    shortToken,
+    parseEther(shortTokenBalance).toString()
   )
 
   const handleOptionInput = useCallback(
@@ -402,14 +413,16 @@ const AddLiquidity: React.FC = () => {
           <StyledTabPanel>
             <PriceInput
               name="primary"
-              title={`Options Input`}
+              title={`SHORT Input`}
               quantity={optionValue}
               onChange={handleOptionInput}
               onClick={() => console.log('Max unavailable.')} //
+              balance={shortAmount}
             />
+            <Spacer size="sm" />
             <PriceInput
               name="secondary"
-              title={`Underlyings Input`}
+              title={`Underlying Input`}
               quantity={underlyingValue}
               onChange={handleUnderInput}
               onClick={() => console.log('Max unavailable.')} //
@@ -427,14 +440,14 @@ const AddLiquidity: React.FC = () => {
           <Spacer size="sm" />
           <PriceInput
             name="primary"
-            title={`Options Input`}
+            title={`LONG Input`}
             quantity={optionValue}
             onChange={handleOptionInput}
             onClick={() => console.log('Max unavailable.')} //
           />
           <PriceInput
             name="secondary"
-            title={`Underlyings Input`}
+            title={`Underlying Input`}
             quantity={underlyingValue}
             onChange={handleUnderInput}
             onClick={() => console.log('Max unavailable.')} //
@@ -480,8 +493,6 @@ const AddLiquidity: React.FC = () => {
           </IconButton>
         </>
       ) : null}
-
-      <Spacer size="sm" />
 
       {advanced && hasLiquidity ? (
         <>
