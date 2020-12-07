@@ -34,9 +34,6 @@ export class Trader {
     let args: (string | string[])[]
     let value: string
 
-    let contractsToApprove: string[]
-    let tokensToApprove: string[]
-
     const optionAddress: string = trade.option.address
     const amountIn: string = trade.inputAmount.quantity.toString()
     const to: string = tradeSettings.receiver
@@ -63,7 +60,6 @@ export class Trader {
           args = [optionAddress, amountIn, to]
           value = '0'
         }
-        console.log(`in mint block: ${methodName}`)
         break
       case Operation.EXERCISE:
         // Exercise options through the Trader Library (inherited by Trader and WethConnectorArtifact).
@@ -147,8 +143,6 @@ export class Trader {
       methodName,
       args,
       value,
-      contractsToApprove,
-      tokensToApprove,
     }
   }
 }

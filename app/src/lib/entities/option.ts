@@ -1,12 +1,12 @@
-import { BigNumberish } from 'ethers'
 // import { Token } from './token' breaks Pair types
 import { Asset } from './asset'
 import { Quantity } from './quantity'
-import ethers from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 import { formatEther } from 'ethers/lib/utils'
 import { Pair, Token } from '@uniswap/sdk'
 import { STABLECOINS } from '@/constants/index'
+import isZero from '@/utils/isZero'
 
 export interface OptionParameters {
   base: Quantity
@@ -107,12 +107,13 @@ export class Option extends Token {
     } else if (quoteValue === '1') {
       strikePrice = this.optionParameters.base
     } else {
-      const numerator = ethers.BigNumber.from(
-        this.optionParameters.quote.quantity
-      )
-      const denominator = ethers.BigNumber.from(
-        this.optionParameters.base.quantity
-      )
+      const numerator = BigNumber.from(quoteValue)
+      const denominator = BigNumber.from(baseValue)
+      if (isZero(denominator))
+        return new Quantity(
+          this.optionParameters.quote.asset,
+          BigNumber.from('0')
+        )
 
       const strike =
         parseInt(numerator.toString()) / parseInt(denominator.toString())
@@ -120,6 +121,22 @@ export class Option extends Token {
       strikePrice = new Quantity(this.optionParameters.quote.asset, strike)
     }
     return strikePrice
+  }
+
+  public proportionalLong(quantityShort: BigNumberish): BigNumber {
+    const numerator = this.optionParameters.base.quantity
+    const denominator = this.optionParameters.quote.quantity
+    if (isZero(denominator)) return BigNumber.from('0')
+    const strike = BigNumber.from(quantityShort).mul(numerator).div(denominator)
+    return strike
+  }
+
+  public proportionalShort(quantityLong: BigNumberish): BigNumber {
+    const numerator = this.optionParameters.quote.quantity
+    const denominator = this.optionParameters.base.quantity
+    if (isZero(denominator)) return BigNumber.from('0')
+    const strike = BigNumber.from(quantityLong).mul(numerator).div(denominator)
+    return strike
   }
 
   public get isCall(): boolean {

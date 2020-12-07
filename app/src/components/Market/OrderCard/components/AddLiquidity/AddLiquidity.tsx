@@ -320,7 +320,7 @@ const AddLiquidity: React.FC = () => {
 
   const isAboveGuardCap = useCallback(() => {
     const inputValue = parsedUnderlyingAmount
-    return inputValue.gt(guardCap)
+    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
   }, [parsedUnderlyingAmount, guardCap])
 
   const handleApproval = useCallback(() => {
