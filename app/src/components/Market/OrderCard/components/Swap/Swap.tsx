@@ -63,8 +63,10 @@ const Swap: React.FC = () => {
     short: '0',
   })
   const [prem, setPrem] = useState(
-    orderType === Operation.CLOSE_LONG || orderType === Operation.LONG
+    orderType === Operation.LONG
       ? formatEther(item.premium)
+      : orderType === Operation.CLOSE_LONG
+      ? formatEther(item.closePremium)
       : formatEther(item.shortPremium)
   )
   const [impact, setImpact] = useState('0.00')
@@ -212,70 +214,119 @@ const Swap: React.FC = () => {
       const base = item.entity.base.quantity.toString()
       const quote = item.entity.quote.quantity.toString()
       size = item.entity.isCall ? size : size.mul(quote).div(base)
-      let minPayout = ''
-      // buy long
+      let actualPremium = ''
+      let spot = ''
+      // buy long, Trade.getPremium
       if (orderType === Operation.LONG) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getAmountsInPure(
-            size,
+          spot = Trade.getSpotPremium(
+            base,
+            quote,
             [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            item.reserves[1],
-            item.reserves[0]
-          )[0].toString()
-          setImpact(
-            (
-              parseInt(parseEther(minPayout).toString()) /
-              parseInt(parseEther(item.reserves[0].toString()).toString())
-            ).toString()
-          )
-          setPrem(formatEther(minPayout))
-          debit = premiumMulSize(minPayout, size)
-        } else {
-          setImpact('0.00')
-          setPrem(formatEther(item.premium))
-        }
-        // sell long
-      } else if (orderType === Operation.CLOSE_LONG) {
-        if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getClosePremium(
+            [item.reserves[0], item.reserves[1]]
+          ).toString()
+          actualPremium = Trade.getPremium(
             size,
             base,
             quote,
             [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            [item.reserves[1], item.reserves[0]]
+            [item.reserves[0], item.reserves[1]]
           ).toString()
+          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
-              parseInt(parseEther(minPayout).toString()) /
-              parseInt(parseEther(item.reserves[0].toString()).toString())
+              (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
+              100
             ).toString()
           )
-          setPrem(formatEther(minPayout))
-          credit = premiumMulSize(minPayout, size)
+          setPrem(formatEther(spot))
+          debit = formatEther(actualPremium)
         } else {
           setImpact('0.00')
           setPrem(formatEther(item.premium))
         }
-        // buy short && sell short
-      } else if (
-        orderType === Operation.SHORT ||
-        orderType === Operation.CLOSE_SHORT
-      ) {
+        // sell long, Trade.getClosePremium
+      } else if (orderType === Operation.CLOSE_LONG) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          minPayout = Trade.getAmountsInPure(
+          spot = Trade.getCloseSpotPremium(
+            base,
+            quote,
+            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
+            [item.reserves[1], item.reserves[0]]
+          ).toString()
+          let shortSize = size.mul(quote).div(base)
+          actualPremium = Trade.getClosePremium(
+            shortSize,
+            base,
+            quote,
+            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
+            [item.reserves[1], item.reserves[0]]
+          ).toString()
+          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
+          setImpact(
+            (
+              (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
+              100
+            ).toString()
+          )
+          setPrem(formatEther(spot))
+          credit = formatEther(actualPremium)
+        } else {
+          setImpact('0.00')
+          setPrem(formatEther(item.closePremium))
+        }
+        // buy short swap from UNDER -> RDM
+      } else if (orderType === Operation.SHORT) {
+        if (parsedAmount.gt(BigNumber.from(0))) {
+          let tradeQuote = Trade.getQuote(
             size,
-            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            item.reserves[0],
+            item.reserves[1]
+          ).toString()
+          actualPremium = Trade.getAmountsInPure(
+            size,
+            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
             item.reserves[1],
             item.reserves[0]
           )[0].toString()
           setImpact(
             (
-              parseInt(parseEther(minPayout).toString()) /
-              parseInt(parseEther(item.reserves[0].toString()).toString())
+              (parseInt(actualPremium.toString()) /
+                parseInt(tradeQuote.toString()) -
+                1) *
+              100
             ).toString()
           )
-          setPrem(formatEther(minPayout))
-          short = premiumMulSize(minPayout, size)
+          setPrem(formatEther(item.shortPremium))
+          short = formatEther(actualPremium)
+        } else {
+          setImpact('0.00')
+          setPrem(formatEther(item.premium))
+        }
+        // sell short, RDM -> UNDER
+      } else if (orderType === Operation.CLOSE_SHORT) {
+        if (parsedAmount.gt(BigNumber.from(0))) {
+          let tradeQuote = Trade.getQuote(
+            size,
+            item.reserves[0],
+            item.reserves[1]
+          ).toString()
+          actualPremium = Trade.getAmountsOutPure(
+            size,
+            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
+            item.reserves[0],
+            item.reserves[1]
+          )[1].toString()
+          setImpact(
+            (
+              (parseInt(actualPremium.toString()) /
+                parseInt(tradeQuote.toString()) -
+                1) *
+              100
+            ).toString()
+          )
+          setPrem(formatEther(item.shortPremium))
+          short = formatEther(actualPremium)
         } else {
           setImpact('0.00')
           setPrem(formatEther(item.premium))
@@ -375,41 +426,8 @@ const Swap: React.FC = () => {
       {inputLoading ? (
         <Loader />
       ) : (
-        <LineItem label="Price Impact" data={`${impact}`} units="%" />
+        <LineItem label="Slippage" data={`${impact}`} units="%" />
       )}
-      {/* {orderType === Operation.LONG ? (
-        <>
-          <LineItem
-            label={'Total Debit'}
-            data={calculateTotalCost().debit}
-            units={`- ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
-          />
-        </>
-      ) : orderType === Operation.WRITE ||
-        orderType === Operation.CLOSE_LONG ? (
-        <>
-          <LineItem
-            label={'Total Credit'}
-            data={calculateTotalCost().credit}
-            units={`+ ${entity.isPut ? 'DAI' : item.asset.toUpperCase()}`}
-          />
-        </>
-      ) : orderType === Operation.SHORT ||
-        orderType === Operation.CLOSE_SHORT ? (
-        <>
-          <LineItem
-            label={`Total ${
-              orderType === Operation.SHORT ? 'Debit' : 'Credit'
-            }`}
-            data={calculateTotalCost().short}
-            units={`${orderType === Operation.SHORT ? '-' : '+'} ${
-              entity.isPut ? 'DAI' : item.asset.toUpperCase()
-            }`}
-          />
-        </>
-      ) : (
-        <></>
-      )} */}
       {parsedAmount.gt(0) ? (
         <>
           {' '}
@@ -438,7 +456,7 @@ const Swap: React.FC = () => {
                 for{' '}
                 <StyledData>
                   {' '}
-                  {formatBalance(cost.credit)}{' '}
+                  {formatBalance(cost.short)}{' '}
                   {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                 </StyledData>
                 .{' '}
