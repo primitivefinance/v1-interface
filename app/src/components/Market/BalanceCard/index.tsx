@@ -58,7 +58,7 @@ const BalanceCard: React.FC = () => {
   return (
     <>
       <div style={{ marginTop: '-.1em' }} />
-      <Card border>
+      <Card border dark>
         <CardContent>
           <StyledContainer>
             <LineItem label={`DAI Balance`} data={daiBal} />
