@@ -5,12 +5,12 @@ import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes } from './actions'
 import { OptionsState } from './reducer'
 
-import { Pair, Token } from '@uniswap/sdk'
+import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 
 import { Protocol } from '@/lib/protocol'
-import { Trade, Option, Quantity } from '@/lib/entities'
+import { Trade, Option } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -23,7 +23,10 @@ export const useOptions = (): OptionsState => {
   return state
 }
 
-export const useUpdateOptions = (): ((assetName: string) => void) => {
+export const useUpdateOptions = (): ((
+  assetName: string,
+  assetAddress?: string
+) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
   const router = useRouter()
@@ -49,7 +52,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
     }, [router])
   }
   return useCallback(
-    async (assetName: string) => {
+    async (assetName: string, assetAddress?: string) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
@@ -65,24 +68,10 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
               for (let i = 0; i < allKeys.length; i++) {
                 const key: string = allKeys[i]
                 const option: Option = optionEntitiesObject[key]
-                const SHORT_OPTION: Token = new Token(
-                  chainId,
-                  option.assetAddresses[2],
-                  18
-                )
-                const UNDERLYING: Token = new Token(
-                  chainId,
-                  option.assetAddresses[0],
-                  18
-                )
-                const address: string = Pair.getAddress(
-                  UNDERLYING,
-                  SHORT_OPTION
-                )
-                allPairAddresses.push(address)
+                allPairAddresses.push(option.pairAddress)
                 allTokensArray.push([
-                  option.assetAddresses[2],
-                  option.assetAddresses[0],
+                  option.redeem.address,
+                  option.underlying.address,
                 ])
               }
               Protocol.getPairsFromMultiCall(provider, allTokensArray)
@@ -121,30 +110,65 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         let reserves: string[] = ['0', '0']
                         let pairDataItem: string[]
                         for (const packed of allPackedReserves) {
-                          index = packed.indexOf(option.assetAddresses[2])
+                          index = packed.indexOf(option.redeem.address)
                           if (index !== -1) {
                             reserves = packed[0]
                             pairDataItem = packed
                           }
                         }
+
                         const path: string[] = [
-                          option.assetAddresses[2],
-                          option.assetAddresses[0],
+                          option.redeem.address,
+                          option.underlying.address,
                         ]
+
                         if (typeof reserves === 'undefined')
                           reserves = ['0', '0']
                         const reserves0: BigNumberish = reserves[0]
                         const reserves1: BigNumberish = reserves[1]
 
-                        let token0: string = option.assetAddresses[0]
-                        let token1: string = option.assetAddresses[2]
+                        let token0: string = option.underlying.address
+                        let token1: string = option.redeem.address
                         if (typeof pairDataItem !== 'undefined') {
                           token0 = pairDataItem[1]
                           token1 = pairDataItem[2]
                         }
 
-                        const Base: Quantity = option.optionParameters.base
-                        const Quote: Quantity = option.optionParameters.quote
+                        const underlyingAddress = option.underlying.address
+                        const redeemAddress = option.redeem.address
+                        let underlyingTokenAmount: TokenAmount
+                        let redeemTokenAmount: TokenAmount
+                        if (
+                          token0 === underlyingAddress &&
+                          token1 === redeemAddress
+                        ) {
+                          underlyingTokenAmount = new TokenAmount(
+                            option.underlying,
+                            reserves[0]
+                          )
+                          redeemTokenAmount = new TokenAmount(
+                            option.redeem,
+                            reserves[1]
+                          )
+                        } else {
+                          redeemTokenAmount = new TokenAmount(
+                            option.redeem,
+                            reserves[0]
+                          )
+                          underlyingTokenAmount = new TokenAmount(
+                            option.underlying,
+                            reserves[1]
+                          )
+                        }
+
+                        const pair: Pair = new Pair(
+                          underlyingTokenAmount,
+                          redeemTokenAmount
+                        )
+                        option.setPair(pair)
+
+                        const Base: TokenAmount = option.baseValue
+                        const Quote: TokenAmount = option.quoteValue
 
                         // depth calcs
                         const reserve0ForDepth: BigNumber = BigNumber.from(
@@ -154,16 +178,16 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                           reserves1.toString()
                         )
 
-                        const underlyingReserve =
-                          token0 === option.assetAddresses[0]
-                            ? reserve0ForDepth
-                            : reserve1ForDepth
-                        const shortReserve =
-                          token0 === option.assetAddresses[0]
-                            ? reserve1ForDepth
-                            : reserve0ForDepth
+                        const underlyingReserve = option.pair
+                          .reserveOf(option.underlying)
+                          .raw.toString()
+                        const shortReserve = option.pair
+                          .reserveOf(option.redeem)
+                          .raw.toString()
 
-                        const twoPercentOfReserve = underlyingReserve
+                        const twoPercentOfReserve = BigNumber.from(
+                          underlyingReserve
+                        )
                           .mul(2)
                           .div(100)
 
@@ -183,18 +207,18 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
 
                         const redeemCostDivMinted = BigNumber.from(
                           redeemCost.toString()
-                        ).div(Quote.quantity)
+                        ).div(Quote.raw.toString())
 
                         let premium: BigNumberish = Trade.getSpotPremium(
-                          Base.quantity,
-                          Quote.quantity,
+                          Base.raw.toString(),
+                          Quote.raw.toString(),
                           path,
                           [shortReserve, underlyingReserve]
                         )
                         const closePremium: BigNumberish = Trade.getCloseSpotPremium(
-                          Base.quantity,
-                          Quote.quantity,
-                          [option.assetAddresses[0], option.assetAddresses[2]],
+                          Base.raw.toString(),
+                          Quote.raw.toString(),
+                          [option.underlying.address, option.redeem.address],
                           [underlyingReserve, shortReserve]
                         )
                         const shortPremium: BigNumberish = Trade.getSpotShortPremium(
@@ -211,19 +235,18 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
 
                         if (option.isCall) {
                           if (
-                            Base.asset.symbol.toUpperCase() ===
+                            Base.token.symbol.toUpperCase() ===
                             assetName.toUpperCase()
                           ) {
                             breakEven = calculateBreakeven(
-                              parseEther(
-                                option.strikePrice.quantity.toString()
-                              ),
+                              option.strikePrice,
                               premium,
                               true
                             )
                             pairReserveTotal[0] = pairReserveTotal[0].add(
                               BigNumber.from(underlyingReserve)
                             )
+                            console.log(calls)
                             calls.push({
                               entity: option,
                               asset: assetName,
@@ -232,43 +255,35 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium: premium,
                               closePremium: closePremium,
                               shortPremium: shortPremium,
-                              strike: option.strikePrice.quantity,
+                              strike: option.strikePrice,
                               volume: 0,
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
                               depth: depth.toString(),
                               address: option.address,
-                              expiry: option.expiry,
+                              expiry: option.expiryValue,
                               id: option.name,
                             })
                           }
                         }
                         if (option.isPut) {
-                          let asset = Quote.asset.symbol.toUpperCase()
+                          let asset = Quote.token.symbol.toUpperCase()
                           if (asset === 'ETH') {
                             asset = 'WETH'
                           }
                           if (
-                            asset === assetName.toUpperCase() &&
-                            option.assetAddresses[0] ===
-                              STABLECOINS[chainId].address
+                            (asset === assetName.toUpperCase() &&
+                              option.underlying.address ===
+                                STABLECOINS[chainId].address) ||
+                            Quote.token.address === assetAddress
                           ) {
                             pairReserveTotal[1] = pairReserveTotal[1].add(
                               BigNumber.from(underlyingReserve)
                             )
-                            const denominator = ethers.BigNumber.from(
-                              option.optionParameters.quote.quantity
-                            )
-                            const numerator = ethers.BigNumber.from(
-                              option.optionParameters.base.quantity
-                            )
-                            const strikePrice =
-                              parseInt(numerator.toString()) /
-                              parseInt(denominator.toString())
 
                             breakEven = calculateBreakeven(
-                              parseEther(strikePrice.toString()),
+                              option.strikePrice,
                               premium,
                               false
                             )
@@ -280,14 +295,14 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                               premium: premium,
                               closePremium: closePremium,
                               shortPremium: shortPremium,
-                              strike: strikePrice,
+                              strike: option.strikePrice,
                               volume: 0,
                               reserves: reserves,
                               token0: token0,
                               token1: token1,
                               depth: depth.toString(),
                               address: option.address,
-                              expiry: option.expiry,
+                              expiry: option.expiryValue,
                               id: option.name,
                             })
                           }

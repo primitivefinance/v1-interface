@@ -49,8 +49,6 @@ const Swap: React.FC = () => {
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   const removeItem = useRemoveItem()
-  // toggle for advanced info
-  const [advanced, setAdvanced] = useState(false)
   // approval state
   const { item, orderType, loading, approved } = useItem()
   // cost state
@@ -83,24 +81,11 @@ const Swap: React.FC = () => {
   const price = usePrice()
   // pair and option entities
   const entity = item.entity
-  const isPut = item.entity.isPut
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    isPut ? 'DAI' : item.asset.toUpperCase()
-  )
-  const shortToken = new Token(
-    entity.chainId,
-    entity.assetAddresses[2],
-    18,
-    'SHORT'
-  )
-  const lpPair = useReserves(underlyingToken, shortToken).data
+  const lpPair = useReserves(entity.underlying, entity.redeem).data
   // has liquidity?
   useEffect(() => {
     if (lpPair) {
-      setHasL(lpPair.reserveOf(shortToken).numerator[2])
+      setHasL(lpPair.reserveOf(entity.redeem).numerator[2])
     }
   }, [setHasL, lpPair])
 
@@ -113,16 +98,16 @@ const Swap: React.FC = () => {
         text: 'Buy Long Tokens',
         tip: 'Purchase and hold option tokens.',
       }
-      tokenAddress = underlyingToken.address
-      balance = underlyingToken
+      tokenAddress = entity.underlying.address
+      balance = entity.underlying
       break
     case Operation.SHORT:
       title = {
         text: 'Buy Short Tokens',
         tip: 'Purchase tokenized, written covered options.',
       }
-      tokenAddress = underlyingToken.address
-      balance = underlyingToken
+      tokenAddress = entity.underlying.address
+      balance = entity.underlying
       break
     case Operation.WRITE:
       title = {
@@ -130,8 +115,8 @@ const Swap: React.FC = () => {
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
       }
-      tokenAddress = item.entity.address //underlyingToken.address FIX: double approval
-      balance = underlyingToken
+      tokenAddress = entity.address //entity.underlying.address FIX: double approval
+      balance = entity.underlying
       break
     case Operation.CLOSE_LONG:
       title = {
@@ -146,7 +131,7 @@ const Swap: React.FC = () => {
         text: 'Close Short Position',
         tip: `Sell short option tokens for ${item.asset.toUpperCase()}.`,
       }
-      tokenAddress = entity.assetAddresses[2]
+      tokenAddress = entity.redeem.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'SHORT')
       break
     default:
@@ -161,7 +146,7 @@ const Swap: React.FC = () => {
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
   const handleTypeInput = useCallback(
@@ -192,9 +177,8 @@ const Swap: React.FC = () => {
       let credit = '0'
       let short = '0'
       let size = parsedAmount
-      const base = item.entity.base.quantity.toString()
-      const quote = item.entity.quote.quantity.toString()
-      size = item.entity.isCall ? size : size.mul(quote).div(base)
+      const base = entity.baseValue.raw.toString()
+      const quote = entity.quoteValue.raw.toString()
       let actualPremium = ''
       let spot = ''
       // buy long, Trade.getPremium
@@ -203,15 +187,21 @@ const Swap: React.FC = () => {
           spot = Trade.getSpotPremium(
             base,
             quote,
-            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            [item.reserves[0], item.reserves[1]]
+            [entity.redeem.address, entity.underlying.address],
+            [
+              lpPair.reserveOf(entity.redeem).raw.toString(),
+              lpPair.reserveOf(entity.underlying).raw.toString(),
+            ]
           ).toString()
           actualPremium = Trade.getPremium(
             size,
             base,
             quote,
-            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            [item.reserves[0], item.reserves[1]]
+            [entity.redeem.address, entity.underlying.address],
+            [
+              lpPair.reserveOf(entity.redeem).raw.toString(),
+              lpPair.reserveOf(entity.underlying).raw.toString(),
+            ]
           ).toString()
           let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
@@ -232,16 +222,23 @@ const Swap: React.FC = () => {
           spot = Trade.getCloseSpotPremium(
             base,
             quote,
-            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
-            [item.reserves[1], item.reserves[0]]
+            [entity.underlying.address, entity.redeem.address],
+            [
+              lpPair.reserveOf(entity.underlying).raw.toString(),
+              lpPair.reserveOf(entity.redeem).raw.toString(),
+            ]
           ).toString()
-          let shortSize = size.mul(quote).div(base)
+
+          let shortSize = entity.proportionalShort(size)
           actualPremium = Trade.getClosePremium(
             shortSize,
             base,
             quote,
-            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
-            [item.reserves[1], item.reserves[0]]
+            [entity.underlying.address, entity.redeem.address],
+            [
+              lpPair.reserveOf(entity.underlying).raw.toString(),
+              lpPair.reserveOf(entity.redeem).raw.toString(),
+            ]
           ).toString()
           let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
@@ -261,14 +258,14 @@ const Swap: React.FC = () => {
         if (parsedAmount.gt(BigNumber.from(0))) {
           let tradeQuote = Trade.getQuote(
             size,
-            item.reserves[0],
-            item.reserves[1]
+            lpPair.reserveOf(entity.redeem).raw.toString(),
+            lpPair.reserveOf(entity.underlying).raw.toString()
           ).toString()
           actualPremium = Trade.getAmountsInPure(
             size,
-            [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
-            item.reserves[1],
-            item.reserves[0]
+            [entity.underlying.address, entity.redeem.address],
+            lpPair.reserveOf(entity.underlying).raw.toString(),
+            lpPair.reserveOf(entity.redeem).raw.toString()
           )[0].toString()
           setImpact(
             (
@@ -289,14 +286,14 @@ const Swap: React.FC = () => {
         if (parsedAmount.gt(BigNumber.from(0))) {
           let tradeQuote = Trade.getQuote(
             size,
-            item.reserves[0],
-            item.reserves[1]
+            lpPair.reserveOf(entity.redeem).raw.toString(),
+            lpPair.reserveOf(entity.underlying).raw.toString()
           ).toString()
           actualPremium = Trade.getAmountsOutPure(
             size,
-            [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
-            item.reserves[0],
-            item.reserves[1]
+            [entity.redeem.address, entity.underlying.address],
+            lpPair.reserveOf(entity.redeem).raw.toString(),
+            lpPair.reserveOf(entity.underlying).raw.toString()
           )[1].toString()
           setImpact(
             (
@@ -323,8 +320,8 @@ const Swap: React.FC = () => {
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
-    const base = item.entity.base.quantity.toString()
-    const quote = item.entity.quote.quantity.toString()
+    const base = entity.baseValue.raw.toString()
+    const quote = entity.quoteValue.raw.toString()
     const amount = BigNumber.from(sizeWei).mul(quote).div(base)
     return formatEtherBalance(amount)
   }, [item, parsedAmount])

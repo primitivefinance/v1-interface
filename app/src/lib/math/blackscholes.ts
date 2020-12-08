@@ -121,7 +121,7 @@ export class BlackScholes implements BlackScholesInterface {
         (2 * Math.sqrt(this.option.getTimeToExpiry())) -
       sign *
         this.riskFree *
-        +this.option.strikePrice.quantity *
+        +this.option.strikePrice *
         Math.exp(-1 * this.riskFree * this.option.getTimeToExpiry()) *
         NormalDistribution.pdf(sign * this.d2)
 
@@ -143,7 +143,7 @@ export class BlackScholes implements BlackScholesInterface {
 
     const rho =
       sign *
-      +this.option.strikePrice.quantity *
+      +this.option.strikePrice *
       expiryTime *
       Math.exp(-1 * this.riskFree * expiryTime) *
       NormalDistribution.cdf(sign * this.d2)
@@ -189,15 +189,12 @@ export class BlackScholes implements BlackScholesInterface {
     const sign = this.option.isCall ? 1 : -1
 
     if (this.option.getTimeToExpiry() < minTimeToExpire) {
-      return Math.max(
-        sign * (this.assetPrice - +this.option.strikePrice.quantity),
-        0
-      )
+      return Math.max(sign * (this.assetPrice - +this.option.strikePrice), 0)
     }
 
     const priceNorm = this.assetPrice * NormalDistribution.cdf(sign * this.d1)
     const strikeRisk =
-      +this.option.strikePrice.quantity *
+      +this.option.strikePrice *
       Math.exp(-1 * this.riskFree * this.option.getTimeToExpiry()) *
       NormalDistribution.cdf(sign * this.d2)
 
@@ -216,7 +213,7 @@ export class BlackScholes implements BlackScholesInterface {
     }
 
     return (
-      (Math.log(this.assetPrice / +this.option.strikePrice.quantity) +
+      (Math.log(this.assetPrice / +this.option.strikePrice) +
         (this.riskFree + Math.pow(this.deviation, 2) / 2) * timeToExpiry) /
       (this.deviation * Math.sqrt(timeToExpiry))
     )
@@ -257,7 +254,7 @@ export class BlackScholes implements BlackScholesInterface {
       ) */
       var actualCost = this.blackScholes(
         this.assetPrice,
-        this.option.strikePrice.quantity,
+        this.option.strikePrice,
         this.option.getTimeToExpiry(),
         estimate,
         this.riskFree,

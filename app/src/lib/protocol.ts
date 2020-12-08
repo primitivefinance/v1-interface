@@ -9,7 +9,7 @@ import RinkebyFactory from '@primitivefi/contracts/deployments/rinkeby/OptionFac
 import TestERC20 from '@primitivefi/contracts/artifacts/TestERC20.json'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
-import { Asset, Quantity, Token } from './entities'
+import { Token, TokenAmount } from '@uniswap/sdk'
 import {
   OPTION_SALT,
   UNISWAP_FACTORY_V2,
@@ -42,7 +42,7 @@ export class Protocol {
 
   public static async getTokensMetadataFromMultiCall(
     provider,
-    tokenAddresses
+    tokenAddresses: string[]
   ): Promise<any> {
     const multi = new MultiCall(provider)
     const methodNames = ['name', 'symbol', 'decimals']
@@ -82,7 +82,7 @@ export class Protocol {
 
   public static async getOptionParametersFromMultiCall(
     provider,
-    optionAddresses
+    optionAddresses: string[]
   ): Promise<any> {
     const multi = new MultiCall(provider)
 
@@ -230,22 +230,21 @@ export class Protocol {
           tokens
         )
         // assets = [Underlying, Strike, Redeem]
-        const assets: Asset[] = []
+        const assets: Token[] = []
         // tokenData = [name, symbol, decimals] for each token
         // for each set of tokens (tokensData[0-2]), grab the details.
         for (let t = 0; t < tokensData.length / 3; t++) {
           const startIndex = t * 3
-          assets.push(
-            new Asset(
-              tokensData[startIndex + 2],
-              tokensData[startIndex],
-              tokensData[startIndex + 1]
-            )
-          )
+          const address = tokens[t]
+          const decimals = tokensData[startIndex + 2]
+          const symbol = tokensData[startIndex + 1]
+          const name = tokensData[startIndex]
+          console.log({ name, symbol })
+          assets.push(new Token(chainId, address, decimals, symbol, name))
         }
         const optionParams: OptionParameters = {
-          base: new Quantity(assets[0], parameter[3]),
-          quote: new Quantity(assets[1], parameter[4]),
+          base: new TokenAmount(assets[0], parameter[3]),
+          quote: new TokenAmount(assets[1], parameter[4]),
           expiry: parameter[5],
         }
 
@@ -257,7 +256,7 @@ export class Protocol {
           'Primitive V1 Option',
           'PRM'
         )
-        optionEntity.assetAddresses = tokens
+        optionEntity.tokenAddresses = tokens
         Object.assign(optionsEntityObject, {
           [optionAddresses[i]]: optionEntity,
         })
@@ -293,16 +292,16 @@ export class Protocol {
     )
 
     const optionParameters: OptionParameters = {
-      base: new Quantity(
-        new Asset(
+      base: new TokenAmount(
+        new Token(
           await underlying.decimals(),
           await underlying.name(),
           await underlying.symbol()
         ),
         parameters._base
       ),
-      quote: new Quantity(
-        new Asset(
+      quote: new TokenAmount(
+        new Token(
           await strike.decimals(),
           await strike.name(),
           await strike.symbol()
@@ -321,11 +320,11 @@ export class Protocol {
       'PRM'
     )
 
-    optionEntity.assetAddresses = await new ethers.Contract(
+    optionEntity.tokenAddresses = await new ethers.Contract(
       address,
       OptionContract.abi,
       provider
-    ).getAssetAddresses()
+    ).getTokenAddresses()
 
     return optionEntity
   }

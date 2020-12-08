@@ -69,17 +69,7 @@ const RemoveLiquidity: React.FC = () => {
   // pair and option entities
   const addNotif = useAddNotif()
   const entity = item.entity
-  const isPut = item.entity.isPut
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    isPut ? 'DAI' : item.asset.toUpperCase()
-  )
-  const lpPair = useReserves(
-    underlyingToken,
-    new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
-  ).data
+  const lpPair = useReserves(entity.underlying, entity.redeem).data
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
@@ -88,7 +78,7 @@ const RemoveLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
 
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
 
   const optionBalance = useTokenBalance(item.address)
 
@@ -191,11 +181,11 @@ const RemoveLiquidity: React.FC = () => {
       }
     }
     const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
+      lpPair.token0.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
     const UNDERLYING: Token =
-      lpPair.token1.address === item.entity.assetAddresses[2]
+      lpPair.token1.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
 
@@ -230,8 +220,8 @@ const RemoveLiquidity: React.FC = () => {
 
     const totalUnderlyingPerLp = formatEther(
       BigNumber.from(shortValue.raw.toString())
-        .mul(item.entity.optionParameters.base.quantity)
-        .div(item.entity.optionParameters.quote.quantity)
+        .mul(entity.baseValue.raw.toString())
+        .div(entity.quoteValue.raw.toString())
         .add(underlyingValue.raw.toString())
     )
 
@@ -249,14 +239,14 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = item.entity.optionParameters.base.quantity
-    const quote = item.entity.optionParameters.quote.quantity
+    const base = entity.baseValue.raw.toString()
+    const quote = entity.quoteValue.raw.toString()
     const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
+      lpPair.token0.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
     const UNDERLYING: Token =
-      lpPair.token1.address === item.entity.assetAddresses[2]
+      lpPair.token1.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
 
@@ -298,10 +288,10 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = item.entity.optionParameters.base.quantity
-    const quote = item.entity.optionParameters.quote.quantity
+    const base = entity.baseValue.raw.toString()
+    const quote = entity.quoteValue.raw.toString()
     const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
+      lpPair.token0.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
     const shortValue = lpPair.getLiquidityValue(
@@ -434,7 +424,7 @@ const RemoveLiquidity: React.FC = () => {
       <LineItem
         label="You will receive"
         data={numeral(calculateUnderlyingOutput()).format('0.00')}
-        units={`${underlyingToken.symbol.toUpperCase()}`}
+        units={`${entity.underlying.symbol.toUpperCase()}`}
       />
       <Spacer size="sm" />
       <IconButton
@@ -459,7 +449,7 @@ const RemoveLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
+            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />

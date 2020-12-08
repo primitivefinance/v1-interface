@@ -44,9 +44,8 @@ export class Uniswap {
           ).toString()
         : tradeSettings.deadline.toString()
     const to: string = tradeSettings.receiver
-    const baseValue: BigNumberish = trade.option.optionParameters.base.quantity
-    const quoteValue: BigNumberish =
-      trade.option.optionParameters.quote.quantity
+    const baseValue: BigNumberish = trade.option.baseValue.raw.toString()
+    const quoteValue: BigNumberish = trade.option.quoteValue.raw.toString()
 
     const UniswapV2Router02Contract = new ethers.Contract(
       UNISWAP_ROUTER02_V2,
@@ -60,7 +59,7 @@ export class Uniswap {
       trade.signer
     )
 
-    const inputAmount: string = trade.inputAmount.quantity.toString()
+    const inputAmount: string = trade.inputAmount.raw.toString()
 
     switch (trade.operation) {
       case Operation.LONG:
@@ -130,12 +129,10 @@ export class Uniswap {
         break
       case Operation.CLOSE_SHORT:
         // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountIn = trade
-          .maximumAmountIn(tradeSettings.slippage)
-          .quantity.toString()
+        amountIn = trade.maximumAmountIn(tradeSettings.slippage).raw.toString()
         const amountOutMin = trade
           .minimumAmountOut(tradeSettings.slippage)
-          .quantity.toString()
+          .raw.toString()
 
         contract = UniswapV2Router02Contract
         methodName = 'swapExactTokensForTokens'
@@ -162,7 +159,7 @@ export class Uniswap {
         amountADesired = trade.option.proportionalShort(optionsInput)
 
         if (isZero(trade.reserves[0]) && isZero(trade.reserves[1])) {
-          amountBDesired = trade.outputAmount.quantity.toString()
+          amountBDesired = trade.outputAmount.raw.toString()
         } else {
           amountBDesired = trade
             .quote(amountADesired, trade.reserves[0], trade.reserves[1])
@@ -191,7 +188,7 @@ export class Uniswap {
       case Operation.ADD_LIQUIDITY_CUSTOM:
         // amount of redeems that will be minted and added to the pool
         amountADesired = trade.option.proportionalShort(inputAmount)
-        amountBDesired = trade.outputAmount.quantity.toString()
+        amountBDesired = trade.outputAmount.raw.toString()
 
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,
@@ -207,7 +204,7 @@ export class Uniswap {
           trade.path[0],
           trade.path[1],
           inputAmount,
-          trade.outputAmount.quantity.toString(),
+          trade.outputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,
@@ -241,7 +238,7 @@ export class Uniswap {
           trade.path[0],
           trade.path[1],
           inputAmount,
-          trade.outputAmount.quantity.toString(),
+          trade.outputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,

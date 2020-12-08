@@ -60,12 +60,7 @@ const Manage: React.FC = () => {
 
   // pair and option entities
   const entity = item.entity
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    entity.isPut ? 'DAI' : item.asset.toUpperCase()
-  )
+  const underlyingToken: Token = entity.underlying
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
@@ -93,7 +88,7 @@ const Manage: React.FC = () => {
         text: 'Redeem Strike Tokens',
         tip: `Burn short option tokens to release strike tokens, if options were exercised.`,
       }
-      tokenAddress = entity.assetAddresses[2]
+      tokenAddress = entity.redeem.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'REDEEM')
       break
     case Operation.CLOSE:
@@ -101,7 +96,7 @@ const Manage: React.FC = () => {
         text: 'Close Options',
         tip: `Burn long and short option tokens to receive underlying tokens.`,
       }
-      tokenAddress = entity.address // entity.assetAddresses[2] FIX DOUBLE APPROVAL
+      tokenAddress = entity.address // entity.redeem.address FIX DOUBLE APPROVAL
       balance = new Token(entity.chainId, tokenAddress, 18, 'OPTION')
       break
     default:
@@ -116,7 +111,7 @@ const Manage: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const { onApprove } = useApprove(tokenAddress, spender)
 
-  const strikeBalance = useTokenBalance(entity.assetAddresses[2])
+  const strikeBalance = useTokenBalance(entity.redeem.address)
 
   const handleInputChange = useCallback(
     (value: string) => {
@@ -160,8 +155,8 @@ const Manage: React.FC = () => {
     let underlying = '0'
     let strike = '0'
     const size = parsedAmount
-    const base = item.entity.base.quantity.toString()
-    const quote = item.entity.quote.quantity.toString()
+    const base = item.entity.baseValue.raw.toString()
+    const quote = item.entity.quoteValue.raw.toString()
     switch (orderType) {
       case Operation.MINT:
         long = size.div(BigNumber.from('1000000000000000000')).toString()

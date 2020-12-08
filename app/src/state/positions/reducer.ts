@@ -2,14 +2,14 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updatePositions, setLoading } from './actions'
 
-import { Quantity } from '@/lib/entities'
+import { TokenAmount } from '@uniswap/sdk'
 import { BigNumberish } from 'ethers'
 import { OptionsAttributes, EmptyAttributes } from '@/state/options/reducer'
 
 export interface PositionsState {
   loading: boolean
   exists: boolean
-  balance: Quantity
+  balance: TokenAmount
   options: OptionPosition[]
 }
 
