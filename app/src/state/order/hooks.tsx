@@ -165,9 +165,11 @@ export const useUpdateItem = (): ((
           }
           const spender = TRADER[chainId]
           const tokenAllowance = await getAllowance(tokenAddress, spender)
-          let shortAllowance
+          let shortAllowance = '0'
           if (shortAddress) {
+            console.log(shortAddress)
             shortAllowance = await getAllowance(shortAddress, spender)
+            console.log(shortAllowance.toString())
           }
           dispatch(
             updateItem({
@@ -176,9 +178,7 @@ export const useUpdateItem = (): ((
               loading: false,
               approved: [
                 parseEther(tokenAllowance).gt(parseEther('0')),
-                shortAllowance
-                  ? parseEther(shortAllowance).gt(parseEther('0'))
-                  : false,
+                parseEther(shortAllowance).gt(parseEther('0')),
               ],
             })
           )

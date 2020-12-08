@@ -69,7 +69,7 @@ const Manage: React.FC = () => {
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
-  let secondaryAddress: string = entity.assetAddresses[2]
+  let secondaryAddress: string
   let balance: Token
   switch (orderType) {
     case Operation.MINT:
@@ -78,6 +78,7 @@ const Manage: React.FC = () => {
         tip: 'Deposit underlying tokens to mint long and short option tokens.',
       }
       tokenAddress = underlyingToken.address
+      secondaryAddress = entity.assetAddresses[1]
       balance = underlyingToken
       break
     case Operation.EXERCISE:
@@ -96,6 +97,7 @@ const Manage: React.FC = () => {
         tip: `Burn short option tokens to release strike tokens, if options were exercised.`,
       }
       tokenAddress = entity.assetAddresses[2]
+      secondaryAddress = entity.assetAddresses[1]
       balance = new Token(entity.chainId, tokenAddress, 18, 'REDEEM')
       break
     case Operation.CLOSE:
@@ -117,8 +119,8 @@ const Manage: React.FC = () => {
   )
   const spender = TRADER[chainId]
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-  const onApproveToken = useApprove(secondaryAddress, spender)
-  const { onApprove } = useApprove(tokenAddress, spender)
+  const handleApprove = useApprove()
+
   const strikeBalance = useTokenBalance(entity.assetAddresses[2])
   const handleInputChange = useCallback(
     (value: string) => {
@@ -218,13 +220,21 @@ const Manage: React.FC = () => {
     }
   }, [parsedAmount, strikeBalance])
 
-  const handleApproval = useCallback(() => {
-    onApprove()
+  const handleApproval = useCallback(async () => {
+    handleApprove(tokenAddress, spender)
       .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [item, onApprove])
+  }, [handleApprove, tokenAddress, spender])
+
+  const handleSecondApp = useCallback(async () => {
+    handleApprove(secondaryAddress, spender)
+      .then()
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [handleApprove, secondaryAddress, spender])
 
   return (
     <>
@@ -383,7 +393,7 @@ const Manage: React.FC = () => {
                       disabled={loading}
                       full
                       size="sm"
-                      onClick={onApproveToken.onApprove}
+                      onClick={handleSecondApp}
                       isLoading={loading}
                       text="Approve Tokens"
                     />

@@ -111,7 +111,7 @@ const AddLiquidity: React.FC = () => {
     item.entity.assetAddresses[0],
     spender
   )
-  const { onApprove } = useApprove(underlyingToken.address, spender)
+  const onApprove = useApprove()
 
   const underlyingAmount: TokenAmount = new TokenAmount(
     underlyingToken,
@@ -335,7 +335,7 @@ const AddLiquidity: React.FC = () => {
   }, [parsedUnderlyingAmount, guardCap])
 
   const handleApproval = useCallback(() => {
-    onApprove()
+    onApprove(underlyingToken.address, spender)
       .then()
       .catch((error) => {
         addNotif(

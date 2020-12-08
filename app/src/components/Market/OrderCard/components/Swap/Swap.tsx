@@ -162,7 +162,7 @@ const Swap: React.FC = () => {
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-  const { onApprove } = useApprove(tokenAddress, spender)
+  const onApprove = useApprove()
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -213,7 +213,7 @@ const Swap: React.FC = () => {
             [item.entity.assetAddresses[2], item.entity.assetAddresses[0]],
             [item.reserves[0], item.reserves[1]]
           ).toString()
-          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
+          const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
               (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
@@ -235,7 +235,7 @@ const Swap: React.FC = () => {
             [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
             [item.reserves[1], item.reserves[0]]
           ).toString()
-          let shortSize = size.mul(quote).div(base)
+          const shortSize = size.mul(quote).div(base)
           actualPremium = Trade.getClosePremium(
             shortSize,
             base,
@@ -243,7 +243,7 @@ const Swap: React.FC = () => {
             [item.entity.assetAddresses[0], item.entity.assetAddresses[2]],
             [item.reserves[1], item.reserves[0]]
           ).toString()
-          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
+          const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
               (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
@@ -259,7 +259,7 @@ const Swap: React.FC = () => {
         // buy short swap from UNDER -> RDM
       } else if (orderType === Operation.SHORT) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          let tradeQuote = Trade.getQuote(
+          const tradeQuote = Trade.getQuote(
             size,
             item.reserves[0],
             item.reserves[1]
@@ -287,7 +287,7 @@ const Swap: React.FC = () => {
         // sell short, RDM -> UNDER
       } else if (orderType === Operation.CLOSE_SHORT) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          let tradeQuote = Trade.getQuote(
+          const tradeQuote = Trade.getQuote(
             size,
             item.reserves[0],
             item.reserves[1]
@@ -335,7 +335,7 @@ const Swap: React.FC = () => {
   }, [parsedAmount, guardCap])
 
   const handleApproval = useCallback(() => {
-    onApprove()
+    onApprove(tokenAddress, spender)
       .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
