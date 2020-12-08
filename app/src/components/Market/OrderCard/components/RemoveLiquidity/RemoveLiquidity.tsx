@@ -534,6 +534,12 @@ const RemoveLiquidity: React.FC = () => {
     </>
   )
 }
+const StyledTitle = styled.h5`
+  color: ${(props) => props.theme.color.white};
+  font-size: 18px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+`
 const StyledRatio = styled.h4`
   color: ${(props) => props.theme.color.white};
 `
