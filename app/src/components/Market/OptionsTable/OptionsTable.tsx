@@ -12,7 +12,11 @@ import formatAddress from '@/utils/formatAddress'
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { useWeb3React } from '@web3-react/core'
-import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
+import {
+  ADDRESS_FOR_MARKET,
+  ETHERSCAN_MAINNET,
+  ETHERSCAN_RINKEBY,
+} from '@/constants/index'
 import { Operation } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -69,9 +73,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       () => {
         if (library) {
           if (asset === 'eth') {
-            updateOptions('WETH')
+            updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
           } else {
-            updateOptions(asset.toUpperCase())
+            updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
           }
         }
       },
@@ -79,9 +83,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     )
     if (library) {
       if (asset === 'eth') {
-        updateOptions('WETH')
+        updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
       } else {
-        updateOptions(asset.toUpperCase())
+        updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
       }
     }
     return () => {
@@ -103,8 +107,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         .mul(spotPriceWei)
         .div(parseEther('1'))
       const breakeven = option.entity.isCall
-        ? BigNumber.from(option.entity.quote.quantity).add(spotPriceDai)
-        : BigNumber.from(option.entity.base.quantity).sub(option.premium)
+        ? BigNumber.from(option.entity.quoteValue.raw.toString()).add(
+            spotPriceDai
+          )
+        : BigNumber.from(option.entity.baseValue.raw.toString()).sub(
+            option.premium
+          )
       return breakeven.toString()
     },
     [key, data]
@@ -187,7 +195,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       const tableDepth: string = option.depth.toString()
 
       const reserve0Units =
-        option.token0 === option.entity.assetAddresses[0]
+        option.token0 === option.entity.underlying.address
           ? asset.toUpperCase()
           : 'SHORT'
 

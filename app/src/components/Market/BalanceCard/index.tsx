@@ -32,7 +32,7 @@ const BalanceCard: React.FC = () => {
     let tx: any
     mintTestTokens(
       account,
-      calls[0].entity.assetAddresses[0],
+      calls[0].entity.tokenAddresses[0],
       await library.getSigner()
     )
       .then((tx) => {
@@ -84,8 +84,8 @@ const BalanceCard: React.FC = () => {
             <LineItem label={`DAI Balance`} data={daiBal} />
             <Spacer size="sm" />
             <LineItem
-              label={`${balance.asset.symbol} Balance`}
-              data={formatEther(balance.quantity)}
+              label={`${balance.token.symbol} Balance`}
+              data={formatEther(balance.raw.toString())}
             />
             {chainId === 4 ? (
               <>

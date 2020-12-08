@@ -11,12 +11,12 @@ import { useOptions } from '@/state/options/hooks'
 import { OptionsAttributes } from '../options/reducer'
 import { getBalance } from '@/lib/erc20'
 import formatEtherBalance from '@/utils/formatEtherBalance'
-import { Quantity, Asset } from '@/lib/entities'
+import { TokenAmount } from '@uniswap/sdk'
 
 export const usePositions = (): {
   loading: boolean
   exists: boolean
-  balance: Quantity
+  balance: TokenAmount
   options: OptionPosition[]
 } => {
   const state = useSelector<AppState, AppState['positions']>(
@@ -53,11 +53,14 @@ export const useUpdatePositions = (): ((
       }
       const bal = await getBalance(
         library,
-        options[0].entity.assetAddresses[0],
+        options[0].entity.underlying.address,
         account
       )
 
-      const balance = new Quantity(options[0].entity.base.asset, bal)
+      const balance = new TokenAmount(
+        options[0].entity.underlying,
+        bal.toString()
+      )
       // underlying balance
 
       for (let i = 0; i < options.length; i++) {
@@ -69,11 +72,15 @@ export const useUpdatePositions = (): ((
 
         const redeem = await getBalance(
           library,
-          options[i].entity.assetAddresses[2],
+          options[i].entity.redeem.address,
           account
         )
 
-        const lp = await getBalance(library, options[i].entity.pair, account)
+        const lp = await getBalance(
+          library,
+          options[i].entity.pairAddress,
+          account
+        )
         if (
           formatEtherBalance(long) !== '0.00' ||
           formatEtherBalance(redeem) !== '0.00' ||
