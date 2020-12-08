@@ -100,12 +100,8 @@ const ManageOptions: React.FC = () => {
 
   return (
     <>
-      <Reverse />
       <Box row alignItems="flex-start" justifyContent="center">
         <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-          <StyledTabList>
-            <StyledTab active={tab === 0}>Manage Options</StyledTab>
-          </StyledTabList>
           <Spacer />
           <TabPanel>
             <StyledColumn>

@@ -144,30 +144,42 @@ export const useUpdateItem = (): ((
           }
         } else if (manage) {
           let tokenAddress
+          let shortAddress
           switch (orderType) {
             case Operation.MINT:
               tokenAddress = underlyingToken.address
               break
             case Operation.EXERCISE:
-              tokenAddress = item.entity.address // item.entity.assetAddresses[1] FIX DOUBLE APPROVAL
+              tokenAddress = item.entity.address
+              shortAddress = item.entity.assetAddresses[1]
               break
             case Operation.REDEEM:
               tokenAddress = item.entity.assetAddresses[2]
               break
             case Operation.CLOSE:
-              tokenAddress = item.entity.address // item.entity.assetAddresses[2] FIX DOUBLE APPROVAL
+              tokenAddress = item.entity.address
+              shortAddress = item.entity.assetAddresses[2]
               break
             default:
               break
           }
           const spender = TRADER[chainId]
           const tokenAllowance = await getAllowance(tokenAddress, spender)
+          let shortAllowance
+          if (shortAddress) {
+            shortAllowance = await getAllowance(shortAddress, spender)
+          }
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
-              approved: [parseEther(tokenAllowance).gt(parseEther('0')), false],
+              approved: [
+                parseEther(tokenAllowance).gt(parseEther('0')),
+                shortAllowance
+                  ? parseEther(shortAllowance).gt(parseEther('0'))
+                  : false,
+              ],
             })
           )
           return

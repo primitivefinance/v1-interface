@@ -69,6 +69,7 @@ const Manage: React.FC = () => {
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
+  let secondaryAddress: string = entity.assetAddresses[2]
   let balance: Token
   switch (orderType) {
     case Operation.MINT:
@@ -85,8 +86,9 @@ const Manage: React.FC = () => {
         tip:
           'Pay strike price and burn option tokens to release underlying tokens.',
       }
-      tokenAddress = entity.address // entity.assetAddresses[1] FIX DOUBLE APPROVAL
-      balance = new Token(entity.chainId, tokenAddress, 18, 'OPTION')
+      tokenAddress = entity.address
+      secondaryAddress = entity.assetAddresses[1]
+      balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     case Operation.REDEEM:
       title = {
@@ -101,8 +103,9 @@ const Manage: React.FC = () => {
         text: 'Close Options',
         tip: `Burn long and short option tokens to receive underlying tokens.`,
       }
-      tokenAddress = entity.address // entity.assetAddresses[2] FIX DOUBLE APPROVAL
-      balance = new Token(entity.chainId, tokenAddress, 18, 'OPTION')
+      tokenAddress = entity.address
+      secondaryAddress = entity.assetAddresses[2]
+      balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     default:
       break
@@ -114,10 +117,9 @@ const Manage: React.FC = () => {
   )
   const spender = TRADER[chainId]
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
+  const onApproveToken = useApprove(secondaryAddress, spender)
   const { onApprove } = useApprove(tokenAddress, spender)
-
   const strikeBalance = useTokenBalance(entity.assetAddresses[2])
-
   const handleInputChange = useCallback(
     (value: string) => {
       onUserInput(value)
@@ -356,44 +358,81 @@ const Manage: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved[0] ? (
-              <> </>
+            {orderType === Operation.EXERCISE ||
+            orderType === Operation.REDEEM ? (
+              <>
+                {approved[0] ? (
+                  <> </>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve Options"
+                    />
+                  </>
+                )}
+                {approved[1] ? (
+                  <> </>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={onApproveToken.onApprove}
+                      isLoading={loading}
+                      text="Approve Tokens"
+                    />
+                  </>
+                )}
+              </>
             ) : (
               <>
+                {approved[0] ? (
+                  <> </>
+                ) : (
+                  <>
+                    <Button
+                      disabled={loading}
+                      full
+                      size="sm"
+                      onClick={handleApproval}
+                      isLoading={loading}
+                      text="Approve"
+                    />
+                  </>
+                )}
                 <Button
-                  disabled={loading}
+                  disabled={
+                    !approved[0] ||
+                    !parsedAmount.gt(0) ||
+                    loading ||
+                    isAboveGuardCap() ||
+                    !hasEnoughStrikeTokens()
+                  }
                   full
                   size="sm"
-                  onClick={handleApproval}
+                  onClick={handleSubmitClick}
                   isLoading={loading}
-                  text="Approve"
+                  text={`${
+                    !hasEnoughStrikeTokens()
+                      ? 'Insufficient Strike Tokens to Redeem'
+                      : 'Confirm'
+                  }`}
                 />
               </>
             )}
-            <Button
-              disabled={
-                !approved[0] ||
-                !parsedAmount.gt(0) ||
-                loading ||
-                isAboveGuardCap() ||
-                !hasEnoughStrikeTokens()
-              }
-              full
-              size="sm"
-              onClick={handleSubmitClick}
-              isLoading={loading}
-              text={`${
-                !hasEnoughStrikeTokens()
-                  ? 'Insufficient Strike Tokens to Redeem'
-                  : 'Confirm'
-              }`}
-            />
           </>
         )}
       </Box>
     </>
   )
 }
+
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;

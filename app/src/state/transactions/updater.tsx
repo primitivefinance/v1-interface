@@ -113,7 +113,11 @@ export default function Updater(): null {
               }
               const app = transactions[hash].approval
               if ((!approved[0] && app) || (!approved[1] && app)) {
-                if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+                if (
+                  orderType === Operation.REMOVE_LIQUIDITY_CLOSE ||
+                  orderType === Operation.EXERCISE ||
+                  orderType === Operation.REDEEM
+                ) {
                   // EXTREMELY DIRTY SOLUTION...
                   updateItem(item, Operation.NONE)
                 } else {
