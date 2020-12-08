@@ -89,13 +89,25 @@ const Market = ({ market, data }) => {
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
-        shallow: true,
-      })
+      if (market === 'weth') {
+        router.push(`/markets/[...id]`, `/markets/eth/puts`, {
+          shallow: true,
+        })
+      } else {
+        router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+          shallow: true,
+        })
+      }
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
+      if (market === 'weth') {
+        router.push(`/markets/[...id]`, `/markets/eth/calls`, {
+          shallow: true,
+        })
+      } else {
+        router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+          shallow: true,
+        })
+      }
     }
   }
   const handleFilterExpiry = (exp: number) => {
@@ -124,7 +136,14 @@ const Market = ({ market, data }) => {
     return <StyledText>Please Connect to Metamask to View Markets</StyledText>
   }
   return (
-    <ErrorBoundary fallback={'Error Loading Market'}>
+    <ErrorBoundary
+      fallback={
+        <>
+          <Spacer />
+          <StyledText>Error Loading Market, Please Refresh</StyledText>
+        </>
+      }
+    >
       <Disclaimer />
       <Notifs />
       <StyledMarket>
@@ -142,23 +161,45 @@ const Market = ({ market, data }) => {
                   expiry={expiry}
                   setExpiry={handleFilterExpiry}
                 />
-                <OptionsTable
-                  asset={market}
-                  assetAddress={ADDRESS_FOR_MARKET[market]}
-                  optionExp={expiry}
-                  callActive={callPutActive}
-                />
+                <ErrorBoundary
+                  fallback={
+                    <>
+                      <Spacer />
+                      <StyledText>
+                        Error Loading Options, Please Refresh
+                      </StyledText>
+                    </>
+                  }
+                >
+                  <OptionsTable
+                    asset={market}
+                    assetAddress={ADDRESS_FOR_MARKET[market]}
+                    optionExp={expiry}
+                    callActive={callPutActive}
+                  />
+                </ErrorBoundary>
               </StyledMain>
             </StyledContainer>
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
-                <BalanceCard />
-                <Spacer size="sm" />
-                <PositionsCard />
-                <OrderCard orderState={data} />
-                <Spacer size="sm" />
-                <TransactionCard />
-                <Spacer />
+                <ErrorBoundary
+                  fallback={
+                    <>
+                      <Spacer />
+                      <StyledText>
+                        Error Loading Positions, Please Refresh
+                      </StyledText>
+                    </>
+                  }
+                >
+                  <BalanceCard />
+                  <Spacer size="sm" />
+                  <PositionsCard />
+                  <OrderCard orderState={data} />
+                  <Spacer size="sm" />
+                  <TransactionCard />
+                  <Spacer />
+                </ErrorBoundary>
               </StyledSideBar>
             </StyledCol>
           </Row>

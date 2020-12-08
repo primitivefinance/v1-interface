@@ -61,8 +61,8 @@ const RemoveLiquidity: React.FC = () => {
   const { item, orderType, loading, approved } = useItem()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
-    primary: BigInt(''),
-    secondary: BigInt(''),
+    primary: '',
+    secondary: '',
   })
   // web3
   const { library, chainId } = useWeb3React()
@@ -110,7 +110,7 @@ const RemoveLiquidity: React.FC = () => {
         100) /
         100
     )
-    setInputs({ ...inputs, primary: BigInt(max.toString()) })
+    setInputs({ ...inputs, primary: max.toString() })
   }
 
   const handleRatioChange = useCallback(
@@ -119,7 +119,7 @@ const RemoveLiquidity: React.FC = () => {
       const liquidity = formatEther(
         parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
       )
-      setInputs({ ...inputs, primary: BigInt(liquidity.toString()) })
+      setInputs({ ...inputs, primary: liquidity.toString() })
     },
     [setRatio, lp, setInputs, inputs, ratio]
   )
@@ -127,7 +127,7 @@ const RemoveLiquidity: React.FC = () => {
   const handleRatio = useCallback(
     (value) => {
       setRatio(value)
-      const liquidity = BigInt(parseEther(lp).mul(value).div(1000))
+      const liquidity = parseEther(lp).mul(value).div(1000).toString()
       setInputs({ ...inputs, primary: liquidity })
     },
     [setInputs, lp, ratio, inputs, setRatio]
@@ -138,9 +138,9 @@ const RemoveLiquidity: React.FC = () => {
     submitOrder(
       library,
       item?.address,
-      inputs.primary,
+      BigInt(inputs.primary),
       orderType,
-      inputs.secondary
+      BigInt(inputs.secondary)
     )
     removeItem()
   }, [

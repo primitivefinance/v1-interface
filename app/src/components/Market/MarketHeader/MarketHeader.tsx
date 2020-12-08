@@ -14,7 +14,6 @@ import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
 import { useUpdatePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
 
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -28,10 +27,11 @@ import {
   ETHERSCAN_RINKEBY,
   getIconForMarket,
 } from '@/constants/index'
-import Link from 'next/link'
 
 const formatName = (name: any) => {
-  return name.charAt(0).toUpperCase() + name.slice(1)
+  if (name) {
+    return name.charAt(0).toUpperCase() + name.slice(1)
+  }
 }
 
 export interface MarketHeaderProps {
@@ -63,9 +63,9 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
 
   useEffect(() => {
     const refreshInterval = setInterval(() => {
-      updatePrice(data[key].usd)
       mutate()
-    }, 1000)
+      updatePrice(data[key].usd)
+    }, 2000)
     return () => clearInterval(refreshInterval)
   }, [blink, setBlink, name])
 
@@ -161,10 +161,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
                       <WarningIcon style={{ color: 'yellow' }} />
                       <Spacer size="sm" />
                       <h4>
-                        <Tooltip
-                          text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
-                        >
-                          N/A{' '}
+                        <Tooltip text={`Choose an option and add liquidity!`}>
+                          N/A
                         </Tooltip>
                       </h4>
                     </StyledL>
@@ -185,7 +183,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
     </StyledHeader>
   )
 }
-
 const Reverse = styled.div`
   margin-bottom: -1em;
 `
