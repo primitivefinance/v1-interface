@@ -49,6 +49,7 @@ const StyledCard = styled(Card)`
   border-width: 5px;
   border-style: solid;
   border-radius: 5px;
+  overflow: hidden;
 `
 const StyledContent = styled.h4`
   margin: 0.5em 1em 0.5em 1em;

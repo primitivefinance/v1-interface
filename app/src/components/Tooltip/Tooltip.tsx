@@ -43,15 +43,15 @@ const StyledContainer = styled.div`
   //border-bottom: 1px dotted black;
   cursor: pointer;
 `
-const Tip = styled.h5`
+const Tip = styled.div`
   background: black;
   color: ${(props) => props.theme.color.white};
-  max-width: 20em;
-  min-width: 2em;
+  font-size: 12px;
+  max-width: 10em;
   text-align: center;
   padding: 5px;
   border-radius: 6px;
-  top: 0.8em;
+  top: 2em;
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 200 !important;

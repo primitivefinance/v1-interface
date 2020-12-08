@@ -69,11 +69,13 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
         })
       }
       setTimeout(() => {
+        let market = options.calls[0].asset.toLowerCase()
+        if (market === 'weth') {
+          market = 'eth'
+        }
         router.push(
           `/markets/[...id]`,
-          `/markets/${options.calls[0].asset.toLowerCase()}/${
-            orderState[1] === 'puts' ? 'puts' : 'calls'
-          }`,
+          `/markets/${market}/${orderState[1] === 'puts' ? 'puts' : 'calls'}`,
           {
             shallow: true,
           }
