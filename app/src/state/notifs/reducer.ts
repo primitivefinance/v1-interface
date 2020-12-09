@@ -23,7 +23,6 @@ export default createReducer(initialState, (builder) =>
       return state
     })
     .addCase(resetNotif, (state) => {
-      state = {}
-      return state
+      return initialState
     })
 )

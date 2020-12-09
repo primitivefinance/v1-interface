@@ -82,8 +82,7 @@ const RemoveLiquidity: React.FC = () => {
 
   const optionBalance = useTokenBalance(item.address)
 
-  const onApproveOption = useApprove(item.address, spender)
-  const { onApprove } = useApprove(lpToken, spender)
+  const handleApprove = useApprove()
   const handleInputChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
@@ -490,7 +489,7 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={onApprove}
+                onClick={() => handleApprove(lpToken, spender)}
                 isLoading={submitting}
                 text="Approve LP"
               />
@@ -503,7 +502,7 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={onApproveOption.onApprove}
+                onClick={() => handleApprove(item.address, spender)}
                 isLoading={submitting}
                 text="Approve Options"
               />

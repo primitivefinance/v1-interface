@@ -55,6 +55,10 @@ export default function Updater(): null {
   )
   const transactions = chainId ? state[chainId] ?? {} : {}
 
+  const reloadItem = (order: Operation) => {
+    updateItem(item, Operation.NONE)
+    updateItem(item, order)
+  }
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return
     if (!options.loading) {
@@ -113,9 +117,13 @@ export default function Updater(): null {
               }
               const app = transactions[hash].approval
               if ((!approved[0] && app) || (!approved[1] && app)) {
-                if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+                if (
+                  orderType === Operation.REMOVE_LIQUIDITY_CLOSE ||
+                  orderType === Operation.EXERCISE ||
+                  orderType === Operation.REDEEM
+                ) {
                   // EXTREMELY DIRTY SOLUTION...
-                  updateItem(item, Operation.NONE)
+                  reloadItem(orderType)
                 } else {
                   updateItem(item, orderType)
                 }
@@ -142,6 +150,7 @@ export default function Updater(): null {
     transactions,
     lastBlockNumber,
     dispatch,
+    reloadItem,
     options,
     updatePositions,
   ])

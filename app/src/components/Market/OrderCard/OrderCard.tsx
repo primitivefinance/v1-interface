@@ -4,9 +4,6 @@ import { useRouter } from 'next/router'
 import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
-import SettingsIcon from '@material-ui/icons/Settings'
-import AccountBalanceIcon from '@material-ui/icons/AccountBalance'
-import BuildIcon from '@material-ui/icons/Build'
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
@@ -22,8 +19,8 @@ import ManageOptions from './components/ManageOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
-import { EmptyAttributes } from '@/state/options/reducer'
 import numeral from 'numeral'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 
 export interface OrderContentProps {
   manage: boolean
@@ -52,7 +49,12 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const options = useOptions()
   const router = useRouter()
   useEffect(() => {
-    if (orderType !== Operation.NONE) {
+    if (
+      orderType === Operation.MINT ||
+      orderType === Operation.EXERCISE ||
+      orderType === Operation.REDEEM ||
+      orderType === Operation.CLOSE
+    ) {
       setManage(false)
     }
   }, [orderType])
@@ -112,17 +114,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
                 setManage(!manage)
               }}
               round
-            >
-              {!manage ? (
-                <Tooltip icon={false} text="Manage Position">
-                  <BuildIcon />
-                </Tooltip>
-              ) : (
-                <Tooltip icon={false} text="Use Market">
-                  <AccountBalanceIcon />
-                </Tooltip>
-              )}
-            </Button>
+            ></Button>
           </CustomButton>
           <Spacer size="sm" />
           <CustomButton>
@@ -132,9 +124,32 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </CustomButton>
         </Box>
         <CardContent>
-          <Spacer size="sm" />
           <Reverse />
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
+            {orderType === Operation.NONE ? (
+              <StyledTabList>
+                <StyledTab
+                  active={!manage}
+                  onClick={() => {
+                    updateItem(item, Operation.NONE)
+                    setManage(!manage)
+                  }}
+                >
+                  Trade
+                </StyledTab>
+                <StyledTab
+                  active={manage}
+                  onClick={() => {
+                    updateItem(item, Operation.NONE)
+                    setManage(!manage)
+                  }}
+                >
+                  Manage
+                </StyledTab>
+              </StyledTabList>
+            ) : (
+              <Spacer size="sm" />
+            )}
             <OrderContent manage={manage} />
           </ErrorBoundary>
         </CardContent>
@@ -142,12 +157,39 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
     </>
   )
 }
+const StyledTabList = styled(TabList)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: baseline;
+  margin-left: -2.5em;
+`
+
+interface TabProps {
+  active?: boolean
+}
+
+const StyledTab = styled(Tab)<TabProps>`
+  background-color: ${(props) =>
+    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
+  color: ${(props) =>
+    props.active ? props.theme.color.white : props.theme.color.grey[400]};
+  font-weight: ${(props) => (props.active ? 600 : 500)};
+  padding: 0.5em 0.5em 0.5em 1em;
+  border-radius: 0.3em 0.3em 0 0;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  width: 50%;
+  list-style: none;
+  cursor: pointer;
+`
 const CustomButton = styled.div`
   margin-top: -0.1em;
   background: none;
 `
 const Reverse = styled.div`
-  margin-top: -1.1em;
+  margin-top: -1.3em;
 `
 
 const StyledTitle = styled.h4`

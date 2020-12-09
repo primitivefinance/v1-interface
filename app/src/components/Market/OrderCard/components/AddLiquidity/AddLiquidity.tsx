@@ -95,7 +95,7 @@ const AddLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
-  const { onApprove } = useApprove(entity.underlying.address, spender)
+  const onApprove = useApprove()
 
   const underlyingAmount: TokenAmount = new TokenAmount(
     entity.underlying,
@@ -302,7 +302,7 @@ const AddLiquidity: React.FC = () => {
   }, [parsedUnderlyingAmount, guardCap])
 
   const handleApproval = useCallback(() => {
-    onApprove()
+    onApprove(entity.underlying.address, spender)
       .then()
       .catch((error) => {
         addNotif(

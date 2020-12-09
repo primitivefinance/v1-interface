@@ -97,7 +97,6 @@ const OrderOptions: React.FC = () => {
 
   return (
     <>
-      <Reverse />
       <Box row alignItems="flex-start" justifyContent="center">
         <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
           <StyledTabList>
@@ -209,7 +208,7 @@ const StyledTabs = styled(Tabs)`
   width: 100%;
 `
 const Reverse = styled.div`
-  margin-top: -1.1em;
+  margin-top: -2.1em;
 `
 
 const StyledTabList = styled(TabList)`
@@ -218,6 +217,7 @@ const StyledTabList = styled(TabList)`
   justify-content: flex-start;
   align-content: baseline;
   margin-left: -2.5em;
+  margin-top: -1.1em;
 `
 
 interface TabProps {
@@ -227,7 +227,8 @@ interface TabProps {
 const StyledTab = styled(Tab)<TabProps>`
   background-color: ${(props) =>
     !props.active ? props.theme.color.grey[800] : props.theme.color.black};
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) =>
+    !props.active ? props.theme.color.grey[400] : props.theme.color.white};
   font-weight: ${(props) => (props.active ? 600 : 500)};
   padding: 0.5em 0.5em 0.5em 1em;
   border-radius: 0.3em 0.3em 0 0;

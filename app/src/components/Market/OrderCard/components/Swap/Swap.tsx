@@ -91,6 +91,7 @@ const Swap: React.FC = () => {
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
+  let secondaryAddress: string | null
   let balance: Token
   switch (orderType) {
     case Operation.LONG:
@@ -115,7 +116,8 @@ const Swap: React.FC = () => {
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
       }
-      tokenAddress = entity.address //entity.underlying.address FIX: double approval
+      tokenAddress = entity.address
+      secondaryAddress = entity.underlying.address
       balance = entity.underlying
       break
     case Operation.CLOSE_LONG:
@@ -147,10 +149,11 @@ const Swap: React.FC = () => {
       ? UNISWAP_ROUTER02_V2
       : UNISWAP_CONNECTOR[chainId]
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
-  const { onApprove } = useApprove(tokenAddress, spender)
+  const onApprove = useApprove()
 
   const handleTypeInput = useCallback(
     (value: string) => {
+      const onApprove = useApprove()
       onUserInput(value)
     },
     [onUserInput]
@@ -176,7 +179,7 @@ const Swap: React.FC = () => {
       let debit = '0'
       let credit = '0'
       let short = '0'
-      let size = parsedAmount
+      const size = parsedAmount
       const base = entity.baseValue.raw.toString()
       const quote = entity.quoteValue.raw.toString()
       let actualPremium = ''
@@ -203,7 +206,7 @@ const Swap: React.FC = () => {
               lpPair.reserveOf(entity.underlying).raw.toString(),
             ]
           ).toString()
-          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
+          const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
               (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
@@ -229,7 +232,7 @@ const Swap: React.FC = () => {
             ]
           ).toString()
 
-          let shortSize = entity.proportionalShort(size)
+          const shortSize = entity.proportionalShort(size)
           actualPremium = Trade.getClosePremium(
             shortSize,
             base,
@@ -240,7 +243,7 @@ const Swap: React.FC = () => {
               lpPair.reserveOf(entity.redeem).raw.toString(),
             ]
           ).toString()
-          let spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
+          const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
               (parseInt(actualPremium) / parseInt(spotSize.toString()) - 1) *
@@ -256,7 +259,7 @@ const Swap: React.FC = () => {
         // buy short swap from UNDER -> RDM
       } else if (orderType === Operation.SHORT) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          let tradeQuote = Trade.getQuote(
+          const tradeQuote = Trade.getQuote(
             size,
             lpPair.reserveOf(entity.redeem).raw.toString(),
             lpPair.reserveOf(entity.underlying).raw.toString()
@@ -284,7 +287,7 @@ const Swap: React.FC = () => {
         // sell short, RDM -> UNDER
       } else if (orderType === Operation.CLOSE_SHORT) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          let tradeQuote = Trade.getQuote(
+          const tradeQuote = Trade.getQuote(
             size,
             lpPair.reserveOf(entity.redeem).raw.toString(),
             lpPair.reserveOf(entity.underlying).raw.toString()
@@ -332,13 +335,20 @@ const Swap: React.FC = () => {
   }, [parsedAmount, guardCap])
 
   const handleApproval = useCallback(() => {
-    onApprove()
+    onApprove(tokenAddress, spender)
       .then()
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
   }, [item, onApprove])
 
+  const handleSecondaryApproval = useCallback(() => {
+    onApprove(secondaryAddress, spender)
+      .then()
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [item, onApprove])
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -569,7 +579,7 @@ const Swap: React.FC = () => {
                       disabled={loading}
                       full
                       size="sm"
-                      onClick={handleApproval}
+                      onClick={handleSecondaryApproval}
                       isLoading={loading}
                       text="Approve"
                     />

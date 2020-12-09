@@ -19,7 +19,7 @@ export const approve = async (
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
       tx = await erc20.approve(spender, ethers.constants.MaxUint256)
-    }
+    } else throw 'Approval Error'
     return tx
   } catch (error) {
     console.error(error)

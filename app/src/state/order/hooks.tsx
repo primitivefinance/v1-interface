@@ -142,30 +142,40 @@ export const useUpdateItem = (): ((
           }
         } else if (manage) {
           let tokenAddress
+          let secondaryAddress
           switch (orderType) {
             case Operation.MINT:
               tokenAddress = underlyingToken.address
               break
             case Operation.EXERCISE:
-              tokenAddress = item.entity.address // item.entity.tokenAddresses[1] FIX DOUBLE APPROVAL
+              tokenAddress = item.entity.address
+              secondaryAddress = item.entity.strike.address
               break
             case Operation.REDEEM:
               tokenAddress = item.entity.redeem.address
               break
             case Operation.CLOSE:
-              tokenAddress = item.entity.address // item.entity.tokenAddresses[2] FIX DOUBLE APPROVAL
+              tokenAddress = item.entity.address
+              secondaryAddress = item.entity.redeem.address
               break
             default:
               break
           }
           const spender = TRADER[chainId]
           const tokenAllowance = await getAllowance(tokenAddress, spender)
+          let secondaryAllowance = '0'
+          if (secondaryAddress) {
+            secondaryAllowance = await getAllowance(secondaryAddress, spender)
+          }
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
-              approved: [parseEther(tokenAllowance).gt(parseEther('0')), false],
+              approved: [
+                parseEther(tokenAllowance).gt(parseEther('0')),
+                parseEther(secondaryAllowance).gt(parseEther('0')),
+              ],
             })
           )
           return
@@ -175,6 +185,7 @@ export const useUpdateItem = (): ((
               ? UNISWAP_ROUTER02_V2
               : UNISWAP_CONNECTOR[chainId]
           let tokenAddress
+          let secondaryAddress
           switch (orderType) {
             case Operation.LONG:
               tokenAddress = underlyingToken.address
@@ -183,7 +194,8 @@ export const useUpdateItem = (): ((
               tokenAddress = underlyingToken.address
               break
             case Operation.WRITE:
-              tokenAddress = item.entity.address //underlyingToken.address FIX: double approval
+              tokenAddress = item.entity.address
+              secondaryAddress = underlyingToken.address
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
@@ -196,12 +208,21 @@ export const useUpdateItem = (): ((
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
+          let secondaryAllowance
+          if (secondaryAddress) {
+            secondaryAllowance = await getAllowance(secondaryAddress, spender)
+          } else {
+            secondaryAllowance = '0'
+          }
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
-              approved: [parseEther(tokenAllowance).gt(parseEther('0')), false],
+              approved: [
+                parseEther(tokenAllowance).gt(parseEther('0')),
+                parseEther(secondaryAllowance).gt(parseEther('0')),
+              ],
             })
           )
           return
