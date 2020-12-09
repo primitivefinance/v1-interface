@@ -24,6 +24,7 @@ import useGuardCap from '@/hooks/transactions/useGuardCap'
 
 import { Trade } from '@/lib/entities/trade'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { Fraction } from '@uniswap/sdk'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -155,55 +156,89 @@ const AddLiquidity: React.FC = () => {
     return ratio
   }, [lpPair])
 
+  // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
+  // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
+  const calculateOptionsAddedAsLiquidity = useCallback(() => {
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      typeof parsedOptionAmount === 'undefined'
+    ) {
+      return parsedOptionAmount || '0'
+    }
+    const reservesA = lpPair.reserveOf(entity.redeem)
+    const reservesB = lpPair.reserveOf(entity.underlying)
+
+    const ratio = entity.proportionalShort(entity.baseValue.raw.toString())
+    const denominator = ratio
+      .mul(reservesB.raw.toString())
+      .div(reservesA.raw.toString())
+      .add(parseEther('1'))
+
+    const optionsInput = parsedOptionAmount
+      .mul(parseEther('1'))
+      .div(denominator)
+    return formatEther(optionsInput)
+  }, [lpPair, lp, lpTotalSupply, parsedOptionAmount])
+
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (
+      typeof lpPair === 'undefined' ||
+      lpPair === null ||
+      parseInt(parsedOptionAmount.toString()) === 0
+    )
+      return 0
+    const tSupply = new TokenAmount(
+      lpPair.liquidityToken,
+      parseEther(lpTotalSupply).toString()
+    )
+    const amountADesired = parseEther(
+      calculateOptionsAddedAsLiquidity().toString()
+    ).toString()
+    const amountBDesired = Trade.getQuote(
+      entity.proportionalShort(amountADesired),
+      lpPair.reserve0.raw.toString(),
+      lpPair.reserve1.raw.toString()
+    ).toString()
+    const tokenAmountA = new TokenAmount(entity.underlying, amountADesired)
+    const tokenAmountB = new TokenAmount(entity.redeem, amountBDesired)
+    const lpMinted = lpPair.getLiquidityMinted(
+      tSupply,
+      tokenAmountA,
+      tokenAmountB
+    )
     const poolShare =
-      supply.gt(0) && parsedUnderlyingAmount.gt(0)
-        ? Number(parseInt(supply.div(parsedUnderlyingAmount).toString()))
-        : 0
+      supply.gt(0) && parsedOptionAmount.gt(0)
+        ? lpMinted.divide(tSupply.add(lpMinted))
+        : new Fraction('0')
 
-    return poolShare
-  }, [lpPair, lp, lpTotalSupply, parsedUnderlyingAmount])
+    return poolShare.multiply('100').toSignificant(6)
+  }, [
+    lpPair,
+    lpTotalSupply,
+    parsedOptionAmount,
+    calculateOptionsAddedAsLiquidity,
+  ])
 
   const calculateOutput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const sum = parsedUnderlyingAmount.add(parsedOptionAmount)
       return sum
     }
-    const reservesA = lpPair.reserveOf(
-      new Token(chainId, entity.redeem.address, 18)
-    )
-    const reservesB = lpPair.reserveOf(
-      new Token(chainId, entity.underlying.address, 18)
-    )
-    const inputShort = entity.proportionalShort(calculateInput()) // pair has short tokens, so need to convert our desired options to short options
+    const reservesA = lpPair.reserveOf(entity.redeem)
+    const reservesB = lpPair.reserveOf(entity.underlying)
+    const inputShort = entity.proportionalShort(
+      calculateOptionsAddedAsLiquidity()
+    ) // pair has short tokens, so need to convert our desired options to short options
     const quote = Trade.getQuote(
       inputShort,
       reservesA.raw.toString(),
       reservesB.raw.toString()
     )
-    const sum = BigNumber.from(quote).add(calculateInput())
+    const sum = BigNumber.from(quote).add(calculateOptionsAddedAsLiquidity())
     return formatEther(sum.toString())
   }, [lpPair, lp, lpTotalSupply])
-
-  const calculateInput = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) {
-      const sum = parsedUnderlyingAmount.add(parsedOptionAmount)
-      return sum
-    }
-    const reservesA = lpPair.reserveOf(entity.redeem)
-    const reservesB = lpPair.reserveOf(entity.underlying)
-
-    const ratio = entity.proportionalShort(parseEther('1'))
-
-    const denominator = ratio
-      .mul(reservesB.raw.toString())
-      .div(reservesA.raw.toString())
-      .add(parseEther('1'))
-    const optionsInput = parsedOptionAmount.div(denominator)
-    return optionsInput
-  }, [lpPair, lp, lpTotalSupply, parsedOptionAmount])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
     if (
@@ -426,7 +461,7 @@ const AddLiquidity: React.FC = () => {
       <Spacer />
       <LineItem
         label="LP for"
-        data={!optionValue ? '0.00' : optionValue}
+        data={calculateOptionsAddedAsLiquidity()}
         units={`LONG`}
       />
       <Spacer size="sm" />
@@ -446,7 +481,7 @@ const AddLiquidity: React.FC = () => {
       {hasLiquidity ? (
         <>
           <LineItem
-            label="You will receive"
+            label="Receive"
             data={calculatePoolShare()}
             units={`% of the Pool.`}
           />
