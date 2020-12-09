@@ -55,6 +55,10 @@ export default function Updater(): null {
   )
   const transactions = chainId ? state[chainId] ?? {} : {}
 
+  const reloadItem = (order: Operation) => {
+    updateItem(item, Operation.NONE)
+    updateItem(item, order)
+  }
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return
     if (!options.loading) {
@@ -119,7 +123,7 @@ export default function Updater(): null {
                   orderType === Operation.REDEEM
                 ) {
                   // EXTREMELY DIRTY SOLUTION...
-                  updateItem(item, Operation.NONE)
+                  reloadItem(orderType)
                 } else {
                   updateItem(item, orderType)
                 }
@@ -146,6 +150,7 @@ export default function Updater(): null {
     transactions,
     lastBlockNumber,
     dispatch,
+    reloadItem,
     options,
     updatePositions,
   ])

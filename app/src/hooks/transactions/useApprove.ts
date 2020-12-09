@@ -19,7 +19,6 @@ const useApprove = () => {
       spender: string
     ): Promise<ethers.Transaction | any> => {
       const signer = await library.getSigner()
-      console.log(tokenAddress, spender)
       approve(signer, tokenAddress, account, spender)
         .then((tx) => {
           if (tx?.hash) {

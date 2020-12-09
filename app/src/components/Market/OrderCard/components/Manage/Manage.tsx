@@ -73,7 +73,7 @@ const Manage: React.FC = () => {
         tip: 'Deposit underlying tokens to mint long and short option tokens.',
       }
       tokenAddress = underlyingToken.address
-      secondaryAddress = entity.assetAddresses[1]
+      secondaryAddress = entity.strike.address
       balance = underlyingToken
       break
     case Operation.EXERCISE:
@@ -83,7 +83,7 @@ const Manage: React.FC = () => {
           'Pay strike price and burn option tokens to release underlying tokens.',
       }
       tokenAddress = entity.address
-      secondaryAddress = entity.assetAddresses[1]
+      secondaryAddress = entity.strike.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     case Operation.REDEEM:
@@ -92,7 +92,7 @@ const Manage: React.FC = () => {
         tip: `Burn short option tokens to release strike tokens, if options were exercised.`,
       }
       tokenAddress = entity.redeem.address
-      secondaryAddress = entity.assetAddresses[1]
+      secondaryAddress = entity.strike.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'REDEEM')
       break
     case Operation.CLOSE:
@@ -101,7 +101,7 @@ const Manage: React.FC = () => {
         tip: `Burn long and short option tokens to receive underlying tokens.`,
       }
       tokenAddress = entity.address
-      secondaryAddress = entity.assetAddresses[2]
+      secondaryAddress = entity.redeem.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
       break
     default:
@@ -150,7 +150,6 @@ const Manage: React.FC = () => {
     const debit = formatEther(
       premiumWei.mul(size).div(BigNumber.from('1000000000000000000')).toString()
     )
-    console.log(debit)
     return debit
   }
 

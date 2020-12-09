@@ -26,7 +26,6 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const lpPair = useReserves(underlyingToken, item.entity.redeem).data
   const change = (t: Operation) => {
     if (t === Operation.REMOVE_LIQUIDITY_CLOSE) {
-      console.log(lpPair)
       updateItem(item, t, lpPair)
     } else {
       updateItem(item, t)
@@ -86,8 +85,6 @@ const ManageOptions: React.FC = () => {
   }, [setOption, positions, item])
   const change = (t: Operation) => {
     updateItem(item, t)
-
-    console.log(orderType)
   }
 
   return (

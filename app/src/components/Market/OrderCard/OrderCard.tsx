@@ -135,7 +135,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
                     setManage(!manage)
                   }}
                 >
-                  Market
+                  Trade
                 </StyledTab>
                 <StyledTab
                   active={manage}
@@ -144,7 +144,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
                     setManage(!manage)
                   }}
                 >
-                  Manage Options
+                  Manage
                 </StyledTab>
               </StyledTabList>
             ) : (
@@ -189,7 +189,7 @@ const CustomButton = styled.div`
   background: none;
 `
 const Reverse = styled.div`
-  margin-top: -1.1em;
+  margin-top: -1.3em;
 `
 
 const StyledTitle = styled.h4`

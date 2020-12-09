@@ -91,6 +91,7 @@ const Swap: React.FC = () => {
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
+  let secondaryAddress: string | null
   let balance: Token
   switch (orderType) {
     case Operation.LONG:
@@ -115,7 +116,8 @@ const Swap: React.FC = () => {
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
       }
-      tokenAddress = entity.address //entity.underlying.address FIX: double approval
+      tokenAddress = entity.address
+      secondaryAddress = entity.underlying.address
       balance = entity.underlying
       break
     case Operation.CLOSE_LONG:
@@ -340,6 +342,13 @@ const Swap: React.FC = () => {
       })
   }, [item, onApprove])
 
+  const handleSecondaryApproval = useCallback(() => {
+    onApprove(secondaryAddress, spender)
+      .then()
+      .catch((error) => {
+        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
+      })
+  }, [item, onApprove])
   return (
     <>
       <Box row justifyContent="flex-start">
@@ -570,7 +579,7 @@ const Swap: React.FC = () => {
                       disabled={loading}
                       full
                       size="sm"
-                      onClick={handleApproval}
+                      onClick={handleSecondaryApproval}
                       isLoading={loading}
                       text="Approve"
                     />

@@ -246,7 +246,6 @@ export const useUpdateOptions = (): ((
                             pairReserveTotal[0] = pairReserveTotal[0].add(
                               BigNumber.from(underlyingReserve)
                             )
-                            console.log(calls)
                             calls.push({
                               entity: option,
                               asset: assetName,
