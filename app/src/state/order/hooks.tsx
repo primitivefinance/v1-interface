@@ -15,13 +15,14 @@ import {
   DEFAULT_TIMELIMIT,
   STABLECOINS,
   DEFAULT_ALLOWANCE,
+  ADDRESS_ZERO,
 } from '@/constants/index'
 
 import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import { Asset, Trade, Quantity } from '@/lib/entities'
+import { Trade } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
 import { Uniswap } from '@/lib/uniswap'
 import { TradeSettings, SinglePositionParameters } from '@/lib/types'
@@ -42,6 +43,8 @@ import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useClearSwap } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
+
+const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
 export const useItem = (): {
   item: OptionsAttributes
@@ -66,12 +69,7 @@ export const useUpdateItem = (): ((
   const clearLP = useClearLP()
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
-      const underlyingToken: Token = new Token(
-        item.entity.chainId,
-        item.entity.assetAddresses[0],
-        18,
-        item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
-      )
+      const underlyingToken: Token = item.entity.underlying
       let manage = false
       switch (orderType) {
         case Operation.MINT:
@@ -109,7 +107,7 @@ export const useUpdateItem = (): ((
           const spender = UNISWAP_CONNECTOR[chainId]
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
-              item.entity.assetAddresses[0],
+              item.entity.tokenAddresses[0],
               spender
             )
             dispatch(
@@ -151,14 +149,14 @@ export const useUpdateItem = (): ((
               break
             case Operation.EXERCISE:
               tokenAddress = item.entity.address
-              shortAddress = item.entity.assetAddresses[1]
+              shortAddress = item.entity.strike.address
               break
             case Operation.REDEEM:
-              tokenAddress = item.entity.assetAddresses[2]
+              tokenAddress = item.entity.redeem.address
               break
             case Operation.CLOSE:
               tokenAddress = item.entity.address
-              shortAddress = item.entity.assetAddresses[2]
+              shortAddress = item.entity.redeem.address
               break
             default:
               break
@@ -203,7 +201,7 @@ export const useUpdateItem = (): ((
               tokenAddress = item.entity.address
               break
             case Operation.CLOSE_SHORT:
-              tokenAddress = item.entity.assetAddresses[2]
+              tokenAddress = item.entity.redeem.address
               break
             default:
               tokenAddress = underlyingToken.address
@@ -272,23 +270,29 @@ export const useHandleSubmitOrder = (): ((
       )
 
       //console.log(parseInt(quantity) * 1000000000000000000)
-      const inputAmount: Quantity = new Quantity(
-        new Asset(18), // fix with actual metadata
-        BigNumber.from(BigInt(quantity.toString()).toString())
+      const inputAmount: TokenAmount = new TokenAmount(
+        EMPTY_TOKEN, // fix with actual metadata
+        BigInt(quantity.toString()).toString()
       )
-      const outputAmount: Quantity = new Quantity(
-        new Asset(18), // fix with actual metadata
-        BigNumber.from('0')
+      const outputAmount: TokenAmount = new TokenAmount(
+        EMPTY_TOKEN, // fix with actual metadata
+        '0'
       )
       const optionInstance: ethers.Contract = optionEntity.optionInstance(
         signer
       )
       const base: ethers.BigNumber = await optionInstance.getBaseValue()
       const quote: ethers.BigNumber = await optionInstance.getQuoteValue()
-      const assetAddresses: string[] = await optionInstance.getAssetAddresses()
-      optionEntity.setAssetAddresses(assetAddresses)
-      optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
-      optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
+      const tokenAddresses: string[] = await optionInstance.getAssetAddresses()
+      optionEntity.setTokenAddresses(tokenAddresses)
+      optionEntity.optionParameters.base = new TokenAmount(
+        EMPTY_TOKEN,
+        base.toString()
+      )
+      optionEntity.optionParameters.quote = new TokenAmount(
+        EMPTY_TOKEN,
+        quote.toString()
+      )
       let out: BigNumberish
       const path: string[] = []
       const amountsIn: BigNumberish[] = []
@@ -319,14 +323,14 @@ export const useHandleSubmitOrder = (): ((
           // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
           // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // The amountsOut[1] will tell us how much of the flash loan of underlyingTokens is outstanding.
           trade.amountsOut = await trade.getAmountsOut(
             signer,
             factory,
-            inputAmount.quantity,
+            inputAmount.raw.toString(),
             trade.path
           )
           // With the Pair's reserves, we can calculate all values using pure functions, including the premium.
@@ -345,8 +349,8 @@ export const useHandleSubmitOrder = (): ((
           // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
           // Purchase them for underlyingTokens from the underlying<>redeem UniswapV2Pair.
           trade.path = [
-            assetAddresses[0], // underlying
-            assetAddresses[2], // redeem
+            tokenAddresses[0], // underlying
+            tokenAddresses[2], // redeem
           ]
           trade.reserves = await trade.getReserves(
             signer,
@@ -357,10 +361,13 @@ export const useHandleSubmitOrder = (): ((
           amountsOut = await trade.getAmountsOut(
             signer,
             factory,
-            trade.inputAmount.quantity,
+            trade.inputAmount.raw.toString(),
             trade.path
           )
-          trade.outputAmount.quantity = amountsOut[1]
+          trade.outputAmount = new TokenAmount(
+            EMPTY_TOKEN,
+            amountsOut[1].toString()
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -368,8 +375,8 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.WRITE:
           trade.path = [
-            assetAddresses[0], // underlying
-            assetAddresses[2], // redeem
+            tokenAddresses[0], // underlying
+            tokenAddresses[2], // redeem
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -387,14 +394,14 @@ export const useHandleSubmitOrder = (): ((
           // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
           // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
           // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
-          const redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
+          const redeemAmount = ethers.BigNumber.from(inputAmount.raw.toString())
             .mul(quote)
             .div(base)
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            assetAddresses[0], // underlying
-            assetAddresses[2], // redeem
+            tokenAddresses[0], // underlying
+            tokenAddresses[2], // redeem
           ]
           // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
           trade.amountsIn = await trade.getAmountsIn(
@@ -411,7 +418,10 @@ export const useHandleSubmitOrder = (): ((
             trade.path[1]
           )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.inputAmount.quantity = redeemAmount
+          trade.inputAmount = new TokenAmount(
+            EMPTY_TOKEN,
+            redeemAmount.toString()
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -421,18 +431,21 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
           trade.amountsOut = await trade.getAmountsOut(
             signer,
             factory,
-            trade.inputAmount.quantity,
+            trade.inputAmount.raw.toString(),
             trade.path
           )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.outputAmount.quantity = trade.amountsOut[1]
+          trade.outputAmount = new TokenAmount(
+            EMPTY_TOKEN,
+            trade.amountsOut[1].toString()
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -442,8 +455,8 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -459,9 +472,9 @@ export const useHandleSubmitOrder = (): ((
               : BigNumber.from('0')
 
           console.log(out.toString())
-          trade.outputAmount = new Quantity(
-            new Asset(18), // fix with actual metadata
-            out
+          trade.outputAmount = new TokenAmount(
+            EMPTY_TOKEN, // fix with actual metadata
+            out.toString()
           )
 
           transaction = Uniswap.singlePositionCallParameters(
@@ -473,8 +486,8 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -489,9 +502,9 @@ export const useHandleSubmitOrder = (): ((
               ? BigNumber.from(secondaryQuantity.toString())
               : BigNumber.from('0')
 
-          trade.outputAmount = new Quantity(
-            new Asset(18), // fix with actual metadata
-            out
+          trade.outputAmount = new TokenAmount(
+            EMPTY_TOKEN, // fix with actual metadata
+            out.toString()
           )
 
           transaction = Uniswap.singlePositionCallParameters(
@@ -501,8 +514,8 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.REMOVE_LIQUIDITY:
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -527,8 +540,8 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
           trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
+            tokenAddresses[2], // redeem
+            tokenAddresses[0], // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(

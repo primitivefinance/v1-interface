@@ -60,12 +60,7 @@ const Manage: React.FC = () => {
 
   // pair and option entities
   const entity = item.entity
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    entity.isPut ? 'DAI' : item.asset.toUpperCase()
-  )
+  const underlyingToken: Token = entity.underlying
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
@@ -96,7 +91,7 @@ const Manage: React.FC = () => {
         text: 'Redeem Strike Tokens',
         tip: `Burn short option tokens to release strike tokens, if options were exercised.`,
       }
-      tokenAddress = entity.assetAddresses[2]
+      tokenAddress = entity.redeem.address
       secondaryAddress = entity.assetAddresses[1]
       balance = new Token(entity.chainId, tokenAddress, 18, 'REDEEM')
       break
@@ -121,7 +116,8 @@ const Manage: React.FC = () => {
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const handleApprove = useApprove()
 
-  const strikeBalance = useTokenBalance(entity.assetAddresses[2])
+  const strikeBalance = useTokenBalance(entity.redeem.address)
+
   const handleInputChange = useCallback(
     (value: string) => {
       onUserInput(value)
@@ -164,8 +160,8 @@ const Manage: React.FC = () => {
     let underlying = '0'
     let strike = '0'
     const size = parsedAmount
-    const base = item.entity.base.quantity.toString()
-    const quote = item.entity.quote.quantity.toString()
+    const base = item.entity.baseValue.raw.toString()
+    const quote = item.entity.quoteValue.raw.toString()
     switch (orderType) {
       case Operation.MINT:
         long = size.div(BigNumber.from('1000000000000000000')).toString()

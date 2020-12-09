@@ -78,47 +78,31 @@ const AddLiquidity: React.FC = () => {
   const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
-  const isPut = item.entity.isPut
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    isPut ? 'DAI' : item.asset.toUpperCase()
-  )
-  const shortToken = new Token(
-    entity.chainId,
-    entity.assetAddresses[2],
-    18,
-    'SHORT'
-  )
-  const lpPair = useReserves(underlyingToken, shortToken).data
+  const lpPair = useReserves(entity.underlying, entity.redeem).data
   // has liquidity?
   useEffect(() => {
     if (lpPair) {
-      setHasL(lpPair.reserveOf(shortToken).numerator[2])
+      setHasL(lpPair.reserveOf(entity.redeem).numerator[2])
     }
   }, [setHasL, lpPair])
 
   const lpToken = lpPair ? lpPair.liquidityToken.address : ''
   const token0 = lpPair ? lpPair.token0.symbol : ''
   const token1 = lpPair ? lpPair.token1.symbol : ''
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-  const shortTokenBalance = useTokenBalance(entity.assetAddresses[2])
+  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-  const tokenAllowance = useTokenAllowance(
-    item.entity.assetAddresses[0],
-    spender
-  )
+  const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
   const onApprove = useApprove()
 
   const underlyingAmount: TokenAmount = new TokenAmount(
-    underlyingToken,
+    entity.underlying,
     parseEther(underlyingTokenBalance).toString()
   )
   const shortAmount: TokenAmount = new TokenAmount(
-    shortToken,
+    entity.redeem,
     parseEther(shortTokenBalance).toString()
   )
 
@@ -179,7 +163,7 @@ const AddLiquidity: React.FC = () => {
         ? Number(parseInt(supply.div(parsedUnderlyingAmount).toString()))
         : 0
 
-    return 0
+    return poolShare
   }, [lpPair, lp, lpTotalSupply, parsedUnderlyingAmount])
 
   const calculateOutput = useCallback(() => {
@@ -188,14 +172,12 @@ const AddLiquidity: React.FC = () => {
       return sum
     }
     const reservesA = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[2], 18)
+      new Token(chainId, entity.redeem.address, 18)
     )
     const reservesB = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[0], 18)
+      new Token(chainId, entity.underlying.address, 18)
     )
-    const inputShort = calculateInput() // pair has short tokens, so need to convert our desired options to short options
-      .mul(item.entity.optionParameters.quote.quantity)
-      .div(item.entity.optionParameters.base.quantity)
+    const inputShort = entity.proportionalShort(calculateInput()) // pair has short tokens, so need to convert our desired options to short options
     const quote = Trade.getQuote(
       inputShort,
       reservesA.raw.toString(),
@@ -208,28 +190,18 @@ const AddLiquidity: React.FC = () => {
   const calculateInput = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) {
       const sum = parsedUnderlyingAmount.add(parsedOptionAmount)
-      console.log(sum)
       return sum
     }
-    const reservesA = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[2], 18)
-    )
-    const reservesB = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[0], 18)
-    )
+    const reservesA = lpPair.reserveOf(entity.redeem)
+    const reservesB = lpPair.reserveOf(entity.underlying)
 
-    const ratio = parseEther('1')
-      .mul(item.entity.optionParameters.quote.quantity)
-      .div(item.entity.optionParameters.base.quantity)
+    const ratio = entity.proportionalShort(parseEther('1'))
 
-    console.log(ratio.toString())
     const denominator = ratio
       .mul(reservesB.raw.toString())
       .div(reservesA.raw.toString())
       .add(parseEther('1'))
-    console.log(denominator.toString())
     const optionsInput = parsedOptionAmount.div(denominator)
-    console.log(optionsInput)
     return optionsInput
   }, [lpPair, lp, lpTotalSupply, parsedOptionAmount])
 
@@ -245,11 +217,11 @@ const AddLiquidity: React.FC = () => {
         totalUnderlyingPerLp: '0',
       }
     const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
+      lpPair.token0.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
     const UNDERLYING: Token =
-      lpPair.token1.address === item.entity.assetAddresses[2]
+      lpPair.token1.address === entity.redeem.address
         ? lpPair.token0
         : lpPair.token1
 
@@ -283,8 +255,8 @@ const AddLiquidity: React.FC = () => {
       : '0'
     const totalUnderlyingPerLp = formatEther(
       BigNumber.from(shortValue.raw.toString())
-        .mul(item.entity.optionParameters.base.quantity)
-        .div(item.entity.optionParameters.quote.quantity)
+        .mul(entity.baseValue.raw.toString())
+        .div(entity.quoteValue.raw.toString())
         .add(underlyingValue.raw.toString())
     )
 
@@ -298,31 +270,26 @@ const AddLiquidity: React.FC = () => {
       !hasLiquidity ||
       parsedOptionAmount !== undefined
     ) {
-      const inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options
-        .mul(item.entity.optionParameters.quote.quantity)
-        .div(item.entity.optionParameters.base.quantity)
-      const path = [
-        item.entity.assetAddresses[2],
-        item.entity.assetAddresses[0],
-      ]
+      const inputShort = entity.proportionalShort(parsedOptionAmount) // pair has short tokens, so need to convert our desired options to short options))
+      const path = [entity.redeem.address, entity.underlying.address]
       const quote = Trade.getSpotPremium(
-        item.entity.optionParameters.base.quantity,
-        item.entity.optionParameters.quote.quantity,
+        entity.baseValue.raw.toString(),
+        entity.quoteValue.raw.toString(),
         path,
         [inputShort, parsedUnderlyingAmount]
       )
       return formatEther(quote.toString())
     }
     const reservesA = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[2], 18)
+      new Token(chainId, entity.redeem.address, 18)
     )
     const reservesB = lpPair.reserveOf(
-      new Token(chainId, item.entity.assetAddresses[0], 18)
+      new Token(chainId, entity.underlying.address, 18)
     )
-    const path = [item.entity.assetAddresses[2], item.entity.assetAddresses[0]]
+    const path = [entity.redeem.address, entity.underlying.address]
     const quote = Trade.getSpotPremium(
-      item.entity.optionParameters.base.quantity,
-      item.entity.optionParameters.quote.quantity,
+      entity.baseValue.raw.toString(),
+      entity.quoteValue.raw.toString(),
       path,
       [reservesA.raw.toString(), reservesB.raw.toString()]
     )
@@ -335,17 +302,17 @@ const AddLiquidity: React.FC = () => {
   }, [parsedUnderlyingAmount, guardCap])
 
   const handleApproval = useCallback(() => {
-    onApprove(underlyingToken.address, spender)
+    onApprove(entity.underlying.address, spender)
       .then()
       .catch((error) => {
         addNotif(
           0,
-          `Approving ${underlyingToken.symbol.toUpperCase()}`,
+          `Approving ${entity.underlying.symbol.toUpperCase()}`,
           error.message,
           ''
         )
       })
-  }, [underlyingToken, tokenAllowance, onApprove])
+  }, [entity.underlying, tokenAllowance, onApprove])
 
   const title = {
     text: 'Add Liquidity',
@@ -401,7 +368,7 @@ const AddLiquidity: React.FC = () => {
               onClick={handleSetMax}
               balance={
                 new TokenAmount(
-                  underlyingToken,
+                  entity.underlying,
                   parseEther(underlyingTokenBalance).toString()
                 )
               }
@@ -468,7 +435,7 @@ const AddLiquidity: React.FC = () => {
           <LineItem
             label="Implied Option Price"
             data={`${calculateImpliedPrice()}`}
-            units={`${underlyingToken.symbol.toUpperCase()}`}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
           />
           <Spacer size="sm" />{' '}
         </>
@@ -507,7 +474,7 @@ const AddLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
+            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
@@ -560,7 +527,7 @@ const AddLiquidity: React.FC = () => {
                   full
                   size="sm"
                   onClick={handleApproval}
-                  text={`Approve ${underlyingToken.symbol.toUpperCase()}`}
+                  text={`Approve ${entity.underlying.symbol.toUpperCase()}`}
                 />
               </>
             )}

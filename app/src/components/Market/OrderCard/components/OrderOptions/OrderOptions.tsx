@@ -24,14 +24,11 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
   const updateItem = useUpdateItem()
   const underlyingToken: Token = new Token(
     item.entity.chainId,
-    item.entity.assetAddresses[0],
+    item.entity.underlying.address,
     18,
     item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
   )
-  const lpPair = useReserves(
-    underlyingToken,
-    new Token(item.entity.chainId, item.entity.assetAddresses[2], 18, 'SHORT')
-  ).data
+  const lpPair = useReserves(underlyingToken, item.entity.redeem).data
   const change = (t: Operation) => {
     if (t === Operation.REMOVE_LIQUIDITY_CLOSE) {
       console.log(lpPair)
@@ -41,7 +38,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
     }
   }
   const reserve0Units =
-    item.token0 === item.entity.assetAddresses[0]
+    item.token0 === item.entity.underlying.address
       ? item.asset.toUpperCase()
       : 'SHORT'
   return (
