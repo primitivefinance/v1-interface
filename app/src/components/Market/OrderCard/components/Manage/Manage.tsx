@@ -49,7 +49,7 @@ const Manage: React.FC = () => {
 
   // inputs for user quantity
   // inputs for quant
-  const { typedValue } = useSwap()
+  const { typedValue, inputLoading } = useSwap()
   const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
   // web3

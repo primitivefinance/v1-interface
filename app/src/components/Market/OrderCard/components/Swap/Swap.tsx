@@ -153,7 +153,6 @@ const Swap: React.FC = () => {
 
   const handleTypeInput = useCallback(
     (value: string) => {
-      const onApprove = useApprove()
       onUserInput(value)
     },
     [onUserInput]
@@ -319,7 +318,7 @@ const Swap: React.FC = () => {
     if (lpPair && inputLoading) {
       calculateTotalCost()
     }
-  }, [item, parsedAmount])
+  }, [item, parsedAmount, inputLoading, lpPair])
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
@@ -555,7 +554,7 @@ const Swap: React.FC = () => {
           </div>
         ) : (
           <>
-            {orderType === Operation.MINT ? (
+            {orderType === Operation.WRITE ? (
               <>
                 {approved[0] ? (
                   <></>
@@ -567,7 +566,7 @@ const Swap: React.FC = () => {
                       size="sm"
                       onClick={handleApproval}
                       isLoading={loading}
-                      text="Approve"
+                      text="Approve Options"
                     />
                   </>
                 )}
@@ -581,7 +580,7 @@ const Swap: React.FC = () => {
                       size="sm"
                       onClick={handleSecondaryApproval}
                       isLoading={loading}
-                      text="Approve"
+                      text="Approve Tokens"
                     />
                   </>
                 )}

@@ -392,7 +392,7 @@ const AddLiquidity: React.FC = () => {
               title={`Underlying Input`}
               quantity={underlyingValue}
               onChange={handleUnderInput}
-              onClick={() => console.log('Max unavailable.')} //
+              onClick={handleSetMax}
               balance={underlyingAmount}
             />
           </StyledTabPanel>
