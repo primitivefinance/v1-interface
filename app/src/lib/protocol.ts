@@ -46,11 +46,11 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
     const methodNames = ['name', 'symbol', 'decimals']
-    let chunks = Protocol.chunkArray(tokenAddresses, 30)
-    let datas = []
+    const chunks = Protocol.chunkArray(tokenAddresses, 30)
+    const datas = []
     let tokenDatas = []
-    for (let chunk of chunks) {
-      let inputs = []
+    for (const chunk of chunks) {
+      const inputs = []
       for (const token of chunk) {
         for (const method of methodNames) {
           inputs.push({
@@ -64,15 +64,15 @@ export class Protocol {
       datas.push(tokenData)
     }
 
-    for (let data of datas) {
+    for (const data of datas) {
       tokenDatas = tokenDatas.concat(data)
     }
     return tokenDatas
   }
 
   public static chunkArray(arr, n) {
-    let chunkLength = Math.max(arr.length / n, 1)
-    let chunks = []
+    const chunkLength = Math.max(arr.length / n, 1)
+    const chunks = []
     for (let i = 0; i < n; i++) {
       if (chunkLength * (i + 1) <= arr.length)
         chunks.push(arr.slice(chunkLength * i, chunkLength * (i + 1)))
@@ -86,12 +86,12 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
 
-    let chunks = Protocol.chunkArray(optionAddresses, 30)
-    let datas = []
+    const chunks = Protocol.chunkArray(optionAddresses, 30)
+    const datas = []
     let allOptionsData = []
-    for (let chunk of chunks) {
-      let inputs = []
-      for (let option of chunk) {
+    for (const chunk of chunks) {
+      const inputs = []
+      for (const option of chunk) {
         inputs.push({
           target: option,
           function: 'getParameters',
@@ -102,7 +102,7 @@ export class Protocol {
       datas.push(optionData)
     }
 
-    for (let data of datas) {
+    for (const data of datas) {
       allOptionsData = allOptionsData.concat(data)
     }
     return allOptionsData
@@ -132,12 +132,12 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
 
-    let chunks = Protocol.chunkArray(tokensArray, 30)
-    let datas = []
+    const chunks = Protocol.chunkArray(tokensArray, 30)
+    const datas = []
     let pairAddresses = []
-    for (let chunk of chunks) {
-      let inputs = []
-      for (let tokenArray of chunk) {
+    for (const chunk of chunks) {
+      const inputs = []
+      for (const tokenArray of chunk) {
         inputs.push({
           target: FACTORY_ADDRESS,
           function: 'getPair',
@@ -148,7 +148,7 @@ export class Protocol {
       datas.push(pairData)
     }
 
-    for (let data of datas) {
+    for (const data of datas) {
       pairAddresses = pairAddresses.concat(data)
     }
     return pairAddresses
@@ -159,11 +159,11 @@ export class Protocol {
     pairAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    let chunks = Protocol.chunkArray(pairAddresses, 30)
-    let datas = []
+    const chunks = Protocol.chunkArray(pairAddresses, 30)
+    const datas = []
     let pairDatas = []
-    for (let chunk of chunks) {
-      let inputs = []
+    for (const chunk of chunks) {
+      const inputs = []
       for (const pair of chunk) {
         inputs.push({
           target: pair,
@@ -187,7 +187,7 @@ export class Protocol {
       datas.push(pairData)
     }
 
-    for (let data of datas) {
+    for (const data of datas) {
       pairDatas = pairDatas.concat(data)
     }
 
@@ -239,7 +239,6 @@ export class Protocol {
           const decimals = tokensData[startIndex + 2]
           const symbol = tokensData[startIndex + 1]
           const name = tokensData[startIndex]
-          console.log({ name, symbol })
           assets.push(new Token(chainId, address, decimals, symbol, name))
         }
         const optionParams: OptionParameters = {
