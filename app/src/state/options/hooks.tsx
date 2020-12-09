@@ -39,11 +39,15 @@ export const useUpdateOptions = (): ((
   ): BigNumberish => {
     let breakeven
     if (isCall) {
-      breakeven = BigNumber.from(premium).add(strike)
+      breakeven = parseEther(premium.toString()).add(
+        parseEther(strike.toString())
+      )
     } else {
-      breakeven = BigNumber.from(strike).sub(premium)
+      breakeven = parseEther(strike.toString()).sub(
+        parseEther(premium.toString())
+      )
     }
-    return Number(breakeven)
+    return Number(formatEther(breakeven))
   }
 
   if (!active) {
