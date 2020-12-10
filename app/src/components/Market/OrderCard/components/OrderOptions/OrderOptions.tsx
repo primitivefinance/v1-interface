@@ -142,13 +142,7 @@ const OrderOptions: React.FC = () => {
                 <Spacer size="sm" />
                 <Button
                   full
-                  disabled={
-                    option.long
-                      ? formatEther(option.short) !== '0.00'
-                        ? false
-                        : true
-                      : true
-                  }
+                  disabled={false}
                   size="sm"
                   variant="secondary"
                   onClick={() => change(Operation.WRITE)}
