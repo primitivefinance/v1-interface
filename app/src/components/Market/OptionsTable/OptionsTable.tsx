@@ -140,6 +140,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const calculateAllGreeks = useCallback(
     (option: any) => {
       const blackScholes = new BlackScholes(
+        chainId,
+        option.address,
         18,
         option.id,
         COINGECKO_ID_FOR_MARKET[asset],

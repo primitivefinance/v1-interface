@@ -1,7 +1,8 @@
 // Reference https://github.com/devanp92/black-scholes-js
 
-import { Asset, Option } from '../entities'
+import { Option } from '../entities'
 import { NormalDistribution } from './normaldistribution'
+import { Token } from '@uniswap/sdk'
 
 export interface BlackScholesInterface {
   standardDeviation?: number
@@ -15,18 +16,25 @@ export interface BlackScholesInterface {
 }
 
 export class BlackScholes implements BlackScholesInterface {
-  asset: Asset
+  token: Token
   option: Option
   riskFree: number
   deviation: number
   assetPrice: number
   /**
-   * Initialize asset with symbol
+   * Initialize token with symbol
    * @param symbol
    */
-  constructor(decimals: number, name: string, symbol: string, option: Option) {
-    // Set asset values
-    this.setAsset(decimals, name, symbol)
+  constructor(
+    chainId: number,
+    address: string,
+    decimals: number,
+    name: string,
+    symbol: string,
+    option: Option
+  ) {
+    // Set token values
+    this.setToken(chainId, address, decimals, symbol, name)
     this.option = option
   }
 
@@ -55,16 +63,22 @@ export class BlackScholes implements BlackScholesInterface {
   }
 
   /**
-   * Set asset symbol
+   * Set token symbol
    * @param symbol
    */
-  private setAsset(decimals: number, name: string, symbol: string) {
-    this.asset = new Asset(decimals, name, symbol)
+  private setToken(
+    chainId: number,
+    address: string,
+    decimals: number,
+    name: string,
+    symbol: string
+  ) {
+    this.token = new Token(chainId, address, decimals, symbol, name)
     this.getCurrentPrice(symbol).then((price) => (this.assetPrice = price))
   }
 
   /**
-   * First partial derivative of asset price
+   * First partial derivative of token price
    * (velocity)
    */
   delta(): number | null {
