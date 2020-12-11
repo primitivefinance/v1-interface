@@ -153,7 +153,7 @@ const Reverse = styled.div`
   margin-top: -0.9em;
 `
 
-const StyledTitle = styled.h4`
+const StyledTitle = styled.h3`
   align-items: center;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;

@@ -193,11 +193,10 @@ const Market = ({ market, data }) => {
                     </>
                   }
                 >
-                  <BalanceCard />
                   <Spacer size="sm" />
                   <PositionsCard />
                   <OrderCard orderState={data} />
-                  <Spacer size="sm" />
+                  <BalanceCard />
                   <TransactionCard />
                   <Spacer />
                 </ErrorBoundary>

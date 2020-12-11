@@ -128,7 +128,7 @@ const PositionsCard: React.FC = () => {
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
             <StyledBox row justifyContent="space-between" alignItems="center">
-              <Title>{`Active Positions (${positions.options.length})`}</Title>
+              <Title>{`Active Positions`}</Title>
               <Spacer />
               {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </StyledBox>
@@ -163,10 +163,11 @@ const Scroll = styled.div`
 
 const StyledBox = styled(Box)`
   cursor: pointer;
+  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const Title = styled.h4`
-  color: white;
+  color: ${(props) => props.theme.color.grey[400]};
   min-width: 16em;
 `
 const Reverse = styled.div`
@@ -203,6 +204,7 @@ const StyledTitle = styled.h4`
 `
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
+  color: ${(props) => props.theme.color.white} !important;
   border-radius: 0.5em;
   min-height: 1.3em;
   cursor: pointer;
