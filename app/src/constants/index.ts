@@ -1,5 +1,4 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { Asset } from '../lib/entities/asset'
 import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
 import { parseEther } from 'ethers/lib/utils'
 
@@ -135,27 +134,20 @@ export enum LocalStorageKeys {
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export const UNI_ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
-export const ASSETS: { [key: string]: Asset } = {
-  ['DAI']: new Asset(18, 'Dai Stablecoin', 'DAI'),
-  ['USDC']: new Asset(18, 'USD Coin', 'USDC'),
-  ['sUSD']: new Asset(18, 'Synth USD', 'sUSD'),
-  ['USDT']: new Asset(18, 'USD Tether', 'USDT'),
-}
-
-export const getToken = (chainId: ChainId, address: string, asset: Asset) => {
-  return new Token(chainId, address, asset.decimals, asset.symbol, asset.symbol)
-}
-
 export const STABLECOINS: { [key: number]: Token } = {
-  1: getToken(
+  1: new Token(
     ChainId.MAINNET,
     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    ASSETS.DAI
+    18,
+    'DAI',
+    'Dai Stablecoin'
   ),
-  4: getToken(
+  4: new Token(
     ChainId.RINKEBY,
     '0x49ac2A6588864375F0D194F5DA1BC87B9436E175',
-    ASSETS.DAI
+    18,
+    'DAI',
+    'Dai Stablecoin'
   ),
 }
 
