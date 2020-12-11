@@ -53,7 +53,7 @@ const StyledDis = styled.h3`
   color: white;
 `
 const Backdrop = styled.div`
-  z-index: 200;
+  z-index: 400;
   background-color: rgba(0, 0, 0, 0.7);
   position: absolute;
   width: 100%;

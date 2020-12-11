@@ -4,7 +4,10 @@ import { useRouter } from 'next/router'
 import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import Button from '@/components/Button'
+import IconButton from '@/components/IconButton'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -26,14 +29,18 @@ export interface OrderContentProps {
   manage: boolean
 }
 
-const OrderContent: React.FC<OrderContentProps> = ({ manage }) => {
+const OrderContent: React.FC<OrderContentProps> = () => {
   const { orderType } = useItem()
 
   if (orderType !== Operation.NONE) {
     return <Submit orderType={orderType} />
   }
   if (orderType === Operation.NONE) {
-    return <>{manage ? <ManageOptions /> : <OrderOptions />} </>
+    return (
+      <>
+        <OrderOptions />
+      </>
+    )
   }
 }
 
@@ -94,7 +101,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   }
   return (
     <>
-      <Card border dark>
+      <Card border>
         <Box row justifyContent="space-between" alignItems="center">
           <Spacer size="sm" />
           <Spacer size="sm" />
@@ -104,18 +111,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
-          <Spacer size="sm" />
-          <CustomButton>
-            <Button
-              variant="transparent"
-              size="sm"
-              onClick={() => {
-                updateItem(item, Operation.NONE)
-                setManage(!manage)
-              }}
-              round
-            ></Button>
-          </CustomButton>
+
           <Spacer size="sm" />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
@@ -124,75 +120,40 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </CustomButton>
         </Box>
         <CardContent>
-          <Reverse />
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
-            {orderType === Operation.NONE ? (
-              <StyledTabList>
-                <StyledTab
-                  active={!manage}
-                  onClick={() => {
-                    updateItem(item, Operation.NONE)
-                    setManage(!manage)
-                  }}
-                >
-                  Trade
-                </StyledTab>
-                <StyledTab
-                  active={manage}
-                  onClick={() => {
-                    updateItem(item, Operation.NONE)
-                    setManage(!manage)
-                  }}
-                >
-                  Manage
-                </StyledTab>
-              </StyledTabList>
-            ) : (
-              <Spacer size="sm" />
-            )}
+            <Reverse />
             <OrderContent manage={manage} />
+            {orderType === Operation.NONE ? (
+              <>
+                <IconButton
+                  text="Manage Options"
+                  variant="transparent"
+                  onClick={() => {
+                    updateItem(item, Operation.NONE)
+                    setManage(!manage)
+                  }}
+                >
+                  {manage ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
+                {manage ? <ManageOptions /> : null}
+              </>
+            ) : null}
           </ErrorBoundary>
         </CardContent>
       </Card>
     </>
   )
 }
-const StyledTabList = styled(TabList)`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: baseline;
-  margin-left: -2.5em;
-`
 
-interface TabProps {
-  active?: boolean
-}
-
-const StyledTab = styled(Tab)<TabProps>`
-  background-color: ${(props) =>
-    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
-  color: ${(props) =>
-    props.active ? props.theme.color.white : props.theme.color.grey[400]};
-  font-weight: ${(props) => (props.active ? 600 : 500)};
-  padding: 0.5em 0.5em 0.5em 1em;
-  border-radius: 0.3em 0.3em 0 0;
-  border-width: 1px 1px 0 1px;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  width: 50%;
-  list-style: none;
-  cursor: pointer;
-`
 const CustomButton = styled.div`
   margin-top: -0.1em;
   background: none;
 `
 const Reverse = styled.div`
-  margin-top: -1.3em;
+  margin-top: -0.9em;
 `
 
-const StyledTitle = styled.h4`
+const StyledTitle = styled.h3`
   align-items: center;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;

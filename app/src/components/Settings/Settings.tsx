@@ -120,18 +120,18 @@ const StyledRow = styled(Box)`
 `
 
 const StyledModal = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.black};
   border-color: ${(props) => props.theme.color.grey[600]};
   border-style: solid;
-  border-width: 0px 1px 1px 1px;
+  border-width: 2px;
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
-  margin: 0em;
+  margin: 0 1em 1em 1em;
   position: fixed;
   right: 0%;
-  top: ${(props) => props.theme.barHeight}px;
   z-index: 0;
-  z-index: 9999 !important;
+  z-index: 999 !important;
+  top: ${(props) => props.theme.barHeight}px;
   box-shadow: -3px 3px 3px rgba(250, 250, 250, 0.1);
 `

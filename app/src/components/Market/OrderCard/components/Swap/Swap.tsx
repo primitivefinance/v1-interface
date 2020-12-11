@@ -97,7 +97,7 @@ const Swap: React.FC = () => {
     case Operation.LONG:
       title = {
         text: 'Buy Long Tokens',
-        tip: 'Purchase and hold option tokens.',
+        tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
       balance = entity.underlying
@@ -105,7 +105,7 @@ const Swap: React.FC = () => {
     case Operation.SHORT:
       title = {
         text: 'Buy Short Tokens',
-        tip: 'Purchase tokenized, written covered options.',
+        tip: 'Purchase tokenized, written covered options',
       }
       tokenAddress = entity.underlying.address
       balance = entity.underlying
@@ -114,7 +114,7 @@ const Swap: React.FC = () => {
       title = {
         text: 'Write Options',
         tip:
-          'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens.',
+          'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
       }
       tokenAddress = entity.address
       secondaryAddress = entity.underlying.address
@@ -123,7 +123,7 @@ const Swap: React.FC = () => {
     case Operation.CLOSE_LONG:
       title = {
         text: 'Close Long Position',
-        tip: `Sell option tokens for ${item.asset.toUpperCase()}.`,
+        tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'LONG')
@@ -131,7 +131,7 @@ const Swap: React.FC = () => {
     case Operation.CLOSE_SHORT:
       title = {
         text: 'Close Short Position',
-        tip: `Sell short option tokens for ${item.asset.toUpperCase()}.`,
+        tip: `Sell short option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.redeem.address
       balance = new Token(entity.chainId, tokenAddress, 18, 'SHORT')

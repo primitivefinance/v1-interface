@@ -230,6 +230,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
+                console.log(option.strike.toString())
                 if (
                   (optionExp != option.entity.expiryValue &&
                     option.entity.expiryValue === 0) ||
@@ -272,7 +273,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 }
 
-const ScrollBody = styled(TableBody)``
+const ScrollBody = styled(TableBody)`
+  height: 10em;
+  overflow-x: hidden;
+`
 
 const OptionsContainer = styled.div`
   margin-left: 2em;
