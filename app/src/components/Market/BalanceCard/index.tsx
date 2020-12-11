@@ -77,36 +77,36 @@ const BalanceCard: React.FC = () => {
   if (calls.length === 0) return null
   return (
     <>
-      <Spacer />
-      <Card border dark>
-        <CardContent>
-          <StyledContainer>
+      <CustomCard>
+        <LineItem label={`DAI Balance`} data={daiBal} />
+        <Spacer size="sm" />
+        <LineItem
+          label={`${balance.token.symbol} Balance`}
+          data={formatEther(balance.raw.toString())}
+        />
+        {chainId === 4 ? (
+          <>
             <Spacer size="sm" />
-            <LineItem label={`DAI Balance`} data={daiBal} />
-            <Spacer size="sm" />
-            <LineItem
-              label={`${balance.token.symbol} Balance`}
-              data={formatEther(balance.raw.toString())}
+            <Button
+              full
+              onClick={handleMintTestTokens}
+              text={'Get Testnet Tokens'}
+              variant="secondary"
             />
-            {chainId === 4 ? (
-              <>
-                <Spacer size="sm" />
-                <Button
-                  full
-                  onClick={handleMintTestTokens}
-                  text={'Get Testnet Tokens'}
-                  variant="secondary"
-                />
-              </>
-            ) : null}
-          </StyledContainer>
-        </CardContent>
-      </Card>
+          </>
+        ) : null}
+      </CustomCard>
     </>
   )
 }
-const StyledContainer = styled.div`
-  margin: 0 0.5em 0.5em 0.5em;
+const CustomCard = styled.div`
+  padding: 1em;
+  margin: -0.1em 0em 0.5em 0em;
+  background-color: ${(props) => props.theme.color.grey[800]};
+  border: 1px solid ${(props) => props.theme.color.grey[500]};
+  border-radius: 0 0 ${(props) => props.theme.borderRadius}px
+    ${(props) => props.theme.borderRadius}px;
+  z-index: 0;
 `
 
 export default BalanceCard

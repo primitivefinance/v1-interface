@@ -113,7 +113,8 @@ const OrderOptions: React.FC = () => {
 
   return (
     <>
-      <Box column alignItems="flex-start" justifyContent="center">
+      <Spacer size="sm" />
+      <Box column alignItems="center" justifyContent="center">
         <StyledOrder
           onClick={() =>
             setOrder({ long: !order.long, short: false, lp: false })
@@ -234,7 +235,7 @@ const StyledOrder = styled.a`
   cursor: pointer;
   margin-bottom: 0.5em;
   padding: 1em;
-  width: 90%;
+  width: 80%;
   &:hover {
     border: 1px solid ${(props) => props.theme.color.grey[600]};
     background: ${(props) => props.theme.color.grey[800]};
