@@ -95,32 +95,6 @@ const ManageOptions: React.FC = () => {
           <TabPanel>
             <StyledColumn>
               <Spacer />
-              <Box row justifyContent="flex-start" alignItems="center">
-                {!positions.loading ? (
-                  <LineItem
-                    label={'Long Balance'}
-                    data={
-                      option.long ? formatEther(option.long).toString() : '0'
-                    }
-                    units={'LONG'}
-                  />
-                ) : (
-                  <Loader size="sm" />
-                )}
-              </Box>
-              <Spacer />
-              <Box row justifyContent="flex-start" alignItems="center">
-                {!positions.loading ? (
-                  <LineItem
-                    label={'Short Balance'}
-                    data={option.short ? formatEther(option.short) : '0'}
-                    units={'SHORT'}
-                  />
-                ) : (
-                  <Loader size="sm" />
-                )}
-              </Box>
-              <Spacer />
               <Box row justifyContent="space-between" alignItems="center">
                 <Button full size="sm" onClick={() => change(Operation.MINT)}>
                   Mint
@@ -222,47 +196,12 @@ const ManageOptions: React.FC = () => {
 const StyledTabs = styled(Tabs)`
   width: 100%;
 `
-const Reverse = styled.div`
-  margin-top: -1.1em;
-`
-
-const StyledTabList = styled(TabList)`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: baseline;
-  margin-left: -2.5em;
-`
-
-interface TabProps {
-  active?: boolean
-}
-
-const StyledTab = styled(Tab)<TabProps>`
-  background-color: ${(props) =>
-    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
-  color: ${(props) => props.theme.color.white};
-  font-weight: ${(props) => (props.active ? 600 : 500)};
-  padding: 0.5em 0.5em 0.5em 1em;
-  border-radius: 0.3em 0.3em 0 0;
-  border-width: 1px 1px 0 1px;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  width: 50%;
-  list-style: none;
-  cursor: pointer;
-`
 
 const StyledColumn = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: -2.5em;
-  border-radius: 0.3em 0 0 0;
-  border-width: 1px 1px 1px 1px;
-  border-style: solid;
   padding: 0em 1em 1em 1em;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  background: ${(props) => props.theme.color.black};
 `
 
 export default ManageOptions

@@ -105,8 +105,13 @@ const PositionsCard: React.FC = () => {
   }
   if (!positions.loading && !positions.exists) {
     return (
-      <Card border dark>
-        <CardTitle>Active Positions</CardTitle>
+      <Card border>
+        <Reverse />
+        <CardTitle>
+          <div>
+            <Title>Active Positions</Title>
+          </div>
+        </CardTitle>
         <CardContent>
           <StyledEmptyContent>
             <StyledEmptyIcon>
@@ -122,7 +127,7 @@ const PositionsCard: React.FC = () => {
   }
   return (
     <div>
-      <Card border dark>
+      <Card border>
         <Reverse />
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
@@ -201,16 +206,17 @@ const StyledTitle = styled.h4`
   margin-bottom: 0em;
 `
 const StyledPosition = styled.a`
-  border: 1.5px solid ${(props) => props.theme.color.black};
+  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
   border-radius: 0.5em;
-  min-height: 1.5em;
+  min-height: 1.3em;
   cursor: pointer;
   margin-bottom: 0.3em;
-  margin-top: -0.3em;
-  padding: 0 0.5em 0.5em 0.5em;
+  margin-top: -0.5em;
+  padding: 0em 0.5em 0.5em 0.5em;
   &:hover {
-    border: 1.5px solid ${(props) => props.theme.color.grey[400]};
-    background: ${(props) => props.theme.color.grey[800]};
+    border: 1.5px solid ${(props) => props.theme.color.grey[800]};
+    box-shadow: -2px 2px 2px rgba(250, 250, 250, 0.1);
+    background: ${(props) => props.theme.color.black};
   }
 `
 const StyledLink = styled.a`

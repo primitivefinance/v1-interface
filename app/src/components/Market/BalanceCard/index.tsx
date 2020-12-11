@@ -77,10 +77,11 @@ const BalanceCard: React.FC = () => {
   if (calls.length === 0) return null
   return (
     <>
-      <div style={{ marginTop: '-.1em' }} />
+      <Spacer />
       <Card border dark>
         <CardContent>
           <StyledContainer>
+            <Spacer size="sm" />
             <LineItem label={`DAI Balance`} data={daiBal} />
             <Spacer size="sm" />
             <LineItem
@@ -105,7 +106,7 @@ const BalanceCard: React.FC = () => {
   )
 }
 const StyledContainer = styled.div`
-  margin: 0 1em 0 1em;
+  margin: 0 0.5em 0.5em 0.5em;
 `
 
 export default BalanceCard
