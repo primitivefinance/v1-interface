@@ -1,4 +1,4 @@
-import { Token, TokenAmount, Pair } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, Fraction } from '@uniswap/sdk'
 import ethers, { BigNumber, BigNumberish } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { Option } from './option'
@@ -26,24 +26,27 @@ export class Market extends Pair {
   /**
    * @dev Gets the quantity of longOptionTokens which can be purchased with less than 2% slippage.
    */
-  public getDepth = (): TokenAmount => {
+  public get depth(): TokenAmount {
     const underlyingReserve: TokenAmount = this.reserveOf(
       this.option.underlying
     )
-    const twoPercentOfReserve: string = underlyingReserve
-      .multiply('2')
-      .divide('100')
-      .toString()
+    const twoPercentOfReserve: BigNumber = BigNumber.from(
+      underlyingReserve.raw.toString()
+    )
+      .mul(2)
+      .div(100)
 
     let redeemCost: TokenAmount
     let newPair: Pair
-    if (!isZero(twoPercentOfReserve) && underlyingReserve.numerator[2]) {
+    if (!twoPercentOfReserve.eq('0') && underlyingReserve.numerator[2]) {
       ;[redeemCost, newPair] = this.getInputAmount(
         new TokenAmount(this.option.underlying, twoPercentOfReserve.toString())
       )
+    } else {
+      redeemCost = new TokenAmount(this.option.redeem, '0')
     }
 
-    const redeemCostDivMinted = BigNumber.from(redeemCost.toString()).div(
+    const redeemCostDivMinted = BigNumber.from(redeemCost.raw.toString()).div(
       this.option.quoteValue.raw.toString()
     )
 
@@ -71,13 +74,13 @@ export class Market extends Pair {
     return new TokenAmount(this.option.underlying, premium.toString())
   }
 
-  public getSpotOpenPremium = (): TokenAmount => {
+  public get spotOpenPremium(): TokenAmount {
     return new TokenAmount(
       this.option.underlying,
       this.getOpenPremium(this.option.baseValue)
         .multiply(parseEther('1').toString())
         .divide(this.option.baseValue)
-        .toString()
+        .toSignificant(6)
     )
   }
 
@@ -101,7 +104,7 @@ export class Market extends Pair {
     return new TokenAmount(this.option.underlying, payout.toString())
   }
 
-  public getSpotClosePremium = (): TokenAmount => {
+  public get spotClosePremium(): TokenAmount {
     return new TokenAmount(
       this.option.underlying,
       this.getClosePremium(this.option.quoteValue)
@@ -124,7 +127,7 @@ export class Market extends Pair {
     return new TokenAmount(this.option.underlying, amountOut.toString())
   }
 
-  public getSpotShortPremium = (): TokenAmount => {
+  public get spotShortPremium(): TokenAmount {
     return this.getShortPremium(
       new TokenAmount(this.option.underlying, parseEther('1').toString())
     )

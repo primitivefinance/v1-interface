@@ -59,10 +59,10 @@ const Swap: React.FC = () => {
   })
   const [prem, setPrem] = useState(
     orderType === Operation.LONG
-      ? formatEther(item.premium)
+      ? formatEther(item.market.spotOpenPremium.raw.toString())
       : orderType === Operation.CLOSE_LONG
-      ? formatEther(item.closePremium)
-      : formatEther(item.shortPremium)
+      ? formatEther(item.market.spotClosePremium.raw.toString())
+      : formatEther(item.market.spotShortPremium.raw.toString())
   )
   const [impact, setImpact] = useState('0.00')
   // set null lp
@@ -165,7 +165,7 @@ const Swap: React.FC = () => {
   const handleSubmitClick = useCallback(() => {
     submitOrder(
       library,
-      item?.address,
+      item?.entity.address,
       BigInt(parsedAmount.toString()),
       orderType,
       BigInt('0')
@@ -195,16 +195,7 @@ const Swap: React.FC = () => {
               lpPair.reserveOf(entity.underlying).raw.toString(),
             ]
           ).toString()
-          actualPremium = Trade.getPremium(
-            size,
-            base,
-            quote,
-            [entity.redeem.address, entity.underlying.address],
-            [
-              lpPair.reserveOf(entity.redeem).raw.toString(),
-              lpPair.reserveOf(entity.underlying).raw.toString(),
-            ]
-          ).toString()
+          actualPremium = item.market.getOpenPremium(size).raw.toString()
           const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (
@@ -216,7 +207,7 @@ const Swap: React.FC = () => {
           debit = formatEther(actualPremium)
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.premium))
+          setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
         }
         // sell long, Trade.getClosePremium
       } else if (
@@ -256,7 +247,7 @@ const Swap: React.FC = () => {
           credit = formatEther(actualPremium)
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.closePremium))
+          setPrem(formatEther(item.market.spotClosePremium.raw.toString()))
         }
         // buy short swap from UNDER -> RDM
       } else if (orderType === Operation.SHORT) {
@@ -280,11 +271,11 @@ const Swap: React.FC = () => {
               100
             ).toString()
           )
-          setPrem(formatEther(item.shortPremium))
+          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
           short = formatEther(actualPremium)
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.premium))
+          setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
         }
         // sell short, RDM -> UNDER
       } else if (orderType === Operation.CLOSE_SHORT) {
@@ -308,11 +299,11 @@ const Swap: React.FC = () => {
               100
             ).toString()
           )
-          setPrem(formatEther(item.shortPremium))
+          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
           short = formatEther(actualPremium)
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.premium))
+          setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
         }
       }
       swapLoaded()
@@ -325,10 +316,7 @@ const Swap: React.FC = () => {
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
-    const base = entity.baseValue.raw.toString()
-    const quote = entity.quoteValue.raw.toString()
-    const amount = BigNumber.from(sizeWei).mul(quote).div(base)
-    return formatEtherBalance(amount)
+    return formatEtherBalance(entity.proportionalShort(sizeWei))
   }, [item, parsedAmount])
 
   const isAboveGuardCap = useCallback(() => {

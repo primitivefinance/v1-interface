@@ -70,8 +70,8 @@ export class BlackScholes implements BlackScholesInterface {
     chainId: number,
     address: string,
     decimals: number,
-    name: string,
-    symbol: string
+    symbol: string,
+    name: string
   ) {
     this.token = new Token(chainId, address, decimals, symbol, name)
     this.getCurrentPrice(symbol).then((price) => (this.assetPrice = price))

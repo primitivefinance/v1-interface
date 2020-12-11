@@ -10,7 +10,7 @@ import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 
 import { Protocol } from '@/lib/protocol'
-import { Trade, Option } from '@/lib/entities'
+import { Trade, Option, Market } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -32,24 +32,6 @@ export const useUpdateOptions = (): ((
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
 
-  const calculateBreakeven = (
-    strike: BigNumberish,
-    premium: BigNumberish,
-    isCall: boolean
-  ): BigNumberish => {
-    let breakeven
-    if (isCall) {
-      breakeven = parseEther(premium.toString()).add(
-        parseEther(strike.toString())
-      )
-    } else {
-      breakeven = parseEther(strike.toString()).sub(
-        parseEther(premium.toString())
-      )
-    }
-    return Number(formatEther(breakeven))
-  }
-
   if (!active) {
     return useCallback(() => {
       router.push('/markets')
@@ -64,7 +46,6 @@ export const useUpdateOptions = (): ((
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
             .then((optionEntitiesObject) => {
-              let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
               if (!allKeys) router.reload()
               const allPairAddresses: string[] = []
@@ -121,15 +102,8 @@ export const useUpdateOptions = (): ((
                           }
                         }
 
-                        const path: string[] = [
-                          option.redeem.address,
-                          option.underlying.address,
-                        ]
-
                         if (typeof reserves === 'undefined')
                           reserves = ['0', '0']
-                        const reserves0: BigNumberish = reserves[0]
-                        const reserves1: BigNumberish = reserves[1]
 
                         let token0: string = option.underlying.address
                         let token1: string = option.redeem.address
@@ -171,107 +145,34 @@ export const useUpdateOptions = (): ((
                         )
                         option.setPair(pair)
 
-                        const Base: TokenAmount = option.baseValue
-                        const Quote: TokenAmount = option.quoteValue
-
-                        // depth calcs
-                        const reserve0ForDepth: BigNumber = BigNumber.from(
-                          reserves0.toString()
-                        )
-                        const reserve1ForDepth: BigNumber = BigNumber.from(
-                          reserves1.toString()
+                        const market: Market = new Market(
+                          option,
+                          underlyingTokenAmount,
+                          redeemTokenAmount
                         )
 
                         const underlyingReserve = option.pair
                           .reserveOf(option.underlying)
                           .raw.toString()
-                        const shortReserve = option.pair
-                          .reserveOf(option.redeem)
-                          .raw.toString()
-
-                        const twoPercentOfReserve = BigNumber.from(
-                          underlyingReserve
-                        )
-                          .mul(2)
-                          .div(100)
-
-                        let redeemCost: BigNumberish = '0'
-                        if (
-                          twoPercentOfReserve.gt(0) &&
-                          reserve0ForDepth.gt(0) &&
-                          reserve1ForDepth.gt(0)
-                        ) {
-                          redeemCost = Trade.getAmountsInPure(
-                            twoPercentOfReserve,
-                            path,
-                            reserve0ForDepth,
-                            reserve1ForDepth
-                          )[0]
-                        }
-
-                        const redeemCostDivMinted = BigNumber.from(
-                          redeemCost.toString()
-                        ).div(Quote.raw.toString())
-
-                        let premium: BigNumberish = Trade.getSpotPremium(
-                          Base.raw.toString(),
-                          Quote.raw.toString(),
-                          path,
-                          [shortReserve, underlyingReserve]
-                        )
-                        const closePremium: BigNumberish = Trade.getCloseSpotPremium(
-                          Base.raw.toString(),
-                          Quote.raw.toString(),
-                          [option.underlying.address, option.redeem.address],
-                          [underlyingReserve, shortReserve]
-                        )
-                        const shortPremium: BigNumberish = Trade.getSpotShortPremium(
-                          [shortReserve, underlyingReserve]
-                        )
-                        let reserve: BigNumberish = underlyingReserve.toString()
-                        let depth: BigNumberish = redeemCostDivMinted
-                        if (+depth < 0) depth = 0
-                        if (typeof reserve === 'undefined') {
-                          reserve = 0
-                          depth = 0
-                        }
-                        if (typeof premium === 'undefined') premium = 0
 
                         if (option.isCall) {
                           if (
-                            Base.token.symbol.toUpperCase() ===
+                            option.baseValue.token.symbol.toUpperCase() ===
                             assetName.toUpperCase()
                           ) {
-                            breakEven = calculateBreakeven(
-                              option.strikePrice,
-                              premium,
-                              true
-                            )
                             pairReserveTotal[0] = pairReserveTotal[0].add(
                               BigNumber.from(underlyingReserve)
                             )
                             calls.push({
                               entity: option,
                               asset: assetName,
-                              breakEven: breakEven,
-                              change: 0,
-                              premium: premium,
-                              closePremium: closePremium,
-                              shortPremium: shortPremium,
-                              strike: option.strikePrice,
-                              volume: 0,
-                              reserves: reserves,
-                              token0: token0,
-                              token1: token1,
-                              depth: depth.toString(),
-                              address: option.address,
-                              expiry: option.expiryValue,
+                              market: market,
                               id: option.name,
                             })
                           }
                         }
                         if (option.isPut) {
-                          let asset = Quote.token.symbol.toUpperCase()
+                          let asset = option.quoteValue.token.symbol.toUpperCase()
                           if (asset === 'ETH') {
                             asset = 'WETH'
                           }
@@ -279,33 +180,15 @@ export const useUpdateOptions = (): ((
                             (asset === assetName.toUpperCase() &&
                               option.underlying.address ===
                                 STABLECOINS[chainId].address) ||
-                            Quote.token.address === assetAddress
+                            option.quoteValue.token.address === assetAddress
                           ) {
                             pairReserveTotal[1] = pairReserveTotal[1].add(
                               BigNumber.from(underlyingReserve)
                             )
-
-                            breakEven = calculateBreakeven(
-                              option.strikePrice,
-                              premium,
-                              false
-                            )
                             puts.push({
                               entity: option,
                               asset: assetName,
-                              breakEven: breakEven,
-                              change: 0,
-                              premium: premium,
-                              closePremium: closePremium,
-                              shortPremium: shortPremium,
-                              strike: option.strikePrice,
-                              volume: 0,
-                              reserves: reserves,
-                              token0: token0,
-                              token1: token1,
-                              depth: depth.toString(),
-                              address: option.address,
-                              expiry: option.expiryValue,
+                              market: market,
                               id: option.name,
                             })
                           }

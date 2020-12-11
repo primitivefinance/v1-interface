@@ -45,7 +45,9 @@ export interface TokenProps {
 const Position: React.FC<TokenProps> = ({ option }) => {
   const { chainId, library } = useWeb3React()
   const updateItem = useUpdateItem()
-  const { date, month, year } = formatExpiry(option.attributes.expiry)
+  const { date, month, year } = formatExpiry(
+    option.attributes.entity.expiryValue
+  )
 
   const handleClick = () => {
     updateItem(option.attributes, Operation.NONE)
@@ -63,7 +65,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
             {`${option.attributes.asset} ${
               option.attributes.entity.isCall ? 'Call' : 'Put'
             } `}
-            {`${numeral(option.attributes.strike).format(
+            {`${numeral(option.attributes.entity.strikePrice).format(
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
