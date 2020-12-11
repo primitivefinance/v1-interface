@@ -219,7 +219,10 @@ const Swap: React.FC = () => {
           setPrem(formatEther(item.premium))
         }
         // sell long, Trade.getClosePremium
-      } else if (orderType === Operation.CLOSE_LONG) {
+      } else if (
+        orderType === Operation.CLOSE_LONG ||
+        orderType === Operation.WRITE
+      ) {
         if (parsedAmount.gt(BigNumber.from(0))) {
           spot = Trade.getCloseSpotPremium(
             base,

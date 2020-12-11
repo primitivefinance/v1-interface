@@ -30,6 +30,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+import isZero from '@/utils/isZero'
 
 import {
   useItem,
@@ -129,7 +130,11 @@ const AddLiquidity: React.FC = () => {
     submitOrder(
       library,
       item?.address,
-      BigInt(parsedOptionAmount.toString()),
+      BigInt(
+        hasLiquidity
+          ? calculateOptionsAddedAsLiquidity()
+          : parsedOptionAmount.toString()
+      ),
       orderType,
       BigInt(parsedUnderlyingAmount.toString())
     )
@@ -178,7 +183,8 @@ const AddLiquidity: React.FC = () => {
     const optionsInput = parsedOptionAmount
       .mul(parseEther('1'))
       .div(denominator)
-    return formatEther(optionsInput)
+
+    return optionsInput
   }, [lpPair, lp, lpTotalSupply, parsedOptionAmount])
 
   const calculatePoolShare = useCallback(() => {
@@ -186,21 +192,23 @@ const AddLiquidity: React.FC = () => {
     if (
       typeof lpPair === 'undefined' ||
       lpPair === null ||
-      parseInt(parsedOptionAmount.toString()) === 0
+      parsedOptionAmount.toString() === '0'
     )
       return 0
     const tSupply = new TokenAmount(
       lpPair.liquidityToken,
       parseEther(lpTotalSupply).toString()
     )
-    const amountADesired = parseEther(
-      calculateOptionsAddedAsLiquidity().toString()
-    ).toString()
+    const amountADesired = calculateOptionsAddedAsLiquidity().toString()
     const amountBDesired = Trade.getQuote(
       entity.proportionalShort(amountADesired),
       lpPair.reserve0.raw.toString(),
       lpPair.reserve1.raw.toString()
     ).toString()
+
+    if (isZero(amountADesired) || isZero(amountBDesired)) {
+      return '0'
+    }
     const tokenAmountA = new TokenAmount(entity.underlying, amountADesired)
     const tokenAmountB = new TokenAmount(entity.redeem, amountBDesired)
     const lpMinted = lpPair.getLiquidityMinted(
@@ -461,7 +469,7 @@ const AddLiquidity: React.FC = () => {
       <Spacer />
       <LineItem
         label="LP for"
-        data={calculateOptionsAddedAsLiquidity()}
+        data={formatEther(calculateOptionsAddedAsLiquidity())}
         units={`LONG`}
       />
       <Spacer size="sm" />
