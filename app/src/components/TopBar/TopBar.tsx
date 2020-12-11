@@ -92,14 +92,14 @@ interface NavProps {
 }
 
 const StyledTopBar = styled.div`
-  background-color: ${(props) => props.theme.color.black};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+  background-color: #040404;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
   height: 72px;
   position: sticky;
-  z-index: 100;
+  z-index: 250;
   top: -1px;
 `
 

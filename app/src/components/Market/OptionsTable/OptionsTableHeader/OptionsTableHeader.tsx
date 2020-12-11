@@ -31,7 +31,6 @@ const OptionsTableHeader: React.FC = () => {
 
   return (
     <StyledTableHead>
-      <GreyBack />
       <LitContainer>
         <TableRow isHead>
           {headers.map((header, index) => {
@@ -55,6 +54,7 @@ const OptionsTableHeader: React.FC = () => {
             return <TableCell key={header.name}>{header.name}</TableCell>
           })}
         </TableRow>
+        <GreyBack />
       </LitContainer>
     </StyledTableHead>
   )
@@ -64,8 +64,8 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 50px;
-  min-width: 1200px;
+  min-height: 2px;
+  min-width: 4000px;
   left: 0;
 `
 

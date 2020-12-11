@@ -161,6 +161,7 @@ const Market = ({ market, data }) => {
                   expiry={expiry}
                   setExpiry={handleFilterExpiry}
                 />
+
                 <ErrorBoundary
                   fallback={
                     <>

@@ -237,9 +237,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
+                console.log(option.strike.toString())
                 if (
                   (optionExp != option.expiry && option.expiry === 0) ||
-                  (chainId === 1 ? option.strike !== 720 : !option.strike)
+                  (chainId === 1
+                    ? option.strike.toString() !== '720'
+                    : !option.strike)
                 )
                   return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
@@ -276,7 +279,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 }
 
-const ScrollBody = styled(TableBody)``
+const ScrollBody = styled(TableBody)`
+  height: 10em;
+  overflow-x: hidden;
+`
 
 const OptionsContainer = styled.div`
   margin-left: 2em;
