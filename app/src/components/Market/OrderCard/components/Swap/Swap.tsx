@@ -186,16 +186,10 @@ const Swap: React.FC = () => {
       // buy long, Trade.getPremium
       if (orderType === Operation.LONG) {
         if (parsedAmount.gt(BigNumber.from(0))) {
-          spot = Trade.getSpotPremium(
-            base,
-            quote,
-            [entity.redeem.address, entity.underlying.address],
-            [
-              lpPair.reserveOf(entity.redeem).raw.toString(),
-              lpPair.reserveOf(entity.underlying).raw.toString(),
-            ]
-          ).toString()
-          actualPremium = item.market.getOpenPremium(size).raw.toString()
+          spot = item.market.spotOpenPremium.raw.toString()
+          actualPremium = item.market
+            .getOpenPremium(new TokenAmount(entity.underlying, size.toString()))
+            .raw.toString()
           const spotSize = size.mul(BigNumber.from(spot)).div(parseEther('1'))
           setImpact(
             (

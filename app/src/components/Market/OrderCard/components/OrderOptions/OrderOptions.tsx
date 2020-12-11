@@ -78,7 +78,7 @@ const OrderOptions: React.FC = () => {
   const [option, setOption] = useState({ long: null, short: null, lp: null })
   useEffect(() => {
     const temp = positions.options.filter(
-      (opt) => opt.attributes.address === item.address
+      (opt) => opt.attributes.entity.address === item.entity.address
     )[0]
     if (temp) {
       if (temp.long || temp.redeem || temp.lp) {

@@ -9,7 +9,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
 import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
-import { OptionsAttributes } from '../options/reducer'
+import { OptionsAttributes } from '../options/actions'
 import {
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
@@ -69,7 +69,6 @@ export const useUpdateItem = (): ((
   const clearLP = useClearLP()
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
-      const underlyingToken: Token = item.entity.underlying
       let manage = false
       switch (orderType) {
         case Operation.MINT:
@@ -107,7 +106,7 @@ export const useUpdateItem = (): ((
           const spender = UNISWAP_CONNECTOR[chainId]
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
-              item.entity.tokenAddresses[0],
+              item.entity.underlying.address,
               spender
             )
             dispatch(
@@ -125,7 +124,10 @@ export const useUpdateItem = (): ((
           }
           if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE && lpPair) {
             const lpToken = lpPair.liquidityToken.address
-            const optionAllowance = await getAllowance(item.address, spender)
+            const optionAllowance = await getAllowance(
+              item.entity.address,
+              spender
+            )
             const lpAllowance = await getAllowance(lpToken, spender)
             dispatch(
               updateItem({
@@ -145,7 +147,7 @@ export const useUpdateItem = (): ((
           let secondaryAddress
           switch (orderType) {
             case Operation.MINT:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
               break
             case Operation.EXERCISE:
               tokenAddress = item.entity.address
@@ -188,14 +190,14 @@ export const useUpdateItem = (): ((
           let secondaryAddress
           switch (orderType) {
             case Operation.LONG:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
               break
             case Operation.SHORT:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
               break
             case Operation.WRITE:
               tokenAddress = item.entity.address
-              secondaryAddress = underlyingToken.address
+              secondaryAddress = item.entity.underlying.address
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
@@ -204,7 +206,7 @@ export const useUpdateItem = (): ((
               tokenAddress = item.entity.redeem.address
               break
             default:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
