@@ -169,7 +169,7 @@ const StyledContent = styled.div`
   border-radius: 5px;
   &: hover {
     background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.grey[400]};
+    border 2px solid ${(props) => props.theme.color.grey[800]};
   }
 `
 
