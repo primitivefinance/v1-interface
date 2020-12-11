@@ -106,20 +106,16 @@ const PositionsCard: React.FC = () => {
   if (!positions.loading && !positions.exists) {
     return (
       <Card border>
-        <Reverse />
-        <CardTitle>
-          <div>
-            <Title>Active Positions</Title>
-          </div>
-        </CardTitle>
         <CardContent>
           <StyledEmptyContent>
+            <Spacer size="sm" />
             <StyledEmptyIcon>
               <AddIcon />
             </StyledEmptyIcon>
             <StyledEmptyMessage>
-              Click an option to open a position
+              Add an option to open a position
             </StyledEmptyMessage>
+            <Spacer size="sm" />
           </StyledEmptyContent>
         </CardContent>
       </Card>
@@ -236,7 +232,7 @@ const StyledEmptyIcon = styled.div`
   align-items: center;
   border: 1px dashed ${(props) => props.theme.color.white};
   border-radius: 32px;
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   display: flex;
   height: 44px;
   justify-content: center;
