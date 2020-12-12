@@ -229,4 +229,49 @@ export class Market extends Pair {
     }
     return [spot, actualPremium, slippage]
   }
+
+  public getOptionsAddedAsLiquidity = (
+    inputAmount: TokenAmount
+  ): TokenAmount => {
+    const ratio = this.option.proportionalShort(
+      this.option.baseValue.raw.toString()
+    )
+    const denominator = ratio
+      .mul(this.reserveOf(this.option.underlying).raw.toString())
+      .div(this.reserveOf(this.option.redeem).raw.toString())
+      .add(parseEther('1'))
+
+    const optionsInput = BigNumber.from(inputAmount.raw.toString())
+      .mul(parseEther('1'))
+      .div(denominator)
+
+    return new TokenAmount(this.option.underlying, optionsInput.toString())
+  }
+
+  public getLiquidityValuePerShare = (
+    totalSupply: TokenAmount
+  ): [TokenAmount, TokenAmount, TokenAmount] => {
+    const shortValue = this.getLiquidityValue(
+      this.option.redeem,
+      new TokenAmount(this.liquidityToken, totalSupply.raw.toString()),
+      new TokenAmount(this.liquidityToken, parseEther('1').toString())
+    )
+
+    const underlyingValue = this.getLiquidityValue(
+      this.option.underlying,
+      new TokenAmount(this.liquidityToken, totalSupply.raw.toString()),
+      new TokenAmount(this.liquidityToken, parseEther('1').toString())
+    )
+
+    const totalUnderlyingValue = new TokenAmount(
+      this.option.underlying,
+      BigNumber.from(shortValue.raw.toString())
+        .mul(this.option.baseValue.raw.toString())
+        .div(this.option.quoteValue.raw.toString())
+        .add(underlyingValue.raw.toString())
+        .toString()
+    )
+
+    return [shortValue, underlyingValue, totalUnderlyingValue]
+  }
 }

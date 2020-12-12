@@ -1,44 +1,47 @@
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { Option } from './option'
+import { Option, Market } from './index'
 import { Operation } from '@/constants/index'
 import { TokenAmount } from '@uniswap/sdk'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { parseEther } from 'ethers/lib/utils'
 
+/**
+ * @dev Represents a trade for an option in a market.
+ */
 export class Trade {
   public readonly option: Option
+  public readonly market: Market
   public inputAmount: TokenAmount
   public outputAmount: TokenAmount
-  public path: string[]
-  public reserves: BigNumberish[] | ethers.BigNumber[]
-  public totalSupply: BigNumberish
-  public amountsIn: BigNumberish[]
-  public amountsOut: BigNumberish[]
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
+    market: Market,
     inputAmount: TokenAmount,
     outputAmount: TokenAmount,
-    path: string[],
-    reserves: BigNumberish[] | ethers.BigNumber[],
-    totalSupply: BigNumberish,
-    amountsIn: BigNumberish[],
-    amountsOut: BigNumberish[],
     operation: Operation,
     signer: ethers.Signer
   ) {
     this.option = option
+    this.market = market
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
-    this.path = path
-    this.reserves = reserves
-    this.totalSupply = totalSupply
-    this.amountsIn = amountsIn
-    this.amountsOut = amountsOut
     this.operation = operation
     this.signer = signer
+  }
+
+  public get openPremium(): TokenAmount {
+    return this.market.getOpenPremium(this.inputAmount)
+  }
+
+  public get closePremium(): TokenAmount {
+    return this.market.getClosePremium(this.inputAmount)
+  }
+
+  public get shortPremium(): TokenAmount {
+    return this.market.getShortPremium(this.inputAmount)
   }
 
   public calcMaximumInSlippage(

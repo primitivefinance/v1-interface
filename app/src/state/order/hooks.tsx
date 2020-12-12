@@ -244,10 +244,9 @@ export const useRemoveItem = (): (() => void) => {
 }
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
-  optionAddress: string,
-  quantity: BigInt,
+  parsedAmountA: BigInt,
   operation: Operation,
-  secondaryQuantity?: BigInt
+  parsedAmountB?: BigInt
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
@@ -261,11 +260,11 @@ export const useHandleSubmitOrder = (): ((
   return useCallback(
     async (
       provider: Web3Provider,
-      optionAddress: string,
-      quantity: BigInt,
+      parsedAmountA: BigInt,
       operation: Operation,
-      secondaryQuantity?: BigInt
+      parsedAmountB?: BigInt
     ) => {
+      const optionEntity: Option = item.entity
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
         slippage: slippage,
@@ -274,36 +273,17 @@ export const useHandleSubmitOrder = (): ((
         deadline: DEFAULT_DEADLINE,
         stablecoin: STABLECOINS[chainId].address,
       }
-      console.log(tradeSettings)
-      const optionEntity: Option = createOptionEntityWithAddress(
-        chainId,
-        optionAddress
-      )
 
-      //console.log(parseInt(quantity) * 1000000000000000000)
+      //console.log(parseInt(parsedAmountA) * 1000000000000000000)
       const inputAmount: TokenAmount = new TokenAmount(
         EMPTY_TOKEN, // fix with actual metadata
-        BigInt(quantity.toString()).toString()
+        BigInt(parsedAmountA.toString()).toString()
       )
       const outputAmount: TokenAmount = new TokenAmount(
         EMPTY_TOKEN, // fix with actual metadata
         '0'
       )
-      const optionInstance: ethers.Contract = optionEntity.optionInstance(
-        signer
-      )
-      const base: ethers.BigNumber = await optionInstance.getBaseValue()
-      const quote: ethers.BigNumber = await optionInstance.getQuoteValue()
-      const tokenAddresses: string[] = await optionInstance.getAssetAddresses()
-      optionEntity.setTokenAddresses(tokenAddresses)
-      optionEntity.optionParameters.base = new TokenAmount(
-        EMPTY_TOKEN,
-        base.toString()
-      )
-      optionEntity.optionParameters.quote = new TokenAmount(
-        EMPTY_TOKEN,
-        quote.toString()
-      )
+
       let out: BigNumberish
       const path: string[] = []
       const amountsIn: BigNumberish[] = []
@@ -312,13 +292,9 @@ export const useHandleSubmitOrder = (): ((
       let totalSupply: BigNumberish
       const trade: Trade = new Trade(
         optionEntity,
+        item.market,
         inputAmount,
         outputAmount,
-        path,
-        reserves,
-        totalSupply,
-        amountsIn,
-        amountsOut,
         operation,
         signer
       )
@@ -333,24 +309,11 @@ export const useHandleSubmitOrder = (): ((
         case Operation.LONG:
           // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
           // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
-          trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
-          ]
-          // The amountsOut[1] will tell us how much of the flash loan of underlyingTokens is outstanding.
-          trade.amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            inputAmount.raw.toString(),
-            trade.path
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          // With the Pair's reserves, we can calculate all values using pure functions, including the premium.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
-          )
+          trade.outputAmount = new TokenAmount(optionEntity.underlying, '0')
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -359,42 +322,25 @@ export const useHandleSubmitOrder = (): ((
         case Operation.SHORT:
           // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
           // Purchase them for underlyingTokens from the underlying<>redeem UniswapV2Pair.
-          trade.path = [
-            tokenAddresses[0], // underlying
-            tokenAddresses[2], // redeem
-          ]
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
-          )
-          amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            trade.inputAmount.raw.toString(),
-            trade.path
-          )
+          // exact output means our input is what we need to solve for
           trade.outputAmount = new TokenAmount(
-            EMPTY_TOKEN,
-            amountsOut[1].toString()
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
+          trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.WRITE:
-          trade.path = [
-            tokenAddresses[0], // underlying
-            tokenAddresses[2], // redeem
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.inputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountA.toString()
+          )
+          trade.outputAmount = new TokenAmount(
+            optionEntity.redeem,
+            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
@@ -402,17 +348,17 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.CLOSE_LONG:
-          // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
-          // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
-          // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
-          const redeemAmount = ethers.BigNumber.from(inputAmount.raw.toString())
-            .mul(quote)
-            .div(base)
+          // On the UI, the user inputs the parsedAmountA of LONG OPTIONS they want to close.
+          // Calling the function on the contract requires the parsedAmountA of SHORT OPTIONS being borrowed to close.
+          // Need to calculate how many SHORT OPTIONS are needed to close the desired parsedAmountA of LONG OPTIONS.
+          const redeemAmount = optionEntity.proportionalShort(
+            inputAmount.raw.toString()
+          )
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            tokenAddresses[0], // underlying
-            tokenAddresses[2], // redeem
+            optionEntity.underlying.address, // underlying
+            optionEntity.redeem.address, // redeem
           ]
           // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
           trade.amountsIn = await trade.getAmountsIn(
@@ -442,8 +388,8 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
+            optionEntity.redeem.address, // redeem
+            optionEntity.underlying.address, // underlying
           ]
           // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
           trade.amountsOut = await trade.getAmountsOut(
@@ -466,8 +412,8 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
+            optionEntity.redeem.address, // redeem
+            optionEntity.underlying.address, // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -478,8 +424,8 @@ export const useHandleSubmitOrder = (): ((
           )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
           out =
-            secondaryQuantity !== BigInt('0')
-              ? BigNumber.from(secondaryQuantity.toString())
+            parsedAmountB !== BigInt('0')
+              ? BigNumber.from(parsedAmountB.toString())
               : BigNumber.from('0')
 
           console.log(out.toString())
@@ -497,8 +443,8 @@ export const useHandleSubmitOrder = (): ((
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
           trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
+            optionEntity.redeem.address, // redeem
+            optionEntity.underlying.address, // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -509,8 +455,8 @@ export const useHandleSubmitOrder = (): ((
           )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
           out =
-            secondaryQuantity !== BigInt('0')
-              ? BigNumber.from(secondaryQuantity.toString())
+            parsedAmountB !== BigInt('0')
+              ? BigNumber.from(parsedAmountB.toString())
               : BigNumber.from('0')
 
           trade.outputAmount = new TokenAmount(
@@ -525,8 +471,8 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.REMOVE_LIQUIDITY:
           trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
+            optionEntity.redeem.address, // redeem
+            optionEntity.underlying.address, // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -551,8 +497,8 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
           trade.path = [
-            tokenAddresses[2], // redeem
-            tokenAddresses[0], // underlying
+            optionEntity.redeem.address, // redeem
+            optionEntity.underlying.address, // underlying
           ]
           // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
           trade.reserves = await trade.getReserves(
@@ -592,7 +538,9 @@ export const useHandleSubmitOrder = (): ((
                 summary: {
                   type: Operation[operation].toString(),
                   option: item.entity,
-                  amount: numeral(parseInt(formatEther(quantity.toString())))
+                  amount: numeral(
+                    parseInt(formatEther(parsedAmountA.toString()))
+                  )
                     .format('0.00(a)')
                     .toString(),
                 },

@@ -80,7 +80,7 @@ const RemoveLiquidity: React.FC = () => {
 
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
 
-  const optionBalance = useTokenBalance(item.address)
+  const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
   const handleInputChange = useCallback(
@@ -126,7 +126,7 @@ const RemoveLiquidity: React.FC = () => {
     setSubmit(true)
     submitOrder(
       library,
-      item?.address,
+      item?.entity.address,
       BigInt(inputs.primary),
       orderType,
       BigInt(inputs.secondary)
@@ -146,16 +146,16 @@ const RemoveLiquidity: React.FC = () => {
   ])
 
   const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token0Price.raw.toSignificant(2)
+    if (typeof item.market === 'undefined' || item.market === null) return '0'
+    const ratio = item.market.token1Price.raw.toSignificant(2)
     return ratio
-  }, [lpPair])
+  }, [item.market])
 
   const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token1Price.raw.toSignificant(2)
+    if (typeof item.market === 'undefined' || item.market === null) return '0'
+    const ratio = item.market.token0Price.raw.toSignificant(2)
     return ratio
-  }, [lpPair])
+  }, [item.market])
 
   const caculatePoolShare = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
@@ -172,60 +172,31 @@ const RemoveLiquidity: React.FC = () => {
       typeof lpPair === 'undefined' ||
       lpPair === null ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    ) {
+    )
       return {
         shortPerLp: '0',
         underlyingPerLp: '0',
         totalUnderlyingPerLp: '0',
       }
-    }
-    const SHORT: Token =
-      lpPair.token0.address === entity.redeem.address
-        ? lpPair.token0
-        : lpPair.token1
-    const UNDERLYING: Token =
-      lpPair.token1.address === entity.redeem.address
-        ? lpPair.token0
-        : lpPair.token1
 
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = item.market.getLiquidityValuePerShare(
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).mul(1).div(100).toString()
       )
     )
-
-    const underlyingValue = lpPair.getLiquidityValue(
-      UNDERLYING,
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).mul(1).div(100).toString()
-      )
-    )
-
-    const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
-    const underlyingPerLp = underlyingValue
-      ? formatEther(underlyingValue.raw.toString())
-      : '0'
-
+    const shortPerLp = formatEther(shortValue.raw.toString())
+    const underlyingPerLp = formatEther(underlyingValue.raw.toString())
     const totalUnderlyingPerLp = formatEther(
-      BigNumber.from(shortValue.raw.toString())
-        .mul(entity.baseValue.raw.toString())
-        .div(entity.quoteValue.raw.toString())
-        .add(underlyingValue.raw.toString())
+      totalUnderlyingValue.raw.toString()
     )
 
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [lpPair, lp, lpTotalSupply, inputs])
+  }, [lpPair, lp, lpTotalSupply])
 
   const calculateUnderlyingOutput = useCallback(() => {
     if (
@@ -502,7 +473,7 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() => handleApprove(item.address, spender)}
+                onClick={() => handleApprove(item.entity.address, spender)}
                 isLoading={submitting}
                 text="Approve Options"
               />

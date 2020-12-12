@@ -1,5 +1,5 @@
 import { Operation } from '@/constants/index'
-import { Trade } from './entities'
+import { Trade, Market, Option } from './entities'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2 } from './constants'
@@ -9,6 +9,7 @@ import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live
 import { TradeSettings, SinglePositionParameters } from './types'
 import { parseEther } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
+import { TokenAmount } from '@uniswap/sdk'
 
 /**
  * Represents the UniswapConnector contract.
@@ -59,57 +60,52 @@ export class Uniswap {
       trade.signer
     )
 
-    const inputAmount: string = trade.inputAmount.raw.toString()
+    const inputAmount: TokenAmount = trade.inputAmount
 
     switch (trade.operation) {
       case Operation.LONG:
-        let premium = Trade.getPremium(
-          inputAmount,
-          baseValue,
-          quoteValue,
-          trade.path,
-          trade.reserves
-        )
-        premium = trade.calcMaximumInSlippage(premium, tradeSettings.slippage)
-        premium = premium.gt(0) ? premium.toString() : '0'
+        let premium: BigNumberish = trade
+          .calcMaximumInSlippage(
+            trade.openPremium.raw.toString(),
+            tradeSettings.slippage
+          )
+          .toString()
 
         contract = UniswapConnector03Contract
         methodName = 'openFlashLong'
-        args = [trade.option.address, inputAmount, premium]
+        args = [trade.option.address, inputAmount.raw.toString(), premium]
         value = '0'
-
         break
       case Operation.SHORT:
-        // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountOut = inputAmount
-        amountIn = Trade.getAmountsInPure(
-          amountOut,
-          trade.path,
-          trade.reserves[0],
-          trade.reserves[1]
-        )[0].toString()
+        let amountInMax = trade
+          .calcMaximumInSlippage(
+            trade.inputAmount.raw.toString(),
+            tradeSettings.slippage
+          )
+          .toString()
         contract = UniswapV2Router02Contract
         methodName = 'swapTokensForExactTokens'
-        args = [amountOut, amountIn, trade.path, to, deadline]
+        args = [
+          trade.outputAmount.raw.toString(),
+          amountInMax,
+          [inputAmount.token.address, trade.outputAmount.token.address],
+          to,
+          deadline,
+        ]
         value = '0'
         break
       case Operation.WRITE:
-        // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountIn = inputAmount
-        const amountInShort = trade.option.proportionalShort(amountIn)
-        let minPayout = Trade.getClosePremium(
-          amountInShort,
-          baseValue,
-          quoteValue,
-          trade.path,
-          trade.reserves
-        )
+        let minPayout = trade.closePremium.raw.toString()
         if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
           minPayout = '1'
         }
         contract = UniswapConnector03Contract
         methodName = 'mintOptionsThenFlashCloseLong'
-        args = [trade.option.address, amountIn, minPayout.toString()]
+        args = [
+          trade.option.address,
+          inputAmount.raw.toString(),
+          minPayout.toString(),
+        ]
         value = '0'
         break
       case Operation.CLOSE_LONG:
