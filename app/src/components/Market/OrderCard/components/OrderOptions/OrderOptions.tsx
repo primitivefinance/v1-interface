@@ -41,7 +41,7 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
     }
   }
   const reserve0Units =
-    item.token0 === item.entity.underlying.address
+    item.market.token0.address === item.entity.underlying.address
       ? item.asset.toUpperCase()
       : 'SHORT'
   return (

@@ -279,7 +279,7 @@ export class Trade {
     quantityShort: BigNumberish,
     base: BigNumberish,
     quote: BigNumberish,
-    path: string[], // redeem -> underlying
+    path: string[], // underlying -> redeem
     reserves: BigNumberish[]
   ): BigNumberish => {
     if (BigNumber.from(reserves[0]).isZero()) {

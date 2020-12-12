@@ -230,7 +230,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                console.log(option.strike.toString())
                 if (
                   (optionExp != option.entity.expiryValue &&
                     option.entity.expiryValue === 0) ||

@@ -3,6 +3,7 @@ import ethers, { BigNumber, BigNumberish } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { Option } from './option'
 import isZero from '@/utils/isZero'
+import { Operation } from '@/constants/index'
 
 export class Market extends Pair {
   public readonly option: Option
@@ -55,22 +56,29 @@ export class Market extends Pair {
 
   /**
    * @dev Gets the cost to purchase `inputAmount` of longOptionTokens, denominated in underlyingTokens.
-   * @param inputAmount The quantity of longOptionTokens to purchase.
+   * @param inputAmount The quantity of longOptionTokens to purchase (also the quantity of underlyingTokens borrowed).
    */
   public getOpenPremium = (inputAmount: TokenAmount): TokenAmount => {
     if (!this.reserveOf(this.option.redeem).numerator[2]) {
       return new TokenAmount(this.option.underlying, '0')
     }
 
-    const redeemsMinted = this.option.proportionalShort(
+    const redeemPayment = this.option.proportionalShort(
       inputAmount.raw.toString()
     )
-
     const [amountIn, newPair] = this.getInputAmount(inputAmount)
-    const cost = BigNumber.from(amountIn.raw.toString()).gt(redeemsMinted)
-      ? BigNumber.from(amountIn.raw.toString()).sub(redeemsMinted)
+    const costRedeem = BigNumber.from(amountIn.raw.toString()).gt(redeemPayment)
+      ? BigNumber.from(amountIn.raw.toString()).sub(redeemPayment)
       : parseEther('0')
-    const premium = cost.mul(this.FEE_UNITS).add(this.FEE).div(this.FEE_UNITS)
+    const costUnderlying = costRedeem.gt(0)
+      ? this.getOutputAmount(
+          new TokenAmount(this.option.redeem, costRedeem.toString())
+        )[0]
+      : new TokenAmount(this.option.redeem, '0')
+    const premium = BigNumber.from(costUnderlying.raw.toString())
+      .mul(this.FEE_UNITS)
+      .add(this.FEE)
+      .div(this.FEE_UNITS)
     return new TokenAmount(this.option.underlying, premium.toString())
   }
 
@@ -101,16 +109,26 @@ export class Market extends Pair {
     const payout = underlyingsMinted.gt(amountIn.raw.toString())
       ? underlyingsMinted.sub(amountIn.raw.toString())
       : parseEther('0')
+    console.log(
+      underlyingsMinted.toString(),
+      amountIn.raw.toString(),
+      payout.toString()
+    )
     return new TokenAmount(this.option.underlying, payout.toString())
   }
 
   public get spotClosePremium(): TokenAmount {
     return new TokenAmount(
       this.option.underlying,
-      this.getClosePremium(this.option.quoteValue)
+      this.getClosePremium(
+        new TokenAmount(
+          this.option.redeem,
+          this.option.quoteValue.raw.toString()
+        )
+      )
         .multiply(parseEther('1').toString())
         .divide(this.option.baseValue)
-        .toString()
+        .toSignificant(6)
     )
   }
 
@@ -124,18 +142,91 @@ export class Market extends Pair {
     }
 
     const [amountOut, newPair] = this.getOutputAmount(inputAmount)
-    return new TokenAmount(this.option.underlying, amountOut.toString())
+    return amountOut
   }
 
   public get spotShortPremium(): TokenAmount {
-    return this.getShortPremium(
-      new TokenAmount(this.option.underlying, parseEther('1').toString())
+    return new TokenAmount(
+      this.option.underlying,
+      parseEther(
+        this.priceOf(this.option.redeem).raw.toSignificant(6)
+      ).toString()
     )
   }
 
-  /* public get underlying(): Token {
-    return this.option.isPut
-      ? STABLECOINS[this.chainId]
-      : this.option.underlying
-  } */
+  /**
+   * @dev Gets the spot price, actual execution price, and slippage based on the spot * size product.
+   * @param orderType The order type which will be executed.
+   * @param inputAmount The size of the order.
+   * @returns Spot, Actual, Slippage
+   */
+  public getExecutionPrice = (
+    orderType: Operation,
+    inputAmount: BigNumberish
+  ): [TokenAmount, TokenAmount, number] => {
+    let parsedAmount: TokenAmount
+    let spot: TokenAmount
+    let actualPremium: TokenAmount
+    let slippage: number
+    if (orderType === Operation.LONG) {
+      parsedAmount = new TokenAmount(
+        this.option.underlying,
+        inputAmount.toString()
+      )
+      spot = this.spotOpenPremium
+      actualPremium = this.getOpenPremium(parsedAmount)
+      const spotSize = BigNumber.from(inputAmount)
+        .mul(spot.raw.toString())
+        .div(parseEther('1'))
+      slippage =
+        (parseInt(actualPremium.raw.toString()) /
+          parseInt(spotSize.toString()) -
+          1) *
+        100
+      // sell long, Trade.getClosePremium
+    } else if (
+      orderType === Operation.CLOSE_LONG ||
+      orderType === Operation.WRITE
+    ) {
+      spot = this.spotClosePremium
+      const shortSize = this.option.proportionalShort(inputAmount)
+      parsedAmount = new TokenAmount(this.option.redeem, shortSize.toString())
+      actualPremium = this.getClosePremium(parsedAmount)
+      const spotSize = BigNumber.from(inputAmount)
+        .mul(spot.raw.toString())
+        .div(parseEther('1'))
+      slippage =
+        (parseInt(actualPremium.raw.toString()) /
+          parseInt(spotSize.toString()) -
+          1) *
+        100
+      // buy short swap from UNDER -> RDM
+    } else if (orderType === Operation.SHORT) {
+      parsedAmount = new TokenAmount(this.option.redeem, inputAmount.toString())
+      spot = this.spotShortPremium
+      const spotSize = BigNumber.from(inputAmount)
+        .mul(spot.raw.toString())
+        .div(parseEther('1'))
+      actualPremium = this.getShortPremium(parsedAmount)
+      slippage =
+        (parseInt(actualPremium.raw.toString()) /
+          parseInt(spotSize.toString()) -
+          1) *
+        100
+      // sell short, RDM -> UNDER
+    } else if (orderType === Operation.CLOSE_SHORT) {
+      parsedAmount = new TokenAmount(this.option.redeem, inputAmount.toString())
+      spot = this.spotShortPremium
+      const spotSize = BigNumber.from(inputAmount)
+        .mul(spot.raw.toString())
+        .div(parseEther('1'))
+      actualPremium = this.getShortPremium(parsedAmount)
+      slippage =
+        (parseInt(actualPremium.raw.toString()) /
+          parseInt(spotSize.toString()) -
+          1) *
+        100
+    }
+    return [spot, actualPremium, slippage]
+  }
 }
