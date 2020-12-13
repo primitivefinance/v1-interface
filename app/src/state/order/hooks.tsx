@@ -43,6 +43,7 @@ import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useClearSwap } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
+import { getTotalSupply } from '@/lib/erc20'
 
 const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
@@ -274,6 +275,11 @@ export const useHandleSubmitOrder = (): ((
         stablecoin: STABLECOINS[chainId].address,
       }
 
+      let totalSupply: BigNumberish = await getTotalSupply(
+        provider,
+        item.market.liquidityToken.address
+      )
+
       //console.log(parseInt(parsedAmountA) * 1000000000000000000)
       const inputAmount: TokenAmount = new TokenAmount(
         EMPTY_TOKEN, // fix with actual metadata
@@ -289,10 +295,11 @@ export const useHandleSubmitOrder = (): ((
       const amountsIn: BigNumberish[] = []
       let amountsOut: BigNumberish[] = []
       const reserves: BigNumberish[] = []
-      let totalSupply: BigNumberish
+
       const trade: Trade = new Trade(
         optionEntity,
         item.market,
+        totalSupply,
         inputAmount,
         outputAmount,
         operation,
@@ -307,10 +314,9 @@ export const useHandleSubmitOrder = (): ((
       let transaction: any
       switch (operation) {
         case Operation.LONG:
-          // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
-          // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
+          // Need to borrow exact amount of underlyingTokens, so exact output needs to be the parsedAmount.
           trade.inputAmount = new TokenAmount(
-            optionEntity.redeem,
+            optionEntity.underlying,
             parsedAmountA.toString()
           )
           trade.outputAmount = new TokenAmount(optionEntity.underlying, '0')
@@ -354,31 +360,12 @@ export const useHandleSubmitOrder = (): ((
           const redeemAmount = optionEntity.proportionalShort(
             inputAmount.raw.toString()
           )
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            optionEntity.underlying.address, // underlying
-            optionEntity.redeem.address, // redeem
-          ]
-          // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-          trade.amountsIn = await trade.getAmountsIn(
-            signer,
-            factory,
-            redeemAmount,
-            trade.path
-          )
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
-          )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.inputAmount = new TokenAmount(
-            EMPTY_TOKEN,
+          trade.outputAmount = new TokenAmount(
+            optionEntity.redeem,
             redeemAmount.toString()
           )
+          trade.inputAmount = item.market.getInputAmount(trade.outputAmount)[0]
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -387,51 +374,30 @@ export const useHandleSubmitOrder = (): ((
         case Operation.CLOSE_SHORT:
           // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
           // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            optionEntity.redeem.address, // redeem
-            optionEntity.underlying.address, // underlying
-          ]
-          // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-          trade.amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            trade.inputAmount.raw.toString(),
-            trade.path
-          )
           // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.outputAmount = new TokenAmount(
-            EMPTY_TOKEN,
-            trade.amountsOut[1].toString()
+          trade.inputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountA.toString()
           )
+          trade.outputAmount = trade.market.getOutputAmount(
+            trade.inputAmount
+          )[0]
+
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.ADD_LIQUIDITY:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            optionEntity.redeem.address, // redeem
-            optionEntity.underlying.address, // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          // primary input is the options deposit (underlying tokens)
+          trade.inputAmount = new TokenAmount(
+            optionEntity,
+            parsedAmountA.toString()
           )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
-          out =
-            parsedAmountB !== BigInt('0')
-              ? BigNumber.from(parsedAmountB.toString())
-              : BigNumber.from('0')
-
-          console.log(out.toString())
+          // secondary input is the underlyings deposit
           trade.outputAmount = new TokenAmount(
-            EMPTY_TOKEN, // fix with actual metadata
-            out.toString()
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
 
           transaction = Uniswap.singlePositionCallParameters(
@@ -440,87 +406,48 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.ADD_LIQUIDITY_CUSTOM:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            optionEntity.redeem.address, // redeem
-            optionEntity.underlying.address, // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          // primary input is the options deposit (underlying tokens)
+          trade.inputAmount = new TokenAmount(
+            optionEntity,
+            parsedAmountA.toString()
           )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
-          out =
-            parsedAmountB !== BigInt('0')
-              ? BigNumber.from(parsedAmountB.toString())
-              : BigNumber.from('0')
-
+          // secondary input is the underlyings deposit
           trade.outputAmount = new TokenAmount(
-            EMPTY_TOKEN, // fix with actual metadata
-            out.toString()
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
-
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.REMOVE_LIQUIDITY:
-          trade.path = [
-            optionEntity.redeem.address, // redeem
-            optionEntity.underlying.address, // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          trade.totalSupply = await trade.getTotalSupply(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
-          transaction.tokensToApprove = [
-            await factory.getPair(trade.path[0], trade.path[1]),
-          ] // need to approve LP token
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
-          trade.path = [
-            optionEntity.redeem.address, // redeem
-            optionEntity.underlying.address, // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          trade.totalSupply = await trade.getTotalSupply(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
-          transaction.tokensToApprove = [
-            await factory.getPair(trade.path[0], trade.path[1]),
-            trade.option.address,
-          ] // need to approve LP token
           break
         default:
           transaction = Trader.singleOperationCallParameters(

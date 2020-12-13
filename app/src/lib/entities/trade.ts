@@ -11,6 +11,7 @@ import { parseEther } from 'ethers/lib/utils'
 export class Trade {
   public readonly option: Option
   public readonly market: Market
+  public readonly totalSupply: BigNumberish
   public inputAmount: TokenAmount
   public outputAmount: TokenAmount
   public readonly operation: Operation
@@ -19,6 +20,7 @@ export class Trade {
   public constructor(
     option: Option,
     market: Market,
+    totalSupply: BigNumberish,
     inputAmount: TokenAmount,
     outputAmount: TokenAmount,
     operation: Operation,
@@ -26,6 +28,7 @@ export class Trade {
   ) {
     this.option = option
     this.market = market
+    this.totalSupply = totalSupply
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
     this.operation = operation

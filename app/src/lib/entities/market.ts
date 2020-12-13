@@ -59,7 +59,9 @@ export class Market extends Pair {
    * @param inputAmount The quantity of longOptionTokens to purchase (also the quantity of underlyingTokens borrowed).
    */
   public getOpenPremium = (inputAmount: TokenAmount): TokenAmount => {
-    if (!this.reserveOf(this.option.redeem).numerator[2]) {
+    if (
+      typeof this.reserveOf(this.option.redeem).numerator[2] === 'undefined'
+    ) {
       return new TokenAmount(this.option.underlying, '0')
     }
 
@@ -77,7 +79,7 @@ export class Market extends Pair {
       : new TokenAmount(this.option.redeem, '0')
     const premium = BigNumber.from(costUnderlying.raw.toString())
       .mul(this.FEE_UNITS)
-      .add(this.FEE)
+      .add(BigNumber.from(costUnderlying.raw.toString()).mul(this.FEE))
       .div(this.FEE_UNITS)
     return new TokenAmount(this.option.underlying, premium.toString())
   }

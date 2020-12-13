@@ -165,7 +165,6 @@ const Swap: React.FC = () => {
   const handleSubmitClick = useCallback(() => {
     submitOrder(
       library,
-      item?.entity.address,
       BigInt(parsedAmount.toString()),
       orderType,
       BigInt('0')
