@@ -170,9 +170,11 @@ export class Uniswap {
         if (!hasLiquidity) {
           amountBDesired = trade.outputAmount.raw.toString()
         } else {
-          amountBDesired = trade.market
-            .getOutputAmount(amountADesired)[0]
-            .raw.toString()
+          amountBDesired = Trade.getQuote(
+            amountADesired.raw.toString(),
+            trade.market.reserveOf(amountADesired.token).raw.toString(),
+            trade.market.reserveOf(trade.option.underlying).raw.toString()
+          ).toString()
         }
         amountBMin = trade.calcMinimumOutSlippage(
           amountBDesired,

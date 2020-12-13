@@ -129,7 +129,6 @@ const AddLiquidity: React.FC = () => {
   const handleSubmitClick = useCallback(() => {
     submitOrder(
       library,
-      item?.entity.address,
       BigInt(parsedOptionAmount.toString()),
       orderType,
       BigInt(parsedUnderlyingAmount.toString())
