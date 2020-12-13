@@ -55,10 +55,10 @@ export class Market extends Pair {
   }
 
   /**
-   * @dev Gets the cost to purchase `inputAmount` of longOptionTokens, denominated in underlyingTokens.
-   * @param inputAmount The quantity of longOptionTokens to purchase (also the quantity of underlyingTokens borrowed).
+   * @dev Gets the cost to purchase `outputAmount` of longOptionTokens, denominated in underlyingTokens.
+   * @param outputAmount The quantity of longOptionTokens to purchase (also the quantity of underlyingTokens borrowed).
    */
-  public getOpenPremium = (inputAmount: TokenAmount): TokenAmount => {
+  public getOpenPremium = (outputAmount: TokenAmount): TokenAmount => {
     if (
       typeof this.reserveOf(this.option.redeem).numerator[2] === 'undefined'
     ) {
@@ -66,9 +66,9 @@ export class Market extends Pair {
     }
 
     const redeemPayment = this.option.proportionalShort(
-      inputAmount.raw.toString()
+      outputAmount.raw.toString()
     )
-    const [amountIn, newPair] = this.getInputAmount(inputAmount)
+    const [amountIn, newPair] = this.getInputAmount(outputAmount)
     const costRedeem = BigNumber.from(amountIn.raw.toString()).gt(redeemPayment)
       ? BigNumber.from(amountIn.raw.toString()).sub(redeemPayment)
       : parseEther('0')
@@ -95,27 +95,20 @@ export class Market extends Pair {
   }
 
   /**
-   * @dev Gets the payout for selling the proprotional longOptionToken amount of `inputAmount`.
-   * @param inputAmount The quantity of shortOptionTokens per optionToken that needs to be closed.
+   * @dev Gets the payout for selling the proprotional longOptionToken amount of `outputAmount`.
+   * @param outputAmount The quantity of shortOptionTokens per optionToken that needs to be closed.
    */
-  public getClosePremium = (inputAmount: TokenAmount): TokenAmount => {
+  public getClosePremium = (outputAmount: TokenAmount): TokenAmount => {
     if (!this.reserveOf(this.option.redeem).numerator[2]) {
       return new TokenAmount(this.option.underlying, '0')
     }
-
     const underlyingsMinted = this.option.proportionalLong(
-      inputAmount.raw.toString()
+      outputAmount.raw.toString()
     )
-
-    const [amountIn, newPair] = this.getInputAmount(inputAmount)
+    const [amountIn, newPair] = this.getInputAmount(outputAmount)
     const payout = underlyingsMinted.gt(amountIn.raw.toString())
       ? underlyingsMinted.sub(amountIn.raw.toString())
       : parseEther('0')
-    console.log(
-      underlyingsMinted.toString(),
-      amountIn.raw.toString(),
-      payout.toString()
-    )
     return new TokenAmount(this.option.underlying, payout.toString())
   }
 

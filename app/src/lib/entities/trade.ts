@@ -35,16 +35,20 @@ export class Trade {
     this.signer = signer
   }
 
+  /**
+   * @dev Gets the underlyingToken cost to purchase long option tokens.
+   * @notice We use outputAmount because the path is redeem -> underlying, where we borrow underlying and pay back redeem.
+   */
   public get openPremium(): TokenAmount {
-    return this.market.getOpenPremium(this.inputAmount)
+    return this.market.getOpenPremium(this.outputAmount)
   }
 
   public get closePremium(): TokenAmount {
-    return this.market.getClosePremium(this.inputAmount)
+    return this.market.getClosePremium(this.outputAmount)
   }
 
   public get shortPremium(): TokenAmount {
-    return this.market.getShortPremium(this.inputAmount)
+    return this.market.getShortPremium(this.outputAmount)
   }
 
   public calcMaximumInSlippage(

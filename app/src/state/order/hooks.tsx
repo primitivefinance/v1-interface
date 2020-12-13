@@ -315,11 +315,12 @@ export const useHandleSubmitOrder = (): ((
       switch (operation) {
         case Operation.LONG:
           // Need to borrow exact amount of underlyingTokens, so exact output needs to be the parsedAmount.
-          trade.inputAmount = new TokenAmount(
+          // path: redeem -> underlying, getInputAmount is the redeem cost
+          trade.inputAmount = new TokenAmount(optionEntity.redeem, '0')
+          trade.outputAmount = new TokenAmount(
             optionEntity.underlying,
             parsedAmountA.toString()
           )
-          trade.outputAmount = new TokenAmount(optionEntity.underlying, '0')
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -340,10 +341,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.WRITE:
-          trade.inputAmount = new TokenAmount(
-            optionEntity.underlying,
-            parsedAmountA.toString()
-          )
+          // Path: underlying -> redeem, exact redeem amount is outputAmount.
           trade.outputAmount = new TokenAmount(
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
@@ -354,27 +352,17 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.CLOSE_LONG:
-          // On the UI, the user inputs the parsedAmountA of LONG OPTIONS they want to close.
-          // Calling the function on the contract requires the parsedAmountA of SHORT OPTIONS being borrowed to close.
-          // Need to calculate how many SHORT OPTIONS are needed to close the desired parsedAmountA of LONG OPTIONS.
-          const redeemAmount = optionEntity.proportionalShort(
-            inputAmount.raw.toString()
-          )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
+          // Path: underlying -> redeem, exact redeem amount is outputAmount.
           trade.outputAmount = new TokenAmount(
             optionEntity.redeem,
-            redeemAmount.toString()
+            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
-          trade.inputAmount = item.market.getInputAmount(trade.outputAmount)[0]
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.CLOSE_SHORT:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
           trade.inputAmount = new TokenAmount(
             optionEntity.underlying,
             parsedAmountA.toString()

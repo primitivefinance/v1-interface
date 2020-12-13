@@ -10,7 +10,6 @@ import { TradeSettings, SinglePositionParameters } from './types'
 import { parseEther } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
 import { TokenAmount } from '@uniswap/sdk'
-import assert from 'chai'
 
 /**
  * Represents the UniswapConnector contract.
@@ -39,6 +38,7 @@ export class Uniswap {
     let amountAMin: string | BigNumber
     let amountBMin: string | BigNumber
     let path: string[]
+    let minPayout
 
     const deadline =
       tradeSettings.timeLimit > 0
@@ -61,6 +61,7 @@ export class Uniswap {
     )
 
     const inputAmount: TokenAmount = trade.inputAmount
+    const outputAmount: TokenAmount = trade.outputAmount
 
     switch (trade.operation) {
       case Operation.LONG:
@@ -70,15 +71,9 @@ export class Uniswap {
             tradeSettings.slippage
           )
           .toString()
-        let calculatedPrem = trade.market.getOpenPremium(trade.inputAmount)
-        console.log(
-          trade.inputAmount.raw.toString(),
-          trade.openPremium.raw.toString(),
-          premium.toString()
-        )
         contract = UniswapConnector03Contract
         methodName = 'openFlashLong'
-        args = [trade.option.address, inputAmount.raw.toString(), premium]
+        args = [trade.option.address, outputAmount.raw.toString(), premium]
         value = '0'
         break
       case Operation.SHORT:
@@ -104,7 +99,7 @@ export class Uniswap {
         value = '0'
         break
       case Operation.WRITE:
-        let minPayout = trade.closePremium.raw.toString()
+        minPayout = trade.closePremium.raw.toString()
         if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
           minPayout = '1'
         }
@@ -112,27 +107,23 @@ export class Uniswap {
         methodName = 'mintOptionsThenFlashCloseLong'
         args = [
           trade.option.address,
-          inputAmount.raw.toString(),
+          trade.outputAmount.raw.toString(),
           minPayout.toString(),
         ]
         value = '0'
         break
       case Operation.CLOSE_LONG:
-        const underlyingsRequired = trade.inputAmount.raw.toString()
-        const outputUnderlyings = trade.option.proportionalLong(
-          trade.outputAmount.raw.toString()
-        )
-        let payout = outputUnderlyings.sub(underlyingsRequired)
-        payout = trade.calcMinimumOutSlippage(payout, tradeSettings.slippage)
-        payout = payout.gt(0) ? payout : BigNumber.from('1')
-        assert(payout.gt(0), 'Negative payout')
+        minPayout = trade.closePremium.raw.toString()
+        if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
+          minPayout = '1'
+        }
 
         contract = UniswapConnector03Contract
         methodName = 'closeFlashLong'
         args = [
           trade.option.address,
-          underlyingsRequired,
-          payout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
+          trade.outputAmount.raw.toString(),
+          minPayout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
         ]
         value = '0'
         break
