@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import Box from '@/components/Box'
-import InfoIcon from '@material-ui/icons/Info'
-
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 export interface TooltipProps {
   children: React.ReactNode
   text: string
@@ -45,9 +44,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
   )
 }
 
-const StyledInfoIcon = styled(InfoIcon)`
+const StyledInfoIcon = styled(InfoOutlinedIcon)`
   font-size: 18px !important;
   margin-left: 5px;
+  margin-top: 3px;
 `
 
 const StyledContainer = styled.div`
