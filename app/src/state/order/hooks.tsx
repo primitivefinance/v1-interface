@@ -364,7 +364,7 @@ export const useHandleSubmitOrder = (): ((
           break
         case Operation.CLOSE_SHORT:
           trade.inputAmount = new TokenAmount(
-            optionEntity.underlying,
+            optionEntity.redeem,
             parsedAmountA.toString()
           )
           trade.outputAmount = trade.market.getOutputAmount(

@@ -140,7 +140,16 @@ export class Market extends Pair {
     return amountOut
   }
 
-  public get spotShortPremium(): TokenAmount {
+  public get spotShortToUnderlying(): TokenAmount {
+    return new TokenAmount(
+      this.option.redeem,
+      parseEther(
+        this.priceOf(this.option.underlying).raw.toSignificant(6)
+      ).toString()
+    )
+  }
+
+  public get spotUnderlyingToShort(): TokenAmount {
     return new TokenAmount(
       this.option.underlying,
       parseEther(
@@ -198,11 +207,11 @@ export class Market extends Pair {
       // buy short swap from UNDER -> RDM
     } else if (orderType === Operation.SHORT) {
       parsedAmount = new TokenAmount(this.option.redeem, inputAmount.toString())
-      spot = this.spotShortPremium
+      spot = this.spotUnderlyingToShort
       const spotSize = BigNumber.from(inputAmount)
         .mul(spot.raw.toString())
         .div(parseEther('1'))
-      actualPremium = this.getShortPremium(parsedAmount)
+      actualPremium = this.getInputAmount(parsedAmount)[0]
       slippage =
         (parseInt(actualPremium.raw.toString()) /
           parseInt(spotSize.toString()) -
@@ -211,7 +220,7 @@ export class Market extends Pair {
       // sell short, RDM -> UNDER
     } else if (orderType === Operation.CLOSE_SHORT) {
       parsedAmount = new TokenAmount(this.option.redeem, inputAmount.toString())
-      spot = this.spotShortPremium
+      spot = this.spotShortToUnderlying
       const spotSize = BigNumber.from(inputAmount)
         .mul(spot.raw.toString())
         .div(parseEther('1'))

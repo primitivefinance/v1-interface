@@ -86,10 +86,7 @@ export class Trade {
   }
 
   public maximumAmountIn(slippagePercent: string): TokenAmount {
-    if (
-      this.operation === Operation.SHORT ||
-      this.operation === Operation.CLOSE_SHORT
-    ) {
+    if (this.operation === Operation.CLOSE_SHORT) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)

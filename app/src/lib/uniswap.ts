@@ -78,11 +78,8 @@ export class Uniswap {
         break
       case Operation.SHORT:
         let amountInMax = trade
-          .calcMaximumInSlippage(
-            trade.inputAmount.raw.toString(),
-            tradeSettings.slippage
-          )
-          .toString()
+          .maximumAmountIn(tradeSettings.slippage)
+          .raw.toString()
         path = [
           trade.inputAmount.token.address,
           trade.outputAmount.token.address,

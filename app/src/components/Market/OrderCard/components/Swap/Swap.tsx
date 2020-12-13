@@ -62,7 +62,9 @@ const Swap: React.FC = () => {
       ? formatEther(item.market.spotOpenPremium.raw.toString())
       : orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE
       ? formatEther(item.market.spotClosePremium.raw.toString())
-      : formatEther(item.market.spotShortPremium.raw.toString())
+      : orderType === Operation.SHORT
+      ? formatEther(item.market.spotUnderlyingToShort.raw.toString())
+      : formatEther(item.market.spotShortToUnderlying.raw.toString())
   )
   const [impact, setImpact] = useState('0.00')
   // set null lp
@@ -221,11 +223,11 @@ const Swap: React.FC = () => {
             size
           )
           setImpact(slippage)
-          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
+          setPrem(formatEther(item.market.spotUnderlyingToShort.raw.toString()))
           short = formatEther(actualPremium.raw.toString())
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
+          setPrem(formatEther(item.market.spotUnderlyingToShort.raw.toString()))
         }
         // sell short, RDM -> UNDER
       } else if (orderType === Operation.CLOSE_SHORT) {
@@ -235,11 +237,11 @@ const Swap: React.FC = () => {
             size
           )
           setImpact(slippage)
-          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
+          setPrem(formatEther(item.market.spotShortToUnderlying.raw.toString()))
           short = formatEther(actualPremium.raw.toString())
         } else {
           setImpact('0.00')
-          setPrem(formatEther(item.market.spotShortPremium.raw.toString()))
+          setPrem(formatEther(item.market.spotShortToUnderlying.raw.toString()))
         }
       }
       // buy long, Trade.getPremium
