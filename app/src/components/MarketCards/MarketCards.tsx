@@ -161,7 +161,7 @@ const StyledTitle = styled.h4`
 const StyledContent = styled.div`
   align-items: center;
   cursor: pointer;
-  border: 2px solid black;
+  border: 3px solid black;
   display: flex;
   background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
@@ -169,7 +169,7 @@ const StyledContent = styled.div`
   border-radius: 5px;
   &: hover {
     background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.grey[400]};
+    border 3px solid ${(props) => props.theme.color.grey[800]};
   }
 `
 

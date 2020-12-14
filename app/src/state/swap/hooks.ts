@@ -43,7 +43,8 @@ export function useSwapActionHandlers(): {
 
 // try to parse a user entered amount for a given token
 export function tryParseAmount(value?: string): BigNumber | undefined {
-  if (!value || value === '0' || value === '.') return parseUnits('0', 18)
+  if (!value || value === '0' || value === '.' || value.indexOf('0') === 0)
+    return parseUnits('0', 18)
   const typedValueParsed = parseUnits(value, 18).toString()
   if (typedValueParsed !== '0') {
     return BigNumber.from(typedValueParsed)

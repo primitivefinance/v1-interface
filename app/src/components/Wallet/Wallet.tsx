@@ -7,16 +7,15 @@ import React, {
   Suspense,
 } from 'react'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
-import styled from 'styled-components'
 import {
   WalletConnectConnector,
   UserRejectedRequestError,
 } from '@web3-react/walletconnect-connector'
+import { useRouter } from 'next/router'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Button from '@/components/Button'
 import Box from '@/components/Box'
-import Table from '@/components/Table'
 import Loader from '@/components/Loader'
 import Spacer from '@/components/Spacer'
 
@@ -30,7 +29,6 @@ import { WALLETS, QueryParameters } from '../../constants'
 
 import { Network } from './Network'
 import { AddressButton } from './AddressButton'
-import { Balance } from './Balance'
 
 export const Wallet = () => {
   const {
@@ -45,7 +43,7 @@ export const Wallet = () => {
   } = useWeb3React()
 
   const triedToEagerConnect = useEagerConnect()
-
+  const router = useRouter()
   const { data } = useETHBalance(account, false)
   const balance = data
 
@@ -70,7 +68,7 @@ export const Wallet = () => {
       setConnecting(false)
       onboarding.current?.stopOnboarding()
     }
-  }, [active, error])
+  }, [active, error, triedToEagerConnect])
 
   const [ENSName, setENSName] = useState('')
   useEffect(() => {
