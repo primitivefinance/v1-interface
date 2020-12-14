@@ -43,6 +43,11 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 import numeral from 'numeral'
+import {
+  useLiquidityActionHandlers,
+  useLP,
+  tryParseAmount,
+} from '@/state/liquidity/hooks'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions
@@ -56,9 +61,12 @@ const RemoveLiquidity: React.FC = () => {
 
   const { data } = useBlockNumber()
   //slider
-  const [ratio, setRatio] = useState(100)
+  const [ratio, setRatio] = useState(0)
   // option entity in order
   const { item, orderType, loading, approved } = useItem()
+  // inputs for user quantity
+  const { optionValue, underlyingValue } = useLP()
+  const { onOptionInput, onUnderInput } = useLiquidityActionHandlers()
   // inputs for user quantity
   const [inputs, setInputs] = useState({
     primary: '',
@@ -83,11 +91,17 @@ const RemoveLiquidity: React.FC = () => {
   const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
-  const handleInputChange = useCallback(
-    (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
+  const handleOptionInput = useCallback(
+    (value: string) => {
+      onOptionInput(value)
     },
-    [setInputs, inputs]
+    [onOptionInput]
+  )
+  const handleUnderInput = useCallback(
+    (value: string) => {
+      onUnderInput(value)
+    },
+    [onUnderInput]
   )
 
   // FIX
@@ -108,7 +122,7 @@ const RemoveLiquidity: React.FC = () => {
       const liquidity = formatEther(
         parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
       )
-      setInputs({ ...inputs, primary: liquidity.toString() })
+      onOptionInput(liquidity.toString())
     },
     [setRatio, lp, setInputs, inputs, ratio]
   )
@@ -117,7 +131,7 @@ const RemoveLiquidity: React.FC = () => {
     (value) => {
       setRatio(value)
       const liquidity = parseEther(lp).mul(value).div(1000).toString()
-      setInputs({ ...inputs, primary: liquidity })
+      onOptionInput(liquidity.toString())
     },
     [setInputs, lp, ratio, inputs, setRatio]
   )
@@ -126,10 +140,9 @@ const RemoveLiquidity: React.FC = () => {
     setSubmit(true)
     submitOrder(
       library,
-      item?.entity.address,
-      BigInt(inputs.primary),
+      BigInt(optionValue.toString()),
       orderType,
-      BigInt(inputs.secondary)
+      BigInt(underlyingValue.toString())
     )
     removeItem()
   }, [
@@ -209,43 +222,31 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = entity.baseValue.raw.toString()
-    const quote = entity.quoteValue.raw.toString()
-    const SHORT: Token =
-      lpPair.token0.address === entity.redeem.address
-        ? lpPair.token0
-        : lpPair.token1
-    const UNDERLYING: Token =
-      lpPair.token1.address === entity.redeem.address
-        ? lpPair.token0
-        : lpPair.token1
-
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
-    const underlyingValue = lpPair.getLiquidityValue(
-      UNDERLYING,
+    const underlyingValue = item.market.getLiquidityValue(
+      entity.underlying,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
     const totalUnderlyingPerLp = formatEther(
-      BigNumber.from(shortValue.raw.toString())
-        .mul(base)
-        .div(quote)
+      entity
+        .proportionalLong(shortValue.raw.toString())
         .add(underlyingValue.raw.toString())
     )
     return totalUnderlyingPerLp
-  }, [lpPair, lp, lpTotalSupply, inputs, ratio])
+  }, [item.market, lp, lpTotalSupply, inputs, ratio])
 
   const calculateRequiredLong = useCallback(() => {
     if (
@@ -258,26 +259,20 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = entity.baseValue.raw.toString()
-    const quote = entity.quoteValue.raw.toString()
-    const SHORT: Token =
-      lpPair.token0.address === entity.redeem.address
-        ? lpPair.token0
-        : lpPair.token1
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
     const totalRequiredLong = formatEther(
-      BigNumber.from(shortValue.raw.toString()).mul(base).div(quote)
+      entity.proportionalLong(shortValue.raw.toString())
     )
     return totalRequiredLong
-  }, [lpPair, lp, lpTotalSupply, inputs, ratio, item])
+  }, [item.market, lp, lpTotalSupply, inputs, ratio, item])
 
   const calculateBurn = useCallback(() => {
     if (typeof lpPair === 'undefined' || lpPair === null) return '0'
@@ -480,7 +475,7 @@ const RemoveLiquidity: React.FC = () => {
             )}
             {!approved[0] || !approved[1] ? null : (
               <Button
-                disabled={submitting}
+                disabled={submitting || ratio === 0}
                 full
                 size="sm"
                 onClick={handleSubmitClick}

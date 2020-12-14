@@ -257,12 +257,12 @@ export class Uniswap {
       case Operation.REMOVE_LIQUIDITY_CLOSE:
         amountAMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
+          : BigNumber.from(inputAmount.raw.toString())
               .mul(trade.market.reserve0.raw.toString())
               .div(trade.totalSupply)
         amountBMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
+          : BigNumber.from(inputAmount.raw.toString())
               .mul(trade.market.reserve1.raw.toString())
               .div(trade.totalSupply)
 
