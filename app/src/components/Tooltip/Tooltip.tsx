@@ -47,7 +47,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 const StyledInfoIcon = styled(InfoOutlinedIcon)`
   font-size: 18px !important;
   margin-left: 5px;
-  margin-top: 3px;
+  margin-top: 2px;
 `
 
 const StyledContainer = styled.div`

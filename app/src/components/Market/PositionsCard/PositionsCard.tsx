@@ -97,10 +97,10 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <Box column alignItems="center">
+      <>
         <Spacer />
         <Loader size="lg" />
-      </Box>
+      </>
     )
   }
   if (!positions.loading && !positions.exists) {
@@ -195,7 +195,7 @@ const StyledPrices = styled(Box)`
   padding: 0 1em 0 1em;
 `
 const StyledTitle = styled.h4`
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
+import Loader from '@/components/Loader'
 import CardContent from '@/components/CardContent'
 import LineItem from '@/components/LineItem'
 import { useItem } from '@/state/order/hooks'
@@ -22,7 +23,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import { formatEther } from 'ethers/lib/utils'
 const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
-  const { calls, puts } = useOptions()
+  const options = useOptions()
   const addTransaction = useTransactionAdder()
   const { library, account, chainId } = useWeb3React()
   const daiBal = useTokenBalance(STABLECOINS[chainId].address)
@@ -32,7 +33,7 @@ const BalanceCard: React.FC = () => {
     let tx: any
     mintTestTokens(
       account,
-      calls[0].entity.tokenAddresses[0],
+      options.calls[0].entity.tokenAddresses[0],
       await library.getSigner()
     )
       .then((tx) => {
@@ -73,8 +74,17 @@ const BalanceCard: React.FC = () => {
 
     return tx
   }
-  if (loading) return null
-  if (calls.length === 0) return null
+  if (options.loading) return null
+  if (loading && !options.loading)
+    return (
+      <>
+        <CustomCard>
+          <Spacer size="sm" />
+          <Loader />
+        </CustomCard>
+      </>
+    )
+  if (options.calls.length === 0) return null
   return (
     <>
       <CustomCard>
