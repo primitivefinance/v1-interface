@@ -21,6 +21,7 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     background-color: #040404;
+    cursor: default;
     font-family: 'Nunito Sans', sans-serif;
   }
   body.fontLoaded {

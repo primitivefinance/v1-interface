@@ -7,13 +7,14 @@ import Card from '@/components/Card'
 import Loader from '@/components/Loader'
 import CardContent from '@/components/CardContent'
 import LineItem from '@/components/LineItem'
-import { useItem } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
 
 import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
+import { useItem } from '@/state/order/hooks'
+
 import { Operation, STABLECOINS } from '@/constants/index'
 import numeral from 'numeral'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -24,6 +25,7 @@ import { formatEther } from 'ethers/lib/utils'
 const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
   const options = useOptions()
+  const { item } = useItem()
   const addTransaction = useTransactionAdder()
   const { library, account, chainId } = useWeb3React()
   const daiBal = useTokenBalance(STABLECOINS[chainId].address)
@@ -74,17 +76,20 @@ const BalanceCard: React.FC = () => {
 
     return tx
   }
-  if (options.loading) return null
-  if (loading && !options.loading)
-    return (
-      <>
-        <CustomCard>
-          <Spacer size="sm" />
-          <Loader />
-        </CustomCard>
-      </>
-    )
-  if (options.calls.length === 0) return null
+  if (loading) {
+    if (item.entity === null) {
+      return null
+    } else {
+      return (
+        <>
+          <CustomCard>
+            <Spacer size="sm" />
+            <Loader />
+          </CustomCard>
+        </>
+      )
+    }
+  }
   return (
     <>
       <CustomCard>
