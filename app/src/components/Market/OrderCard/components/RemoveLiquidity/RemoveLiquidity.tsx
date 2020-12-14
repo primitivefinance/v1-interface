@@ -233,6 +233,44 @@ const RemoveLiquidity: React.FC = () => {
     return totalUnderlyingPerLp
   }, [item.market, lp, lpTotalSupply, ratio])
 
+  const calculateRemoveOutputs = useCallback(() => {
+    if (
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
+      ratio === 0
+    ) {
+      const shortValue = new TokenAmount(entity.redeem, '0')
+      const underlyingValue = new TokenAmount(entity.underlying, '0')
+      return {
+        shortValue,
+        underlyingValue,
+      }
+    }
+
+    const liquidity = parseEther(lp).mul(ratio).div(1000)
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+
+    const underlyingValue = item.market.getLiquidityValue(
+      entity.underlying,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+
+    return { shortValue, underlyingValue }
+  }, [item.market, lp, lpTotalSupply, ratio])
+
   const calculateRequiredLong = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
@@ -366,38 +404,64 @@ const RemoveLiquidity: React.FC = () => {
         units={`UNI-V2 LP`}
       />
 
-      <Spacer size="sm" />
-      <LineItem
-        label="And requires"
-        data={`${numeral(calculateRequiredLong()).format('0.00')}`}
-        units={`LONG`}
-      />
-      {!formatEther(
-        parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
-      ) ? (
+      {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
         <>
           <Spacer size="sm" />
           <LineItem
-            label="You need"
-            data={`${numeral(
-              formatEther(
-                parseEther(calculateRequiredLong()).sub(
-                  parseEther(optionBalance)
-                )
-              )
-            ).format('0.00')}`}
+            label="And requires"
+            data={`${numeral(calculateRequiredLong()).format('0.00')}`}
             units={`LONG`}
-          />{' '}
+          />
+          {!formatEther(
+            parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
+          ) ? (
+            <>
+              <Spacer size="sm" />
+              <LineItem
+                label="You need"
+                data={`${numeral(
+                  formatEther(
+                    parseEther(calculateRequiredLong()).sub(
+                      parseEther(optionBalance)
+                    )
+                  )
+                ).format('0.00')}`}
+                units={`LONG`}
+              />{' '}
+            </>
+          ) : (
+            <> </>
+          )}{' '}
+          <Spacer size="sm" />
+          <LineItem
+            label="You will receive"
+            data={numeral(calculateUnderlyingOutput()).format('0.00')}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
+          />
         </>
       ) : (
-        <> </>
+        <>
+          <Spacer size="sm" />
+          <LineItem
+            label="You will receive"
+            data={numeral(
+              formatEther(
+                calculateRemoveOutputs().underlyingValue.raw.toString()
+              )
+            ).format('0.00')}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
+          />
+          <Spacer size="sm" />
+          <LineItem
+            label="You will receive"
+            data={numeral(
+              formatEther(calculateRemoveOutputs().shortValue.raw.toString())
+            ).format('0.00')}
+            units={`${entity.redeem.symbol.toUpperCase()}`}
+          />{' '}
+        </>
       )}
-      <Spacer size="sm" />
-      <LineItem
-        label="You will receive"
-        data={numeral(calculateUnderlyingOutput()).format('0.00')}
-        units={`${entity.underlying.symbol.toUpperCase()}`}
-      />
+
       <Spacer size="sm" />
       <IconButton
         text="Advanced"

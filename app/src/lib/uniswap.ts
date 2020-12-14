@@ -246,7 +246,6 @@ export class Uniswap {
           trade.inputAmount.token.address,
           trade.outputAmount.token.address,
           trade.inputAmount.raw.toString(),
-          trade.outputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,
