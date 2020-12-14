@@ -418,7 +418,7 @@ export const useHandleSubmitOrder = (): ((
         case Operation.ADD_LIQUIDITY_CUSTOM:
           // primary input is the options deposit (underlying tokens)
           trade.inputAmount = new TokenAmount(
-            optionEntity,
+            optionEntity.redeem,
             parsedAmountA.toString()
           )
           // secondary input is the underlyings deposit

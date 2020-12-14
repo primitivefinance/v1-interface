@@ -194,9 +194,7 @@ export class Uniswap {
         break
       case Operation.ADD_LIQUIDITY_CUSTOM:
         // amount of redeems that will be minted and added to the pool
-        amountADesired = trade.option.proportionalShort(
-          inputAmount.raw.toString()
-        )
+        amountADesired = inputAmount.raw.toString()
         amountBDesired = trade.outputAmount.raw.toString()
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,

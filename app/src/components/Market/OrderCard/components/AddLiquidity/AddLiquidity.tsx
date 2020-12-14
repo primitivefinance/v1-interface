@@ -110,14 +110,36 @@ const AddLiquidity: React.FC = () => {
   const handleOptionInput = useCallback(
     (value: string) => {
       onOptionInput(value)
+      if (tab === 1) {
+        onUnderInput(
+          formatEther(
+            Trade.getQuote(
+              parseEther(value),
+              item.market.reserveOf(entity.redeem).raw.toString(),
+              item.market.reserveOf(entity.underlying).raw.toString()
+            ).toString()
+          )
+        )
+      }
     },
-    [onOptionInput]
+    [onOptionInput, onUnderInput, tab]
   )
   const handleUnderInput = useCallback(
     (value: string) => {
       onUnderInput(value)
+      if (tab === 1) {
+        onOptionInput(
+          formatEther(
+            Trade.getQuote(
+              parseEther(value),
+              item.market.reserveOf(entity.underlying).raw.toString(),
+              item.market.reserveOf(entity.redeem).raw.toString()
+            ).toString()
+          )
+        )
+      }
     },
-    [onUnderInput]
+    [onUnderInput, onOptionInput, tab]
   )
   // FIX
 
@@ -252,7 +274,7 @@ const AddLiquidity: React.FC = () => {
       parsedOptionAmount !== undefined
     ) {
       // if the reserves will be set based on the inputs
-      const inputShort = entity.proportionalShort(parsedOptionAmount) // pair has short tokens, so need to convert our desired options to short options))
+      const inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options))
       const path = [entity.redeem.address, entity.underlying.address]
       const quote = Trade.getSpotPremium(
         entity.baseValue.raw.toString(),
@@ -329,8 +351,8 @@ const AddLiquidity: React.FC = () => {
               </Tooltip>
             </StyledTab>
             <StyledTab active={tab === 1}>
-              <Tooltip text={'Add liquidity at a custom ratio'}>
-                Set Ratio
+              <Tooltip text={'Add both tokens from your balance to the pool.'}>
+                Add Direct
               </Tooltip>
             </StyledTab>
           </StyledTabList>

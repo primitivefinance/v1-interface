@@ -369,6 +369,9 @@ export class Trade {
     reserveA: BigNumberish,
     reserveB: BigNumberish
   ): BigNumberish => {
+    if (amountA === '') {
+      return '0'
+    }
     let amountB
     if (ethers.BigNumber.from(reserveA).isZero()) {
       amountB = 0
