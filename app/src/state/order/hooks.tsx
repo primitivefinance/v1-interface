@@ -309,7 +309,7 @@ export const useHandleSubmitOrder = (): ((
       )
       const outputAmount: TokenAmount = new TokenAmount(
         EMPTY_TOKEN, // fix with actual metadata
-        '0'
+        BigInt(parsedAmountB.toString()).toString()
       )
 
       let out: BigNumberish

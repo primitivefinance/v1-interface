@@ -4,7 +4,8 @@ import { updatePositions, setLoading } from './actions'
 
 import { TokenAmount } from '@uniswap/sdk'
 import { BigNumberish } from 'ethers'
-import { OptionsAttributes, EmptyAttributes } from '@/state/options/reducer'
+import { EmptyAttributes } from '@/state/options/reducer'
+import { OptionsAttributes } from '@/state/options/actions'
 
 export interface PositionsState {
   loading: boolean
