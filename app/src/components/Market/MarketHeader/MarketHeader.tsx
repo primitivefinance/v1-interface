@@ -168,7 +168,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
                 <>
                   <div style={{ minHeight: '.4em' }} />
                   <Loader size="sm" />
-                  <div style={{ minHeight: '.4em' }} />
+                  <div style={{ minHeight: '.55em' }} />
                 </>
               )}
             </StyledPrice>
