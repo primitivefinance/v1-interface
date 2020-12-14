@@ -143,6 +143,28 @@ export const useUpdateItem = (): ((
             )
             return
           }
+        } else if (orderType === Operation.REMOVE_LIQUIDITY) {
+          const spender = UNISWAP_ROUTER02_V2
+          if (item.market) {
+            const lpToken = item.market.liquidityToken.address
+            const optionAllowance = await getAllowance(
+              item.entity.address,
+              spender
+            )
+            const lpAllowance = await getAllowance(lpToken, spender)
+            dispatch(
+              updateItem({
+                item,
+                orderType,
+                loading: false,
+                approved: [
+                  parseEther(optionAllowance).gt(parseEther('0')),
+                  parseEther(lpAllowance).gt(parseEther('0')),
+                ],
+              })
+            )
+            return
+          }
         } else if (manage) {
           let tokenAddress
           let secondaryAddress

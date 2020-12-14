@@ -11,6 +11,8 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
+import Toggle from '@/components/Toggle'
+import ToggleButton from '@/components/ToggleButton'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -67,64 +69,31 @@ const RemoveLiquidity: React.FC = () => {
   // inputs for user quantity
   const { optionValue, underlyingValue } = useLP()
   const { onOptionInput, onUnderInput } = useLiquidityActionHandlers()
-  // inputs for user quantity
-  const [inputs, setInputs] = useState({
-    primary: '',
-    secondary: '',
-  })
   // web3
   const { library, chainId } = useWeb3React()
   // pair and option entities
   const addNotif = useAddNotif()
   const entity = item.entity
   const lpPair = useReserves(entity.underlying, entity.redeem).data
-
-  const lpToken = lpPair ? lpPair.liquidityToken.address : ''
-  const token0 = lpPair ? lpPair.token0.symbol : ''
-  const token1 = lpPair ? lpPair.token1.symbol : ''
+  const lpToken = item.market ? item.market.liquidityToken.address : ''
+  const token0 = item.market ? item.market.token0.symbol : ''
+  const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender = UNISWAP_CONNECTOR[chainId]
-
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
-
   const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
-  const handleOptionInput = useCallback(
-    (value: string) => {
-      onOptionInput(value)
-    },
-    [onOptionInput]
-  )
-  const handleUnderInput = useCallback(
-    (value: string) => {
-      onUnderInput(value)
-    },
-    [onUnderInput]
-  )
-
-  // FIX
-  const handleSetMax = () => {
-    const max = Math.round(
-      ((+underlyingTokenBalance /
-        (+calculateLiquidityValuePerShare().totalUnderlyingPerLp +
-          Number.EPSILON)) *
-        100) /
-        100
-    )
-    setInputs({ ...inputs, primary: max.toString() })
-  }
 
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setRatio(Number(e.currentTarget.value))
-      const liquidity = formatEther(
-        parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
-      )
+      const liquidity = parseEther(lp)
+        .mul(Number(e.currentTarget.value))
+        .div(1000)
       onOptionInput(liquidity.toString())
     },
-    [setRatio, lp, setInputs, inputs, ratio]
+    [setRatio, lp, onOptionInput, optionValue, ratio]
   )
 
   const handleRatio = useCallback(
@@ -133,7 +102,7 @@ const RemoveLiquidity: React.FC = () => {
       const liquidity = parseEther(lp).mul(value).div(1000).toString()
       onOptionInput(liquidity.toString())
     },
-    [setInputs, lp, ratio, inputs, setRatio]
+    [onOptionInput, lp, ratio, optionValue, setRatio]
   )
 
   const handleSubmitClick = useCallback(() => {
@@ -150,7 +119,6 @@ const RemoveLiquidity: React.FC = () => {
     removeItem,
     item,
     library,
-    inputs,
     orderType,
     lp,
     ratio,
@@ -159,31 +127,47 @@ const RemoveLiquidity: React.FC = () => {
   ])
 
   const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof item.market === 'undefined' || item.market === null) return '0'
+    if (
+      typeof item.market === 'undefined' ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      item.market === null
+    )
+      return '0'
     const ratio = item.market.token1Price.raw.toSignificant(2)
     return ratio
   }, [item.market])
 
   const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof item.market === 'undefined' || item.market === null) return '0'
+    if (
+      typeof item.market === 'undefined' ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      item.market === null
+    )
+      return '0'
     const ratio = item.market.token0Price.raw.toSignificant(2)
     return ratio
   }, [item.market])
 
   const caculatePoolShare = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      typeof item.market.reserve0.numerator[2] === 'undefined'
+    )
+      return '0'
     const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
       ? BigNumber.from(parseEther(lp))
           .mul(parseEther('1'))
           .div(parseEther(lpTotalSupply))
       : '0'
     return (Number(formatEther(poolShare)) * 100).toFixed(2)
-  }, [lpPair, lp, lpTotalSupply])
+  }, [item.market, lp, lpTotalSupply])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return {
@@ -209,12 +193,13 @@ const RemoveLiquidity: React.FC = () => {
     )
 
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [lpPair, lp, lpTotalSupply])
+  }, [item.market, lp, lpTotalSupply])
 
   const calculateUnderlyingOutput = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -246,12 +231,13 @@ const RemoveLiquidity: React.FC = () => {
         .add(underlyingValue.raw.toString())
     )
     return totalUnderlyingPerLp
-  }, [item.market, lp, lpTotalSupply, inputs, ratio])
+  }, [item.market, lp, lpTotalSupply, ratio])
 
   const calculateRequiredLong = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      typeof item.market.reserve0.numerator[2] === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -272,15 +258,19 @@ const RemoveLiquidity: React.FC = () => {
       entity.proportionalLong(shortValue.raw.toString())
     )
     return totalRequiredLong
-  }, [item.market, lp, lpTotalSupply, inputs, ratio, item])
+  }, [item.market, lp, lpTotalSupply, ratio, item])
 
   const calculateBurn = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (
+      typeof item.market === 'undefined' ||
+      typeof item.market.reserve0.numerator[2] === 'undefined'
+    )
+      return '0'
     const liquidity = parseEther(lp)
       .mul(parseEther(ratio.toString()))
       .div(parseEther('1000'))
     return formatEther(liquidity)
-  }, [lpPair, lp, ratio])
+  }, [item.market, lp, ratio])
 
   const title = {
     text: 'Withdraw Liquidity',
@@ -303,6 +293,23 @@ const RemoveLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
+      <Spacer />
+      <Toggle>
+        <ToggleButton
+          active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
+          onClick={() =>
+            updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
+          }
+          text="Exit & Close"
+        />
+        <ToggleButton
+          active={orderType === Operation.REMOVE_LIQUIDITY}
+          onClick={() =>
+            updateItem(item, Operation.REMOVE_LIQUIDITY, item.market)
+          }
+          text="Exit"
+        />
+      </Toggle>
       <Spacer />
       <LineItem
         label={'Amount'}

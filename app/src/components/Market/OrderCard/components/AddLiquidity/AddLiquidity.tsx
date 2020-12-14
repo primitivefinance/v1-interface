@@ -80,7 +80,6 @@ const AddLiquidity: React.FC = () => {
   const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
-  const lpPair = useReserves(entity.underlying, entity.redeem).data
   // has liquidity?
   useEffect(() => {
     if (item.market) {
