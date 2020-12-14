@@ -96,15 +96,17 @@ const OrderOptions: React.FC = () => {
   const positions = usePositions()
   const [option, setOption] = useState({ long: null, short: null, lp: null })
   useEffect(() => {
-    const temp = positions.options.filter(
-      (opt) => opt.attributes.entity.address === item.entity.address
-    )[0]
-    if (temp) {
-      if (temp.long || temp.redeem || temp.lp) {
-        setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
+    if (!positions.loading) {
+      const temp = positions.options.filter(
+        (opt) => opt.attributes.entity.address === item.entity.address
+      )[0]
+      if (temp) {
+        if (temp.long || temp.redeem || temp.lp) {
+          setOption({ long: temp.long, short: temp.redeem, lp: temp.lp })
+        }
+      } else {
+        setOption({ long: null, short: null, lp: null })
       }
-    } else {
-      setOption({ long: null, short: null, lp: null })
     }
   }, [setOption, positions, item])
   const change = (t: Operation) => {
@@ -235,7 +237,7 @@ const StyledOrder = styled.a`
   cursor: pointer;
   margin-bottom: 0.5em;
   padding: 1em;
-  width: 80%;
+  width: 85%;
   &:hover {
     border: 1px solid ${(props) => props.theme.color.grey[600]};
     background: ${(props) => props.theme.color.grey[800]};
