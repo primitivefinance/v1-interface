@@ -133,7 +133,6 @@ const Manage: React.FC = () => {
   const handleSubmitClick = useCallback(() => {
     submitOrder(
       library,
-      item?.address,
       BigInt(parsedAmount.toString()),
       orderType,
       BigInt('0')

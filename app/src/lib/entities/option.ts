@@ -137,6 +137,16 @@ export class Option extends Token {
     return short
   }
 
+  public getBreakeven(premiumWei: BigNumber): BigNumber {
+    let breakeven: BigNumber
+    if (this.isCall) {
+      breakeven = premiumWei.add(parseEther(this.strikePrice))
+    } else {
+      breakeven = parseEther(this.strikePrice).sub(premiumWei)
+    }
+    return breakeven
+  }
+
   public get isCall(): boolean {
     const baseValue = this.baseValue.raw.toString()
     const quoteValue = this.quoteValue.raw.toString()

@@ -1,44 +1,54 @@
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { Option } from './option'
+import { Option, Market } from './index'
 import { Operation } from '@/constants/index'
 import { TokenAmount } from '@uniswap/sdk'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { parseEther } from 'ethers/lib/utils'
 
+/**
+ * @dev Represents a trade for an option in a market.
+ */
 export class Trade {
   public readonly option: Option
+  public readonly market: Market
+  public readonly totalSupply: BigNumberish
   public inputAmount: TokenAmount
   public outputAmount: TokenAmount
-  public path: string[]
-  public reserves: BigNumberish[] | ethers.BigNumber[]
-  public totalSupply: BigNumberish
-  public amountsIn: BigNumberish[]
-  public amountsOut: BigNumberish[]
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
+    market: Market,
+    totalSupply: BigNumberish,
     inputAmount: TokenAmount,
     outputAmount: TokenAmount,
-    path: string[],
-    reserves: BigNumberish[] | ethers.BigNumber[],
-    totalSupply: BigNumberish,
-    amountsIn: BigNumberish[],
-    amountsOut: BigNumberish[],
     operation: Operation,
     signer: ethers.Signer
   ) {
     this.option = option
+    this.market = market
+    this.totalSupply = totalSupply
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
-    this.path = path
-    this.reserves = reserves
-    this.totalSupply = totalSupply
-    this.amountsIn = amountsIn
-    this.amountsOut = amountsOut
     this.operation = operation
     this.signer = signer
+  }
+
+  /**
+   * @dev Gets the underlyingToken cost to purchase long option tokens.
+   * @notice We use outputAmount because the path is redeem -> underlying, where we borrow underlying and pay back redeem.
+   */
+  public get openPremium(): TokenAmount {
+    return this.market.getOpenPremium(this.outputAmount)
+  }
+
+  public get closePremium(): TokenAmount {
+    return this.market.getClosePremium(this.outputAmount)
+  }
+
+  public get shortPremium(): TokenAmount {
+    return this.market.getShortPremium(this.outputAmount)
   }
 
   public calcMaximumInSlippage(
@@ -62,7 +72,6 @@ export class Trade {
   ): ethers.ethers.BigNumber {
     if (
       this.operation === Operation.SHORT ||
-      this.operation === Operation.ADD_LIQUIDITY ||
       this.operation === Operation.ADD_LIQUIDITY_CUSTOM
     ) {
       return amount
@@ -76,10 +85,7 @@ export class Trade {
   }
 
   public maximumAmountIn(slippagePercent: string): TokenAmount {
-    if (
-      this.operation === Operation.SHORT ||
-      this.operation === Operation.CLOSE_SHORT
-    ) {
+    if (this.operation === Operation.CLOSE_SHORT) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
@@ -279,7 +285,7 @@ export class Trade {
     quantityShort: BigNumberish,
     base: BigNumberish,
     quote: BigNumberish,
-    path: string[], // redeem -> underlying
+    path: string[], // underlying -> redeem
     reserves: BigNumberish[]
   ): BigNumberish => {
     if (BigNumber.from(reserves[0]).isZero()) {
@@ -363,6 +369,9 @@ export class Trade {
     reserveA: BigNumberish,
     reserveB: BigNumberish
   ): BigNumberish => {
+    if (amountA === '') {
+      return '0'
+    }
     let amountB
     if (ethers.BigNumber.from(reserveA).isZero()) {
       amountB = 0

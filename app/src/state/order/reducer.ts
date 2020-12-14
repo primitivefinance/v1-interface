@@ -1,6 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { updateItem, removeItem } from './actions'
-import { OptionsAttributes, EmptyAttributes } from '@/state/options/reducer'
+import { EmptyAttributes } from '@/state/options/reducer'
+import { OptionsAttributes } from '@/state/options/actions'
 import { Operation } from '@/constants/index'
 
 export interface OrderState {

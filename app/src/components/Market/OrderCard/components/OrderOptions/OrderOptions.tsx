@@ -41,7 +41,7 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
     }
   }
   const reserve0Units =
-    item.token0 === item.entity.underlying.address
+    item.market.token0.address === item.entity.underlying.address
       ? item.asset.toUpperCase()
       : 'SHORT'
   return (
@@ -97,7 +97,7 @@ const OrderOptions: React.FC = () => {
   const [option, setOption] = useState({ long: null, short: null, lp: null })
   useEffect(() => {
     const temp = positions.options.filter(
-      (opt) => opt.attributes.address === item.address
+      (opt) => opt.attributes.entity.address === item.entity.address
     )[0]
     if (temp) {
       if (temp.long || temp.redeem || temp.lp) {

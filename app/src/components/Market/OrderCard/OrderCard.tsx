@@ -70,7 +70,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
       if (orderState[1] && orderState[2] && orderState[3]) {
         const opts = options.calls.concat(options.puts)
         opts.map(async (opt) => {
-          if (opt.address === orderState[2]) {
+          if (opt.entity.address === orderState[2]) {
             // force ts compiler
             const id: string = orderState[3]
             updateItem(opt, Operation[id])
@@ -92,10 +92,10 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
       }, 1000)
     }
   }, [orderState, updateItem, options])
-  if (!item.expiry) {
+  if (!item.entity || !item.entity?.expiryValue) {
     return null
   }
-  const { date, month, year } = formatExpiry(item.expiry)
+  const { date, month, year } = formatExpiry(item.entity.expiryValue)
   const clear = () => {
     removeItem()
   }
@@ -107,7 +107,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           <Spacer size="sm" />
           <StyledTitle>
             {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
-            {` ${numeral(formatBalance(item.strike)).format(
+            {` ${numeral(formatBalance(item.entity.strikePrice)).format(
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>

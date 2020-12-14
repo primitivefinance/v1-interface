@@ -36,7 +36,8 @@ const Submit: React.FC<SubmitProps> = () => {
       {orderType === Operation.ADD_LIQUIDITY ||
       orderType === Operation.ADD_LIQUIDITY_CUSTOM ? (
         <AddLiquidity />
-      ) : orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
+      ) : orderType === Operation.REMOVE_LIQUIDITY_CLOSE ||
+        orderType === Operation.REMOVE_LIQUIDITY ? (
         <RemoveLiquidity />
       ) : manage ? (
         <Manage />

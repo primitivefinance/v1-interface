@@ -1,5 +1,5 @@
 import { Operation } from '@/constants/index'
-import { Trade } from './entities'
+import { Trade, Market, Option } from './entities'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
 import { UNISWAP_ROUTER02_V2 } from './constants'
@@ -9,6 +9,7 @@ import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live
 import { TradeSettings, SinglePositionParameters } from './types'
 import { parseEther } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
+import { TokenAmount } from '@uniswap/sdk'
 
 /**
  * Represents the UniswapConnector contract.
@@ -32,10 +33,12 @@ export class Uniswap {
 
     let amountIn: string
     let amountOut: string
-    let amountADesired: string | BigNumber
+    let amountADesired: string | BigNumber | TokenAmount
     let amountBDesired: string | BigNumber
     let amountAMin: string | BigNumber
     let amountBMin: string | BigNumber
+    let path: string[]
+    let minPayout
 
     const deadline =
       tradeSettings.timeLimit > 0
@@ -44,8 +47,6 @@ export class Uniswap {
           ).toString()
         : tradeSettings.deadline.toString()
     const to: string = tradeSettings.receiver
-    const baseValue: BigNumberish = trade.option.baseValue.raw.toString()
-    const quoteValue: BigNumberish = trade.option.quoteValue.raw.toString()
 
     const UniswapV2Router02Contract = new ethers.Contract(
       UNISWAP_ROUTER02_V2,
@@ -59,71 +60,67 @@ export class Uniswap {
       trade.signer
     )
 
-    const inputAmount: string = trade.inputAmount.raw.toString()
+    const inputAmount: TokenAmount = trade.inputAmount
+    const outputAmount: TokenAmount = trade.outputAmount
 
     switch (trade.operation) {
       case Operation.LONG:
-        let premium = Trade.getPremium(
-          inputAmount,
-          baseValue,
-          quoteValue,
-          trade.path,
-          trade.reserves
-        )
-        premium = trade.calcMaximumInSlippage(premium, tradeSettings.slippage)
-        premium = premium.gt(0) ? premium.toString() : '0'
-
+        let premium: BigNumberish = trade
+          .calcMaximumInSlippage(
+            trade.openPremium.raw.toString(),
+            tradeSettings.slippage
+          )
+          .toString()
         contract = UniswapConnector03Contract
         methodName = 'openFlashLong'
-        args = [trade.option.address, inputAmount, premium]
+        args = [trade.option.address, outputAmount.raw.toString(), premium]
         value = '0'
-
         break
       case Operation.SHORT:
-        // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountOut = inputAmount
-        amountIn = Trade.getAmountsInPure(
-          amountOut,
-          trade.path,
-          trade.reserves[0],
-          trade.reserves[1]
-        )[0].toString()
+        let amountInMax = trade
+          .maximumAmountIn(tradeSettings.slippage)
+          .raw.toString()
+        path = [
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+        ]
         contract = UniswapV2Router02Contract
         methodName = 'swapTokensForExactTokens'
-        args = [amountOut, amountIn, trade.path, to, deadline]
+        args = [
+          trade.outputAmount.raw.toString(),
+          amountInMax,
+          path,
+          to,
+          deadline,
+        ]
         value = '0'
         break
       case Operation.WRITE:
-        // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountIn = inputAmount
-        const amountInShort = trade.option.proportionalShort(amountIn)
-        let minPayout = Trade.getClosePremium(
-          amountInShort,
-          baseValue,
-          quoteValue,
-          trade.path,
-          trade.reserves
-        )
+        minPayout = trade.closePremium.raw.toString()
         if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
           minPayout = '1'
         }
         contract = UniswapConnector03Contract
         methodName = 'mintOptionsThenFlashCloseLong'
-        args = [trade.option.address, amountIn, minPayout.toString()]
+        args = [
+          trade.option.address,
+          trade.outputAmount.raw.toString(),
+          minPayout.toString(),
+        ]
         value = '0'
         break
       case Operation.CLOSE_LONG:
-        const underlyingsRequired = trade.amountsIn[0]
-        const outputUnderlyings = trade.option.proportionalLong(inputAmount)
-        let payout = outputUnderlyings.sub(underlyingsRequired)
-        payout = trade.calcMinimumOutSlippage(payout, tradeSettings.slippage)
-        payout = payout.gt(0) ? payout : BigNumber.from('1')
+        minPayout = trade.closePremium.raw.toString()
+        if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
+          minPayout = '1'
+        }
+
         contract = UniswapConnector03Contract
         methodName = 'closeFlashLong'
         args = [
           trade.option.address,
-          inputAmount,
-          payout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
+          trade.outputAmount.raw.toString(),
+          minPayout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
         ]
         value = '0'
         break
@@ -133,42 +130,52 @@ export class Uniswap {
         const amountOutMin = trade
           .minimumAmountOut(tradeSettings.slippage)
           .raw.toString()
-
+        path = [
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+        ]
         contract = UniswapV2Router02Contract
         methodName = 'swapExactTokensForTokens'
-        args = [amountIn, amountOutMin, trade.path, to, deadline]
+        args = [amountIn, amountOutMin, path, to, deadline]
         value = '0'
         break
       case Operation.ADD_LIQUIDITY:
-        const strikeRatio = trade.option.proportionalShort(parseEther('1'))
-        const redeemReserves = trade.reserves[0]
-        const underlyingReserves = trade.reserves[1]
-        const denominator =
-          isZero(redeemReserves) || isZero(underlyingReserves)
-            ? 0
-            : strikeRatio
-                .mul(underlyingReserves.toString())
-                .div(redeemReserves.toString())
-                .add(parseEther('1'))
-        const amountOptions = inputAmount
+        const strikeRatio = trade.option.proportionalShort(
+          trade.option.baseValue.raw.toString()
+        )
+        const redeemReserves = trade.market.reserveOf(trade.option.redeem)
+        const underlyingReserves = trade.market.reserveOf(
+          trade.option.underlying
+        )
+        const hasLiquidity =
+          redeemReserves.numerator[2] || underlyingReserves.numerator[2]
+        const denominator = !hasLiquidity
+          ? 0
+          : strikeRatio
+              .mul(underlyingReserves.raw.toString())
+              .div(redeemReserves.raw.toString())
+              .add(parseEther('1'))
         const optionsInput = isZero(denominator)
-          ? BigNumber.from(amountOptions)
-          : BigNumber.from(amountOptions).mul(parseEther('1')).div(denominator)
+          ? BigNumber.from(inputAmount.raw.toString())
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(parseEther('1'))
+              .div(denominator)
 
         // amount of redeems that will be minted and added to the pool
-        amountADesired = trade.option.proportionalShort(optionsInput)
+        amountADesired = new TokenAmount(
+          trade.option.redeem,
+          trade.option.proportionalShort(optionsInput).toString()
+        )
 
-        if (isZero(trade.reserves[0]) && isZero(trade.reserves[1])) {
+        if (!hasLiquidity) {
           amountBDesired = trade.outputAmount.raw.toString()
         } else {
-          amountBDesired = trade
-            .quote(amountADesired, trade.reserves[0], trade.reserves[1])
-            .toString()
+          amountBDesired = Trade.getQuote(
+            amountADesired.raw.toString(),
+            trade.market.reserveOf(amountADesired.token).raw.toString(),
+            trade.market.reserveOf(trade.option.underlying).raw.toString()
+          ).toString()
         }
-        amountAMin = trade.calcMinimumOutSlippage(
-          amountADesired,
-          tradeSettings.slippage
-        )
         amountBMin = trade.calcMinimumOutSlippage(
           amountBDesired,
           tradeSettings.slippage
@@ -187,9 +194,8 @@ export class Uniswap {
         break
       case Operation.ADD_LIQUIDITY_CUSTOM:
         // amount of redeems that will be minted and added to the pool
-        amountADesired = trade.option.proportionalShort(inputAmount)
+        amountADesired = inputAmount.raw.toString()
         amountBDesired = trade.outputAmount.raw.toString()
-
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,
           tradeSettings.slippage
@@ -201,9 +207,9 @@ export class Uniswap {
         contract = UniswapV2Router02Contract
         methodName = 'addLiquidity'
         args = [
-          trade.path[0],
-          trade.path[1],
-          inputAmount,
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+          trade.inputAmount.raw.toString(),
           trade.outputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
@@ -215,13 +221,13 @@ export class Uniswap {
       case Operation.REMOVE_LIQUIDITY:
         amountAMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
-              .mul(trade.reserves[0])
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve0.raw.toString())
               .div(trade.totalSupply)
         amountBMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
-              .mul(trade.reserves[1])
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve1.raw.toString())
               .div(trade.totalSupply)
 
         amountAMin = trade.calcMinimumOutSlippage(
@@ -235,10 +241,9 @@ export class Uniswap {
         contract = UniswapV2Router02Contract
         methodName = 'removeLiquidity'
         args = [
-          trade.path[0],
-          trade.path[1],
-          inputAmount,
-          trade.outputAmount.raw.toString(),
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+          trade.inputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,
@@ -249,13 +254,13 @@ export class Uniswap {
       case Operation.REMOVE_LIQUIDITY_CLOSE:
         amountAMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
-              .mul(trade.reserves[0])
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve0.raw.toString())
               .div(trade.totalSupply)
         amountBMin = isZero(trade.totalSupply)
           ? BigNumber.from('0')
-          : BigNumber.from(inputAmount)
-              .mul(trade.reserves[1])
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve1.raw.toString())
               .div(trade.totalSupply)
 
         amountAMin = trade.calcMinimumOutSlippage(
@@ -270,7 +275,7 @@ export class Uniswap {
         methodName = 'removeShortLiquidityThenCloseOptions'
         args = [
           trade.option.address,
-          inputAmount,
+          trade.inputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,

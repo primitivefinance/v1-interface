@@ -92,31 +92,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       clearInterval(timer)
     }
   }, [library, asset, updateOptions, options])
-  const calculateBreakeven = useCallback(
-    (option) => {
-      const price = data
-        ? data[key]
-          ? data[key].usd
-            ? data[key].usd
-            : '0'
-          : '0'
-        : '0'
-      const spotPrice = price.toString()
-      const spotPriceWei = parseEther(spotPrice)
-      const spotPriceDai = BigNumber.from(option.premium.toString())
-        .mul(spotPriceWei)
-        .div(parseEther('1'))
-      const breakeven = option.entity.isCall
-        ? BigNumber.from(option.entity.quoteValue.raw.toString()).add(
-            spotPriceDai
-          )
-        : BigNumber.from(option.entity.baseValue.raw.toString()).sub(
-            option.premium
-          )
-      return breakeven.toString()
-    },
-    [key, data]
-  )
 
   const calculatePremiumInDollars = useCallback(
     (premiumWei) => {
@@ -140,6 +115,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const calculateAllGreeks = useCallback(
     (option: any) => {
       const blackScholes = new BlackScholes(
+        chainId,
+        option.entity.address,
         18,
         option.id,
         COINGECKO_ID_FOR_MARKET[asset],
@@ -161,7 +138,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       const vega = blackScholes.vega()
       const rho = blackScholes.rho()
       const ivEstimate = 1
-      const actualCost = Number(calculatePremiumInDollars(option.premium))
+      const actualCost = Number(
+        calculatePremiumInDollars(option.market.spotOpenPremium.raw.toString())
+      )
       const iv = blackScholes.getImpliedVolatility(actualCost, ivEstimate)
       const greeks: Greeks = {
         delta: delta,
@@ -180,19 +159,33 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     (option: any): TableColumns => {
       const tableKey: string = option.entity.address
       const tableAssset: string = asset.toUpperCase()
-      const tableStrike: string = formatBalance(option.strike).toString()
+      const tableStrike: string = formatBalance(
+        option.entity.strikePrice
+      ).toString()
       const tableBreakeven: string = formatEtherBalance(
-        calculateBreakeven(option)
+        option.entity.getBreakeven(
+          BigNumber.from(
+            option.entity.isPut
+              ? option.market.spotOpenPremium.raw.toString()
+              : parseEther(
+                  calculatePremiumInDollars(
+                    option.market.spotOpenPremium.raw.toString()
+                  )
+                )
+          )
+        )
       ).toString()
       const tablePremium: string = formatBalance(
         option.entity.isPut
-          ? formatEther(option.premium)
-          : calculatePremiumInDollars(option.premium)
+          ? formatEther(option.market.spotOpenPremium.raw.toString())
+          : calculatePremiumInDollars(
+              option.market.spotOpenPremium.raw.toString()
+            )
       ).toString()
       const tablePremiumUnderlying: string = formatEtherBalance(
-        option.premium
+        option.market.spotOpenPremium.raw.toString()
       ).toString()
-      const tableDepth: string = option.depth.toString()
+      const tableDepth: string = option.market.depth.raw.toString()
 
       const reserve0Units =
         option.token0 === option.entity.underlying.address
@@ -201,14 +194,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
       const tableReserve0: string =
         reserve0Units === asset.toUpperCase()
-          ? formatEtherBalance(option.reserves[0].toString()).toString()
-          : formatEtherBalance(option.reserves[1].toString()).toString()
+          ? formatEtherBalance(option.market.reserve0.raw.toString()).toString()
+          : formatEtherBalance(option.market.reserve1.raw.toString()).toString()
       const tableReserve1: string =
         reserve0Units === asset.toUpperCase()
-          ? formatEtherBalance(option.reserves[1].toString()).toString()
-          : formatEtherBalance(option.reserves[0].toString()).toString()
+          ? formatEtherBalance(option.market.reserve1.raw.toString()).toString()
+          : formatEtherBalance(option.market.reserve0.raw.toString()).toString()
       const tableReserves: string[] = [tableReserve0, tableReserve1]
-      const tableAddress: string = formatAddress(option.address)
+      const tableAddress: string = formatAddress(option.entity.address)
 
       const tableColumns: TableColumns = {
         key: tableKey,
@@ -237,24 +230,24 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                console.log(option.strike.toString())
                 if (
-                  (optionExp != option.expiry && option.expiry === 0) ||
+                  (optionExp != option.entity.expiryValue &&
+                    option.entity.expiryValue === 0) ||
                   (chainId === 1
-                    ? option.strike.toString() !== '720'
-                    : !option.strike)
+                    ? +option.entity.strikePrice !== 720
+                    : !+option.entity.strikePrice)
                 )
                   return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
                 return (
                   <OptionsTableRow
-                    key={option.address}
+                    key={option.entity.address}
                     onClick={() => {
                       setGreeks(!greeks)
                       updateItem(option, Operation.NONE)
                     }}
-                    href={`${baseUrl}/${option.address}`}
+                    href={`${baseUrl}/${option.entity.address}`}
                     columns={tableColumns}
                     greeks={allGreeks}
                   />
