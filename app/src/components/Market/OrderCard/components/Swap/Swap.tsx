@@ -67,6 +67,7 @@ const Swap: React.FC = () => {
       : formatEther(item.market.spotShortToUnderlying.raw.toString())
   )
   const [impact, setImpact] = useState('0.00')
+  const [error, setError] = useState(false)
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
   // inputs for quant
@@ -185,64 +186,78 @@ const Swap: React.FC = () => {
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slippage
-      if (orderType === Operation.LONG) {
-        if (parsedAmount.gt(BigNumber.from(0))) {
-          ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
-            orderType,
-            size
-          )
-          setImpact(slippage)
-          setPrem(formatEther(spot.raw.toString()))
-          debit = formatEther(actualPremium.raw.toString())
-        } else {
-          setImpact('0.00')
-          setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
+      try {
+        if (orderType === Operation.LONG) {
+          if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
+              orderType,
+              size
+            )
+            setImpact(slippage)
+            console.log(spot.raw.toString())
+            setPrem(formatEther(spot.raw.toString()))
+            debit = formatEther(actualPremium.raw.toString())
+          } else {
+            setImpact('0.00')
+            setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
+          }
+          // sell long, Trade.getClosePremium
+        } else if (
+          orderType === Operation.CLOSE_LONG ||
+          orderType === Operation.WRITE
+        ) {
+          if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
+              orderType,
+              size
+            )
+            setImpact(slippage)
+            setPrem(formatEther(spot.raw.toString()))
+            credit = formatEther(actualPremium.raw.toString())
+          } else {
+            setImpact('0.00')
+            setPrem(formatEther(item.market.spotClosePremium.raw.toString()))
+          }
+          // buy short swap from UNDER -> RDM
+        } else if (orderType === Operation.SHORT) {
+          if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
+              orderType,
+              size
+            )
+            setImpact(slippage)
+            setPrem(
+              formatEther(item.market.spotUnderlyingToShort.raw.toString())
+            )
+            short = formatEther(actualPremium.raw.toString())
+          } else {
+            setImpact('0.00')
+            setPrem(
+              formatEther(item.market.spotUnderlyingToShort.raw.toString())
+            )
+          }
+          // sell short, RDM -> UNDER
+        } else if (orderType === Operation.CLOSE_SHORT) {
+          if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
+              orderType,
+              size
+            )
+            setImpact(slippage)
+            setPrem(
+              formatEther(item.market.spotShortToUnderlying.raw.toString())
+            )
+            short = formatEther(actualPremium.raw.toString())
+          } else {
+            setImpact('0.00')
+            setPrem(
+              formatEther(item.market.spotShortToUnderlying.raw.toString())
+            )
+          }
         }
-        // sell long, Trade.getClosePremium
-      } else if (
-        orderType === Operation.CLOSE_LONG ||
-        orderType === Operation.WRITE
-      ) {
-        if (parsedAmount.gt(BigNumber.from(0))) {
-          ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
-            orderType,
-            size
-          )
-          setImpact(slippage)
-          setPrem(formatEther(spot.raw.toString()))
-          credit = formatEther(actualPremium.raw.toString())
-        } else {
-          setImpact('0.00')
-          setPrem(formatEther(item.market.spotClosePremium.raw.toString()))
-        }
-        // buy short swap from UNDER -> RDM
-      } else if (orderType === Operation.SHORT) {
-        if (parsedAmount.gt(BigNumber.from(0))) {
-          ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
-            orderType,
-            size
-          )
-          setImpact(slippage)
-          setPrem(formatEther(item.market.spotUnderlyingToShort.raw.toString()))
-          short = formatEther(actualPremium.raw.toString())
-        } else {
-          setImpact('0.00')
-          setPrem(formatEther(item.market.spotUnderlyingToShort.raw.toString()))
-        }
-        // sell short, RDM -> UNDER
-      } else if (orderType === Operation.CLOSE_SHORT) {
-        if (parsedAmount.gt(BigNumber.from(0))) {
-          ;[spot, actualPremium, slippage] = item.market.getExecutionPrice(
-            orderType,
-            size
-          )
-          setImpact(slippage)
-          setPrem(formatEther(item.market.spotShortToUnderlying.raw.toString()))
-          short = formatEther(actualPremium.raw.toString())
-        } else {
-          setImpact('0.00')
-          setPrem(formatEther(item.market.spotShortToUnderlying.raw.toString()))
-        }
+        setError(false)
+      } catch (e) {
+        setError(true)
       }
       swapLoaded()
       setCost({ debit, credit, short })
@@ -292,266 +307,280 @@ const Swap: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-      <Spacer size="sm" />
-      {hasLiquidity ? null : (
-        <WarningTooltip>
-          <WarningIcon />
-          <Spacer size="sm" />
-          <h5>There is no liquidity in this option market</h5>
-        </WarningTooltip>
-      )}
-      {!inputLoading ? (
-        <>
-          {orderType === Operation.SHORT ||
-          orderType === Operation.CLOSE_SHORT ? (
-            <LineItem
-              label="Short Premium"
-              data={formatBalance(prem)}
-              units={entity.isPut ? 'DAI' : item.asset}
-            />
-          ) : orderType === Operation.WRITE ||
-            orderType === Operation.CLOSE_LONG ? (
-            <LineItem
-              label="Option Premium"
-              data={formatBalance(prem)}
-              units={entity.isPut ? 'DAI' : item.asset}
-            />
-          ) : (
-            <LineItem
-              label="Option Premium"
-              data={formatBalance(prem)}
-              units={entity.isPut ? 'DAI' : item.asset}
-            />
-          )}
-        </>
-      ) : (
-        <Loader />
-      )}
-
-      <Spacer size="sm" />
-      <PriceInput
-        title="Quantity"
-        name="primary"
-        onChange={handleTypeInput}
-        quantity={typedValue}
-        onClick={handleSetMax}
-        balance={tokenAmount}
-        valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
-      />
-      <Spacer size="sm" />
-      {inputLoading ? (
-        <Loader />
-      ) : (
-        <LineItem label="Slippage" data={`${impact}`} units="%" />
-      )}
-      {parsedAmount.gt(0) ? (
-        <>
-          {' '}
-          <Spacer />
-          <PurchaseInfo>
-            You will{' '}
-            <StyledData>
-              {orderType === Operation.LONG || orderType === Operation.SHORT
-                ? 'BUY'
-                : orderType === Operation.WRITE
-                ? 'SELL TO OPEN'
-                : 'SELL'}
-            </StyledData>{' '}
-            <StyledData>
-              {' '}
-              {formatEtherBalance(parsedAmount)}{' '}
-              {orderType === Operation.SHORT ||
-              orderType === Operation.CLOSE_SHORT
-                ? 'SHORT'
-                : ''}{' '}
-              {entity.isPut ? 'PUT' : 'CALL'}{' '}
-            </StyledData>
-            {orderType === Operation.CLOSE_LONG ? (
-              <>
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {formatBalance(cost.credit)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>
-                .{' '}
-              </>
-            ) : orderType === Operation.CLOSE_SHORT ? (
-              <>
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {formatBalance(cost.short)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>
-                .{' '}
-              </>
-            ) : orderType === Operation.SHORT ? (
-              <>
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {formatBalance(cost.short)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>{' '}
-                which gives you the right to right to withdraw{' '}
-                <StyledData>
-                  {formatEtherBalance(parsedAmount)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>{' '}
-                when the options expire unexercised, or the right to redeem them
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {calculateProportionalShort()}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
-                </StyledData>{' '}
-                if they are exercised.{' '}
-              </>
-            ) : orderType === Operation.WRITE ? (
-              <>
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {formatBalance(cost.credit)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>
-                .{' '}
-              </>
-            ) : orderType === Operation.LONG ? (
-              <>
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {formatBalance(cost.debit)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>{' '}
-                which gives you the right to purchase{' '}
-                <StyledData>
-                  {formatEtherBalance(parsedAmount)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>{' '}
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {calculateProportionalShort()}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
-                </StyledData>
-                .{' '}
-              </>
-            ) : (
-              <>
-                which gives you the right to purchase{' '}
-                <StyledData>
-                  {formatEtherBalance(parsedAmount)}{' '}
-                  {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
-                </StyledData>{' '}
-                for{' '}
-                <StyledData>
-                  {' '}
-                  {calculateProportionalShort()}{' '}
-                  {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
-                </StyledData>
-                .{' '}
-              </>
-            )}
-          </PurchaseInfo>
-        </>
-      ) : (
-        <> </>
-      )}
-      <Spacer />
-
-      {isAboveGuardCap() ? (
-        <>
-          <div style={{ marginTop: '-.5em' }} />
-          <WarningLabel>
-            This amount of tokens is above our guardrail cap of $100,000
-          </WarningLabel>
-          <Spacer size="sm" />
-        </>
-      ) : (
-        <></>
-      )}
-
-      <Box row justifyContent="flex-start">
-        {loading ? (
-          <div style={{ width: '100%' }}>
-            <Box column alignItems="center" justifyContent="center">
-              <Loader />
-            </Box>
-          </div>
-        ) : (
-          <>
-            {orderType === Operation.WRITE ? (
-              <>
-                {approved[0] ? (
-                  <></>
-                ) : (
-                  <>
-                    <Button
-                      disabled={loading}
-                      full
-                      size="sm"
-                      onClick={handleApproval}
-                      isLoading={loading}
-                      text="Approve Options"
-                    />
-                  </>
-                )}
-                {approved[1] ? (
-                  <></>
-                ) : (
-                  <>
-                    <Button
-                      disabled={loading}
-                      full
-                      size="sm"
-                      onClick={handleSecondaryApproval}
-                      isLoading={loading}
-                      text="Approve Tokens"
-                    />
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                {approved[0] ? (
-                  <></>
-                ) : (
-                  <>
-                    <Button
-                      disabled={loading}
-                      full
-                      size="sm"
-                      onClick={handleApproval}
-                      isLoading={loading}
-                      text="Approve"
-                    />
-                  </>
-                )}
-              </>
-            )}
-
-            <Button
-              disabled={
-                !approved[0] ||
-                !parsedAmount?.gt(0) ||
-                loading ||
-                isAboveGuardCap()
-              }
-              full
-              size="sm"
-              onClick={handleSubmitClick}
-              isLoading={loading}
-              text="Confirm Transaction"
-            />
-          </>
+      <Box column alignItems="center">
+        <Spacer size="sm" />
+        {hasLiquidity ? null : (
+          <WarningTooltip>
+            <WarningIcon />
+            <Spacer size="sm" />
+            <h5>There is no liquidity in this option market</h5>
+          </WarningTooltip>
         )}
+        {!inputLoading ? (
+          <>
+            {orderType === Operation.SHORT ||
+            orderType === Operation.CLOSE_SHORT ? (
+              <LineItem
+                label="Short Premium"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            ) : orderType === Operation.WRITE ||
+              orderType === Operation.CLOSE_LONG ? (
+              <LineItem
+                label="Option Premium"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            ) : (
+              <LineItem
+                label="Option Premium"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            )}
+          </>
+        ) : (
+          <Loader />
+        )}
+
+        <Spacer size="sm" />
+        <PriceInput
+          title="Quantity"
+          name="primary"
+          onChange={handleTypeInput}
+          quantity={typedValue}
+          onClick={handleSetMax}
+          balance={tokenAmount}
+          valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
+        />
+        <Spacer size="sm" />
+        {inputLoading ? (
+          <Loader />
+        ) : (
+          <LineItem label="Slippage" data={`${impact}`} units="%" />
+        )}
+        {parsedAmount.gt(0) ? (
+          <StyledSummary column alignItems="center">
+            {parsedAmount.gt(0) && !error ? (
+              <PurchaseInfo>
+                You will{' '}
+                <StyledData>
+                  {orderType === Operation.LONG || orderType === Operation.SHORT
+                    ? 'BUY'
+                    : orderType === Operation.WRITE
+                    ? 'SELL TO OPEN'
+                    : 'SELL'}
+                </StyledData>{' '}
+                <StyledData>
+                  {' '}
+                  {formatEtherBalance(parsedAmount)}{' '}
+                  {orderType === Operation.SHORT ||
+                  orderType === Operation.CLOSE_SHORT
+                    ? 'SHORT'
+                    : ''}{' '}
+                  {entity.isPut ? 'PUT' : 'CALL'}{' '}
+                </StyledData>
+                {orderType === Operation.CLOSE_LONG ? (
+                  <>
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {formatBalance(cost.credit)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>
+                    .{' '}
+                  </>
+                ) : orderType === Operation.CLOSE_SHORT ? (
+                  <>
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {formatBalance(cost.short)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>
+                    .{' '}
+                  </>
+                ) : orderType === Operation.SHORT ? (
+                  <>
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {formatBalance(cost.short)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>{' '}
+                    which gives you the right to right to withdraw{' '}
+                    <StyledData>
+                      {formatEtherBalance(parsedAmount)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>{' '}
+                    when the options expire unexercised, or the right to redeem
+                    them for{' '}
+                    <StyledData>
+                      {' '}
+                      {calculateProportionalShort()}{' '}
+                      {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                    </StyledData>{' '}
+                    if they are exercised.{' '}
+                  </>
+                ) : orderType === Operation.WRITE ? (
+                  <>
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {formatBalance(cost.credit)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>
+                    .{' '}
+                  </>
+                ) : orderType === Operation.LONG ? (
+                  <>
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {formatBalance(cost.debit)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>{' '}
+                    which gives you the right to purchase{' '}
+                    <StyledData>
+                      {formatEtherBalance(parsedAmount)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>{' '}
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {calculateProportionalShort()}{' '}
+                      {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                    </StyledData>
+                    .{' '}
+                  </>
+                ) : (
+                  <>
+                    which gives you the right to purchase{' '}
+                    <StyledData>
+                      {formatEtherBalance(parsedAmount)}{' '}
+                      {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
+                    </StyledData>{' '}
+                    for{' '}
+                    <StyledData>
+                      {' '}
+                      {calculateProportionalShort()}{' '}
+                      {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
+                    </StyledData>
+                    .{' '}
+                  </>
+                )}
+              </PurchaseInfo>
+            ) : (
+              <>
+                <Spacer />
+                {error ? (
+                  <StyledError>Order quantity too large!</StyledError>
+                ) : null}
+              </>
+            )}
+          </StyledSummary>
+        ) : null}
+        <Spacer />
+        {isAboveGuardCap() ? (
+          <>
+            <div style={{ marginTop: '-.5em' }} />
+            <WarningLabel>
+              This amount of tokens is above our guardrail cap of $100,000
+            </WarningLabel>
+            <Spacer size="sm" />
+          </>
+        ) : (
+          <></>
+        )}
+
+        <StyledEnd row justifyContent="flex-start">
+          {loading ? (
+            <div style={{ width: '100%' }}>
+              <Box column alignItems="center" justifyContent="center">
+                <Loader />
+              </Box>
+            </div>
+          ) : (
+            <>
+              {orderType === Operation.WRITE ? (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve Options"
+                      />
+                    </>
+                  )}
+                  {approved[1] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleSecondaryApproval}
+                        isLoading={loading}
+                        text="Approve Tokens"
+                      />
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve"
+                      />
+                    </>
+                  )}
+                </>
+              )}
+
+              <Button
+                disabled={
+                  !approved[0] ||
+                  !parsedAmount?.gt(0) ||
+                  loading ||
+                  isAboveGuardCap() ||
+                  error
+                }
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                isLoading={loading}
+                text="Confirm Transaction"
+              />
+            </>
+          )}
+        </StyledEnd>
       </Box>
     </>
   )
 }
+
+const StyledSummary = styled(Box)`
+  min-width: 100%;
+`
+const StyledEnd = styled(Box)`
+  min-width: 100%;
+`
 const WarningTooltip = styled.div`
   color: yellow;
   font-size: 18px;
@@ -567,8 +596,14 @@ const StyledTitle = styled.h5`
 
 const PurchaseInfo = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
+  margin-top: 1em;
 `
-
+const StyledError = styled.span`
+  color: ${(props) => props.theme.color.red[500]};
+  font-size: 18px;
+  margin-bottom: -0.3em;
+  font-weight: 600;
+`
 const StyledData = styled.span`
   color: ${(props) => props.theme.color.white};
   font-size: 16px;

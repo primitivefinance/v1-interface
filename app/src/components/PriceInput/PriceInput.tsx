@@ -33,7 +33,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
   valid,
 }) => {
   return (
-    <>
+    <StyledContainer>
       <Label text={title} />
       <Spacer size="sm" />
       <Input
@@ -63,7 +63,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
       ) : (
         <> </>
       )}
-    </>
+    </StyledContainer>
   )
 }
 
@@ -82,5 +82,9 @@ const RightSpan = styled.span`
 
 const OpacitySpan = styled.span`
   opacity: 0.66;
+`
+
+const StyledContainer = styled.div`
+  width: 100%;
 `
 export default PriceInput
