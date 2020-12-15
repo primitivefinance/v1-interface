@@ -297,7 +297,7 @@ export const useHandleSubmitOrder = (): ((
         stablecoin: STABLECOINS[chainId].address,
       }
 
-      let totalSupply: BigNumberish = await getTotalSupply(
+      const totalSupply: BigNumberish = await getTotalSupply(
         provider,
         item.market.liquidityToken.address
       )
@@ -315,7 +315,7 @@ export const useHandleSubmitOrder = (): ((
       let out: BigNumberish
       const path: string[] = []
       const amountsIn: BigNumberish[] = []
-      let amountsOut: BigNumberish[] = []
+      const amountsOut: BigNumberish[] = []
       const reserves: BigNumberish[] = []
 
       const trade: Trade = new Trade(

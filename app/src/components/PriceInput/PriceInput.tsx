@@ -57,7 +57,11 @@ const PriceInput: React.FC<PriceInputProps> = ({
           </LeftSpan>
           <RightSpan>
             {formatEtherBalance(balance.raw.toString())}{' '}
-            <OpacitySpan>{balance.token.symbol.toUpperCase()}</OpacitySpan>{' '}
+            <OpacitySpan>
+              {balance.token.symbol.toUpperCase() === 'RDM'
+                ? 'SHORT'
+                : balance.token.symbol.toUpperCase()}
+            </OpacitySpan>
           </RightSpan>
         </ContainerSpan>
       ) : (
