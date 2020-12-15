@@ -165,11 +165,11 @@ const Scroll = styled.div`
 
 const StyledBox = styled(Box)`
   cursor: pointer;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
 `
 
 const Title = styled.h4`
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   min-width: 16em;
 `
 const Reverse = styled.div`
@@ -197,7 +197,7 @@ const StyledPrices = styled(Box)`
   padding: 0 1em 0 1em;
 `
 const StyledTitle = styled.h4`
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

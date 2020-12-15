@@ -254,7 +254,7 @@ export class Market extends Pair {
 
   public getLiquidityValuePerShare = (
     totalSupply: TokenAmount,
-    feeOn: boolean = false,
+    feeOn = false,
     kLast?: BigNumberish
   ): [TokenAmount, TokenAmount, TokenAmount] => {
     const shortValue = this.getLiquidityValue(
