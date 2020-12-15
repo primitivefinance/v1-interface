@@ -10,11 +10,11 @@ import LitContainer from '@/components/LitContainer'
 const OptionsTableHeader: React.FC = () => {
   const headers = [
     {
-      name: 'Strike Price',
+      name: 'Strike',
       tip: 'The purchase price for the underlying asset of this option',
     },
     {
-      name: 'Break Even',
+      name: 'Break-Even',
       tip:
         'The price the underlying asset must reach to reach a net cost of zero',
     },

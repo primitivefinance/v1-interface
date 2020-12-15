@@ -161,7 +161,7 @@ const Scroll = styled.div`
 `
 const StyledBox = styled(Box)`
   cursor: pointer;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
 `
 
 const StyledContainer = styled.div`

@@ -72,15 +72,16 @@ const RemoveLiquidity: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   // pair and option entities
-  const addNotif = useAddNotif()
   const entity = item.entity
-  const lpPair = useReserves(entity.underlying, entity.redeem).data
   const lpToken = item.market ? item.market.liquidityToken.address : ''
   const token0 = item.market ? item.market.token0.symbol : ''
   const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  const spender = UNISWAP_CONNECTOR[chainId]
+  const spender =
+    orderType === Operation.REMOVE_LIQUIDITY
+      ? UNISWAP_ROUTER02_V2
+      : UNISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
@@ -331,7 +332,7 @@ const RemoveLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-      <Spacer />
+      <Spacer size="sm" />
       <Toggle>
         <ToggleButton
           active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
@@ -348,7 +349,7 @@ const RemoveLiquidity: React.FC = () => {
           text="Exit"
         />
       </Toggle>
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label={'Amount'}
         data={Math.round(10 * (ratio / 10)) / 10 + '%'}
