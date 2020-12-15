@@ -332,7 +332,7 @@ const RemoveLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-      <Spacer />
+      <Spacer size="sm" />
       <Toggle>
         <ToggleButton
           active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
@@ -349,7 +349,7 @@ const RemoveLiquidity: React.FC = () => {
           text="Exit"
         />
       </Toggle>
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label={'Amount'}
         data={Math.round(10 * (ratio / 10)) / 10 + '%'}
