@@ -193,7 +193,6 @@ const Swap: React.FC = () => {
               orderType,
               size
             )
-            console.log(slippage)
             setImpact(slippage)
             setPrem(formatEther(spot.raw.toString()))
             debit = formatEther(actualPremium.raw.toString())
