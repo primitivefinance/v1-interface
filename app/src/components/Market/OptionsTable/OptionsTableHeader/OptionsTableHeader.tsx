@@ -23,7 +23,10 @@ const OptionsTableHeader: React.FC = () => {
       tip:
         'The current spot price of an option token, not accounting for slippage',
     },
-    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
+    {
+      name: 'Depth',
+      tip: 'Slippage incurred for purchasing 100 long options',
+    },
     { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
     { name: 'Contract', tip: 'The address of the Option token' },
     { name: '', tip: null },

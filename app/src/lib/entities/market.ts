@@ -60,7 +60,8 @@ export class Market extends Pair {
    */
   public getOpenPremium = (outputAmount: TokenAmount): TokenAmount => {
     if (
-      typeof this.reserveOf(this.option.redeem).numerator[2] === 'undefined'
+      typeof this.reserveOf(this.option.redeem).numerator[2] === 'undefined' ||
+      typeof this.reserveOf(this.option.underlying).numerator[2] === 'undefined'
     ) {
       return new TokenAmount(this.option.underlying, '0')
     }
