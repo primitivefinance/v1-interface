@@ -185,12 +185,19 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       const tablePremiumUnderlying: string = formatEtherBalance(
         option.market.spotOpenPremium.raw.toString()
       ).toString()
+      const quantityLong: BigNumber = BigNumber.from(
+        option.market.reserveOf(option.entity.underlying).raw.toString()
+      )
+        .mul(2)
+        .div(100)
       const [, , slippage] = option.market.getExecutionPrice(
         Operation.LONG,
-        parseEther('100')
+        quantityLong
       )
-      const tableDepth: string =
-        slippage && slippage > 0 ? numeral(slippage).format('0.00') : '0'
+      const tableDepth: string[] =
+        slippage && slippage > 0
+          ? [formatEther(quantityLong), numeral(slippage).format('0.00')]
+          : [formatEther(quantityLong), '0']
 
       const reserve0Units =
         option.token0 === option.entity.underlying.address

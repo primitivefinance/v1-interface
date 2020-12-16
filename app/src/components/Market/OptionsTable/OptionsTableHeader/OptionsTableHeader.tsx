@@ -25,7 +25,7 @@ const OptionsTableHeader: React.FC = () => {
     },
     {
       name: 'Depth',
-      tip: 'Slippage incurred for purchasing 100 long options',
+      tip: 'Slippage incurred for purchasing 2% of the underlying reserves.',
     },
     { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
     { name: 'Contract', tip: 'The address of the Option token' },

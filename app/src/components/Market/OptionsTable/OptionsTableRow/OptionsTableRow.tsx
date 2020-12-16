@@ -24,7 +24,7 @@ export interface TableColumns {
   breakeven: string
   premium: string
   premiumUnderlying: string
-  depth: string
+  depth: string[]
   reserves: string[]
   address: string
   isCall: boolean
@@ -122,9 +122,16 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+depth > 0 ? (
+        {+depth[1] > 0 ? (
           <TableCell>
-            {depth} <Units>{'%'}</Units>
+            <StyledR>
+              <StyledT>
+                {numeral(depth[0]).format('0.00a')} <Units>{`LONG`}</Units>
+              </StyledT>
+              <span>
+                {depth[1]} <Units>{'% Slippage'}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
