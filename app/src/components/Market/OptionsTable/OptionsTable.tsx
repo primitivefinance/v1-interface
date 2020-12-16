@@ -189,7 +189,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         Operation.LONG,
         parseEther('100')
       )
-      console.log({ slippage })
       const tableDepth: string =
         slippage && slippage > 0 ? numeral(slippage).format('0.00') : '0'
 
