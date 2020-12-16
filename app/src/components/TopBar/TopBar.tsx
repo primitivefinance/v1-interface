@@ -45,9 +45,7 @@ const TopBar: React.FC = () => {
         <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
             <StyledNavItem
-              active={
-                location.pathname.indexOf('/markets') !== -1 ? true : false
-              }
+              active={location.pathname === '/markets' ? true : false}
             >
               Markets
             </StyledNavItem>

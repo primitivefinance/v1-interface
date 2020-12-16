@@ -183,7 +183,8 @@ const AddLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof parsedOptionAmount === 'undefined'
+      typeof parsedOptionAmount === 'undefined' ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
     ) {
       return parsedOptionAmount || '0'
     }
@@ -318,9 +319,10 @@ const AddLiquidity: React.FC = () => {
   }
 
   const noLiquidityTitle = {
-    text: 'This pair has no liquidity.',
+    text:
+      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio',
     tip:
-      'Providing liquidity to this pair will set the ratio between the tokens.',
+      'Providing liquidity to this pair will set the ratio between the tokens',
   }
 
   return (
@@ -396,11 +398,7 @@ const AddLiquidity: React.FC = () => {
         </StyledTabs>
       ) : (
         <>
-          <StyledSubtitle>
-            <Tooltip text={noLiquidityTitle.tip}>
-              {noLiquidityTitle.text}
-            </Tooltip>
-          </StyledSubtitle>
+          <StyledSubtitle>{noLiquidityTitle.text}</StyledSubtitle>
           <Spacer size="sm" />
           <PriceInput
             name="primary"
@@ -507,6 +505,7 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <></>
       )}
+      <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         {loading ? (
           <div style={{ width: '100%' }}>
@@ -588,11 +587,20 @@ const StyledTitle = styled.h5`
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
-const StyledSubtitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 500;
+const StyledSubtitle = styled.div`
+  color: yellow;
+  display: table;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 13px;
+  opacity: 1;
   margin: ${(props) => props.theme.spacing[2]}px;
+  margin-left: -0em !important;
 `
 
 export default AddLiquidity

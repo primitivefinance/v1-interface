@@ -89,6 +89,8 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (lpPair) {
       setHasL(lpPair.reserveOf(entity.redeem).numerator[2])
+    } else {
+      swapLoaded()
     }
   }, [setHasL, lpPair])
 
@@ -308,11 +310,8 @@ const Swap: React.FC = () => {
         </StyledTitle>
       </Box>
       <Box column alignItems="center">
-        <Spacer size="sm" />
         {hasLiquidity ? null : (
           <WarningTooltip>
-            <WarningIcon />
-            <Spacer size="sm" />
             <h5>There is no liquidity in this option market</h5>
           </WarningTooltip>
         )}
@@ -341,7 +340,7 @@ const Swap: React.FC = () => {
             )}
           </>
         ) : (
-          <Loader />
+          <>{hasLiquidity ? <Loader /> : null}</>
         )}
 
         <Spacer size="sm" />
@@ -355,8 +354,11 @@ const Swap: React.FC = () => {
           valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
         />
         <Spacer size="sm" />
-        {inputLoading ? (
-          <Loader />
+        {inputLoading && hasLiquidity ? (
+          <>
+            <Loader />
+            <Spacer />
+          </>
         ) : (
           <LineItem label="Slippage" data={`${impact}`} units="%" />
         )}
@@ -473,15 +475,14 @@ const Swap: React.FC = () => {
               </PurchaseInfo>
             ) : (
               <>
-                <Spacer />
                 {error ? (
-                  <StyledError>Order quantity too large!</StyledError>
+                  <WarningLabel>Order quantity too large!</WarningLabel>
                 ) : null}
               </>
             )}
           </StyledSummary>
         ) : null}
-        <Spacer />
+        <Spacer size="sm" />
         {isAboveGuardCap() ? (
           <>
             <div style={{ marginTop: '-.5em' }} />
@@ -559,7 +560,8 @@ const Swap: React.FC = () => {
                   !parsedAmount?.gt(0) ||
                   loading ||
                   isAboveGuardCap() ||
-                  error
+                  error ||
+                  hasLiquidity
                 }
                 full
                 size="sm"
@@ -585,7 +587,16 @@ const WarningTooltip = styled.div`
   color: yellow;
   font-size: 18px;
   display: flex;
+  display: table;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 14px;
+  opacity: 1;
 `
 const StyledTitle = styled.h5`
   color: ${(props) => props.theme.color.white};
@@ -598,12 +609,7 @@ const PurchaseInfo = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
   margin-top: 1em;
 `
-const StyledError = styled.span`
-  color: ${(props) => props.theme.color.red[500]};
-  font-size: 18px;
-  margin-bottom: -0.3em;
-  font-weight: 600;
-`
+
 const StyledData = styled.span`
   color: ${(props) => props.theme.color.white};
   font-size: 16px;
