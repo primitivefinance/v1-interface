@@ -15,10 +15,14 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
   const [cap, setCap] = useState('0.00')
 
   const getMarketDetails = () => {
+    let assetName = asset.toLowerCase()
+    if (assetName === 'weth') {
+      assetName = 'eth'
+    }
     const symbol: string = asset
-    const name: string = NAME_FOR_MARKET[asset.toLowerCase()]
-    const key: string = COINGECKO_ID_FOR_MARKET[asset.toLowerCase()]
-    const address: string = ADDRESS_FOR_MARKET[asset.toLowerCase()]
+    const name: string = NAME_FOR_MARKET[assetName]
+    const key: string = COINGECKO_ID_FOR_MARKET[assetName]
+    const address: string = ADDRESS_FOR_MARKET[assetName]
     return { name, symbol, key, address }
   }
   const { name, symbol, key, address } = getMarketDetails()

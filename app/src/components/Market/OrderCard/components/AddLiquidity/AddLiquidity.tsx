@@ -418,7 +418,7 @@ const AddLiquidity: React.FC = () => {
         </>
       )}
 
-      <Spacer />
+      <Spacer size="sm" />
       <LineItem
         label="LP for"
         data={formatEther(calculateOptionsAddedAsLiquidity())}
@@ -500,7 +500,6 @@ const AddLiquidity: React.FC = () => {
             This amount of underlying tokens is above our guardrail cap of
             $150,000
           </WarningLabel>
-          <Spacer size="sm" />
         </>
       ) : (
         <></>
