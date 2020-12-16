@@ -8,7 +8,6 @@ import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
-import WarningIcon from '@material-ui/icons/Warning'
 
 import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
@@ -154,11 +153,10 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
                       justifyContent="flex-start"
                       alignItems="center"
                     >
-                      <WarningIcon style={{ color: 'yellow' }} />
-                      <Spacer size="sm" />
+                      <div style={{ minWidth: '.2em' }} />
                       <h4>
                         <Tooltip text={`Choose an option and add liquidity!`}>
-                          N/A
+                          None
                         </Tooltip>
                       </h4>
                     </StyledL>
