@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -67,7 +68,13 @@ const Updater = () => {
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
-
+  const router = useRouter()
+  useEffect(() => {
+    setTimeout(() => {
+      router.reload()
+      // 10 min timeout
+    }, 600000)
+  }, [router])
   return (
     <>
       <GlobalStyle />
