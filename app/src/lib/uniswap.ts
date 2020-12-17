@@ -104,7 +104,9 @@ export class Uniswap {
         methodName = 'mintOptionsThenFlashCloseLong'
         args = [
           trade.option.address,
-          trade.outputAmount.raw.toString(),
+          trade.option
+            .proportionalLong(trade.outputAmount.raw.toString())
+            .toString(),
           minPayout.toString(),
         ]
         value = '0'
@@ -147,8 +149,7 @@ export class Uniswap {
         const underlyingReserves = trade.market.reserveOf(
           trade.option.underlying
         )
-        const hasLiquidity =
-          redeemReserves.numerator[2] || underlyingReserves.numerator[2]
+        const hasLiquidity = trade.market.hasLiquidity
         const denominator = !hasLiquidity
           ? 0
           : strikeRatio

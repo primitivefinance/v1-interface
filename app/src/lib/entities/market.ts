@@ -283,4 +283,9 @@ export class Market extends Pair {
 
     return [shortValue, underlyingValue, totalUnderlyingValue]
   }
+  public get hasLiquidity(): boolean {
+    const reserve0Liquidity: boolean = this.reserve0.greaterThan('0')
+    const reserve1Liquidity: boolean = this.reserve1.greaterThan('0')
+    return reserve0Liquidity && reserve1Liquidity
+  }
 }
