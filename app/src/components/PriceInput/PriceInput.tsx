@@ -60,6 +60,8 @@ const PriceInput: React.FC<PriceInputProps> = ({
             <OpacitySpan>
               {balance.token.symbol.toUpperCase() === 'RDM'
                 ? 'SHORT'
+                : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
+                ? 'DAI'
                 : balance.token.symbol.toUpperCase()}
             </OpacitySpan>
           </RightSpan>
