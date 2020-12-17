@@ -179,6 +179,9 @@ const StyledT = styled.h5`
   opacity: 66%;
   margin-bottom: -2px;
   margin-top: -0px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
 `
 
 const StyledPrice = styled.div`
@@ -201,8 +204,9 @@ const StyledTitle = styled.h4`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  text-transform: uppercase;
   margin-top: -0.5em;
-  margin-bottom: 0em;
+  margin-bottom: 0.1em;
 `
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
@@ -215,7 +219,7 @@ const StyledPosition = styled.a`
   padding: 0em 0.5em 0.5em 0.5em;
   &:hover {
     border: 1.5px solid ${(props) => props.theme.color.grey[800]};
-    box-shadow: -2px 2px 2px rgba(250, 250, 250, 0.1);
+    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
     background: ${(props) => props.theme.color.black};
   }
 `

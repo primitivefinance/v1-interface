@@ -15,9 +15,7 @@ export const Settings = () => {
   const onClick = () => {
     setOpen(true)
   }
-  const onClose = () => {
-    setOpen(false)
-  }
+
   const nodeRef = useClickAway(() => {
     setOpen(false)
   })
@@ -28,7 +26,7 @@ export const Settings = () => {
     (e: React.FormEvent<HTMLInputElement>) => {
       setSlippage(e.currentTarget.value.toString())
     },
-    [setSlippage, slippage]
+    [setSlippage]
   )
   if (open) {
     return (
