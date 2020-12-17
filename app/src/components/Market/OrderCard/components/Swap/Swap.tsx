@@ -84,15 +84,14 @@ const Swap: React.FC = () => {
   const price = usePrice()
   // pair and option entities
   const entity = item.entity
-  const lpPair = useReserves(entity.underlying, entity.redeem).data
   // has liquidity?
   useEffect(() => {
-    if (lpPair) {
-      setHasL(lpPair.reserveOf(entity.redeem).numerator[2])
+    if (item.market) {
+      setHasL(item.market.hasLiquidity)
     } else {
       swapLoaded()
     }
-  }, [setHasL, lpPair])
+  }, [setHasL, item.market])
 
   let title = { text: '', tip: '' }
   let tokenAddress: string
@@ -183,8 +182,6 @@ const Swap: React.FC = () => {
       let credit = '0'
       let short = '0'
       const size = parsedAmount
-      const base = entity.baseValue.raw.toString()
-      const quote = entity.quoteValue.raw.toString()
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slippage
@@ -263,10 +260,10 @@ const Swap: React.FC = () => {
       swapLoaded()
       setCost({ debit, credit, short })
     }
-    if (lpPair && inputLoading) {
+    if (item.market && inputLoading) {
       calculateTotalCost()
     }
-  }, [item, parsedAmount, inputLoading, lpPair])
+  }, [item, parsedAmount, inputLoading, item.market])
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
@@ -560,7 +557,7 @@ const Swap: React.FC = () => {
                   loading ||
                   isAboveGuardCap() ||
                   error ||
-                  hasLiquidity
+                  !hasLiquidity
                 }
                 full
                 size="sm"

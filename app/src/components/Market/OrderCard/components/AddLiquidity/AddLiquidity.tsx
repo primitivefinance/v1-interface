@@ -83,7 +83,7 @@ const AddLiquidity: React.FC = () => {
   // has liquidity?
   useEffect(() => {
     if (item.market) {
-      setHasL(item.market.reserveOf(entity.redeem).numerator[2])
+      setHasL(item.market.hasLiquidity)
     }
   }, [setHasL, item])
 
@@ -275,7 +275,12 @@ const AddLiquidity: React.FC = () => {
       parsedOptionAmount !== undefined
     ) {
       // if the reserves will be set based on the inputs
-      const inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options))
+      let inputShort
+      if (orderType === Operation.ADD_LIQUIDITY) {
+        inputShort = entity.proportionalShort(parsedOptionAmount)
+      } else {
+        inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options))
+      }
       const path = [entity.redeem.address, entity.underlying.address]
       const quote = Trade.getSpotPremium(
         entity.baseValue.raw.toString(),

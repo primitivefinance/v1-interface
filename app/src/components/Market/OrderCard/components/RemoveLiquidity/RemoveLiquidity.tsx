@@ -130,7 +130,7 @@ const RemoveLiquidity: React.FC = () => {
   const calculateToken0PerToken1 = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       item.market === null
     )
       return '0'
@@ -141,7 +141,7 @@ const RemoveLiquidity: React.FC = () => {
   const calculateToken1PerToken0 = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       item.market === null
     )
       return '0'
@@ -153,7 +153,7 @@ const RemoveLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof item.market.reserve0.numerator[2] === 'undefined'
+      !item.market.hasLiquidity
     )
       return '0'
     const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
@@ -168,7 +168,7 @@ const RemoveLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return {
@@ -200,7 +200,7 @@ const RemoveLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -238,7 +238,7 @@ const RemoveLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
       ratio === 0
     ) {
@@ -276,7 +276,7 @@ const RemoveLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof item.market.reserve0.numerator[2] === 'undefined' ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -300,10 +300,7 @@ const RemoveLiquidity: React.FC = () => {
   }, [item.market, lp, lpTotalSupply, ratio, item])
 
   const calculateBurn = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      typeof item.market.reserve0.numerator[2] === 'undefined'
-    )
+    if (typeof item.market === 'undefined' || !item.market.hasLiquidity)
       return '0'
     const liquidity = parseEther(lp)
       .mul(parseEther(ratio.toString()))

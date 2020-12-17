@@ -40,10 +40,6 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
       updateItem(item, t)
     }
   }
-  const reserve0Units =
-    item.market.token0.address === item.entity.underlying.address
-      ? item.asset.toUpperCase()
-      : 'SHORT'
   return (
     <>
       <Box row alignItems="center" justifyContent="space-between">
