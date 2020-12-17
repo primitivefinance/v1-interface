@@ -70,10 +70,11 @@ export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
   const router = useRouter()
   useEffect(() => {
-    setTimeout(() => {
+    const stale = setTimeout(() => {
       router.reload()
       // 10 min timeout
     }, 600000)
+    return () => clearTimeout(stale)
   }, [router])
   return (
     <>
