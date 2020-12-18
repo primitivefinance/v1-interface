@@ -42,11 +42,8 @@ import {
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
-import {
-  useLiquidityActionHandlers,
-  useLP,
-  tryParseAmount,
-} from '@/state/liquidity/hooks'
+import { tryParseAmount } from '@/utils/index'
+import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
 
 const AddLiquidity: React.FC = () => {
   // executes transactions

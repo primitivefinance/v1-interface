@@ -6,10 +6,12 @@ import Logo from '@/components/Logo'
 const SplashScreen = () => {
   return (
     <StyledContainer row justifyContent="center" alignItems="center">
-      <StyledLogo
-        src="https://storage.googleapis.com/about-me-215602.appspot.com/primitive-logo.png"
-        alt="Primitive Logo"
-      />
+      <StyledDiv>
+        <StyledLogo
+          src="https://storage.googleapis.com/about-me-215602.appspot.com/primitive-logo.png"
+          alt="Primitive Logo"
+        />
+      </StyledDiv>
     </StyledContainer>
   )
 }
@@ -17,9 +19,17 @@ const SplashScreen = () => {
 const StyledContainer = styled(Box)`
   z-index: 999;
   background: black;
+  position: absolute;
   height: 100vh;
   width: 100%;
   overflow: hidden;
+`
+const StyledLogo = styled.img`
+  width: 100px;
+  height 100px;
+  
+`
+const StyledDiv = styled.div`
   animation: scale 2s alternate infinite;
   @keyframes scale {
     100% {
@@ -27,9 +37,4 @@ const StyledContainer = styled(Box)`
     }
   }
 `
-const StyledLogo = styled.img`
-  width: 5em;
-  height 5em;
-`
-
 export default SplashScreen

@@ -14,17 +14,6 @@ interface PageProps {
 }
 
 const Layout: React.FC<PageProps> = (props) => {
-  const clearNotifs = useResetNotif()
-  const router = useRouter()
-
-  useEffect(() => {
-    router.events.on('routeChangeComplete', () => {
-      clearNotifs()
-    })
-    router.events.on('routeChangeStart', () => {
-      clearNotifs()
-    })
-  })
   return (
     <>
       <TopBar />

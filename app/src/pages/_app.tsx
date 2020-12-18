@@ -73,67 +73,52 @@ export default function App({ Component, pageProps }) {
 
   const onDone = () => {
     setLoading(false)
-    setTimeoutId(
-      setTimeout(() => {
-        setTimeoutId(null)
-        setLoading(false)
-      }, 250)
-    )
   }
   const onLoad = () => {
     setLoading(true)
   }
 
-  useEffect(
-    () => () => {
-      if (timeoutId) clearTimeout(timeoutId)
-    },
-    [timeoutId]
-  )
   useEffect(() => {
-    Router.events.on('routeChangeComplete', onDone)
     Router.events.on('routeChangeStart', onLoad)
+    Router.events.on('routeChangeComplete', onDone)
     return () => {
-      Router.events.off('routeChangeComplete', onDone)
       Router.events.off('routeChangeStart', onLoad)
+      Router.events.off('routeChangeComplete', onDone)
     }
-  })
+  }, [])
   return (
     <>
       <GlobalStyle />
       <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
-          {loading ? (
-            <SplashScreen />
-          ) : (
-            <>
-              <Provider store={store}>
-                <Updater />
-                <Layout>
-                  {active ? (
-                    <WaitingRoom>
-                      <Spacer size="lg" />
-                      <StyledText>
-                        This interface requires a connection from the browser to
-                        Ethereum.
-                      </StyledText>
-                      <Button
-                        size="sm"
-                        text="Learn More"
-                        variant="transparent"
-                        href="https://ethereum.org/en/wallets/"
-                      />
-                      <Spacer />
-                    </WaitingRoom>
-                  ) : (
-                    <>
-                      <Component {...pageProps} />
-                    </>
-                  )}
-                </Layout>
-              </Provider>
-            </>
-          )}
+          <>
+            <Provider store={store}>
+              <Updater />
+              {loading ? <SplashScreen /> : null}
+              <Layout>
+                {active ? (
+                  <WaitingRoom>
+                    <Spacer size="lg" />
+                    <StyledText>
+                      This interface requires a connection from the browser to
+                      Ethereum.
+                    </StyledText>
+                    <Button
+                      size="sm"
+                      text="Learn More"
+                      variant="transparent"
+                      href="https://ethereum.org/en/wallets/"
+                    />
+                    <Spacer />
+                  </WaitingRoom>
+                ) : (
+                  <>
+                    <Component {...pageProps} />
+                  </>
+                )}
+              </Layout>
+            </Provider>
+          </>
         </ThemeProvider>
       </Web3ReactProvider>
     </>

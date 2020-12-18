@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { parseUnits } from '@ethersproject/units'
 import { useDispatch, useSelector } from 'react-redux'
-import { Currency, CurrencyAmount, Token, TokenAmount } from '@uniswap/sdk'
-import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
 import { AppDispatch, AppState } from '../index'
 
 import { clearInput, optionInput, underInput } from './actions'
@@ -38,14 +34,4 @@ export function useLiquidityActionHandlers(): {
     [dispatch]
   )
   return { onOptionInput, onUnderInput }
-}
-
-// try to parse a user entered amount for a given token
-export function tryParseAmount(value?: string): BigNumber | undefined {
-  if (!value || value === '0' || value === '.' || value === undefined)
-    return parseUnits('0', 18)
-  const typedValueParsed = parseUnits(value, 18).toString()
-  if (typedValueParsed !== '0') {
-    return BigNumber.from(typedValueParsed)
-  }
 }

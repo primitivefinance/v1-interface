@@ -37,7 +37,6 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import {
   useSwapActionHandlers,
   useSwap,
-  tryParseAmount,
   useSetSwapLoaded,
 } from '@/state/swap/hooks'
 import { usePrice } from '@/state/price/hooks'
@@ -45,6 +44,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
+import { tryParseAmount } from '@/utils/tryParseAmount'
 
 const Swap: React.FC = () => {
   // executes transactions

@@ -45,11 +45,8 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 import numeral from 'numeral'
-import {
-  useLiquidityActionHandlers,
-  useLP,
-  tryParseAmount,
-} from '@/state/liquidity/hooks'
+import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
+import { tryParseAmount } from '@/utils/index'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions

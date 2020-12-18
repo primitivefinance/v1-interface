@@ -30,13 +30,10 @@ import {
   useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import {
-  useSwapActionHandlers,
-  useSwap,
-  tryParseAmount,
-} from '@/state/swap/hooks'
+import { useSwapActionHandlers, useSwap } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
+import { tryParseAmount } from '@/utils/index'
 
 const Manage: React.FC = () => {
   // executes transactions
