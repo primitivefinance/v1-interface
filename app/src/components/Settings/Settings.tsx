@@ -126,7 +126,7 @@ const StyledModal = styled.div`
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
-  margin: 0 1em 1em 1em;
+  margin: 0 2em 1em 1em;
   position: fixed;
   right: 0%;
   z-index: 0;
