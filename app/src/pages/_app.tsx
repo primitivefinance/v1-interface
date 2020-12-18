@@ -71,7 +71,7 @@ export default function App({ Component, pageProps }) {
   const router = useRouter()
   useEffect(() => {
     const stale = setTimeout(() => {
-      router.reload()
+      // router.reload()
       // 10 min timeout
     }, 600000)
     return () => clearTimeout(stale)

@@ -9,6 +9,7 @@ import transactions from './transactions/reducer'
 import swap from './swap/reducer'
 import liquidity from './liquidity/reducer'
 import price from './price/reducer'
+import user from './user/reducer'
 
 const PERSISTED_KEYS: string[] = ['transactions']
 
@@ -22,6 +23,7 @@ const store = configureStore({
     positions,
     swap,
     transactions,
+    user,
   },
   middleware: getDefaultMiddleware({
     serializableCheck: {
@@ -47,6 +49,7 @@ const store = configureStore({
         'transactions/clearAllTransactions',
         'transactions/checkedTransaction',
         'transactions/finalizeTransaction',
+        'user/updateSlippage',
       ],
     },
   }),

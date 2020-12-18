@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import styled from 'styled-components'
 import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
@@ -6,16 +6,17 @@ import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 import { useClickAway } from '@/hooks/utils/useClickAway'
-import { useSlippage } from '@/hooks/user'
+import { useSlippage, useUpdateSlippage } from '@/state/user/hooks'
 import Slider from '@/components/Slider'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
-  const [slippage, setSlippage] = useSlippage()
+  const slippage = useSlippage()
+  const setSlippage = useUpdateSlippage()
+
   const onClick = () => {
     setOpen(true)
   }
-
   const nodeRef = useClickAway(() => {
     setOpen(false)
   })
