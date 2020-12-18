@@ -66,7 +66,7 @@ const Swap: React.FC = () => {
       ? formatEther(item.market.spotClosePremium.raw.toString())
       : orderType === Operation.SHORT
       ? formatEther(item.market.spotUnderlyingToShort.raw.toString())
-      : formatEther(item.market.spotShortToUnderlying.raw.toString())
+      : formatEther(item.market.spotUnderlyingToShort.raw.toString())
   )
   const [impact, setImpact] = useState('0.00')
   const [error, setError] = useState(false)
@@ -92,6 +92,7 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (item.market) {
       setHasL(item.market.hasLiquidity)
+      console.log(item.market.hasLiquidity)
     } else {
       swapLoaded()
     }
@@ -199,6 +200,7 @@ const Swap: React.FC = () => {
             setImpact(slip)
             setPrem(formatEther(spot.raw.toString()))
             debit = formatEther(actualPremium.raw.toString())
+            console.log(spot.raw.toString(), actualPremium.raw.toString())
           } else {
             setImpact('0.00')
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
@@ -247,13 +249,13 @@ const Swap: React.FC = () => {
             )
             setImpact(slip)
             setPrem(
-              formatEther(item.market.spotShortToUnderlying.raw.toString())
+              formatEther(item.market.spotUnderlyingToShort.raw.toString())
             )
             short = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
             setPrem(
-              formatEther(item.market.spotShortToUnderlying.raw.toString())
+              formatEther(item.market.spotUnderlyingToShort.raw.toString())
             )
           }
         }
