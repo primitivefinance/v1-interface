@@ -22,7 +22,7 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
     {
       name: 'IV',
       tip:
-        'Implied volatility (IV) is an estimate of the future volatility of the underlying stock based on options prices.',
+        'Implied volatility (IV) is an estimate of the future volatility of the underlying stock based on options prices',
     },
     {
       name: 'Delta',
@@ -47,7 +47,7 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
     {
       name: 'Rho',
       tip:
-        'Rho is the rate at which the price of a derivative changes relative to a change in the risk-free rate of interest.',
+        'Rho is the rate at which the price of a derivative changes relative to a change in the risk-free rate of interest',
     },
   ]
   const { iv, delta, theta, gamma, vega, rho } = greeks

@@ -26,7 +26,7 @@ const StyledCard = styled.div<CardProps>`
         ? props.theme.color.grey[500]
         : props.theme.color.grey[300]}ff;
   border-radius: ${(props) => props.theme.borderRadius}px;
-  box-shadow: -3px 3px 3px rgba(250, 250, 250, 0.1);
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.1);
   display: flex;
   flex: 1;
   flex-direction: column;

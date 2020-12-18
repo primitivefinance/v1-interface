@@ -225,7 +225,7 @@ const OrderOptions: React.FC = () => {
 
 const StyledOrder = styled.a`
   border: 1px solid ${(props) => props.theme.color.grey[800]};
-  box-shadow: -2px 2px 2px rgba(250, 250, 250, 0.1);
+  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
   background: ${(props) => props.theme.color.black};
   color: white;
   border-radius: 0.5em;
@@ -233,7 +233,7 @@ const StyledOrder = styled.a`
   cursor: pointer;
   margin-bottom: 0.5em;
   padding: 1em;
-  width: 85%;
+  width: 90%;
   &:hover {
     border: 1px solid ${(props) => props.theme.color.grey[600]};
     background: ${(props) => props.theme.color.grey[800]};

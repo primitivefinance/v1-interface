@@ -26,7 +26,7 @@ import { useItem } from '@/state/order/hooks'
 import { Token, TokenAmount } from '@uniswap/sdk'
 
 import { useWeb3React } from '@web3-react/core'
-import { useSlippage } from '@/hooks/user'
+import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { getTotalSupply } from '@/lib/erc20'
@@ -41,7 +41,7 @@ const getTrade = async (
 ) => {
   const { item } = useItem()
   const { chainId, account } = useWeb3React()
-  const [slippage] = useSlippage()
+  const slippage = useSlippage()
   const { data } = useBlockNumber()
   const throwError = useAddNotif()
   const now = () => new Date().getTime()
@@ -55,7 +55,7 @@ const getTrade = async (
     stablecoin: STABLECOINS[chainId].address,
   }
 
-  let totalSupply: BigNumberish = await getTotalSupply(
+  const totalSupply: BigNumberish = await getTotalSupply(
     provider,
     item.market.liquidityToken.address
   )
@@ -73,7 +73,7 @@ const getTrade = async (
   let out: BigNumberish
   const path: string[] = []
   const amountsIn: BigNumberish[] = []
-  let amountsOut: BigNumberish[] = []
+  const amountsOut: BigNumberish[] = []
   const reserves: BigNumberish[] = []
 
   const trade: Trade = new Trade(

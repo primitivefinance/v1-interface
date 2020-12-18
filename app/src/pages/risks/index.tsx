@@ -127,6 +127,7 @@ const Risks: React.FC = () => {
           guard against any side-effects of this non-standard ERC-20 function.
         </StyledText>
         <StyledSpacer size={24} />
+        <StyledSpacer size={24} />
       </StyledRisks>
     </>
   )
@@ -161,7 +162,7 @@ const StyledTitle = styled.div`
 const StyledSubtitle = styled.div`
   font-size: 28px;
   font-weight: bold;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
 `
 
 const StyledText = styled.div`

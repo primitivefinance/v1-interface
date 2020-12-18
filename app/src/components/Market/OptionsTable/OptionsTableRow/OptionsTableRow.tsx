@@ -131,7 +131,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
                 {numeral(depth[0]).format('0.00a')} <Units>{`LONG`}</Units>
               </StyledT>
               <span>
-                {depth[1]} <Units>{'% Slippage'}</Units>
+                {depth[1]} <Units>{'%'}</Units>
               </span>
             </StyledR>
           </TableCell>
@@ -142,10 +142,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <TableCell>
             <StyledR>
               <StyledT>
-                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
+                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
               </StyledT>
               <span>
-                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
               </span>
             </StyledR>
           </TableCell>

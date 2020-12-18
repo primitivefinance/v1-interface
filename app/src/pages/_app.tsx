@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import Router from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -7,7 +8,7 @@ import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 import Layout from '@/components/Layout'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-
+import SplashScreen from '@/components/SplashScreen'
 import store from '@/state/index'
 import theme from '../theme'
 import TransactionUpdater from '@/state/transactions/updater'
@@ -67,7 +68,24 @@ const Updater = () => {
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
+  const [loading, setLoading] = useState(false)
+  const [timeoutId, setTimeoutId] = useState(null)
 
+  const onDone = () => {
+    setLoading(false)
+  }
+  const onLoad = () => {
+    setLoading(true)
+  }
+
+  useEffect(() => {
+    Router.events.on('routeChangeStart', onLoad)
+    Router.events.on('routeChangeComplete', onDone)
+    return () => {
+      Router.events.off('routeChangeStart', onLoad)
+      Router.events.off('routeChangeComplete', onDone)
+    }
+  }, [])
   return (
     <>
       <GlobalStyle />
@@ -76,6 +94,7 @@ export default function App({ Component, pageProps }) {
           <>
             <Provider store={store}>
               <Updater />
+              {loading ? <SplashScreen /> : null}
               <Layout>
                 {active ? (
                   <WaitingRoom>
