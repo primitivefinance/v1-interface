@@ -45,11 +45,8 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 import numeral from 'numeral'
-import {
-  useLiquidityActionHandlers,
-  useLP,
-  tryParseAmount,
-} from '@/state/liquidity/hooks'
+import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
+import { tryParseAmount } from '@/utils/index'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions
@@ -432,7 +429,7 @@ const RemoveLiquidity: React.FC = () => {
           )}{' '}
           <Spacer size="sm" />
           <LineItem
-            label="You will receive"
+            label="To receive"
             data={numeral(calculateUnderlyingOutput()).format('0.00')}
             units={`${entity.underlying.symbol.toUpperCase()}`}
           />
@@ -441,7 +438,7 @@ const RemoveLiquidity: React.FC = () => {
         <>
           <Spacer size="sm" />
           <LineItem
-            label="You will receive"
+            label="To receive"
             data={numeral(
               formatEther(
                 calculateRemoveOutputs().underlyingValue.raw.toString()
@@ -451,11 +448,11 @@ const RemoveLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label="You will receive"
+            label="To Receive"
             data={numeral(
               formatEther(calculateRemoveOutputs().shortValue.raw.toString())
             ).format('0.00')}
-            units={`${entity.redeem.symbol.toUpperCase()}`}
+            units={`SHORT`}
           />{' '}
         </>
       )}
@@ -468,7 +465,6 @@ const RemoveLiquidity: React.FC = () => {
       >
         {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer size="sm" />
 
       {advanced ? (
         <>
@@ -502,7 +498,7 @@ const RemoveLiquidity: React.FC = () => {
             data={caculatePoolShare()}
             units={`%`}
           />
-          <Spacer />
+          <Spacer size="sm" />
         </>
       ) : (
         <> </>

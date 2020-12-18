@@ -37,7 +37,7 @@ import executeTransaction, {
   executeApprove,
 } from '@/lib/utils/executeTransaction'
 
-import { useSlippage } from '@/hooks/user'
+import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -275,7 +275,7 @@ export const useHandleSubmitOrder = (): ((
   const addTransaction = useTransactionAdder()
   const { item } = useItem()
   const { chainId, account } = useWeb3React()
-  const [slippage] = useSlippage()
+  const slippage = useSlippage()
   const { data } = useBlockNumber()
   const throwError = useAddNotif()
   const now = () => new Date().getTime()

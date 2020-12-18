@@ -161,15 +161,18 @@ const StyledTitle = styled.h4`
 const StyledContent = styled.div`
   align-items: center;
   cursor: pointer;
-  border: 3px solid black;
+  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
   display: flex;
   background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
   padding: 1em;
   border-radius: 5px;
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.05);
   &: hover {
-    background: ${(props) => props.theme.color.black};
-    border 3px solid ${(props) => props.theme.color.grey[800]};
+    background: transparent;
+    border 1.5px solid ${(props) => props.theme.color.grey[600]};
+    box-shadow: 3px 3px 3px rgba(250, 250, 250, 0);
+
   }
 `
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import ethers, { BigNumber } from 'ethers'
 import { Operation } from '../../constants'
+import { useItem } from '@/state/order/hooks'
 import {
   COINGECKO_ID_FOR_MARKET,
   NAME_FOR_MARKET,
@@ -13,7 +14,7 @@ import useSWR from 'swr'
 
 const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
   const [cap, setCap] = useState('0.00')
-
+  const { item } = useItem()
   const getMarketDetails = () => {
     let assetName = asset.toLowerCase()
     if (assetName === 'weth') {
@@ -36,10 +37,18 @@ const useGuardCap = (asset: string, orderType: Operation): BigNumber => {
       if (data[key]) {
         switch (orderType) {
           case Operation.ADD_LIQUIDITY:
-            setCap((150000 / data[key].usd).toString())
+            if (item.entity.isCall) {
+              setCap((150000 / data[key].usd).toString())
+            } else {
+              setCap('150000')
+            }
             break
           default:
-            setCap((100000 / data[key].usd).toString())
+            if (item.entity.isCall) {
+              setCap((100000 / data[key].usd).toString())
+            } else {
+              setCap('100000')
+            }
             break
         }
       }

@@ -58,8 +58,11 @@ const PriceInput: React.FC<PriceInputProps> = ({
           <RightSpan>
             {formatEtherBalance(balance.raw.toString())}{' '}
             <OpacitySpan>
+              {/** second conditional is a testnet hotfix */}
               {balance.token.symbol.toUpperCase() === 'RDM'
                 ? 'SHORT'
+                : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
+                ? 'DAI'
                 : balance.token.symbol.toUpperCase()}
             </OpacitySpan>
           </RightSpan>

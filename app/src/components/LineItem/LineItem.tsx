@@ -44,7 +44,13 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units, tip }) => {
           <>
             {sign}
             {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-            <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
+            <StyledSym>
+              {currency !== '$'
+                ? currency === 'DAI STABLECOIN'
+                  ? 'DAI'
+                  : currency
+                : null}
+            </StyledSym>
           </>
         )}
       </span>
