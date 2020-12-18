@@ -16,6 +16,8 @@ import { useItem } from '@/state/order/hooks'
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
 import numeral from 'numeral'
+import isZero from '@/utils/isZero'
+import { parseEther } from 'ethers/lib/utils'
 
 export interface TableColumns {
   key: string
@@ -91,7 +93,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </span>
         </TableCell>
         <TableCell>
-          {premium !== '0.00' ? (
+          {!isZero(parseEther(premium)) ? (
             <span>
               {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
             </span>
@@ -99,7 +101,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
             <>{`-`}</>
           )}
         </TableCell>
-        {premium !== '0.00' ? (
+        {!isZero(parseEther(premium)) ? (
           <TableCell>
             {isCall ? (
               <StyledR>

@@ -60,9 +60,7 @@ export class Market extends Pair {
    */
   public getOpenPremium = (outputAmount: TokenAmount): TokenAmount => {
     if (
-      typeof this.reserveOf(this.option.redeem).numerator[2] === 'undefined' ||
-      typeof this.reserveOf(this.option.underlying).numerator[2] ===
-        'undefined' ||
+      !this.hasLiquidity ||
       this.reserveOf(outputAmount.token).greaterThan(outputAmount.raw)
     ) {
       return new TokenAmount(this.option.underlying, '0')
@@ -102,7 +100,10 @@ export class Market extends Pair {
    * @param outputAmount The quantity of shortOptionTokens per optionToken that needs to be closed.
    */
   public getClosePremium = (outputAmount: TokenAmount): TokenAmount => {
-    if (!this.reserveOf(this.option.redeem).numerator[2]) {
+    if (
+      !this.hasLiquidity ||
+      this.reserveOf(outputAmount.token).greaterThan(outputAmount.raw)
+    ) {
       return new TokenAmount(this.option.underlying, '0')
     }
     const underlyingsMinted = this.option.proportionalLong(
@@ -135,7 +136,7 @@ export class Market extends Pair {
    * @param inputAmount Quantity of shortOptionTokens to purchase.
    */
   public getShortPremium = (inputAmount: TokenAmount): TokenAmount => {
-    if (!this.reserveOf(this.option.redeem).numerator[2]) {
+    if (!this.hasLiquidity) {
       return new TokenAmount(this.option.underlying, '0')
     }
 

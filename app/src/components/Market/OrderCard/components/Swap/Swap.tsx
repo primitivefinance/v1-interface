@@ -196,6 +196,7 @@ const Swap: React.FC = () => {
             setImpact(slippage)
             setPrem(formatEther(spot.raw.toString()))
             debit = formatEther(actualPremium.raw.toString())
+            console.log(spot.raw.toString(), actualPremium.raw.toString())
           } else {
             setImpact('0.00')
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
