@@ -26,8 +26,6 @@ const StyledContainer = styled(Box)`
 `
 const StyledLogo = styled.img`
   width: 100px;
-  height 100px;
-  
 `
 const StyledDiv = styled.div`
   animation: scale 2s alternate infinite;
