@@ -24,7 +24,10 @@ const StyledContainer = styled(Box)`
   width: 100%;
   overflow: hidden;
 `
-const StyledLogo = styled.img``
+const StyledLogo = styled.img`
+  width: 100px !important;
+  height: 100px !important;
+`
 const StyledDiv = styled.div`
   animation: scale 2s alternate infinite;
   @keyframes scale {
