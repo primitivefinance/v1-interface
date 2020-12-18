@@ -488,7 +488,6 @@ const AddLiquidity: React.FC = () => {
             data={calculatePoolShare()}
             units={`%`}
           />
-          <Spacer />
         </>
       ) : (
         <> </>

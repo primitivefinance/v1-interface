@@ -24,6 +24,9 @@ const Layout: React.FC<PageProps> = (props) => {
     router.events.on('routeChangeComplete', () => {
       clearNotifs()
     })
+    router.events.on('routeChangeStart', () => {
+      clearNotifs()
+    })
   })
 
   return (
