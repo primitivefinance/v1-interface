@@ -88,6 +88,7 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (item.market) {
       setHasL(item.market.hasLiquidity)
+      console.log(item.market.hasLiquidity)
     } else {
       swapLoaded()
     }

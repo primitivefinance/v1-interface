@@ -1,7 +1,7 @@
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
 import { formatEther, parseEther } from 'ethers/lib/utils'
-import { Pair, Token, TokenAmount } from '@uniswap/sdk'
+import { ChainId, Pair, Token, TokenAmount } from '@uniswap/sdk'
 import { STABLECOINS, ADDRESS_ZERO } from '@/constants/index'
 import isZero from '@/utils/isZero'
 
@@ -153,8 +153,13 @@ export class Option extends Token {
     let isCall = false
     if (+formatEther(baseValue) === 1) {
       if (+formatEther(quoteValue) === 1) {
-        const quoteToken = this.underlying.symbol
-        if (quoteToken === STABLECOINS[this.chainId].symbol) {
+        if (this.isMainnet) {
+          if (this.strike.address === STABLECOINS[this.chainId].address) {
+            isCall = true
+          }
+        }
+        const quoteToken = this.strike.symbol
+        if (quoteToken.toUpperCase() === STABLECOINS[this.chainId].symbol) {
           isCall = true
         }
       } else {
@@ -170,6 +175,11 @@ export class Option extends Token {
     let isPut = false
     if (+formatEther(quoteValue) === 1) {
       if (+formatEther(baseValue) === 1) {
+        if (this.isMainnet) {
+          if (this.underlying.address === STABLECOINS[this.chainId].address) {
+            isPut = true
+          }
+        }
         const baseToken = this.strike.symbol
         if (baseToken === STABLECOINS[this.chainId].symbol) {
           isPut = true
@@ -179,6 +189,10 @@ export class Option extends Token {
       }
     }
     return isPut
+  }
+
+  public get isMainnet(): boolean {
+    return this.chainId === ChainId.MAINNET
   }
 
   public getTimeToExpiry(): number {
