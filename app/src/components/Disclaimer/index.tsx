@@ -61,7 +61,7 @@ const Backdrop = styled.div`
 `
 
 const StyledCard = styled.div`
-  left: 35%;
+  left: 40%;
   top: 20%;
   padding: 0 2em 2em 2em;
   border-radius: 0.3em;

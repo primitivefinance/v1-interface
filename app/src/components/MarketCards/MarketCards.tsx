@@ -101,9 +101,6 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
 
 const StyledCards = styled.div`
   width: 900px;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
 `
 
 const StyledLoadingWrapper = styled.div`
@@ -117,27 +114,22 @@ const StyledLoadingWrapper = styled.div`
 const StyledRow = styled.div`
   display: flex;
   flex-flow: row wrap;
-  @media (max-width: 768px) {
-    width: 100%;
-    flex-flow: column nowrap;
-    align-items: center;
-  }
 `
 
 const StyledCard = styled.div`
   display: flex;
   position: relative;
-  width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
+  width: 280px;
   margin: ${(props) => props.theme.spacing[2]}px;
 `
 
 const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   padding: -1em;
-  z-index: 200;
   width: 100%;
   height: 100%;
   position: absolute;
+  z-index: 50;
   display: flex;
   flex-direction: row;
   justify-content: center;
