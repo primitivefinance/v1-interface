@@ -71,5 +71,5 @@ const Tip = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[600]};
   margin: 2.2em 0 0 2em;
   position: absolute;
-  z-index: 200 !important;
+  z-index: 200;
 `

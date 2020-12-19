@@ -113,6 +113,7 @@ const StyledNav = styled.div<NavProps>`
   display: flex;
   flex: 1;
   font-weight: 700;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 1px;
   justify-content: center;
   position: absolute;
@@ -129,7 +130,10 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
+  text-transform: uppercase;
   text-decoration: none;
+  font-size: 16px;
+  letter-spacing: 1px;
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.color.white};
