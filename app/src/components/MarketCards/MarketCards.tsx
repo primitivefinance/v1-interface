@@ -126,10 +126,10 @@ const StyledCard = styled.div`
 const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   padding: -1em;
-  z-index: 1 !important;
   width: 100%;
   height: 100%;
   position: absolute;
+  z-index: 50;
   display: flex;
   flex-direction: row;
   justify-content: center;

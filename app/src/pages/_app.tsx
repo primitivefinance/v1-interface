@@ -68,16 +68,27 @@ const Updater = () => {
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(null)
   const [timeoutId, setTimeoutId] = useState(null)
 
   const onDone = () => {
     setLoading(false)
+    setTimeoutId(
+      setTimeout(() => {
+        setTimeoutId(null)
+        setLoading(null)
+      }, 250)
+    )
   }
   const onLoad = () => {
     setLoading(true)
   }
-
+  useEffect(
+    () => () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    },
+    [timeoutId]
+  )
   useEffect(() => {
     Router.events.on('routeChangeStart', onLoad)
     Router.events.on('routeChangeComplete', onDone)
@@ -94,28 +105,8 @@ export default function App({ Component, pageProps }) {
           <>
             <Provider store={store}>
               <Updater />
-              {loading ? <SplashScreen /> : null}
               <Layout>
-                {active ? (
-                  <WaitingRoom>
-                    <Spacer size="lg" />
-                    <StyledText>
-                      This interface requires a connection from the browser to
-                      Ethereum.
-                    </StyledText>
-                    <Button
-                      size="sm"
-                      text="Learn More"
-                      variant="transparent"
-                      href="https://ethereum.org/en/wallets/"
-                    />
-                    <Spacer />
-                  </WaitingRoom>
-                ) : (
-                  <>
-                    <Component {...pageProps} />
-                  </>
-                )}
+                <Component {...pageProps} />
               </Layout>
             </Provider>
           </>

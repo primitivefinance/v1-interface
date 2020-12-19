@@ -5,10 +5,10 @@ import Logo from '@/components/Logo'
 
 const SplashScreen = () => {
   return (
-    <StyledContainer row justifyContent="center" alignItems="center">
+    <StyledContainer>
       <StyledDiv>
         <StyledLogo
-          src="https://storage.googleapis.com/about-me-215602.appspot.com/primitive-logo.png"
+          src="https://storage.googleapis.com/app-image-cdn/background%20.png"
           alt="Primitive Logo"
         />
       </StyledDiv>
@@ -16,23 +16,30 @@ const SplashScreen = () => {
   )
 }
 
-const StyledContainer = styled(Box)`
-  z-index: 999;
+const StyledContainer = styled.div`
+  z-index: 200 !important;
   background: black;
   position: absolute;
-  height: 100vh;
-  width: 100%;
+  min-height: 100%;
+  margin-top: -50em;
+  min-width: 100%;
   overflow: hidden;
+  display: table;
 `
-const StyledLogo = styled.img`
-  width: 100px !important;
-  height: 100px !important;
-`
+const StyledLogo = styled.img``
 const StyledDiv = styled.div`
-  animation: scale 2s alternate infinite;
+  initial-animation: none;
+  background: black;
+  animation: scale 1s alternate infinite;
+  display: table-cell !important;
+  text-align: center;
+  vertical-align: middle;
   @keyframes scale {
+    0% {
+      transform: scale(1, 1);
+    }
     100% {
-      transform: scale(1.4, 1.4);
+      transform: scale(1.2, 1.2);
     }
   }
 `
