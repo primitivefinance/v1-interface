@@ -1,5 +1,5 @@
 import ethers from 'ethers'
-import { Operation } from './constants'
+import { Operation } from '@/constants/index'
 import { Trade } from './entities'
 import TraderArtifact from '@primitivefi/contracts/artifacts/Trader.json'
 import MainnetTrader from '@primitivefi/contracts/deployments/live_1/Trader.json'
@@ -35,12 +35,12 @@ export class Trader {
     let value: string
 
     const optionAddress: string = trade.option.address
-    const amountIn: string = trade.inputAmount.quantity.toString()
+    const amountIn: string = trade.inputAmount.raw.toString()
     const to: string = tradeSettings.receiver
 
     const parameters = trade.option.optionParameters
-    const isWethCall = parameters.base.asset.symbol === 'ETHER'
-    const isWethPut = parameters.quote.asset.symbol === 'ETHER'
+    const isWethCall = parameters.base.token.symbol === 'ETHER'
+    const isWethPut = parameters.quote.token.symbol === 'ETHER'
 
     switch (trade.operation) {
       case Operation.MINT:

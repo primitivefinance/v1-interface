@@ -12,6 +12,7 @@ export enum Operation {
   UNWIND,
   LONG,
   SHORT,
+  WRITE,
   CLOSE_LONG,
   CLOSE_SHORT,
   NEUTRAL,

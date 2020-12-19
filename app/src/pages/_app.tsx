@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import Router from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -7,7 +8,7 @@ import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 import Layout from '@/components/Layout'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-
+import SplashScreen from '@/components/SplashScreen'
 import store from '@/state/index'
 import theme from '../theme'
 import TransactionUpdater from '@/state/transactions/updater'
@@ -21,6 +22,7 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     background-color: #040404;
+    cursor: default;
     font-family: 'Nunito Sans', sans-serif;
   }
   body.fontLoaded {
@@ -66,7 +68,35 @@ const Updater = () => {
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
+  const [loading, setLoading] = useState(null)
+  const [timeoutId, setTimeoutId] = useState(null)
 
+  const onDone = () => {
+    setLoading(false)
+    setTimeoutId(
+      setTimeout(() => {
+        setTimeoutId(null)
+        setLoading(null)
+      }, 250)
+    )
+  }
+  const onLoad = () => {
+    setLoading(true)
+  }
+  useEffect(
+    () => () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    },
+    [timeoutId]
+  )
+  useEffect(() => {
+    Router.events.on('routeChangeStart', onLoad)
+    Router.events.on('routeChangeComplete', onDone)
+    return () => {
+      Router.events.off('routeChangeStart', onLoad)
+      Router.events.off('routeChangeComplete', onDone)
+    }
+  }, [])
   return (
     <>
       <GlobalStyle />
@@ -76,26 +106,7 @@ export default function App({ Component, pageProps }) {
             <Provider store={store}>
               <Updater />
               <Layout>
-                {active ? (
-                  <WaitingRoom>
-                    <Spacer size="lg" />
-                    <StyledText>
-                      This interface requires a connection from the browser to
-                      Ethereum.
-                    </StyledText>
-                    <Button
-                      size="sm"
-                      text="Learn More"
-                      variant="transparent"
-                      href="https://ethereum.org/en/wallets/"
-                    />
-                    <Spacer />
-                  </WaitingRoom>
-                ) : (
-                  <>
-                    <Component {...pageProps} />
-                  </>
-                )}
+                <Component {...pageProps} />
               </Layout>
             </Provider>
           </>

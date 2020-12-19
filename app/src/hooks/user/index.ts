@@ -7,7 +7,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
 import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '@/constants/index'
-
+import { useSlippage } from '@/state/user/hooks'
 import { TradeSettings } from '@/lib/types'
 import {
   DEFAULT_DEADLINE,
@@ -22,15 +22,12 @@ declare global {
 }
 
 // https://github.com/Uniswap/uniswap-interface/blob/master/src/hooks/index.ts
-export function useSlippage() {
-  return useLocalStorage<string>(LocalStorageKeys.Slippage, DEFAULT_SLIPPAGE)
-}
 
 export function useDisclaimer() {
   return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, true)
 }
 export function useTradeSettings(): TradeSettings {
-  const [slippage] = useSlippage()
+  const slippage = useSlippage()
   const { account, chainId } = useWeb3React()
   const tradeSettings: TradeSettings = {
     slippage: slippage,

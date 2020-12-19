@@ -8,8 +8,10 @@ import CardContent from '../CardContent'
 import Spacer from '../Spacer'
 import CardIcon from '../CardIcon'
 import Loader from '../Loader'
+import LockIcon from '@material-ui/icons/Lock'
 
 import { MARKETS, Market } from '@/constants/index'
+import { useWeb3React } from '@web3-react/core'
 
 const MarketCards: React.FC = () => {
   const markets = MARKETS
@@ -39,7 +41,36 @@ export interface MarketCardProps {
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const poolActive = market.name !== 'Soon...'
-
+  const { chainId } = useWeb3React()
+  if (!market.active && chainId === 1) {
+    return (
+      <StyledCard>
+        <Overlay>
+          <LockIcon style={{ fontSize: '60px' }} />
+        </Overlay>
+        <CardContent>
+          <StyledContent>
+            <CardIcon>
+              {market.icon !== '' ? (
+                <img
+                  height="64"
+                  src={market.icon}
+                  style={{ borderRadius: '50%' }}
+                  alt={'icon'}
+                />
+              ) : (
+                <></>
+              )}
+            </CardIcon>
+            <StyledTitle>{market.name}</StyledTitle>
+            <StyledDetails>
+              <StyledDetail>{market.id.toUpperCase()} / DAI</StyledDetail>
+            </StyledDetails>
+          </StyledContent>
+        </CardContent>
+      </StyledCard>
+    )
+  }
   return (
     <StyledCardWrapper href={`/markets/${encodeURIComponent(market.id)}/calls`}>
       <StyledCard>
@@ -70,9 +101,6 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
 
 const StyledCards = styled.div`
   width: 900px;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
 `
 
 const StyledLoadingWrapper = styled.div`
@@ -86,18 +114,31 @@ const StyledLoadingWrapper = styled.div`
 const StyledRow = styled.div`
   display: flex;
   flex-flow: row wrap;
-  @media (max-width: 768px) {
-    width: 100%;
-    flex-flow: column nowrap;
-    align-items: center;
-  }
 `
 
 const StyledCard = styled.div`
   display: flex;
-  width: calc((900px - ${(props) => props.theme.spacing[4]}px * 2) / 3);
+  position: relative;
+  width: 280px;
   margin: ${(props) => props.theme.spacing[2]}px;
-  cursor: pointer;
+`
+
+const Overlay = styled.div`
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: -1em;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 50;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: ${(props) => props.theme.color.grey[400]};
+  cursor: not-allowed;
+  &: hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
 `
 const StyledCardWrapper = styled(Link)``
 
@@ -111,15 +152,19 @@ const StyledTitle = styled.h4`
 
 const StyledContent = styled.div`
   align-items: center;
-  border: 2px solid black;
+  cursor: pointer;
+  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
   display: flex;
   background: ${(props) => props.theme.color.grey[800]};
   flex-direction: column;
   padding: 1em;
-  border-radius: 10px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.05);
   &: hover {
-    background: ${(props) => props.theme.color.black};
-    border 2px solid ${(props) => props.theme.color.grey[800]};
+    background: transparent;
+    border 1.5px solid ${(props) => props.theme.color.grey[600]};
+    box-shadow: 3px 3px 3px rgba(250, 250, 250, 0);
+
   }
 `
 

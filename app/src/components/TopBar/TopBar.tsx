@@ -45,9 +45,7 @@ const TopBar: React.FC = () => {
         <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
             <StyledNavItem
-              active={
-                location.pathname.indexOf('/markets') !== -1 ? true : false
-              }
+              active={location.pathname === '/markets' ? true : false}
             >
               Markets
             </StyledNavItem>
@@ -79,6 +77,7 @@ const TopBar: React.FC = () => {
           <Spacer size="lg" /> <Spacer size="lg" />
           <Wallet />
           <Spacer size="sm" />
+          <Spacer size="sm" />
           <Settings />
         </StyledFlex>
       </Container>
@@ -91,14 +90,14 @@ interface NavProps {
 }
 
 const StyledTopBar = styled.div`
-  background-color: ${(props) => props.theme.color.black};
-  border-bottom: 1px solid ${(props) => props.theme.color.grey[600]};
+  background-color: #040404;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
   height: 72px;
   position: sticky;
-  z-index: 100;
+  z-index: 250;
   top: -1px;
 `
 
@@ -114,6 +113,7 @@ const StyledNav = styled.div<NavProps>`
   display: flex;
   flex: 1;
   font-weight: 700;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 1px;
   justify-content: center;
   position: absolute;
@@ -130,7 +130,10 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
+  text-transform: uppercase;
   text-decoration: none;
+  font-size: 16px;
+  letter-spacing: 1px;
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.color.white};

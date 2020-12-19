@@ -17,7 +17,7 @@ const NewMarketRow: React.FC<NewMarketRowProps> = ({ onClick }) => {
         <StyledButtonCellError key={'Open'} onClick={onClick}>
           <AddIcon />
           <Spacer size="md" />
-          Add a New Option Market
+          Add Option Market
         </StyledButtonCellError>
         <TableCell></TableCell>
       </TableRow>
@@ -29,11 +29,18 @@ const StyledButtonCellError = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   cursor: pointer;
   font-weight: inherit;
-  color: ${(props) => props.theme.color.white};
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: ${(props) => props.theme.color.grey[400]};
   margin-right: ${(props) => props.theme.spacing[2]}px;
   width: 40%;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
 `
 
 export default NewMarketRow

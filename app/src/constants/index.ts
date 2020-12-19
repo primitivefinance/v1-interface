@@ -1,11 +1,13 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { Asset } from '../lib/entities/asset'
 import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
 import { parseEther } from 'ethers/lib/utils'
 
 import { injected, walletconnect } from '../connectors'
 import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
 import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
+import Trader from '@primitivefi/contracts/deployments/live_1/Trader.json'
+import TraderTestnet from '@primitivefi/contracts/deployments/rinkeby/Trader.json'
+
 export interface Wallet {
   connector: AbstractConnector
   name: string
@@ -18,6 +20,7 @@ export interface Market {
   id: string
   sort: number
   address: string
+  active?: boolean
 }
 
 export const WALLETS: { [key: string]: Wallet } = {
@@ -82,6 +85,18 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
   mkr: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
 }
 
+export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
+  yfi: false,
+  eth: true,
+  sushi: false,
+  comp: false,
+  uni: false,
+  link: false,
+  aave: false,
+  snx: false,
+  mkr: false,
+}
+
 export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
   (key): Market => {
     return {
@@ -90,6 +105,7 @@ export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(
       id: key,
       sort: SORT_FOR_MARKET[key],
       address: ADDRESS_FOR_MARKET[key],
+      active: ACTIVE_FOR_MARKET[key],
     }
   }
 )
@@ -118,27 +134,20 @@ export enum LocalStorageKeys {
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export const UNI_ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
-export const ASSETS: { [key: string]: Asset } = {
-  ['DAI']: new Asset(18, 'Dai Stablecoin', 'DAI'),
-  ['USDC']: new Asset(18, 'USD Coin', 'USDC'),
-  ['sUSD']: new Asset(18, 'Synth USD', 'sUSD'),
-  ['USDT']: new Asset(18, 'USD Tether', 'USDT'),
-}
-
-export const getToken = (chainId: ChainId, address: string, asset: Asset) => {
-  return new Token(chainId, address, asset.decimals, asset.symbol, asset.symbol)
-}
-
 export const STABLECOINS: { [key: number]: Token } = {
-  1: getToken(
+  1: new Token(
     ChainId.MAINNET,
     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    ASSETS.DAI
+    18,
+    'DAI',
+    'Dai Stablecoin'
   ),
-  4: getToken(
+  4: new Token(
     ChainId.RINKEBY,
     '0x49ac2A6588864375F0D194F5DA1BC87B9436E175',
-    ASSETS.DAI
+    18,
+    'DAI',
+    'Dai Stablecoin'
   ),
 }
 
@@ -147,13 +156,18 @@ export const UNISWAP_CONNECTOR: { [key: number]: string } = {
   4: UniswapConnectorTestnet.address,
 }
 
+export const TRADER: { [key: number]: string } = {
+  1: Trader.address, // FIX
+  4: TraderTestnet.address,
+}
+
 export const DEFAULT_STRIKE_LOW = 0.9
 export const DEFAULT_STRIKE_MID = 1.0
 export const DEFAULT_STRIKE_HIGH = 1.1
 
 export const CURRENT_VERSION = 1.0
 export const NO_VERSION = -1
-export const DEFAULT_DEADLINE = 60 * 20
+export const DEFAULT_DEADLINE = 120 * 20 // UNISWAP_V2: EXPIRED revert protection (usually 60*20)
 export const DEFAULT_SLIPPAGE = '0.01'
 export const DEFAULT_TIMELIMIT = 60 * 20
 export const ETHERSCAN_MAINNET = 'https://etherscan.io/address'
@@ -171,10 +185,12 @@ export enum Operation {
   UNWIND,
   LONG,
   SHORT,
+  WRITE,
   CLOSE_LONG,
   CLOSE_SHORT,
   NEUTRAL,
   ADD_LIQUIDITY,
+  ADD_LIQUIDITY_CUSTOM,
   REMOVE_LIQUIDITY,
   REMOVE_LIQUIDITY_CLOSE,
   NEW_MARKET,

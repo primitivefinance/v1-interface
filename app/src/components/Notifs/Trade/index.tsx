@@ -27,7 +27,7 @@ export const Trade: React.FC<TradeProps> = ({ title, msg, link }) => {
   if (!title) return null
   return (
     <StyledContainer>
-      <StyledCard>
+      <StyledCard border>
         <CardTitle>
           <StyledTitle>
             <CheckCircleIcon /> <Spacer size="sm" />
@@ -76,7 +76,7 @@ const StyledCard = styled(Card)`
   width: 100%;
 `
 const StyledContent = styled.div`
-  margin: 0 1em 0 1em;
+  margin: -0.5em 1em -1em 1em;
   color: white;
   text-decoration: none;
   width: inherit;

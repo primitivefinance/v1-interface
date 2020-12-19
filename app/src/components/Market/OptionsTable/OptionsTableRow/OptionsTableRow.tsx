@@ -16,6 +16,8 @@ import { useItem } from '@/state/order/hooks'
 import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
 import numeral from 'numeral'
+import isZero from '@/utils/isZero'
+import { parseEther } from 'ethers/lib/utils'
 
 export interface TableColumns {
   key: string
@@ -24,7 +26,7 @@ export interface TableColumns {
   breakeven: string
   premium: string
   premiumUnderlying: string
-  depth: string
+  depth: string[]
   reserves: string[]
   address: string
   isCall: boolean
@@ -91,7 +93,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </span>
         </TableCell>
         <TableCell>
-          {premium !== '0.00' ? (
+          {!isZero(parseEther(premium)) ? (
             <span>
               {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
             </span>
@@ -99,32 +101,39 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
             <>{`-`}</>
           )}
         </TableCell>
-        {premium !== '0.00' ? (
+        {!isZero(parseEther(premium)) ? (
           <TableCell>
             {isCall ? (
               <StyledR>
                 <StyledT>
                   <span>
-                    {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
+                    {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
                   </span>
                 </StyledT>
                 <span>
-                  {numeral(premiumUnderlying).format('(0.00a)')}{' '}
+                  {numeral(premiumUnderlying).format('(0.000a)')}{' '}
                   <Units>{units}</Units>
                 </span>
               </StyledR>
             ) : (
               <span>
-                {numeral(premium).format('(0.00a)')} <Units>DAI</Units>
+                {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
               </span>
             )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {parseInt(depth) > 0 ? (
+        {+depth[1] > 0 ? (
           <TableCell>
-            {depth} <Units>{'LONG'}</Units>
+            <StyledR>
+              <StyledT>
+                {numeral(depth[0]).format('0.00a')} <Units>{`LONG`}</Units>
+              </StyledT>
+              <span>
+                {depth[1]} <Units>{'%'}</Units>
+              </span>
+            </StyledR>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -133,10 +142,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <TableCell>
             <StyledR>
               <StyledT>
-                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
+                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
               </StyledT>
               <span>
-                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
               </span>
             </StyledR>
           </TableCell>

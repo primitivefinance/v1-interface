@@ -1,23 +1,21 @@
-import { BigNumberish } from 'ethers'
-// import { Token } from './token' breaks Pair types
-import { Asset } from './asset'
-import { Quantity } from './quantity'
-import ethers from 'ethers'
+import ethers, { BigNumberish, BigNumber } from 'ethers'
 import OptionArtifact from '@primitivefi/contracts/artifacts/Option.json'
-import { formatEther } from 'ethers/lib/utils'
-import { Pair, Token } from '@uniswap/sdk'
+import { formatEther, parseEther } from 'ethers/lib/utils'
+import { ChainId, Pair, Token, TokenAmount } from '@uniswap/sdk'
+import { STABLECOINS, ADDRESS_ZERO } from '@/constants/index'
+import isZero from '@/utils/isZero'
 
 export interface OptionParameters {
-  base: Quantity
-  quote: Quantity
+  base: TokenAmount
+  quote: TokenAmount
   expiry: number
 }
 
-export const EMPTY_ASSET: Asset = new Asset(18)
-export const EMPTY_QUANTITY: Quantity = new Quantity(EMPTY_ASSET, '')
+export const EMPTY_ASSET: Token = new Token(1, ADDRESS_ZERO, 18)
+export const EMPTY_TOKEN_AMOUNT: TokenAmount = new TokenAmount(EMPTY_ASSET, '')
 export const EMPTY_OPTION_PARAMETERS: OptionParameters = {
-  base: EMPTY_QUANTITY,
-  quote: EMPTY_QUANTITY,
+  base: EMPTY_TOKEN_AMOUNT,
+  quote: EMPTY_TOKEN_AMOUNT,
   expiry: 0,
 }
 
@@ -40,7 +38,8 @@ export const createOptionEntityWithAddress = (
  */
 export class Option extends Token {
   public readonly optionParameters: OptionParameters
-  public assetAddresses: string[]
+  public tokenAddresses: string[]
+  public pair: Pair
   public constructor(
     optionParameters: OptionParameters,
     chainId: number,
@@ -53,94 +52,151 @@ export class Option extends Token {
     this.optionParameters = optionParameters
   }
 
-  public setAssetAddresses(assets) {
-    this.assetAddresses = assets
+  public setTokenAddresses(assets) {
+    this.tokenAddresses = assets
   }
 
   public optionInstance(signer): ethers.Contract {
     return new ethers.Contract(this.address, OptionArtifact.abi, signer)
   }
 
-  public get pair(): string {
-    const SHORT_OPTION: Token = new Token(
-      this.chainId,
-      this.assetAddresses[2],
-      18
-    )
-    const UNDERLYING: Token = new Token(
-      this.chainId,
-      this.assetAddresses[0],
-      18
-    )
-    const address: string = Pair.getAddress(UNDERLYING, SHORT_OPTION)
-
+  public get pairAddress(): string {
+    const address: string = Pair.getAddress(this.underlying, this.redeem)
     return address
   }
 
-  public get underlying(): Asset {
-    return this.optionParameters.base.asset
+  public setPair(pair: Pair) {
+    this.pair = pair
   }
 
-  public get strike(): Asset {
-    return this.optionParameters.quote.asset
+  public get underlying(): Token {
+    return this.optionParameters.base.token
   }
 
-  public get base(): Quantity {
+  public get strike(): Token {
+    return this.optionParameters.quote.token
+  }
+
+  public get baseValue(): TokenAmount {
     return this.optionParameters.base
   }
 
-  public get quote(): Quantity {
+  public get quoteValue(): TokenAmount {
     return this.optionParameters.quote
   }
 
-  public get expiry(): number {
+  public get expiryValue(): number {
     return this.optionParameters.expiry
   }
 
-  public get strikePrice(): Quantity {
-    const baseValue = this.optionParameters.base.quantity
-    const quoteValue = this.optionParameters.quote.quantity
-    let strikePrice: Quantity
-    if (baseValue === '1') {
-      strikePrice = this.optionParameters.quote
-    } else if (quoteValue === '1') {
-      strikePrice = this.optionParameters.base
+  public get redeem(): Token {
+    return new Token(
+      this.chainId,
+      this.tokenAddresses[2],
+      18,
+      'RDM',
+      'Primitive V1 Redeem'
+    )
+  }
+
+  public get strikePrice(): string {
+    const baseValue = this.baseValue.raw.toString()
+    const quoteValue = this.quoteValue.raw.toString()
+    const numerator = BigNumber.from(quoteValue)
+    const denominator = BigNumber.from(baseValue)
+    let strikePrice: string
+    if (parseEther('1').eq(baseValue)) {
+      strikePrice = (parseInt(quoteValue) / parseInt(baseValue)).toString()
+    } else if (parseEther('1').eq(quoteValue)) {
+      strikePrice = (parseInt(baseValue) / parseInt(quoteValue)).toString()
     } else {
-      const numerator = ethers.BigNumber.from(
-        this.optionParameters.quote.quantity
-      )
-      const denominator = ethers.BigNumber.from(
-        this.optionParameters.base.quantity
-      )
+      if (isZero(denominator)) return '0'
 
       const strike =
         parseInt(numerator.toString()) / parseInt(denominator.toString())
 
-      strikePrice = new Quantity(this.optionParameters.quote.asset, strike)
+      strikePrice = strike.toString()
     }
+
     return strikePrice
   }
 
+  public proportionalLong(quantityShort: BigNumberish): BigNumber {
+    const numerator = this.baseValue.raw.toString()
+    const denominator = this.quoteValue.raw.toString()
+    if (isZero(denominator)) return BigNumber.from('0')
+    const long = BigNumber.from(quantityShort).mul(numerator).div(denominator)
+    return long
+  }
+
+  public proportionalShort(quantityLong: BigNumberish): BigNumber {
+    const numerator = this.quoteValue.raw.toString()
+    const denominator = this.baseValue.raw.toString()
+    if (isZero(denominator)) return BigNumber.from('0')
+    const short = BigNumber.from(quantityLong).mul(numerator).div(denominator)
+    return short
+  }
+
+  public getBreakeven(premiumWei: BigNumber): BigNumber {
+    let breakeven: BigNumber
+    if (this.isCall) {
+      breakeven = premiumWei.add(parseEther(this.strikePrice))
+    } else {
+      breakeven = parseEther(this.strikePrice).sub(premiumWei)
+    }
+    return breakeven
+  }
+
   public get isCall(): boolean {
-    const baseValue = this.optionParameters.base.quantity
+    const baseValue = this.baseValue.raw.toString()
+    const quoteValue = this.quoteValue.raw.toString()
     let isCall = false
     if (+formatEther(baseValue) === 1) {
-      isCall = true
+      if (+formatEther(quoteValue) === 1) {
+        if (this.isMainnet) {
+          if (this.strike.address === STABLECOINS[this.chainId].address) {
+            isCall = true
+          }
+        }
+        const quoteToken = this.strike.symbol
+        if (quoteToken.toUpperCase() === STABLECOINS[this.chainId].symbol) {
+          isCall = true
+        }
+      } else {
+        isCall = true
+      }
     }
     return isCall
   }
 
   public get isPut(): boolean {
-    const quoteValue = this.optionParameters.quote.quantity
+    const quoteValue = this.quoteValue.raw.toString()
+    const baseValue = this.baseValue.raw.toString()
     let isPut = false
     if (+formatEther(quoteValue) === 1) {
-      isPut = true
+      if (+formatEther(baseValue) === 1) {
+        if (this.isMainnet) {
+          if (this.underlying.address === STABLECOINS[this.chainId].address) {
+            isPut = true
+          }
+        }
+        const baseToken = this.strike.symbol
+        if (baseToken === STABLECOINS[this.chainId].symbol) {
+          isPut = true
+        }
+      } else {
+        isPut = true
+      }
     }
     return isPut
   }
 
+  public get isMainnet(): boolean {
+    return this.chainId === ChainId.MAINNET
+  }
+
   public getTimeToExpiry(): number {
-    const expiry: number = this.optionParameters.expiry * 1000
+    const expiry: number = this.expiryValue * 1000
     const now: number = new Date().valueOf()
     const secondsInYear = 60 * 60 * 24 * 365
     const timeLeft: number = (expiry - now) / secondsInYear

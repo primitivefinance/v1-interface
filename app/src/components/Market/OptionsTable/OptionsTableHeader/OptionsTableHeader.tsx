@@ -10,28 +10,30 @@ import LitContainer from '@/components/LitContainer'
 const OptionsTableHeader: React.FC = () => {
   const headers = [
     {
-      name: 'Strike Price',
-      tip: 'The purchase price for the underlying asset of this option.',
+      name: 'Strike',
+      tip: 'The purchase price for the underlying asset of this option',
     },
     {
-      name: 'Break Even',
+      name: 'Break-Even',
       tip:
-        'The price the underlying asset must reach to reach a net cost of zero.',
+        'The price the underlying asset must reach to reach a net cost of zero',
     },
     {
       name: 'Price',
       tip:
-        'The current spot price of an option token, not accounting for slippage.',
+        'The current spot price of an option token, not accounting for slippage',
     },
-    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
-    { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
-    { name: 'Contract', tip: 'The address of the Option token.' },
+    {
+      name: 'Depth',
+      tip: 'Slippage incurred for purchasing 2% of the underlying reserves',
+    },
+    { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
+    { name: 'Contract', tip: 'The address of the Option token' },
     { name: '', tip: null },
   ]
 
   return (
     <StyledTableHead>
-      <GreyBack />
       <LitContainer>
         <TableRow isHead>
           {headers.map((header, index) => {
@@ -55,6 +57,7 @@ const OptionsTableHeader: React.FC = () => {
             return <TableCell key={header.name}>{header.name}</TableCell>
           })}
         </TableRow>
+        <GreyBack />
       </LitContainer>
     </StyledTableHead>
   )
@@ -64,8 +67,8 @@ const GreyBack = styled.div`
   background: ${(props) => props.theme.color.grey[800]};
   position: absolute;
   z-index: -100;
-  min-height: 50px;
-  min-width: 1200px;
+  min-height: 2px;
+  min-width: 4000px;
   left: 0;
 `
 

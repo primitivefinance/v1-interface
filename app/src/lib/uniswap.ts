@@ -1,13 +1,15 @@
-import { STABLECOIN_ADDRESS, Operation } from './constants'
-import { Trade } from './entities'
+import { Operation } from '@/constants/index'
+import { Trade, Market, Option } from './entities'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import UniswapV2Router02 from '@uniswap/v2-periphery/build/UniswapV2Router02.json'
-import { UNISWAP_ROUTER02_V2, UNISWAP_FACTORY_V2 } from './constants'
+import { UNISWAP_ROUTER02_V2 } from './constants'
 import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
 import UniswapConnectorMainnet from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import { TradeSettings, SinglePositionParameters } from './types'
+import { parseEther } from 'ethers/lib/utils'
+import isZero from '@/utils/isZero'
+import { TokenAmount } from '@uniswap/sdk'
 
 /**
  * Represents the UniswapConnector contract.
@@ -24,19 +26,20 @@ export class Uniswap {
         ? UniswapConnectorMainnet.address
         : UniswapConnectorTestnet.address
 
-    let transaction: any
     let contract: ethers.Contract
     let methodName: string
     let args: (string | string[])[]
     let value: string
 
-    let contractsToApprove: string[]
-    let tokensToApprove: string[]
-
     let amountIn: string
     let amountOut: string
-    let amountAMin: string | ethers.BigNumber
-    let amountBMin: string | ethers.BigNumber
+    let amountADesired: string | BigNumber | TokenAmount
+    let amountBDesired: string | BigNumber
+    let amountAMin: string | BigNumber
+    let amountBMin: string | BigNumber
+    let path: string[]
+    let minPayout
+
     const deadline =
       tradeSettings.timeLimit > 0
         ? (
@@ -45,121 +48,155 @@ export class Uniswap {
         : tradeSettings.deadline.toString()
     const to: string = tradeSettings.receiver
 
+    const UniswapV2Router02Contract = new ethers.Contract(
+      UNISWAP_ROUTER02_V2,
+      UniswapV2Router02.abi,
+      trade.signer
+    )
+
+    const UniswapConnector03Contract = new ethers.Contract(
+      uniswapConnectorAddress,
+      UniswapConnector.abi,
+      trade.signer
+    )
+
+    const inputAmount: TokenAmount = trade.inputAmount
+    const outputAmount: TokenAmount = trade.outputAmount
+
     switch (trade.operation) {
       case Operation.LONG:
-        const orderQuantity: string = trade.inputAmount.quantity.toString()
-        let premium = Trade.getPremium(
-          orderQuantity,
-          trade.option.optionParameters.base.quantity,
-          trade.option.optionParameters.quote.quantity,
-          trade.path,
-          trade.reserves
-        )
-        premium = trade.calcMaximumInSlippage(premium, tradeSettings.slippage)
-        premium = premium.gt(0) ? premium.toString() : '0'
-
-        contract = new ethers.Contract(
-          uniswapConnectorAddress,
-          UniswapConnector.abi,
-          trade.signer
-        )
+        let premium: BigNumberish = trade
+          .calcMaximumInSlippage(
+            trade.openPremium.raw.toString(),
+            tradeSettings.slippage
+          )
+          .toString()
+        contract = UniswapConnector03Contract
         methodName = 'openFlashLong'
-        args = [trade.option.address, orderQuantity, premium]
+        args = [trade.option.address, outputAmount.raw.toString(), premium]
         value = '0'
-
-        contractsToApprove = [uniswapConnectorAddress]
-        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.SHORT:
-        // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountOut = trade.inputAmount.quantity.toString()
-        amountIn = Trade.getAmountsInPure(
-          amountOut,
-          trade.path,
-          trade.reserves[0],
-          trade.reserves[1]
-        )[0].toString()
-        contract = new ethers.Contract(
-          UNISWAP_ROUTER02_V2,
-          UniswapV2Router02.abi,
-          trade.signer
-        )
+        let amountInMax = trade
+          .maximumAmountIn(tradeSettings.slippage)
+          .raw.toString()
+        path = [
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+        ]
+        contract = UniswapV2Router02Contract
         methodName = 'swapTokensForExactTokens'
-        args = [amountOut, amountIn, trade.path, to, deadline]
+        args = [
+          trade.outputAmount.raw.toString(),
+          amountInMax,
+          path,
+          to,
+          deadline,
+        ]
         value = '0'
-
-        contractsToApprove = [UNISWAP_ROUTER02_V2]
-        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
+        break
+      case Operation.WRITE:
+        minPayout = trade.closePremium.raw.toString()
+        if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
+          minPayout = '1'
+        }
+        contract = UniswapConnector03Contract
+        methodName = 'mintOptionsThenFlashCloseLong'
+        args = [
+          trade.option.address,
+          trade.option
+            .proportionalLong(trade.outputAmount.raw.toString())
+            .toString(),
+          minPayout.toString(),
+        ]
+        value = '0'
         break
       case Operation.CLOSE_LONG:
-        const underlyingsRequired = trade.amountsIn[0]
-        const outputUnderlyings = ethers.BigNumber.from(
-          trade.inputAmount.quantity
-        )
-          .mul(trade.option.optionParameters.base.quantity)
-          .div(trade.option.optionParameters.quote.quantity)
-        let payout = outputUnderlyings.sub(underlyingsRequired)
-        payout = trade.calcMinimumOutSlippage(payout, tradeSettings.slippage)
-        payout = payout.gt(0) ? payout : ethers.BigNumber.from('1')
-        contract = new ethers.Contract(
-          uniswapConnectorAddress,
-          UniswapConnector.abi,
-          trade.signer
-        )
+        minPayout = trade.closePremium.raw.toString()
+        if (BigNumber.from(minPayout).lte(0) || isZero(minPayout)) {
+          minPayout = '1'
+        }
+
+        contract = UniswapConnector03Contract
         methodName = 'closeFlashLong'
         args = [
           trade.option.address,
-          trade.inputAmount.quantity.toString(),
-          payout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
+          trade.outputAmount.raw.toString(),
+          minPayout.toString(), // IMPORTANT: IF THIS VALUE IS 0, IT WILL COST THE USER TO CLOSE (NEGATIVE PAYOUT)
         ]
         value = '0'
-
-        contractsToApprove = [uniswapConnectorAddress]
-        tokensToApprove = payout.gt(0) //if payout is negative, need to approve underlying
-          ? [trade.option.address]
-          : [trade.option.address, trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.CLOSE_SHORT:
         // Just purchase redeemTokens from a redeem<>underlying token pair
-        amountIn = trade
-          .maximumAmountIn(tradeSettings.slippage)
-          .quantity.toString()
+        amountIn = trade.maximumAmountIn(tradeSettings.slippage).raw.toString()
         const amountOutMin = trade
           .minimumAmountOut(tradeSettings.slippage)
-          .quantity.toString()
-
-        contract = new ethers.Contract(
-          UNISWAP_ROUTER02_V2,
-          UniswapV2Router02.abi,
-          trade.signer
-        )
+          .raw.toString()
+        path = [
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+        ]
+        contract = UniswapV2Router02Contract
         methodName = 'swapExactTokensForTokens'
-        args = [amountIn, amountOutMin, trade.path, to, deadline]
+        args = [amountIn, amountOutMin, path, to, deadline]
         value = '0'
-
-        contractsToApprove = [UNISWAP_ROUTER02_V2]
-        tokensToApprove = [trade.option.assetAddresses[2]] // need to approve redeem = [2]
         break
       case Operation.ADD_LIQUIDITY:
-        const amountOptions = trade.inputAmount.quantity
-        // amount of redeems that will be minted and added to the pool
-        const amountADesired = ethers.BigNumber.from(amountOptions)
-          .mul(trade.option.optionParameters.quote.quantity)
-          .div(trade.option.optionParameters.base.quantity)
+        const strikeRatio = trade.option.proportionalShort(
+          trade.option.baseValue.raw.toString()
+        )
+        const redeemReserves = trade.market.reserveOf(trade.option.redeem)
+        const underlyingReserves = trade.market.reserveOf(
+          trade.option.underlying
+        )
+        const hasLiquidity = trade.market.hasLiquidity
+        const denominator = !hasLiquidity
+          ? 0
+          : strikeRatio
+              .mul(underlyingReserves.raw.toString())
+              .div(redeemReserves.raw.toString())
+              .add(parseEther('1'))
+        const optionsInput = isZero(denominator)
+          ? BigNumber.from(inputAmount.raw.toString())
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(parseEther('1'))
+              .div(denominator)
 
-        let amountBDesired: BigNumberish
-        if (
-          BigNumber.from(trade.reserves[0]).isZero() &&
-          BigNumber.from(trade.reserves[1]).isZero()
-        ) {
-          amountBDesired = trade.outputAmount.quantity
+        // amount of redeems that will be minted and added to the pool
+        amountADesired = new TokenAmount(
+          trade.option.redeem,
+          trade.option.proportionalShort(optionsInput).toString()
+        )
+
+        if (!hasLiquidity) {
+          amountBDesired = trade.outputAmount.raw.toString()
         } else {
-          amountBDesired = trade.quote(
-            amountADesired,
-            trade.reserves[0],
-            trade.reserves[1]
-          )
+          amountBDesired = Trade.getQuote(
+            amountADesired.raw.toString(),
+            trade.market.reserveOf(amountADesired.token).raw.toString(),
+            trade.market.reserveOf(trade.option.underlying).raw.toString()
+          ).toString()
         }
+        amountBMin = trade.calcMinimumOutSlippage(
+          amountBDesired,
+          tradeSettings.slippage
+        )
+        contract = UniswapConnector03Contract
+        methodName = 'addShortLiquidityWithUnderlying'
+        args = [
+          trade.option.address,
+          optionsInput.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
+          amountBDesired.toString(),
+          amountBMin.toString(),
+          to,
+          deadline,
+        ]
+        value = '0'
+        break
+      case Operation.ADD_LIQUIDITY_CUSTOM:
+        // amount of redeems that will be minted and added to the pool
+        amountADesired = inputAmount.raw.toString()
+        amountBDesired = trade.outputAmount.raw.toString()
         amountAMin = trade.calcMinimumOutSlippage(
           amountADesired,
           tradeSettings.slippage
@@ -168,32 +205,31 @@ export class Uniswap {
           amountBDesired,
           tradeSettings.slippage
         )
-        contract = new ethers.Contract(
-          uniswapConnectorAddress,
-          UniswapConnector.abi,
-          trade.signer
-        )
-        methodName = 'addShortLiquidityWithUnderlying'
+        contract = UniswapV2Router02Contract
+        methodName = 'addLiquidity'
         args = [
-          trade.option.address,
-          trade.inputAmount.quantity.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
-          amountBDesired.toString(),
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+          trade.inputAmount.raw.toString(),
+          trade.outputAmount.raw.toString(),
+          amountAMin.toString(),
           amountBMin.toString(),
           to,
           deadline,
         ]
         value = '0'
-
-        contractsToApprove = [uniswapConnectorAddress]
-        tokensToApprove = [trade.option.assetAddresses[0]] // need to approve underlying = [0]
         break
       case Operation.REMOVE_LIQUIDITY:
-        amountAMin = ethers.BigNumber.from(trade.inputAmount.quantity)
-          .mul(trade.reserves[0])
-          .div(trade.totalSupply)
-        amountBMin = ethers.BigNumber.from(trade.inputAmount.quantity)
-          .mul(trade.reserves[1])
-          .div(trade.totalSupply)
+        amountAMin = isZero(trade.totalSupply)
+          ? BigNumber.from('0')
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve0.raw.toString())
+              .div(trade.totalSupply)
+        amountBMin = isZero(trade.totalSupply)
+          ? BigNumber.from('0')
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve1.raw.toString())
+              .div(trade.totalSupply)
 
         amountAMin = trade.calcMinimumOutSlippage(
           amountAMin.toString(),
@@ -203,32 +239,30 @@ export class Uniswap {
           amountBMin.toString(),
           tradeSettings.slippage
         )
-        contract = new ethers.Contract(
-          UNISWAP_ROUTER02_V2,
-          UniswapV2Router02.abi,
-          trade.signer
-        )
+        contract = UniswapV2Router02Contract
         methodName = 'removeLiquidity'
         args = [
-          trade.path[0],
-          trade.path[1],
-          trade.inputAmount.quantity.toString(),
+          trade.inputAmount.token.address,
+          trade.outputAmount.token.address,
+          trade.inputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,
           deadline,
         ]
         value = '0'
-
-        contractsToApprove = [uniswapConnectorAddress]
         break
       case Operation.REMOVE_LIQUIDITY_CLOSE:
-        amountAMin = ethers.BigNumber.from(trade.inputAmount.quantity)
-          .mul(trade.reserves[0])
-          .div(trade.totalSupply)
-        amountBMin = ethers.BigNumber.from(trade.inputAmount.quantity)
-          .mul(trade.reserves[1])
-          .div(trade.totalSupply)
+        amountAMin = isZero(trade.totalSupply)
+          ? BigNumber.from('0')
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve0.raw.toString())
+              .div(trade.totalSupply)
+        amountBMin = isZero(trade.totalSupply)
+          ? BigNumber.from('0')
+          : BigNumber.from(inputAmount.raw.toString())
+              .mul(trade.market.reserve1.raw.toString())
+              .div(trade.totalSupply)
 
         amountAMin = trade.calcMinimumOutSlippage(
           amountAMin.toString(),
@@ -238,24 +272,17 @@ export class Uniswap {
           amountBMin.toString(),
           tradeSettings.slippage
         )
-        contract = new ethers.Contract(
-          uniswapConnectorAddress,
-          UniswapConnector.abi,
-          trade.signer
-        )
+        contract = UniswapConnector03Contract
         methodName = 'removeShortLiquidityThenCloseOptions'
         args = [
           trade.option.address,
-          trade.inputAmount.quantity.toString(),
+          trade.inputAmount.raw.toString(),
           amountAMin.toString(),
           amountBMin.toString(),
           to,
           deadline,
         ]
         value = '0'
-
-        contractsToApprove = [uniswapConnectorAddress]
-        tokensToApprove = [trade.option.address]
         break
     }
 
@@ -264,8 +291,6 @@ export class Uniswap {
       methodName,
       args,
       value,
-      contractsToApprove,
-      tokensToApprove,
     }
   }
 }

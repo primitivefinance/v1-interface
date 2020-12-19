@@ -1,44 +1,54 @@
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { Option } from './option'
+import { Option, Market } from './index'
 import { Operation } from '@/constants/index'
-import { Quantity } from './quantity'
+import { TokenAmount } from '@uniswap/sdk'
 import UniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { parseEther } from 'ethers/lib/utils'
 
+/**
+ * @dev Represents a trade for an option in a market.
+ */
 export class Trade {
   public readonly option: Option
-  public inputAmount: Quantity
-  public outputAmount: Quantity
-  public path: string[]
-  public reserves: BigNumberish[] | ethers.BigNumber[]
-  public totalSupply: BigNumberish
-  public amountsIn: BigNumberish[]
-  public amountsOut: BigNumberish[]
+  public readonly market: Market
+  public readonly totalSupply: BigNumberish
+  public inputAmount: TokenAmount
+  public outputAmount: TokenAmount
   public readonly operation: Operation
   public readonly signer: ethers.Signer
 
   public constructor(
     option: Option,
-    inputAmount: Quantity,
-    outputAmount: Quantity,
-    path: string[],
-    reserves: BigNumberish[] | ethers.BigNumber[],
+    market: Market,
     totalSupply: BigNumberish,
-    amountsIn: BigNumberish[],
-    amountsOut: BigNumberish[],
+    inputAmount: TokenAmount,
+    outputAmount: TokenAmount,
     operation: Operation,
     signer: ethers.Signer
   ) {
     this.option = option
+    this.market = market
+    this.totalSupply = totalSupply
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
-    this.path = path
-    this.reserves = reserves
-    this.totalSupply = totalSupply
-    this.amountsIn = amountsIn
-    this.amountsOut = amountsOut
-    this.operation = operation ? operation : null
+    this.operation = operation
     this.signer = signer
+  }
+
+  /**
+   * @dev Gets the underlyingToken cost to purchase long option tokens.
+   * @notice We use outputAmount because the path is redeem -> underlying, where we borrow underlying and pay back redeem.
+   */
+  public get openPremium(): TokenAmount {
+    return this.market.getOpenPremium(this.outputAmount)
+  }
+
+  public get closePremium(): TokenAmount {
+    return this.market.getClosePremium(this.outputAmount)
+  }
+
+  public get shortPremium(): TokenAmount {
+    return this.market.getShortPremium(this.outputAmount)
   }
 
   public calcMaximumInSlippage(
@@ -62,7 +72,7 @@ export class Trade {
   ): ethers.ethers.BigNumber {
     if (
       this.operation === Operation.SHORT ||
-      this.operation === Operation.ADD_LIQUIDITY
+      this.operation === Operation.ADD_LIQUIDITY_CUSTOM
     ) {
       return amount
     }
@@ -74,31 +84,28 @@ export class Trade {
     return formattedValue
   }
 
-  public maximumAmountIn(slippagePercent: string): Quantity {
-    if (
-      this.operation === Operation.SHORT ||
-      this.operation === Operation.CLOSE_SHORT
-    ) {
+  public maximumAmountIn(slippagePercent: string): TokenAmount {
+    if (this.operation === Operation.CLOSE_SHORT) {
       return this.inputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
-    const amountIn = ethers.BigNumber.from(this.inputAmount.quantity)
+    const amountIn = ethers.BigNumber.from(this.inputAmount.raw.toString())
     const one = ethers.BigNumber.from(1000)
     const slippageAdjustedValue = amountIn.mul(one.add(slippage)).div(1000)
     const formattedValue = slippageAdjustedValue
-    return new Quantity(this.inputAmount.asset, formattedValue)
+    return new TokenAmount(this.inputAmount.token, formattedValue.toString())
   }
 
-  public minimumAmountOut(slippagePercent: string): Quantity {
+  public minimumAmountOut(slippagePercent: string): TokenAmount {
     if (this.operation === Operation.LONG) {
       return this.outputAmount
     }
     const slippage = ethers.BigNumber.from(+slippagePercent * 1000)
-    const amountIn = ethers.BigNumber.from(this.outputAmount.quantity)
+    const amountIn = ethers.BigNumber.from(this.outputAmount.raw.toString())
     const one = ethers.BigNumber.from(1000)
     const slippageAdjustedValue = amountIn.mul(one.sub(slippage)).div(1000)
     const formattedValue = slippageAdjustedValue
-    return new Quantity(this.outputAmount.asset, formattedValue)
+    return new TokenAmount(this.outputAmount.token, formattedValue.toString())
   }
 
   public sortTokens = (tokenA: string, tokenB: string): string[] => {
@@ -278,7 +285,7 @@ export class Trade {
     quantityShort: BigNumberish,
     base: BigNumberish,
     quote: BigNumberish,
-    path: string[], // redeem -> underlying
+    path: string[], // underlying -> redeem
     reserves: BigNumberish[]
   ): BigNumberish => {
     if (BigNumber.from(reserves[0]).isZero()) {
@@ -289,14 +296,16 @@ export class Trade {
       .div(quote)
     // CLOSE PREMIUM MATH
     const amountsIn = Trade.getAmountsInPure(
-      quote,
+      quantityShort,
       path,
       reserves[0],
       reserves[1]
     )
     const underlyingsRequired = amountsIn[0]
-    const underlyingPayout = BigNumber.from(base).gt(underlyingsRequired)
-      ? BigNumber.from(base).sub(underlyingsRequired)
+    const underlyingPayout = BigNumber.from(underlyingsMinted).gt(
+      underlyingsRequired
+    )
+      ? BigNumber.from(underlyingsMinted).sub(underlyingsRequired)
       : parseEther('0')
     return underlyingPayout
   }
@@ -319,9 +328,8 @@ export class Trade {
     path: string[], // redeem -> underlying
     reserves: BigNumberish[]
   ): BigNumberish => {
-    const quantity = parseEther('1')
-    const premium = Trade.getClosePremium(quantity, base, quote, path, reserves)
-    return premium
+    const premium = Trade.getClosePremium(quote, base, quote, path, reserves)
+    return BigNumber.from(premium).mul(parseEther('1')).div(base)
   }
 
   public static getSpotPremium = (
@@ -330,9 +338,8 @@ export class Trade {
     path: string[], // redeem -> underlying
     reserves: BigNumberish[]
   ): BigNumberish => {
-    const quantity = parseEther('1')
-    const premium = Trade.getPremium(quantity, base, quote, path, reserves)
-    return premium
+    const premium = Trade.getPremium(base, base, quote, path, reserves)
+    return BigNumber.from(premium).mul(parseEther('1')).div(base)
   }
 
   public static getSpotShortPremium = (
@@ -362,6 +369,9 @@ export class Trade {
     reserveA: BigNumberish,
     reserveB: BigNumberish
   ): BigNumberish => {
+    if (amountA === '') {
+      return '0'
+    }
     let amountB
     if (ethers.BigNumber.from(reserveA).isZero()) {
       amountB = 0

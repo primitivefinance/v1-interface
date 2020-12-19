@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import Link from 'next/link'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-
+import Button from '@/components/Button'
 export interface GoBackProps {
   text?: string
   to?: string
@@ -27,18 +27,19 @@ const StyledText = styled.h6`
   margin: -1em 0 -1em 0;
 `
 
-const StyledGoBack = styled.a`
+const StyledGoBack = styled.div`
   align-items: center;
   background: transparent;
   border: 0px;
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   cursor: pointer;
   display: flex;
-  font-size: 14px;
+  font-size: 18px;
+  width: 3em;
   margin: -1em 0 -1em -0.6em;
   padding: 0;
   &:hover {
-    color: ${(props) => props.theme.color.grey[400]};
+    color: ${(props) => props.theme.color.white};
   }
   text-decoration: none;
 `
