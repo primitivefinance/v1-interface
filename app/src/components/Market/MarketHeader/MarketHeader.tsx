@@ -8,13 +8,11 @@ import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
-import WarningIcon from '@material-ui/icons/Warning'
 
 import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
-
+import { useUpdatePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
 
 import formatBalance from '@/utils/formatBalance'
 import formatEtherBalance from '@/utils/formatEtherBalance'
@@ -28,17 +26,19 @@ import {
   ETHERSCAN_RINKEBY,
   getIconForMarket,
 } from '@/constants/index'
-import Link from 'next/link'
 
 const formatName = (name: any) => {
-  return name.charAt(0).toUpperCase() + name.slice(1)
+  if (name) {
+    return name.charAt(0).toUpperCase() + name.slice(1)
+  }
 }
 
 export interface MarketHeaderProps {
   marketId: string
+  isCall: number
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const options = useOptions()
@@ -58,10 +58,13 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
     `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
 
+  const updatePrice = useUpdatePrice()
+
   useEffect(() => {
     const refreshInterval = setInterval(() => {
       mutate()
-    }, 1000)
+      updatePrice(data[key].usd)
+    }, 2000)
     return () => clearInterval(refreshInterval)
   }, [blink, setBlink, name])
 
@@ -81,11 +84,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
 
   return (
     <StyledHeader>
-      <GreyBack />
       <Spacer />
-      <GoBack to="/markets" />
       <LitContainer>
-        <Spacer size="sm" />
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
           <Spacer />
@@ -134,30 +134,29 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
             <StyledSymbol>Total Liquidity</StyledSymbol>
             <StyledPrice size="sm">
               {!options.loading ? (
-                formatEtherBalance(options.reservesTotal) !== '0.00' ? (
+                formatEtherBalance(options.reservesTotal[isCall]) !== '0.00' ? (
                   <>
                     <div style={{ minHeight: '.4em' }} />
 
                     {`${numeral(
-                      formatEtherBalance(options.reservesTotal)
-                    ).format('0.00a')} ${' '} ${symbol.toUpperCase()}`}
+                      formatEtherBalance(options.reservesTotal[isCall])
+                    ).format('0.00a')} ${' '} ${
+                      isCall === 0 ? symbol.toUpperCase() : 'DAI'
+                    }`}
                     <div style={{ minHeight: '.25em' }} />
                   </>
                 ) : (
                   <>
-                    <div style={{ minHeight: '.05em' }} />
+                    <div style={{ minHeight: '.35em' }} />
                     <StyledL
                       row
                       justifyContent="flex-start"
                       alignItems="center"
                     >
-                      <WarningIcon style={{ color: 'yellow' }} />
-                      <Spacer size="sm" />
+                      <div style={{ minWidth: '.2em' }} />
                       <h4>
-                        <Tooltip
-                          text={`This option market has no liquidty, click an option and navigate to the Liquidity tab to initalize trading.`}
-                        >
-                          N/A{' '}
+                        <Tooltip text={`Choose an option and add liquidity!`}>
+                          None
                         </Tooltip>
                       </h4>
                     </StyledL>
@@ -167,7 +166,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
                 <>
                   <div style={{ minHeight: '.4em' }} />
                   <Loader size="sm" />
-                  <div style={{ minHeight: '.4em' }} />
+                  <div style={{ minHeight: '.55em' }} />
                 </>
               )}
             </StyledPrice>
@@ -178,7 +177,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId }) => {
     </StyledHeader>
   )
 }
-
 const Reverse = styled.div`
   margin-bottom: -1em;
 `
@@ -193,7 +191,7 @@ const GreyBack = styled.div`
   position: absolute;
   z-index: -100;
   min-height: 310px;
-  min-width: 1200px;
+  min-width: 4500px;
   left: 0;
 `
 const StyledContent = styled(Box)`

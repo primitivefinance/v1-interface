@@ -1,9 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { Contract } from '@ethersproject/contracts'
 
-import { initialState } from './reducer'
 import { removeItem, updateItem } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
@@ -11,19 +9,20 @@ import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
 import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
-import { OptionsAttributes } from '../options/reducer'
+import { OptionsAttributes } from '../options/actions'
 import {
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
   STABLECOINS,
   DEFAULT_ALLOWANCE,
+  ADDRESS_ZERO,
 } from '@/constants/index'
 
 import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import { Asset, Trade, Quantity } from '@/lib/entities'
+import { Trade } from '@/lib/entities'
 import { Trader } from '@/lib/trader'
 import { Uniswap } from '@/lib/uniswap'
 import { TradeSettings, SinglePositionParameters } from '@/lib/types'
@@ -31,24 +30,28 @@ import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
 import { useReserves } from '@/hooks/data'
 import executeTransaction, {
   checkAllowance,
   executeApprove,
 } from '@/lib/utils/executeTransaction'
 
-import { useSlippage } from '@/hooks/user'
+import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
+import { useClearSwap } from '@/state/swap/hooks'
+import { useClearLP } from '@/state/liquidity/hooks'
+import { getTotalSupply } from '@/lib/erc20'
+
+const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
 export const useItem = (): {
   item: OptionsAttributes
   orderType: Operation
   loading: boolean
-  approved: boolean
-  lpApproved: boolean
+  approved: boolean[]
   checked: boolean
 } => {
   const state = useSelector<AppState, AppState['order']>((state) => state.order)
@@ -63,24 +66,36 @@ export const useUpdateItem = (): ((
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
+  const clear = useClearSwap()
+  const clearLP = useClearLP()
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
-      let approved = false
-      let lpApproved = false
-      const underlyingToken: Token = new Token(
-        item.entity.chainId,
-        item.entity.assetAddresses[0],
-        18,
-        item.entity.isPut ? 'DAI' : item.asset.toUpperCase()
-      )
+      let manage = false
+      switch (orderType) {
+        case Operation.MINT:
+          manage = true
+          break
+        case Operation.EXERCISE:
+          manage = true
+          break
+        case Operation.REDEEM:
+          manage = true
+          break
+        case Operation.CLOSE:
+          manage = true
+          break
+        default:
+          break
+      }
       if (orderType === Operation.NONE) {
+        clear()
+        clearLP()
         dispatch(
           updateItem({
             item,
             orderType,
             loading: false,
-            approved: false,
-            lpApporved: false,
+            approved: [false, false],
           })
         )
         return
@@ -92,70 +107,147 @@ export const useUpdateItem = (): ((
           const spender = UNISWAP_CONNECTOR[chainId]
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
-              item.entity.assetAddresses[0],
+              item.entity.underlying.address,
               spender
             )
-            approved = parseEther(tokenAllowance).gt(parseEther('0'))
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved,
-                lpApproved,
+                approved: [
+                  parseEther(tokenAllowance).gt(parseEther('0')),
+                  false,
+                ],
               })
             )
             return
           }
           if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE && lpPair) {
             const lpToken = lpPair.liquidityToken.address
-            const optionAllowance = await getAllowance(item.address, spender)
-            approved = parseEther(optionAllowance).gt(parseEther('0'))
+            const optionAllowance = await getAllowance(
+              item.entity.address,
+              spender
+            )
             const lpAllowance = await getAllowance(lpToken, spender)
-            lpApproved = parseEther(lpAllowance).gt(parseEther('0'))
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved,
-                lpApproved,
+                approved: [
+                  parseEther(optionAllowance).gt(parseEther('0')),
+                  parseEther(lpAllowance).gt(parseEther('0')),
+                ],
               })
             )
             return
           }
+        } else if (orderType === Operation.REMOVE_LIQUIDITY) {
+          const spender = UNISWAP_ROUTER02_V2
+          if (item.market) {
+            const lpToken = item.market.liquidityToken.address
+            const optionAllowance = await getAllowance(
+              item.entity.address,
+              spender
+            )
+            const lpAllowance = await getAllowance(lpToken, spender)
+            dispatch(
+              updateItem({
+                item,
+                orderType,
+                loading: false,
+                approved: [
+                  parseEther(optionAllowance).gt(parseEther('0')),
+                  parseEther(lpAllowance).gt(parseEther('0')),
+                ],
+              })
+            )
+            return
+          }
+        } else if (manage) {
+          let tokenAddress
+          let secondaryAddress
+          switch (orderType) {
+            case Operation.MINT:
+              tokenAddress = item.entity.underlying.address
+              break
+            case Operation.EXERCISE:
+              tokenAddress = item.entity.address
+              secondaryAddress = item.entity.strike.address
+              break
+            case Operation.REDEEM:
+              tokenAddress = item.entity.redeem.address
+              break
+            case Operation.CLOSE:
+              tokenAddress = item.entity.address
+              secondaryAddress = item.entity.redeem.address
+              break
+            default:
+              break
+          }
+          const spender = TRADER[chainId]
+          const tokenAllowance = await getAllowance(tokenAddress, spender)
+          let secondaryAllowance = '0'
+          if (secondaryAddress) {
+            secondaryAllowance = await getAllowance(secondaryAddress, spender)
+          }
+          dispatch(
+            updateItem({
+              item,
+              orderType,
+              loading: false,
+              approved: [
+                parseEther(tokenAllowance).gt(parseEther('0')),
+                parseEther(secondaryAllowance).gt(parseEther('0')),
+              ],
+            })
+          )
+          return
         } else {
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? UNISWAP_ROUTER02_V2
               : UNISWAP_CONNECTOR[chainId]
           let tokenAddress
+          let secondaryAddress
           switch (orderType) {
             case Operation.LONG:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
               break
             case Operation.SHORT:
-              tokenAddress = underlyingToken.address
+              tokenAddress = item.entity.underlying.address
+              break
+            case Operation.WRITE:
+              tokenAddress = item.entity.address
+              secondaryAddress = item.entity.underlying.address
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
               break
             case Operation.CLOSE_SHORT:
-              tokenAddress = item.entity.assetAddresses[2]
+              tokenAddress = item.entity.redeem.address
               break
             default:
+              tokenAddress = item.entity.underlying.address
               break
           }
           const tokenAllowance = await getAllowance(tokenAddress, spender)
-          approved = parseEther(tokenAllowance).gt(parseEther('0'))
-          lpApproved = false
+          let secondaryAllowance
+          if (secondaryAddress) {
+            secondaryAllowance = await getAllowance(secondaryAddress, spender)
+          } else {
+            secondaryAllowance = '0'
+          }
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
-              approved,
-              lpApproved,
+              approved: [
+                parseEther(tokenAllowance).gt(parseEther('0')),
+                parseEther(secondaryAllowance).gt(parseEther('0')),
+              ],
             })
           )
           return
@@ -175,16 +267,15 @@ export const useRemoveItem = (): (() => void) => {
 }
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
-  optionAddress: string,
-  quantity: BigInt,
+  parsedAmountA: BigInt,
   operation: Operation,
-  secondaryQuantity?: BigInt
+  parsedAmountB?: BigInt
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
   const { item } = useItem()
   const { chainId, account } = useWeb3React()
-  const [slippage] = useSlippage()
+  const slippage = useSlippage()
   const { data } = useBlockNumber()
   const throwError = useAddNotif()
   const now = () => new Date().getTime()
@@ -192,11 +283,11 @@ export const useHandleSubmitOrder = (): ((
   return useCallback(
     async (
       provider: Web3Provider,
-      optionAddress: string,
-      quantity: BigInt,
+      parsedAmountA: BigInt,
       operation: Operation,
-      secondaryQuantity?: BigInt
+      parsedAmountB?: BigInt
     ) => {
+      const optionEntity: Option = item.entity
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
         slippage: slippage,
@@ -205,49 +296,37 @@ export const useHandleSubmitOrder = (): ((
         deadline: DEFAULT_DEADLINE,
         stablecoin: STABLECOINS[chainId].address,
       }
-      console.log(tradeSettings)
-      const optionEntity: Option = createOptionEntityWithAddress(
-        chainId,
-        optionAddress
+
+      const totalSupply: BigNumberish = await getTotalSupply(
+        provider,
+        item.market.liquidityToken.address
       )
 
-      //console.log(parseInt(quantity) * 1000000000000000000)
-      const inputAmount: Quantity = new Quantity(
-        new Asset(18), // fix with actual metadata
-        BigNumber.from(BigInt(quantity.toString()).toString())
+      //console.log(parseInt(parsedAmountA) * 1000000000000000000)
+      const inputAmount: TokenAmount = new TokenAmount(
+        EMPTY_TOKEN, // fix with actual metadata
+        BigInt(parsedAmountA.toString()).toString()
       )
-      const outputAmount: Quantity = new Quantity(
-        new Asset(18), // fix with actual metadata
-        BigNumber.from('0')
+      const outputAmount: TokenAmount = new TokenAmount(
+        EMPTY_TOKEN, // fix with actual metadata
+        BigInt(parsedAmountB.toString()).toString()
       )
-      const optionInstance: ethers.Contract = optionEntity.optionInstance(
-        signer
-      )
-      const base: ethers.BigNumber = await optionInstance.getBaseValue()
-      const quote: ethers.BigNumber = await optionInstance.getQuoteValue()
-      const assetAddresses: string[] = await optionInstance.getAssetAddresses()
-      optionEntity.setAssetAddresses(assetAddresses)
-      optionEntity.optionParameters.base = new Quantity(new Asset(18), base)
-      optionEntity.optionParameters.quote = new Quantity(new Asset(18), quote)
 
+      let out: BigNumberish
       const path: string[] = []
       const amountsIn: BigNumberish[] = []
-      let amountsOut: BigNumberish[] = []
+      const amountsOut: BigNumberish[] = []
       const reserves: BigNumberish[] = []
-      let totalSupply: BigNumberish
+
       const trade: Trade = new Trade(
         optionEntity,
+        item.market,
+        totalSupply,
         inputAmount,
         outputAmount,
-        path,
-        reserves,
-        totalSupply,
-        amountsIn,
-        amountsOut,
         operation,
         signer
       )
-
       const factory = new ethers.Contract(
         UNISWAP_FACTORY_V2,
         UniswapV2Factory.abi,
@@ -257,25 +336,12 @@ export const useHandleSubmitOrder = (): ((
       let transaction: any
       switch (operation) {
         case Operation.LONG:
-          // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
-          // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
-          trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
-          ]
-          // The amountsOut[1] will tell us how much of the flash loan of underlyingTokens is outstanding.
-          trade.amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            inputAmount.quantity,
-            trade.path
-          )
-          // With the Pair's reserves, we can calculate all values using pure functions, including the premium.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          // Need to borrow exact amount of underlyingTokens, so exact output needs to be the parsedAmount.
+          // path: redeem -> underlying, getInputAmount is the redeem cost
+          trade.inputAmount = new TokenAmount(optionEntity.redeem, '0')
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountA.toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
@@ -285,165 +351,113 @@ export const useHandleSubmitOrder = (): ((
         case Operation.SHORT:
           // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
           // Purchase them for underlyingTokens from the underlying<>redeem UniswapV2Pair.
-          trade.path = [
-            assetAddresses[0], // underlying
-            assetAddresses[2], // redeem
-          ]
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          // exact output means our input is what we need to solve for
+          trade.outputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            trade.inputAmount.quantity,
-            trade.path
+          trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
+          transaction = Uniswap.singlePositionCallParameters(
+            trade,
+            tradeSettings
           )
-          trade.outputAmount.quantity = amountsOut[1]
+          break
+        case Operation.WRITE:
+          // Path: underlying -> redeem, exact redeem amount is outputAmount.
+          trade.outputAmount = new TokenAmount(
+            optionEntity.redeem,
+            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.CLOSE_LONG:
-          // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
-          // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
-          // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
-          const redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
-            .mul(quote)
-            .div(base)
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            assetAddresses[0], // underlying
-            assetAddresses[2], // redeem
-          ]
-          // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-          trade.amountsIn = await trade.getAmountsIn(
-            signer,
-            factory,
-            redeemAmount,
-            trade.path
+          // Path: underlying -> redeem, exact redeem amount is outputAmount.
+          trade.outputAmount = new TokenAmount(
+            optionEntity.redeem,
+            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
-          )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.inputAmount.quantity = redeemAmount
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.CLOSE_SHORT:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
-          ]
-          // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-          trade.amountsOut = await trade.getAmountsOut(
-            signer,
-            factory,
-            trade.inputAmount.quantity,
-            trade.path
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
-          trade.outputAmount.quantity = trade.amountsOut[1]
+          trade.outputAmount = trade.market.getOutputAmount(
+            trade.inputAmount
+          )[0]
+
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.ADD_LIQUIDITY:
-          // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-          // with the path of underlyingTokens to redeemTokens.
-          trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          // primary input is the options deposit (underlying tokens)
+          trade.inputAmount = new TokenAmount(
+            optionEntity,
+            parsedAmountA.toString()
           )
-          // The actual function will take the redeemQuantity rather than the optionQuantity.
-          const out =
-            secondaryQuantity !== BigInt('0')
-              ? BigNumber.from(BigInt(secondaryQuantity.toString()).toString())
-              : BigNumber.from('0')
-
-          trade.outputAmount = new Quantity(
-            new Asset(18), // fix with actual metadata
-            out
+          // secondary input is the underlyings deposit
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
 
+          transaction = Uniswap.singlePositionCallParameters(
+            trade,
+            tradeSettings
+          )
+          break
+        case Operation.ADD_LIQUIDITY_CUSTOM:
+          // primary input is the options deposit (underlying tokens)
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
+          )
+          // secondary input is the underlyings deposit
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
+          )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         case Operation.REMOVE_LIQUIDITY:
-          trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          trade.totalSupply = await trade.getTotalSupply(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
-          transaction.tokensToApprove = [
-            await factory.getPair(trade.path[0], trade.path[1]),
-          ] // need to approve LP token
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
-          trade.path = [
-            assetAddresses[2], // redeem
-            assetAddresses[0], // underlying
-          ]
-          // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-          trade.reserves = await trade.getReserves(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.inputAmount = new TokenAmount(
+            optionEntity.redeem,
+            parsedAmountA.toString()
           )
-          trade.totalSupply = await trade.getTotalSupply(
-            signer,
-            factory,
-            trade.path[0],
-            trade.path[1]
+          trade.outputAmount = new TokenAmount(
+            optionEntity.underlying,
+            parsedAmountB.toString()
           )
           transaction = Uniswap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
-          transaction.tokensToApprove = [
-            await factory.getPair(trade.path[0], trade.path[1]),
-            trade.option.address,
-          ] // need to approve LP token
           break
         default:
           transaction = Trader.singleOperationCallParameters(
@@ -452,7 +466,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
       }
-
+      console.log(trade)
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
@@ -461,7 +475,9 @@ export const useHandleSubmitOrder = (): ((
                 summary: {
                   type: Operation[operation].toString(),
                   option: item.entity,
-                  amount: numeral(parseInt(formatEther(quantity.toString())))
+                  amount: numeral(
+                    parseInt(formatEther(parsedAmountA.toString()))
+                  )
                     .format('0.00(a)')
                     .toString(),
                 },
@@ -474,7 +490,7 @@ export const useHandleSubmitOrder = (): ((
           }
         })
         .catch((err) => {
-          throwError(0, '', `${err.message}`, '')
+          throwError(0, 'Order Error', `${err.message}`, '')
         })
     },
     [dispatch, account, addTransaction]

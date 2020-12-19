@@ -11,13 +11,15 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
+import Toggle from '@/components/Toggle'
+import ToggleButton from '@/components/ToggleButton'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
-import useApprove from '@/hooks/useApprove'
+import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
@@ -43,6 +45,8 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
 import numeral from 'numeral'
+import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
+import { tryParseAmount } from '@/utils/index'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions
@@ -56,91 +60,56 @@ const RemoveLiquidity: React.FC = () => {
 
   const { data } = useBlockNumber()
   //slider
-  const [ratio, setRatio] = useState(100)
+  const [ratio, setRatio] = useState(0)
   // option entity in order
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   // inputs for user quantity
-  const [inputs, setInputs] = useState({
-    primary: BigInt(''),
-    secondary: BigInt(''),
-  })
+  const { optionValue, underlyingValue } = useLP()
+  const { onOptionInput, onUnderInput } = useLiquidityActionHandlers()
   // web3
   const { library, chainId } = useWeb3React()
   // pair and option entities
-  const addNotif = useAddNotif()
   const entity = item.entity
-  const isPut = item.entity.isPut
-  const underlyingToken: Token = new Token(
-    entity.chainId,
-    entity.assetAddresses[0],
-    18,
-    isPut ? 'DAI' : item.asset.toUpperCase()
-  )
-  const lpPair = useReserves(
-    underlyingToken,
-    new Token(entity.chainId, entity.assetAddresses[2], 18, 'SHORT')
-  ).data
-
-  const lpToken = lpPair ? lpPair.liquidityToken.address : ''
-  const token0 = lpPair ? lpPair.token0.symbol : ''
-  const token1 = lpPair ? lpPair.token1.symbol : ''
+  const lpToken = item.market ? item.market.liquidityToken.address : ''
+  const token0 = item.market ? item.market.token0.symbol : ''
+  const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  const spender = UNISWAP_CONNECTOR[chainId]
+  const spender =
+    orderType === Operation.REMOVE_LIQUIDITY
+      ? UNISWAP_ROUTER02_V2
+      : UNISWAP_CONNECTOR[chainId]
+  const optionBalance = useTokenBalance(item.entity.address)
 
-  const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
-
-  const optionBalance = useTokenBalance(item.address)
-
-  const onApproveOption = useApprove(item.address, spender)
-  const { onApprove } = useApprove(lpToken, spender)
-  const handleInputChange = useCallback(
-    (e: React.FormEvent<HTMLInputElement>) => {
-      setInputs({ ...inputs, [e.currentTarget.name]: e.currentTarget.value })
-    },
-    [setInputs, inputs]
-  )
-
-  // FIX
-  const handleSetMax = () => {
-    const max = Math.round(
-      ((+underlyingTokenBalance /
-        (+calculateLiquidityValuePerShare().totalUnderlyingPerLp +
-          Number.EPSILON)) *
-        100) /
-        100
-    )
-    setInputs({ ...inputs, primary: BigInt(max.toString()) })
-  }
+  const handleApprove = useApprove()
 
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       setRatio(Number(e.currentTarget.value))
-      const liquidity = formatEther(
-        parseEther(lp).mul(Number(e.currentTarget.value)).div(1000)
-      )
-      setInputs({ ...inputs, primary: BigInt(liquidity.toString()) })
+      const liquidity = parseEther(lp)
+        .mul(Number(e.currentTarget.value))
+        .div(1000)
+      onOptionInput(liquidity.toString())
     },
-    [setRatio, lp, setInputs, inputs, ratio]
+    [setRatio, lp, onOptionInput, optionValue, ratio]
   )
 
   const handleRatio = useCallback(
     (value) => {
       setRatio(value)
-      const liquidity = BigInt(parseEther(lp).mul(value).div(1000))
-      setInputs({ ...inputs, primary: liquidity })
+      const liquidity = parseEther(lp).mul(value).div(1000).toString()
+      onOptionInput(liquidity.toString())
     },
-    [setInputs, lp, ratio, inputs, setRatio]
+    [onOptionInput, lp, ratio, optionValue, setRatio]
   )
 
   const handleSubmitClick = useCallback(() => {
     setSubmit(true)
     submitOrder(
       library,
-      item?.address,
-      inputs.primary,
+      BigInt(optionValue.toString()),
       orderType,
-      inputs.secondary
+      BigInt(underlyingValue.toString())
     )
     removeItem()
   }, [
@@ -148,7 +117,6 @@ const RemoveLiquidity: React.FC = () => {
     removeItem,
     item,
     library,
-    inputs,
     orderType,
     lp,
     ratio,
@@ -157,91 +125,79 @@ const RemoveLiquidity: React.FC = () => {
   ])
 
   const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token0Price.raw.toSignificant(2)
+    if (
+      typeof item.market === 'undefined' ||
+      !item.market.hasLiquidity ||
+      item.market === null
+    )
+      return '0'
+    const ratio = item.market.token1Price.raw.toSignificant(2)
     return ratio
-  }, [lpPair])
+  }, [item.market])
 
   const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
-    const ratio = lpPair.token1Price.raw.toSignificant(2)
+    if (
+      typeof item.market === 'undefined' ||
+      !item.market.hasLiquidity ||
+      item.market === null
+    )
+      return '0'
+    const ratio = item.market.token0Price.raw.toSignificant(2)
     return ratio
-  }, [lpPair])
+  }, [item.market])
 
   const caculatePoolShare = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity
+    )
+      return '0'
     const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
       ? BigNumber.from(parseEther(lp))
           .mul(parseEther('1'))
           .div(parseEther(lpTotalSupply))
       : '0'
     return (Number(formatEther(poolShare)) * 100).toFixed(2)
-  }, [lpPair, lp, lpTotalSupply])
+  }, [item.market, lp, lpTotalSupply])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    ) {
+    )
       return {
         shortPerLp: '0',
         underlyingPerLp: '0',
         totalUnderlyingPerLp: '0',
       }
-    }
-    const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
-        ? lpPair.token0
-        : lpPair.token1
-    const UNDERLYING: Token =
-      lpPair.token1.address === item.entity.assetAddresses[2]
-        ? lpPair.token0
-        : lpPair.token1
 
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = item.market.getLiquidityValuePerShare(
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).mul(1).div(100).toString()
       )
     )
-
-    const underlyingValue = lpPair.getLiquidityValue(
-      UNDERLYING,
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(
-        lpPair.liquidityToken,
-        parseEther(lpTotalSupply).mul(1).div(100).toString()
-      )
-    )
-
-    const shortPerLp = shortValue ? formatEther(shortValue.raw.toString()) : '0'
-    const underlyingPerLp = underlyingValue
-      ? formatEther(underlyingValue.raw.toString())
-      : '0'
-
+    const shortPerLp = formatEther(shortValue.raw.toString())
+    const underlyingPerLp = formatEther(underlyingValue.raw.toString())
     const totalUnderlyingPerLp = formatEther(
-      BigNumber.from(shortValue.raw.toString())
-        .mul(item.entity.optionParameters.base.quantity)
-        .div(item.entity.optionParameters.quote.quantity)
-        .add(underlyingValue.raw.toString())
+      totalUnderlyingValue.raw.toString()
     )
 
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [lpPair, lp, lpTotalSupply, inputs])
+  }, [item.market, lp, lpTotalSupply])
 
   const calculateUnderlyingOutput = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -249,48 +205,75 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = item.entity.optionParameters.base.quantity
-    const quote = item.entity.optionParameters.quote.quantity
-    const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
-        ? lpPair.token0
-        : lpPair.token1
-    const UNDERLYING: Token =
-      lpPair.token1.address === item.entity.assetAddresses[2]
-        ? lpPair.token0
-        : lpPair.token1
-
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
-    const underlyingValue = lpPair.getLiquidityValue(
-      UNDERLYING,
+    const underlyingValue = item.market.getLiquidityValue(
+      entity.underlying,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
     const totalUnderlyingPerLp = formatEther(
-      BigNumber.from(shortValue.raw.toString())
-        .mul(base)
-        .div(quote)
+      entity
+        .proportionalLong(shortValue.raw.toString())
         .add(underlyingValue.raw.toString())
     )
     return totalUnderlyingPerLp
-  }, [lpPair, lp, lpTotalSupply, inputs, ratio])
+  }, [item.market, lp, lpTotalSupply, ratio])
+
+  const calculateRemoveOutputs = useCallback(() => {
+    if (
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
+      ratio === 0
+    ) {
+      const shortValue = new TokenAmount(entity.redeem, '0')
+      const underlyingValue = new TokenAmount(entity.underlying, '0')
+      return {
+        shortValue,
+        underlyingValue,
+      }
+    }
+
+    const liquidity = parseEther(lp).mul(ratio).div(1000)
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+
+    const underlyingValue = item.market.getLiquidityValue(
+      entity.underlying,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+
+    return { shortValue, underlyingValue }
+  }, [item.market, lp, lpTotalSupply, ratio])
 
   const calculateRequiredLong = useCallback(() => {
     if (
-      typeof lpPair === 'undefined' ||
-      lpPair === null ||
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     )
       return '0'
@@ -298,34 +281,29 @@ const RemoveLiquidity: React.FC = () => {
     const liquidity = parseEther(lp).mul(ratio).div(1000)
     if (liquidity.isZero()) return '0'
     if (ratio === 0) return '0'
-    const base = item.entity.optionParameters.base.quantity
-    const quote = item.entity.optionParameters.quote.quantity
-    const SHORT: Token =
-      lpPair.token0.address === item.entity.assetAddresses[2]
-        ? lpPair.token0
-        : lpPair.token1
-    const shortValue = lpPair.getLiquidityValue(
-      SHORT,
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
       new TokenAmount(
-        lpPair.liquidityToken,
+        item.market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       ),
-      new TokenAmount(lpPair.liquidityToken, liquidity.toString())
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
     const totalRequiredLong = formatEther(
-      BigNumber.from(shortValue.raw.toString()).mul(base).div(quote)
+      entity.proportionalLong(shortValue.raw.toString())
     )
     return totalRequiredLong
-  }, [lpPair, lp, lpTotalSupply, inputs, ratio, item])
+  }, [item.market, lp, lpTotalSupply, ratio, item])
 
   const calculateBurn = useCallback(() => {
-    if (typeof lpPair === 'undefined' || lpPair === null) return '0'
+    if (typeof item.market === 'undefined' || !item.market.hasLiquidity)
+      return '0'
     const liquidity = parseEther(lp)
       .mul(parseEther(ratio.toString()))
       .div(parseEther('1000'))
     return formatEther(liquidity)
-  }, [lpPair, lp, ratio])
+  }, [item.market, lp, ratio])
 
   const title = {
     text: 'Withdraw Liquidity',
@@ -348,7 +326,24 @@ const RemoveLiquidity: React.FC = () => {
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
       </Box>
-      <Spacer />
+      <Spacer size="sm" />
+      <Toggle>
+        <ToggleButton
+          active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
+          onClick={() =>
+            updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
+          }
+          text="Exit & Close"
+        />
+        <ToggleButton
+          active={orderType === Operation.REMOVE_LIQUIDITY}
+          onClick={() =>
+            updateItem(item, Operation.REMOVE_LIQUIDITY, item.market)
+          }
+          text="Exit"
+        />
+      </Toggle>
+      <Spacer size="sm" />
       <LineItem
         label={'Amount'}
         data={Math.round(10 * (ratio / 10)) / 10 + '%'}
@@ -404,36 +399,64 @@ const RemoveLiquidity: React.FC = () => {
         units={`UNI-V2 LP`}
       />
 
-      <Spacer size="sm" />
-      <LineItem
-        label="And requires"
-        data={`${numeral(calculateRequiredLong()).format('0.00')}`}
-        units={`Options`}
-      />
-      {parseEther(calculateRequiredLong()).gt(parseEther(optionBalance)) ? (
+      {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
         <>
           <Spacer size="sm" />
           <LineItem
-            label="You need"
-            data={`${numeral(
-              formatEther(
-                parseEther(calculateRequiredLong()).sub(
-                  parseEther(optionBalance)
-                )
-              )
-            ).format('0.00')}`}
-            units={`Options`}
-          />{' '}
+            label="And requires"
+            data={`${numeral(calculateRequiredLong()).format('0.00')}`}
+            units={`LONG`}
+          />
+          {!formatEther(
+            parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
+          ) ? (
+            <>
+              <Spacer size="sm" />
+              <LineItem
+                label="You need"
+                data={`${numeral(
+                  formatEther(
+                    parseEther(calculateRequiredLong()).sub(
+                      parseEther(optionBalance)
+                    )
+                  )
+                ).format('0.00')}`}
+                units={`LONG`}
+              />{' '}
+            </>
+          ) : (
+            <> </>
+          )}{' '}
+          <Spacer size="sm" />
+          <LineItem
+            label="To receive"
+            data={numeral(calculateUnderlyingOutput()).format('0.00')}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
+          />
         </>
       ) : (
-        <> </>
+        <>
+          <Spacer size="sm" />
+          <LineItem
+            label="To receive"
+            data={numeral(
+              formatEther(
+                calculateRemoveOutputs().underlyingValue.raw.toString()
+              )
+            ).format('0.00')}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
+          />
+          <Spacer size="sm" />
+          <LineItem
+            label="To Receive"
+            data={numeral(
+              formatEther(calculateRemoveOutputs().shortValue.raw.toString())
+            ).format('0.00')}
+            units={`SHORT`}
+          />{' '}
+        </>
       )}
-      <Spacer size="sm" />
-      <LineItem
-        label="You will receive"
-        data={numeral(calculateUnderlyingOutput()).format('0.00')}
-        units={`${underlyingToken.symbol.toUpperCase()}`}
-      />
+
       <Spacer size="sm" />
       <IconButton
         text="Advanced"
@@ -442,7 +465,6 @@ const RemoveLiquidity: React.FC = () => {
       >
         {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
-      <Spacer size="sm" />
 
       {advanced ? (
         <>
@@ -457,7 +479,7 @@ const RemoveLiquidity: React.FC = () => {
           />
           <Spacer size="sm" />
           <LineItem
-            label={`Total ${underlyingToken.symbol.toUpperCase()} per LP Token`}
+            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
             data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
           />
           <Spacer size="sm" />
@@ -476,7 +498,7 @@ const RemoveLiquidity: React.FC = () => {
             data={caculatePoolShare()}
             units={`%`}
           />
-          <Spacer />
+          <Spacer size="sm" />
         </>
       ) : (
         <> </>
@@ -491,34 +513,34 @@ const RemoveLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {!lpApproved ? (
+            {approved[1] ? (
+              <></>
+            ) : (
               <Button
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={onApprove}
+                onClick={() => handleApprove(lpToken, spender)}
                 isLoading={submitting}
                 text="Approve LP"
               />
-            ) : (
-              <></>
             )}
 
-            {!approved ? (
+            {approved[0] ? (
+              <></>
+            ) : (
               <Button
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={onApproveOption.onApprove}
+                onClick={() => handleApprove(item.entity.address, spender)}
                 isLoading={submitting}
                 text="Approve Options"
               />
-            ) : (
-              <></>
             )}
-            {!approved || !lpApproved ? null : (
+            {!approved[0] || !approved[1] ? null : (
               <Button
-                disabled={submitting}
+                disabled={submitting || ratio === 0}
                 full
                 size="sm"
                 onClick={handleSubmitClick}

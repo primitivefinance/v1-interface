@@ -1,16 +1,16 @@
 import { useCallback, useMemo } from 'react'
-import router from 'next/router'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes } from './actions'
 import { OptionsState } from './reducer'
 
-import { Pair, Token } from '@uniswap/sdk'
+import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 
 import { Protocol } from '@/lib/protocol'
-import { Trade, Option, Quantity } from '@/lib/entities'
+import { Trade, Option, Market } from '@/lib/entities'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -23,25 +23,14 @@ export const useOptions = (): OptionsState => {
   return state
 }
 
-export const useUpdateOptions = (): ((assetName: string) => void) => {
+export const useUpdateOptions = (): ((
+  assetName: string,
+  assetAddress?: string
+) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
-
+  const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-
-  const calculateBreakeven = (
-    strike: BigNumberish,
-    premium: BigNumberish,
-    isCall: boolean
-  ): BigNumberish => {
-    let breakeven
-    if (isCall) {
-      breakeven = BigNumber.from(premium).add(strike)
-    } else {
-      breakeven = BigNumber.from(strike).sub(premium)
-    }
-    return Number(breakeven)
-  }
 
   if (!active) {
     return useCallback(() => {
@@ -49,7 +38,7 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
     }, [router])
   }
   return useCallback(
-    async (assetName: string) => {
+    async (assetName: string, assetAddress?: string) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
@@ -57,31 +46,20 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
             .then((optionEntitiesObject) => {
-              let breakEven: BigNumberish
               const allKeys: string[] = Object.keys(optionEntitiesObject)
+              if (!allKeys) {
+                router.reload()
+                return
+              }
               const allPairAddresses: string[] = []
               const allTokensArray: string[][] = []
               for (let i = 0; i < allKeys.length; i++) {
                 const key: string = allKeys[i]
                 const option: Option = optionEntitiesObject[key]
-                const SHORT_OPTION: Token = new Token(
-                  chainId,
-                  option.assetAddresses[2],
-                  18
-                )
-                const UNDERLYING: Token = new Token(
-                  chainId,
-                  option.assetAddresses[0],
-                  18
-                )
-                const address: string = Pair.getAddress(
-                  UNDERLYING,
-                  SHORT_OPTION
-                )
-                allPairAddresses.push(address)
+                allPairAddresses.push(option.pairAddress)
                 allTokensArray.push([
-                  option.assetAddresses[2],
-                  option.assetAddresses[0],
+                  option.redeem.address,
+                  option.underlying.address,
                 ])
               }
               Protocol.getPairsFromMultiCall(provider, allTokensArray)
@@ -109,7 +87,10 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         ])
                       }
 
-                      let pairReserveTotal: BigNumber = BigNumber.from(0)
+                      const pairReserveTotal = [
+                        BigNumber.from(0),
+                        BigNumber.from(0),
+                      ]
                       for (let i = 0; i < allKeys.length; i++) {
                         const key: string = allKeys[i]
                         const option: Option = optionEntitiesObject[key]
@@ -117,173 +98,100 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                         let reserves: string[] = ['0', '0']
                         let pairDataItem: string[]
                         for (const packed of allPackedReserves) {
-                          index = packed.indexOf(option.assetAddresses[2])
+                          index = packed.indexOf(option.redeem.address)
                           if (index !== -1) {
                             reserves = packed[0]
                             pairDataItem = packed
                           }
                         }
-                        const path: string[] = [
-                          option.assetAddresses[2],
-                          option.assetAddresses[0],
-                        ]
+
                         if (typeof reserves === 'undefined')
                           reserves = ['0', '0']
-                        const reserves0: BigNumberish = reserves[0]
-                        const reserves1: BigNumberish = reserves[1]
 
-                        let token0: string = option.assetAddresses[0]
-                        let token1: string = option.assetAddresses[2]
+                        let token0: string = option.underlying.address
+                        let token1: string = option.redeem.address
                         if (typeof pairDataItem !== 'undefined') {
                           token0 = pairDataItem[1]
                           token1 = pairDataItem[2]
                         }
 
-                        const Base: Quantity = option.optionParameters.base
-                        const Quote: Quantity = option.optionParameters.quote
-
-                        // depth calcs
-                        const reserve0ForDepth: BigNumber = BigNumber.from(
-                          reserves0.toString()
-                        )
-                        const reserve1ForDepth: BigNumber = BigNumber.from(
-                          reserves1.toString()
-                        )
-
-                        const underlyingReserve =
-                          token0 === option.assetAddresses[0]
-                            ? reserve0ForDepth
-                            : reserve1ForDepth
-                        const shortReserve =
-                          token0 === option.assetAddresses[0]
-                            ? reserve1ForDepth
-                            : reserve0ForDepth
-
-                        const twoPercentOfReserve = underlyingReserve
-                          .mul(2)
-                          .div(100)
-
-                        let redeemCost: BigNumberish = '0'
+                        const underlyingAddress = option.underlying.address
+                        const redeemAddress = option.redeem.address
+                        let underlyingTokenAmount: TokenAmount
+                        let redeemTokenAmount: TokenAmount
                         if (
-                          twoPercentOfReserve.gt(0) &&
-                          reserve0ForDepth.gt(0) &&
-                          reserve1ForDepth.gt(0)
+                          token0 === underlyingAddress &&
+                          token1 === redeemAddress
                         ) {
-                          redeemCost = Trade.getAmountsInPure(
-                            twoPercentOfReserve,
-                            path,
-                            reserve0ForDepth,
-                            reserve1ForDepth
-                          )[0]
+                          underlyingTokenAmount = new TokenAmount(
+                            option.underlying,
+                            reserves[0]
+                          )
+                          redeemTokenAmount = new TokenAmount(
+                            option.redeem,
+                            reserves[1]
+                          )
+                        } else {
+                          redeemTokenAmount = new TokenAmount(
+                            option.redeem,
+                            reserves[0]
+                          )
+                          underlyingTokenAmount = new TokenAmount(
+                            option.underlying,
+                            reserves[1]
+                          )
                         }
 
-                        const redeemCostDivMinted = BigNumber.from(
-                          redeemCost.toString()
-                        ).div(Quote.quantity)
+                        const pair: Pair = new Pair(
+                          underlyingTokenAmount,
+                          redeemTokenAmount
+                        )
+                        option.setPair(pair)
 
-                        let premium: BigNumberish = Trade.getSpotPremium(
-                          Base.quantity,
-                          Quote.quantity,
-                          path,
-                          [shortReserve, underlyingReserve]
+                        const market: Market = new Market(
+                          option,
+                          underlyingTokenAmount,
+                          redeemTokenAmount
                         )
-                        const closePremium: BigNumberish = Trade.getCloseSpotPremium(
-                          Base.quantity,
-                          Quote.quantity,
-                          [option.assetAddresses[0], option.assetAddresses[2]],
-                          [underlyingReserve, shortReserve]
-                        )
-                        const shortPremium: BigNumberish = Trade.getSpotShortPremium(
-                          [shortReserve, underlyingReserve]
-                        )
-                        let reserve: BigNumberish = underlyingReserve.toString()
-                        let depth: BigNumberish = redeemCostDivMinted
-                        if (+depth < 0) depth = 0
-                        if (typeof reserve === 'undefined') {
-                          reserve = 0
-                          depth = 0
-                        }
-                        if (typeof premium === 'undefined') premium = 0
+
+                        const underlyingReserve = option.pair
+                          .reserveOf(option.underlying)
+                          .raw.toString()
 
                         if (option.isCall) {
                           if (
-                            Base.asset.symbol.toUpperCase() ===
+                            option.baseValue.token.symbol.toUpperCase() ===
                             assetName.toUpperCase()
                           ) {
-                            breakEven = calculateBreakeven(
-                              parseEther(
-                                option.strikePrice.quantity.toString()
-                              ),
-                              premium,
-                              true
-                            )
-                            pairReserveTotal = pairReserveTotal.add(
+                            pairReserveTotal[0] = pairReserveTotal[0].add(
                               BigNumber.from(underlyingReserve)
                             )
                             calls.push({
                               entity: option,
                               asset: assetName,
-                              breakEven: breakEven,
-                              change: 0,
-                              premium: premium,
-                              closePremium: closePremium,
-                              shortPremium: shortPremium,
-                              strike: option.strikePrice.quantity,
-                              volume: 0,
-                              reserves: reserves,
-                              token0: token0,
-                              token1: token1,
-                              depth: depth.toString(),
-                              address: option.address,
-                              expiry: option.expiry,
+                              market: market,
                               id: option.name,
                             })
                           }
                         }
                         if (option.isPut) {
-                          let asset = Quote.asset.symbol.toUpperCase()
+                          let asset = option.quoteValue.token.symbol.toUpperCase()
                           if (asset === 'ETH') {
                             asset = 'WETH'
                           }
                           if (
-                            asset === assetName.toUpperCase() &&
-                            option.assetAddresses[0] ===
-                              STABLECOINS[chainId].address
+                            (asset === assetName.toUpperCase() &&
+                              option.underlying.address ===
+                                STABLECOINS[chainId].address) ||
+                            option.quoteValue.token.address === assetAddress
                           ) {
-                            pairReserveTotal = pairReserveTotal.add(
+                            pairReserveTotal[1] = pairReserveTotal[1].add(
                               BigNumber.from(underlyingReserve)
-                            )
-                            const denominator = ethers.BigNumber.from(
-                              option.optionParameters.quote.quantity
-                            )
-                            const numerator = ethers.BigNumber.from(
-                              option.optionParameters.base.quantity
-                            )
-                            const strikePrice =
-                              parseInt(numerator.toString()) /
-                              parseInt(denominator.toString())
-
-                            breakEven = calculateBreakeven(
-                              parseEther(strikePrice.toString()),
-                              premium,
-                              false
                             )
                             puts.push({
                               entity: option,
                               asset: assetName,
-                              breakEven: breakEven,
-                              change: 0,
-                              premium: premium,
-                              closePremium: closePremium,
-                              shortPremium: shortPremium,
-                              strike: strikePrice,
-                              volume: 0,
-                              reserves: reserves,
-                              token0: token0,
-                              token1: token1,
-                              depth: depth.toString(),
-                              address: option.address,
-                              expiry: option.expiry,
+                              market: market,
                               id: option.name,
                             })
                           }
@@ -299,21 +207,19 @@ export const useUpdateOptions = (): ((assetName: string) => void) => {
                       )
                     })
                     .catch((error) => {
-                      addNotif(0, 'Getting reserves', error.message, '')
+                      addNotif(0, 'Reserves Error', error.message, '')
                     })
                 })
-                .catch((error) =>
-                  addNotif(0, 'Getting pairs', error.message, '')
-                )
+                .catch((error) => addNotif(0, 'Pair Error', error.message, ''))
             })
             .catch((error) => {
               if (error) {
-                addNotif(0, 'Getting options', error.message, '')
+                addNotif(0, 'Options Error', error.message, '')
               }
             })
         })
         .catch((error) =>
-          addNotif(0, 'Getting all option clones', error.message, '')
+          addNotif(0, 'Option Multicall Error', error.message, '')
         )
     },
     [dispatch, library, chainId, updateOptions, addNotif]

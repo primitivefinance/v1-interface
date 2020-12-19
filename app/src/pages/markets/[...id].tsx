@@ -15,6 +15,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useItem } from '@/state/order/hooks'
+
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
 
@@ -25,9 +26,10 @@ import {
   TransactionCard,
   OrderCard,
   PositionsCard,
-  NewMarketCard,
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
+import { useSetLoading } from '@/state/positions/hooks'
+import { useOptions } from '@/state/options/hooks'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -47,6 +49,9 @@ const Market = ({ market, data }) => {
   const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
+  const options = useOptions()
+  const setLoading = useSetLoading()
+
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
@@ -59,11 +64,20 @@ const Market = ({ market, data }) => {
       clear(0)
       router.reload()
     }
+    const handleAccountChanged = () => {
+      if (!options.loading) {
+        clear(0)
+        setLoading()
+      }
+    }
 
     ethereum?.on('chainChanged', handleChainChanged)
+    ethereum?.on('accountsChanged', handleAccountChanged)
+
     return () => {
       if (ethereum?.removeListener) {
         ethereum.removeListener('chainChanged', handleChainChanged)
+        ethereum.removeListener('accountsChanged', handleAccountChanged)
       }
     }
   })
@@ -75,13 +89,25 @@ const Market = ({ market, data }) => {
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
-        shallow: true,
-      })
+      if (market === 'weth') {
+        router.push(`/markets/[...id]`, `/markets/eth/puts`, {
+          shallow: true,
+        })
+      } else {
+        router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+          shallow: true,
+        })
+      }
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
+      if (market === 'weth') {
+        router.push(`/markets/[...id]`, `/markets/eth/calls`, {
+          shallow: true,
+        })
+      } else {
+        router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+          shallow: true,
+        })
+      }
     }
   }
   const handleFilterExpiry = (exp: number) => {
@@ -110,7 +136,14 @@ const Market = ({ market, data }) => {
     return <StyledText>Please Connect to Metamask to View Markets</StyledText>
   }
   return (
-    <ErrorBoundary fallback={'Error Loading Market'}>
+    <ErrorBoundary
+      fallback={
+        <>
+          <Spacer />
+          <StyledText>Error Loading Market, Please Refresh</StyledText>
+        </>
+      }
+    >
       <Disclaimer />
       <Notifs />
       <StyledMarket>
@@ -118,32 +151,55 @@ const Market = ({ market, data }) => {
           <Row>
             <StyledContainer sm={12} md={8} lg={8}>
               <StyledMain>
-                <MarketHeader marketId={market} />
+                <MarketHeader
+                  marketId={market}
+                  isCall={callPutActive ? 0 : 1}
+                />
                 <FilterBar
                   active={callPutActive}
                   setCallActive={handleFilterType}
                   expiry={expiry}
                   setExpiry={handleFilterExpiry}
                 />
-                <OptionsTable
-                  asset={market}
-                  assetAddress={ADDRESS_FOR_MARKET[market]}
-                  optionExp={expiry}
-                  callActive={callPutActive}
-                />
+
+                <ErrorBoundary
+                  fallback={
+                    <>
+                      <Spacer />
+                      <StyledText>
+                        Error Loading Options, Please Refresh
+                      </StyledText>
+                    </>
+                  }
+                >
+                  <OptionsTable
+                    asset={market}
+                    assetAddress={ADDRESS_FOR_MARKET[market]}
+                    optionExp={expiry}
+                    callActive={callPutActive}
+                  />
+                </ErrorBoundary>
               </StyledMain>
             </StyledContainer>
-
             <StyledCol sm={12} md={4} lg={4}>
               <StyledSideBar>
-                <BalanceCard />
-                <Spacer size="sm" />
-                <PositionsCard />
-                <OrderCard orderState={data} />
-                <NewMarketCard />
-                <Spacer size="sm" />
-                <TransactionCard />
-                <Spacer />
+                <ErrorBoundary
+                  fallback={
+                    <>
+                      <Spacer />
+                      <StyledText>
+                        Error Loading Positions, Please Refresh
+                      </StyledText>
+                    </>
+                  }
+                >
+                  <Spacer size="sm" />
+                  <PositionsCard />
+                  <OrderCard orderState={data} />
+                  <BalanceCard />
+                  <TransactionCard />
+                  <Spacer />
+                </ErrorBoundary>
               </StyledSideBar>
             </StyledCol>
           </Row>
@@ -172,19 +228,21 @@ const StyledMarket = styled.div`
   height: 90%;
   position: absolute;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: scroll !important;
 `
 
 const StyledSideBar = styled.div`
-  background: ${(props) => props.theme.color.black};
-  border: 0px solid ${(props) => props.theme.color.grey[400]};
+  background: none;
+  width: 25em;
   box-sizing: border-box;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  padding: ${(props) => props.theme.spacing[4]}px 0
+  padding: ${(props) => props.theme.spacing[2]}px
+    ${(props) => props.theme.spacing[2]}px
     ${(props) => props.theme.spacing[4]}px
     ${(props) => props.theme.spacing[4]}px;
   padding-top: 0 !important;
   height: 90vh;
+  position: fixed;
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;

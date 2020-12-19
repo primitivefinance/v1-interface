@@ -22,11 +22,11 @@ const Error: React.FC<ErrorProps> = ({ title, msg, link }) => {
   const clearNotif = useClearNotif()
   return (
     <StyledContainer>
-      <StyledCard>
+      <StyledCard border>
         <CardTitle>
           <StyledTitle>
             <ErrorIcon /> <Spacer size="sm" />
-            Error
+            {title === '' ? 'Error' : title}
           </StyledTitle>
           <Button variant="transparent" size="sm" onClick={() => clearNotif(0)}>
             <ClearIcon />
@@ -49,6 +49,7 @@ const StyledCard = styled(Card)`
   border-width: 5px;
   border-style: solid;
   border-radius: 5px;
+  overflow: hidden;
 `
 const StyledContent = styled.h4`
   margin: 0.5em 1em 0.5em 1em;

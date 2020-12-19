@@ -16,7 +16,7 @@ const Disclaimer: React.FC = () => {
   return (
     <Backdrop>
       <StyledCard>
-        <StyledDis>Primitive Open Beta Disclosure</StyledDis>
+        <StyledDis>Primitive Security Disclosure</StyledDis>
         <Body>
           The Primitive Interface is an open source web application. Please use
           the Primitive Interface and Primitive Protocol at your own risk.
@@ -53,7 +53,7 @@ const StyledDis = styled.h3`
   color: white;
 `
 const Backdrop = styled.div`
-  z-index: 200;
+  z-index: 400;
   background-color: rgba(0, 0, 0, 0.7);
   position: absolute;
   width: 100%;
@@ -61,7 +61,7 @@ const Backdrop = styled.div`
 `
 
 const StyledCard = styled.div`
-  left: 35%;
+  left: 40%;
   top: 20%;
   padding: 0 2em 2em 2em;
   border-radius: 0.3em;

@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react'
+export default ''
+/*import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
 import ClearIcon from '@material-ui/icons/Clear'
@@ -157,3 +158,4 @@ const StyledFlex = styled.div`
 `
 
 export default NewMarketCard
+*/

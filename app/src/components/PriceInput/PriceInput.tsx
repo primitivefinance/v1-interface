@@ -14,8 +14,8 @@ import formatEtherBalance from '@/utils/formatEtherBalance'
 export interface PriceInputProps {
   name?: string
   title: string
-  quantity: BigNumberish | number | BigInt
-  onChange: (e: React.FormEvent<HTMLInputElement>) => void
+  quantity: string | undefined
+  onChange: (input: string) => void
   onClick: () => void
   startAdornment?: React.ReactNode
   balance?: TokenAmount
@@ -33,7 +33,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
   valid,
 }) => {
   return (
-    <>
+    <StyledContainer>
       <Label text={title} />
       <Spacer size="sm" />
       <Input
@@ -41,13 +41,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
         placeholder={'0.00'}
         startAdornment={!startAdornment ? startAdornment : null}
         onChange={onChange}
-        value={`${
-          quantity
-            ? (
-                Math.ceil(parseFloat(quantity.toString()) * 10000) / 10000
-              ).toString()
-            : ''
-        }`}
+        value={quantity ? quantity : ''}
         endAdornment={
           <Button size="sm" variant="secondary" text="Max" onClick={onClick} />
         }
@@ -63,13 +57,20 @@ const PriceInput: React.FC<PriceInputProps> = ({
           </LeftSpan>
           <RightSpan>
             {formatEtherBalance(balance.raw.toString())}{' '}
-            <OpacitySpan>{balance.token.symbol.toUpperCase()}</OpacitySpan>{' '}
+            <OpacitySpan>
+              {/** second conditional is a testnet hotfix */}
+              {balance.token.symbol.toUpperCase() === 'RDM'
+                ? 'SHORT'
+                : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
+                ? 'DAI'
+                : balance.token.symbol.toUpperCase()}
+            </OpacitySpan>
           </RightSpan>
         </ContainerSpan>
       ) : (
         <> </>
       )}
-    </>
+    </StyledContainer>
   )
 }
 
@@ -88,5 +89,9 @@ const RightSpan = styled.span`
 
 const OpacitySpan = styled.span`
   opacity: 0.66;
+`
+
+const StyledContainer = styled.div`
+  width: 100%;
 `
 export default PriceInput

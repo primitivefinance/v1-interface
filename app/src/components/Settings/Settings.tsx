@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import styled from 'styled-components'
 import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
@@ -6,17 +6,16 @@ import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
 import { useClickAway } from '@/hooks/utils/useClickAway'
-import { useSlippage } from '@/hooks/user'
+import { useSlippage, useUpdateSlippage } from '@/state/user/hooks'
+import Slider from '@/components/Slider'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
-  const [slippage, setSlippage] = useSlippage()
+  const slippage = useSlippage()
+  const setSlippage = useUpdateSlippage()
 
   const onClick = () => {
     setOpen(true)
-  }
-  const onClose = () => {
-    setOpen(false)
   }
   const nodeRef = useClickAway(() => {
     setOpen(false)
@@ -24,6 +23,12 @@ export const Settings = () => {
   const handleSlip = (s: string) => {
     setSlippage(s)
   }
+  const handleSlippageChange = useCallback(
+    (e: React.FormEvent<HTMLInputElement>) => {
+      setSlippage(e.currentTarget.value.toString())
+    },
+    [setSlippage]
+  )
   if (open) {
     return (
       <>
@@ -34,53 +39,39 @@ export const Settings = () => {
           <StyledContent>
             <StyledTitle>Settings</StyledTitle>
             <Spacer size="sm" />
-            <StyledSetting>Slippage tolerance</StyledSetting>
+            <StyledSetting>Slippage Tolerance</StyledSetting>
             <Spacer size="sm" />
             <StyledRow>
-              {slippage === '0.001' ? (
-                <Button
-                  size="sm"
-                  text="0.10%"
-                  disabled
-                  onClick={() => handleSlip('0.001')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="0.10%"
-                  onClick={() => handleSlip('0.001')}
-                ></Button>
-              )}
+              <StyledSlip>{(+slippage * 100).toFixed(2)}%</StyledSlip>
+              <Slider
+                min={0.001}
+                max={0.3}
+                step={0.001}
+                value={parseFloat(slippage)}
+                onChange={handleSlippageChange}
+              />
+            </StyledRow>
+            <StyledRow>
+              <Button
+                variant="secondary"
+                size="sm"
+                text="0.50%"
+                onClick={() => handleSlip('0.005')}
+              ></Button>
               <Spacer size="sm" />
-              {slippage === '0.005' ? (
-                <Button
-                  size="sm"
-                  text="0.50%"
-                  disabled
-                  onClick={() => handleSlip('0.005')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="0.50%"
-                  onClick={() => handleSlip('0.005')}
-                ></Button>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                text="1.00%"
+                onClick={() => handleSlip('0.01')}
+              ></Button>
               <Spacer size="sm" />
-              {slippage === '0.01' ? (
-                <Button
-                  size="sm"
-                  text="1.00%"
-                  disabled
-                  onClick={() => handleSlip('0.01')}
-                ></Button>
-              ) : (
-                <Button
-                  size="sm"
-                  text="1.00%"
-                  onClick={() => handleSlip('0.01')}
-                ></Button>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                text="2.00%"
+                onClick={() => handleSlip('0.02')}
+              ></Button>
             </StyledRow>
           </StyledContent>
         </StyledModal>
@@ -93,6 +84,15 @@ export const Settings = () => {
     </IconButton>
   )
 }
+
+const StyledSlip = styled.div`
+  margin: 0 0.4em 0 0;
+  color: ${(props) => props.theme.color.white} !important;
+  width: 5em;
+  height: 2.3em;
+  display: flex;
+  align-items: center;
+`
 
 const StyledTitle = styled.div`
   font-weight: 700;
@@ -115,18 +115,21 @@ const StyledRow = styled(Box)`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  width: 15em;
 `
 
 const StyledModal = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
-  border: 1px solid ${(props) => props.theme.color.grey[500]}ff;
+  background: ${(props) => props.theme.color.black};
+  border-color: ${(props) => props.theme.color.grey[600]};
+  border-style: solid;
+  border-width: 2px;
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
-  margin: 0.5em;
+  margin: 0 2em 1em 1em;
   position: fixed;
+  z-index: 900 !important;
   right: 0%;
   top: ${(props) => props.theme.barHeight}px;
-  z-index: 0;
-  z-index: 9999 !important;
+  box-shadow: -3px 3px 3px rgba(250, 250, 250, 0.1);
 `

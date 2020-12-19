@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useBlockNumber } from '@/hooks/data/index'
@@ -10,8 +11,11 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
+import { useReserves } from '@/hooks/data/useReserves'
+
 import numeral from 'numeral'
 import Link from 'next/link'
+import { Token, TokenAmount } from '@uniswap/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export function shouldCheck(
@@ -37,12 +41,12 @@ export function shouldCheck(
 
 export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
+  const router = useRouter()
   const options = useOptions()
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
-  const { item, orderType, loading, approved, lpApproved } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   const updateItem = useUpdateItem()
-
   const { data } = useBlockNumber()
   const lastBlockNumber = data
   const dispatch = useDispatch<AppDispatch>()
@@ -51,6 +55,10 @@ export default function Updater(): null {
   )
   const transactions = chainId ? state[chainId] ?? {} : {}
 
+  const reloadItem = (order: Operation) => {
+    updateItem(item, Operation.NONE)
+    updateItem(item, order)
+  }
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return
     if (!options.loading) {
@@ -108,8 +116,17 @@ export default function Updater(): null {
                 )
               }
               const app = transactions[hash].approval
-              if ((!approved && app) || (!lpApproved && app)) {
-                updateItem(item, orderType)
+              if ((!approved[0] && app) || (!approved[1] && app)) {
+                if (
+                  orderType === Operation.REMOVE_LIQUIDITY_CLOSE ||
+                  orderType === Operation.EXERCISE ||
+                  orderType === Operation.REDEEM
+                ) {
+                  // EXTREMELY DIRTY SOLUTION...
+                  reloadItem(orderType)
+                } else {
+                  updateItem(item, orderType)
+                }
               }
             } else {
               dispatch(
@@ -133,6 +150,7 @@ export default function Updater(): null {
     transactions,
     lastBlockNumber,
     dispatch,
+    reloadItem,
     options,
     updatePositions,
   ])

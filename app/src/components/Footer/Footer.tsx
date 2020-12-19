@@ -32,6 +32,7 @@ const StyledContainer = styled.div`
   bottom: -1.5em;
   width: 100%;
   pointer-events: none;
+  z-index: 200;
 `
 
 const Loader = styled.div`

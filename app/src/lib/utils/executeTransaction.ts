@@ -37,25 +37,6 @@ const executeTransaction = async (
   let tx: any = {}
   const args = transaction.args
 
-  const approvalTxs: any[] = []
-  if (transaction.tokensToApprove.length > 0) {
-    // for each contract
-    for (let i = 0; i < transaction.contractsToApprove.length; i++) {
-      const contractAddress = transaction.contractsToApprove[i]
-      // for each token check allowance
-      for (let t = 0; t < transaction.tokensToApprove.length; t++) {
-        const tokenAddress = transaction.tokensToApprove[t]
-        checkAllowance(signer, tokenAddress, contractAddress)
-          .then((tx) => {
-            approvalTxs.push(tx)
-          })
-          .catch((err) => {
-            throw Error(`Approving transaction issue: ${err}`)
-          })
-      }
-    }
-  }
-
   console.log(`Executing transaction:`, transaction)
   try {
     tx = await transaction.contract[transaction.methodName](...args, {

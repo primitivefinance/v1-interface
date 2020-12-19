@@ -2,11 +2,17 @@ import ethers, { BigNumberish } from 'ethers'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
 
-import { Operation } from '@/constants/index'
+import {
+  Operation,
+  DEFAULT_DEADLINE,
+  DEFAULT_TIMELIMIT,
+  STABLECOINS,
+  ADDRESS_ZERO,
+} from '@/constants/index'
 import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
-import { Option } from '@/lib/entities/option'
+import { Option, EMPTY_ASSET } from '@/lib/entities/option'
 import { parseEther } from 'ethers/lib/utils'
-import { Asset, Trade, Quantity } from '@/lib/entities'
+import { Trade } from '@/lib/entities'
 import { Uniswap, Trader, Protocol } from '@/lib/index'
 import { TradeSettings } from '@/lib/types'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
@@ -17,51 +23,68 @@ import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useItem } from '@/state/order/hooks'
 
+import { Token, TokenAmount } from '@uniswap/sdk'
+
 import { useWeb3React } from '@web3-react/core'
+import { useSlippage } from '@/state/user/hooks'
+import { useBlockNumber } from '@/hooks/data'
+import { useAddNotif } from '@/state/notifs/hooks'
+import { getTotalSupply } from '@/lib/erc20'
+
+const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
 const getTrade = async (
   provider: Web3Provider,
-  optionAddress: string,
-  quantity: number,
+  parsedAmountA: BigInt,
   operation: Operation,
-  secondaryQuantity: number,
-  tradeSettings: TradeSettings,
-  optionEntity: Option
-): Promise<
-  Trade /* [Trade, (signer: ethers.Signer, transaction) => Promise<void>] */
-> => {
+  parsedAmountB?: BigInt
+) => {
+  const { item } = useItem()
+  const { chainId, account } = useWeb3React()
+  const slippage = useSlippage()
+  const { data } = useBlockNumber()
+  const throwError = useAddNotif()
+  const now = () => new Date().getTime()
+  const optionEntity: Option = item.entity
   const signer: ethers.Signer = await provider.getSigner()
+  const tradeSettings: TradeSettings = {
+    slippage: slippage,
+    timeLimit: DEFAULT_TIMELIMIT,
+    receiver: account,
+    deadline: DEFAULT_DEADLINE,
+    stablecoin: STABLECOINS[chainId].address,
+  }
 
-  const inputAmount: Quantity = new Quantity(
-    new Asset(18), // fix with actual metadata
-    parseEther(quantity.toString())
+  const totalSupply: BigNumberish = await getTotalSupply(
+    provider,
+    item.market.liquidityToken.address
   )
-  const outputAmount: Quantity = new Quantity(
-    new Asset(18), // fix with actual metadata
-    '0'
+
+  //console.log(parseInt(parsedAmountA) * 1000000000000000000)
+  const inputAmount: TokenAmount = new TokenAmount(
+    EMPTY_TOKEN, // fix with actual metadata
+    BigInt(parsedAmountA.toString()).toString()
+  )
+  const outputAmount: TokenAmount = new TokenAmount(
+    EMPTY_TOKEN, // fix with actual metadata
+    BigInt(parsedAmountB.toString()).toString()
   )
 
-  const base = optionEntity.optionParameters.base.quantity
-  const quote = optionEntity.optionParameters.quote.quantity
-
+  let out: BigNumberish
   const path: string[] = []
   const amountsIn: BigNumberish[] = []
-  let amountsOut: BigNumberish[] = []
+  const amountsOut: BigNumberish[] = []
   const reserves: BigNumberish[] = []
-  let totalSupply: BigNumberish
+
   const trade: Trade = new Trade(
     optionEntity,
+    item.market,
+    totalSupply,
     inputAmount,
     outputAmount,
-    path,
-    reserves,
-    totalSupply,
-    amountsIn,
-    amountsOut,
     operation,
     signer
   )
-
   const factory = new ethers.Contract(
     UNISWAP_FACTORY_V2,
     UniswapV2Factory.abi,
@@ -71,167 +94,102 @@ const getTrade = async (
   let transaction: any
   switch (operation) {
     case Operation.LONG:
-      // For this operation, the user borrows underlyingTokens to use to mint redeemTokens, which are then returned to the pair.
-      // This is effectively a swap from redeemTokens to underlyingTokens, but it occurs in the reverse order.
-      trade.path = [
-        optionEntity.assetAddresses[2], // redeem
-        optionEntity.assetAddresses[0], // underlying
-      ]
-      // The amountsOut[1] will tell us how much of the flash loan of underlyingTokens is outstanding.
-      trade.amountsOut = await trade.getAmountsOut(
-        signer,
-        factory,
-        inputAmount.quantity,
-        trade.path
+      // Need to borrow exact amount of underlyingTokens, so exact output needs to be the parsedAmount.
+      // path: redeem -> underlying, getInputAmount is the redeem cost
+      trade.inputAmount = new TokenAmount(optionEntity.redeem, '0')
+      trade.outputAmount = new TokenAmount(
+        optionEntity.underlying,
+        parsedAmountA.toString()
       )
-      // With the Pair's reserves, we can calculate all values using pure functions, including the premium.
-      trade.reserves = await trade.getReserves(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
-      )
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.SHORT:
       // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
       // Purchase them for underlyingTokens from the underlying<>redeem UniswapV2Pair.
-      trade.path = [
-        optionEntity.assetAddresses[0], // underlying
-        optionEntity.assetAddresses[2], // redeem
-      ]
-      amountsOut = await trade.getAmountsOut(
-        signer,
-        factory,
-        trade.inputAmount.quantity,
-        trade.path
+      // exact output means our input is what we need to solve for
+      trade.outputAmount = new TokenAmount(
+        optionEntity.redeem,
+        parsedAmountA.toString()
       )
-      trade.outputAmount.quantity = amountsOut[1]
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      break
+    case Operation.WRITE:
+      // Path: underlying -> redeem, exact redeem amount is outputAmount.
+      trade.outputAmount = new TokenAmount(
+        optionEntity.redeem,
+        optionEntity.proportionalShort(parsedAmountA.toString()).toString()
+      )
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.CLOSE_LONG:
-      // On the UI, the user inputs the quantity of LONG OPTIONS they want to close.
-      // Calling the function on the contract requires the quantity of SHORT OPTIONS being borrowed to close.
-      // Need to calculate how many SHORT OPTIONS are needed to close the desired quantity of LONG OPTIONS.
-      const redeemAmount = ethers.BigNumber.from(inputAmount.quantity)
-        .mul(quote)
-        .div(base)
-      // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-      // with the path of underlyingTokens to redeemTokens.
-      trade.path = [
-        optionEntity.assetAddresses[0], // underlying
-        optionEntity.assetAddresses[2], // redeem
-      ]
-      // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-      trade.amountsIn = await trade.getAmountsIn(
-        signer,
-        factory,
-        redeemAmount,
-        trade.path
+      // Path: underlying -> redeem, exact redeem amount is outputAmount.
+      trade.outputAmount = new TokenAmount(
+        optionEntity.redeem,
+        optionEntity.proportionalShort(parsedAmountA.toString()).toString()
       )
-      // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-      trade.reserves = await trade.getReserves(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
-      )
-      // The actual function will take the redeemQuantity rather than the optionQuantity.
-      trade.inputAmount.quantity = redeemAmount
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.CLOSE_SHORT:
-      // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-      // with the path of underlyingTokens to redeemTokens.
-      trade.path = [
-        optionEntity.assetAddresses[2], // redeem
-        optionEntity.assetAddresses[0], // underlying
-      ]
-      // The amountIn[0] will tell how many underlyingTokens are needed for the borrowed amount of redeemTokens.
-      trade.amountsOut = await trade.getAmountsOut(
-        signer,
-        factory,
-        trade.inputAmount.quantity,
-        trade.path
+      trade.inputAmount = new TokenAmount(
+        optionEntity.redeem,
+        parsedAmountA.toString()
       )
-      // The actual function will take the redeemQuantity rather than the optionQuantity.
-      trade.outputAmount.quantity = trade.amountsOut[1]
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      trade.outputAmount = trade.market.getOutputAmount(trade.inputAmount)[0]
+
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.ADD_LIQUIDITY:
-      // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-      // with the path of underlyingTokens to redeemTokens.
-      trade.path = [
-        optionEntity.assetAddresses[2], // redeem
-        optionEntity.assetAddresses[0], // underlying
-      ]
-      // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-      trade.reserves = await trade.getReserves(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
+      // primary input is the options deposit (underlying tokens)
+      trade.inputAmount = new TokenAmount(
+        optionEntity,
+        parsedAmountA.toString()
+      )
+      // secondary input is the underlyings deposit
+      trade.outputAmount = new TokenAmount(
+        optionEntity.underlying,
+        parsedAmountB.toString()
       )
 
-      // The actual function will take the redeemQuantity rather than the optionQuantity.
-      trade.outputAmount = new Quantity(
-        new Asset(18), // fix with actual metadata
-        parseEther(secondaryQuantity ? secondaryQuantity.toString() : '0')
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      break
+    case Operation.ADD_LIQUIDITY_CUSTOM:
+      // primary input is the options deposit (underlying tokens)
+      trade.inputAmount = new TokenAmount(
+        optionEntity.redeem,
+        parsedAmountA.toString()
       )
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      // secondary input is the underlyings deposit
+      trade.outputAmount = new TokenAmount(
+        optionEntity.underlying,
+        parsedAmountB.toString()
+      )
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.REMOVE_LIQUIDITY:
-      // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-      // with the path of underlyingTokens to redeemTokens.
-      trade.path = [
-        optionEntity.assetAddresses[2], // redeem
-        optionEntity.assetAddresses[0], // underlying
-      ]
-      // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-      trade.reserves = await trade.getReserves(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
+      trade.inputAmount = new TokenAmount(
+        optionEntity.redeem,
+        parsedAmountA.toString()
       )
-      trade.totalSupply = await trade.getTotalSupply(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
+      trade.outputAmount = new TokenAmount(
+        optionEntity.underlying,
+        parsedAmountB.toString()
       )
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
-      //transaction.tokensToApprove = [
-      //  await factory.getPair(trade.path[0], trade.path[1]),
-      //] // need to approve LP token
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.REMOVE_LIQUIDITY_CLOSE:
-      // This function borrows redeem tokens and pays back in underlying tokens. This is a normal swap
-      // with the path of underlyingTokens to redeemTokens.
-      trade.path = [
-        optionEntity.assetAddresses[2], // redeem
-        optionEntity.assetAddresses[0], // underlying
-      ]
-      // Get the reserves here because we have the web3 context. With the reserves, we can calulcate all token outputs.
-      trade.reserves = await trade.getReserves(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
+      trade.inputAmount = new TokenAmount(
+        optionEntity.redeem,
+        parsedAmountA.toString()
       )
-      trade.totalSupply = await trade.getTotalSupply(
-        signer,
-        factory,
-        trade.path[0],
-        trade.path[1]
+      trade.outputAmount = new TokenAmount(
+        optionEntity.underlying,
+        parsedAmountB.toString()
       )
-      //transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
-      //transaction.tokensToApprove = [
-      //  await factory.getPair(trade.path[0], trade.path[1]),
-      //] // need to approve LP token
+      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
       break
     default:
-      //transaction = Trader.singleOperationCallParameters(trade, tradeSettings)
+      transaction = Trader.singleOperationCallParameters(trade, tradeSettings)
       break
   }
 
@@ -242,7 +200,7 @@ const useTradeInfo = () => {
   const [trade, setTrade] = useState<Trade>()
   const { library } = useWeb3React()
   const { item, orderType } = useItem()
-  const optionEntities = useOptionEntities([item.address])
+  const optionEntities = useOptionEntities([item.entity.address])
   const tradeSettings = useTradeSettings()
 
   const fetchTrade = useCallback(async () => {
@@ -253,15 +211,7 @@ const useTradeInfo = () => {
       orderType &&
       tradeSettings
     ) {
-      const tradeInfo = await getTrade(
-        library,
-        item.address,
-        1,
-        orderType,
-        1,
-        tradeSettings,
-        optionEntities[item.address]
-      )
+      const tradeInfo = await getTrade(library, BigInt(1), orderType, BigInt(1))
       if (tradeInfo) {
         setTrade(tradeInfo)
       }

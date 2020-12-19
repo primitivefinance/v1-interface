@@ -45,7 +45,9 @@ export interface TokenProps {
 const Position: React.FC<TokenProps> = ({ option }) => {
   const { chainId, library } = useWeb3React()
   const updateItem = useUpdateItem()
-  const { date, month, year } = formatExpiry(option.attributes.expiry)
+  const { date, month, year } = formatExpiry(
+    option.attributes.entity.expiryValue
+  )
 
   const handleClick = () => {
     updateItem(option.attributes, Operation.NONE)
@@ -63,7 +65,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
             {`${option.attributes.asset} ${
               option.attributes.entity.isCall ? 'Call' : 'Put'
             } `}
-            {`${numeral(option.attributes.strike).format(
+            {`${numeral(option.attributes.entity.strikePrice).format(
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
@@ -97,24 +99,25 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <Box column alignItems="center">
+      <>
         <Spacer />
         <Loader size="lg" />
-      </Box>
+      </>
     )
   }
   if (!positions.loading && !positions.exists) {
     return (
       <Card border>
-        <CardTitle>Active Positions</CardTitle>
         <CardContent>
           <StyledEmptyContent>
+            <Spacer size="sm" />
             <StyledEmptyIcon>
               <AddIcon />
             </StyledEmptyIcon>
             <StyledEmptyMessage>
-              Click an option to open a position
+              Add an option to open a position
             </StyledEmptyMessage>
+            <Spacer size="sm" />
           </StyledEmptyContent>
         </CardContent>
       </Card>
@@ -127,7 +130,7 @@ const PositionsCard: React.FC = () => {
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
             <StyledBox row justifyContent="space-between" alignItems="center">
-              <Title>{`Active Positions (${positions.options.length})`}</Title>
+              <Title>{`Active Positions`}</Title>
               <Spacer />
               {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </StyledBox>
@@ -158,15 +161,15 @@ const Scroll = styled.div`
   overflow: scroll;
   max-height: 20em;
   border-radius: ${(props) => props.theme.borderRadius}px;
-  background: ${(props) => props.theme.color.grey[800]};
 `
 
 const StyledBox = styled(Box)`
   cursor: pointer;
+  color: ${(props) => props.theme.color.white};
 `
 
 const Title = styled.h4`
-  color: white;
+  color: ${(props) => props.theme.color.white};
   min-width: 16em;
 `
 const Reverse = styled.div`
@@ -176,6 +179,9 @@ const StyledT = styled.h5`
   opacity: 66%;
   margin-bottom: -2px;
   margin-top: -0px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
 `
 
 const StyledPrice = styled.div`
@@ -199,17 +205,20 @@ const StyledTitle = styled.h4`
   flex-direction: row;
   justify-content: flex-start;
   margin-top: -0.5em;
-  margin-bottom: 0em;
+  margin-bottom: 0.1em;
 `
 const StyledPosition = styled.a`
   border: 1.5px solid ${(props) => props.theme.color.grey[800]};
-  border-radius: 1em;
-  min-height: 2em;
+  color: ${(props) => props.theme.color.white} !important;
+  border-radius: 0.5em;
+  height: 6em;
   cursor: pointer;
-  margin-bottom: 0.3em;
-  margin-top: -0.3em;
-  padding: 0 0.5em 0.5em 0.5em;
+  margin-bottom: 0.2em;
+  margin-top: -0.2em;
+  padding: 0em 0.3em 0.7em 0.3em;
   &:hover {
+    border: 1.5px solid ${(props) => props.theme.color.grey[600]};
+    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
     background: ${(props) => props.theme.color.black};
   }
 `
@@ -230,7 +239,7 @@ const StyledEmptyIcon = styled.div`
   align-items: center;
   border: 1px dashed ${(props) => props.theme.color.white};
   border-radius: 32px;
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   display: flex;
   height: 44px;
   justify-content: center;
