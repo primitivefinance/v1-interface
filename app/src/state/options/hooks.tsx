@@ -47,7 +47,10 @@ export const useUpdateOptions = (): ((
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
             .then((optionEntitiesObject) => {
               const allKeys: string[] = Object.keys(optionEntitiesObject)
-              if (!allKeys) router.reload()
+              if (!allKeys) {
+                router.reload()
+                return
+              }
               const allPairAddresses: string[] = []
               const allTokensArray: string[][] = []
               for (let i = 0; i < allKeys.length; i++) {
