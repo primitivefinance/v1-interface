@@ -92,7 +92,6 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (item.market) {
       setHasL(item.market.hasLiquidity)
-      console.log(item.market.hasLiquidity)
     } else {
       swapLoaded()
     }
@@ -200,7 +199,6 @@ const Swap: React.FC = () => {
             setImpact(slip)
             setPrem(formatEther(spot.raw.toString()))
             debit = formatEther(actualPremium.raw.toString())
-            console.log(spot.raw.toString(), actualPremium.raw.toString())
           } else {
             setImpact('0.00')
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
