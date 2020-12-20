@@ -22,9 +22,9 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 
-import { Trade } from '@/lib/entities/trade'
+import { Trade, Market } from '@/lib/entities/index'
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
-import { Fraction } from '@uniswap/sdk'
+import { Fraction, Pair } from '@uniswap/sdk'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -278,14 +278,13 @@ const AddLiquidity: React.FC = () => {
       } else {
         inputShort = parsedOptionAmount // pair has short tokens, so need to convert our desired options to short options))
       }
-      const path = [entity.redeem.address, entity.underlying.address]
-      const quote = Trade.getSpotPremium(
-        entity.baseValue.raw.toString(),
-        entity.quoteValue.raw.toString(),
-        path,
-        [inputShort, parsedUnderlyingAmount]
+      const redeemAmount = new TokenAmount(entity.redeem, inputShort)
+      const underlyingAmount = new TokenAmount(
+        entity.underlying,
+        parsedUnderlyingAmount.toString()
       )
-      return formatEther(quote.toString())
+      const tempMarket = new Market(entity, redeemAmount, underlyingAmount)
+      return formatEther(tempMarket.spotOpenPremium.raw.toString())
     }
     return formatEther(item.market.spotOpenPremium.raw.toString())
   }, [
