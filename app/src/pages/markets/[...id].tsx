@@ -63,8 +63,8 @@ const Market = ({ market, data }) => {
       // eat errors
       clear(0)
       setTimeout(() => {
-        console.log('handled!')
-      }, 2000)
+        router.reload()
+      }, 1000)
     }
     const handleAccountChanged = () => {
       if (!options.loading) {
