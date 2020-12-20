@@ -71,9 +71,10 @@ const Market = ({ market, data }) => {
           setLoading()
         }
       }
-
-      ethereum?.on('chainChanged', handleChainChanged)
-      ethereum?.on('accountsChanged', handleAccountChanged)
+      if (ethereum?.on) {
+        ethereum?.on('chainChanged', handleChainChanged)
+        ethereum?.on('accountsChanged', handleAccountChanged)
+      }
       return () => {
         if (ethereum?.removeListener) {
           ethereum.removeListener('chainChanged', handleChainChanged)
@@ -81,7 +82,7 @@ const Market = ({ market, data }) => {
         }
       }
     }
-  }, [window, router])
+  }, [])
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
