@@ -59,30 +59,29 @@ const Market = ({ market, data }) => {
       clear(0)
       router.push('/markets')
     }
-    const handleChainChanged = () => {
-      // eat errors
-      clear(0)
-      setTimeout(() => {
-        router.reload()
-      }, 1000)
-    }
-    const handleAccountChanged = () => {
-      if (!options.loading) {
+    if (ethereum) {
+      const handleChainChanged = () => {
+        // eat errors
         clear(0)
-        setLoading()
+        router.reload()
+      }
+      const handleAccountChanged = () => {
+        if (!options.loading) {
+          clear(0)
+          setLoading()
+        }
+      }
+
+      ethereum?.on('chainChanged', handleChainChanged)
+      ethereum?.on('accountsChanged', handleAccountChanged)
+      return () => {
+        if (ethereum?.removeListener) {
+          ethereum.removeListener('chainChanged', handleChainChanged)
+          ethereum.removeListener('accountsChanged', handleAccountChanged)
+        }
       }
     }
-
-    ethereum?.on('chainChanged', handleChainChanged)
-    ethereum?.on('accountsChanged', handleAccountChanged)
-
-    return () => {
-      if (ethereum?.removeListener) {
-        ethereum.removeListener('chainChanged', handleChainChanged)
-        ethereum.removeListener('accountsChanged', handleAccountChanged)
-      }
-    }
-  })
+  }, [window, router])
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
