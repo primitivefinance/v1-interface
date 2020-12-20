@@ -8,7 +8,6 @@ import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 import Layout from '@/components/Layout'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
-import SplashScreen from '@/components/SplashScreen'
 import store from '@/state/index'
 import theme from '../theme'
 import TransactionUpdater from '@/state/transactions/updater'
@@ -70,7 +69,6 @@ export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()
   const [loading, setLoading] = useState(null)
   const [timeoutId, setTimeoutId] = useState(null)
-
   const onDone = () => {
     setLoading(false)
     setTimeoutId(

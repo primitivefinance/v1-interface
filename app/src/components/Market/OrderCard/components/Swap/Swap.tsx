@@ -553,6 +553,21 @@ const Swap: React.FC = () => {
                       />
                     </>
                   )}
+                  {approved[0] && approved[1] ? (
+                    <Button
+                      disabled={
+                        !parsedAmount?.gt(0) ||
+                        isAboveGuardCap() ||
+                        error ||
+                        !hasLiquidity
+                      }
+                      full
+                      size="sm"
+                      onClick={handleSubmitClick}
+                      isLoading={loading}
+                      text="Confirm Transaction"
+                    />
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -570,23 +585,22 @@ const Swap: React.FC = () => {
                       />
                     </>
                   )}
+                  <Button
+                    disabled={
+                      !approved[0] ||
+                      !parsedAmount?.gt(0) ||
+                      isAboveGuardCap() ||
+                      error ||
+                      !hasLiquidity
+                    }
+                    full
+                    size="sm"
+                    onClick={handleSubmitClick}
+                    isLoading={loading}
+                    text="Confirm Transaction"
+                  />
                 </>
               )}
-
-              <Button
-                disabled={
-                  !approved[0] ||
-                  !parsedAmount?.gt(0) ||
-                  isAboveGuardCap() ||
-                  error ||
-                  !hasLiquidity
-                }
-                full
-                size="sm"
-                onClick={handleSubmitClick}
-                isLoading={loading}
-                text="Confirm Transaction"
-              />
             </>
           )}
         </StyledEnd>
