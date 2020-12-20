@@ -6,9 +6,9 @@ import { GetServerSideProps } from 'next'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
-import BetaBanner from '@/components/BetaBanner'
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
+import SplashScreen from '@/components/SplashScreen'
 
 import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -144,67 +144,73 @@ const Market = ({ market, data }) => {
         </>
       }
     >
-      <Disclaimer />
-      <Notifs />
-      <StyledMarket>
-        <Grid>
-          <Row>
-            <StyledContainer sm={12} md={8} lg={8}>
-              <StyledMain>
-                <MarketHeader
-                  marketId={market}
-                  isCall={callPutActive ? 0 : 1}
-                />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilterType}
-                  expiry={expiry}
-                  setExpiry={handleFilterExpiry}
-                />
+      {router.isFallback ? (
+        <SplashScreen />
+      ) : (
+        <>
+          <Disclaimer />
+          <Notifs />
+          <StyledMarket>
+            <Grid>
+              <Row>
+                <StyledContainer sm={12} md={8} lg={8}>
+                  <StyledMain>
+                    <MarketHeader
+                      marketId={market}
+                      isCall={callPutActive ? 0 : 1}
+                    />
+                    <FilterBar
+                      active={callPutActive}
+                      setCallActive={handleFilterType}
+                      expiry={expiry}
+                      setExpiry={handleFilterExpiry}
+                    />
 
-                <ErrorBoundary
-                  fallback={
-                    <>
+                    <ErrorBoundary
+                      fallback={
+                        <>
+                          <Spacer />
+                          <StyledText>
+                            Error Loading Options, Please Refresh
+                          </StyledText>
+                        </>
+                      }
+                    >
+                      <OptionsTable
+                        asset={market}
+                        assetAddress={ADDRESS_FOR_MARKET[market]}
+                        optionExp={expiry}
+                        callActive={callPutActive}
+                      />
+                    </ErrorBoundary>
+                  </StyledMain>
+                </StyledContainer>
+                <StyledCol sm={12} md={4} lg={4}>
+                  <StyledSideBar>
+                    <ErrorBoundary
+                      fallback={
+                        <>
+                          <Spacer />
+                          <StyledText>
+                            Error Loading Positions, Please Refresh
+                          </StyledText>
+                        </>
+                      }
+                    >
+                      <Spacer size="sm" />
+                      <PositionsCard />
+                      <OrderCard orderState={data} />
+                      <BalanceCard />
+                      <TransactionCard />
                       <Spacer />
-                      <StyledText>
-                        Error Loading Options, Please Refresh
-                      </StyledText>
-                    </>
-                  }
-                >
-                  <OptionsTable
-                    asset={market}
-                    assetAddress={ADDRESS_FOR_MARKET[market]}
-                    optionExp={expiry}
-                    callActive={callPutActive}
-                  />
-                </ErrorBoundary>
-              </StyledMain>
-            </StyledContainer>
-            <StyledCol sm={12} md={4} lg={4}>
-              <StyledSideBar>
-                <ErrorBoundary
-                  fallback={
-                    <>
-                      <Spacer />
-                      <StyledText>
-                        Error Loading Positions, Please Refresh
-                      </StyledText>
-                    </>
-                  }
-                >
-                  <Spacer size="sm" />
-                  <PositionsCard />
-                  <OrderCard orderState={data} />
-                  <BalanceCard />
-                  <TransactionCard />
-                  <Spacer />
-                </ErrorBoundary>
-              </StyledSideBar>
-            </StyledCol>
-          </Row>
-        </Grid>
-      </StyledMarket>
+                    </ErrorBoundary>
+                  </StyledSideBar>
+                </StyledCol>
+              </Row>
+            </Grid>
+          </StyledMarket>
+        </>
+      )}
     </ErrorBoundary>
   )
 }
