@@ -44,9 +44,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-  const [changing, setChanging] = useState(false)
   const [expiry, setExpiry] = useState(1609286400)
+  const [changing, setChanging] = useState(false)
   const { chainId, active, account } = useActiveWeb3React()
+  const [id, storeId] = useState(chainId)
   const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
@@ -62,13 +63,13 @@ const Market = ({ market, data }) => {
     }
     if (ethereum) {
       const handleChainChanged = () => {
-        // eat errors
-        clear(0)
-        setChanging(true)
-        // 5 sec timeout
-        setTimeout(() => {
+        if (id !== chainId) {
+          setChanging(true)
+          storeId(chainId)
+          // eat errors
+          clear(0)
           router.reload()
-        }, 5000)
+        }
       }
       const handleAccountChanged = () => {
         if (!options.loading) {
@@ -87,7 +88,7 @@ const Market = ({ market, data }) => {
         }
       }
     }
-  }, [])
+  }, [id, chainId, storeId])
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
@@ -155,7 +156,7 @@ const Market = ({ market, data }) => {
         <>
           <Spacer />
           <Spacer />
-          <Loader size="lg" text={'Loading Market'} />
+          <Loader size="lg" />
         </>
       ) : (
         <>
