@@ -155,7 +155,7 @@ const Market = ({ market, data }) => {
         <>
           <Spacer />
           <Spacer />
-          <Loader size="lg" text={'Loading Network'} />
+          <Loader size="lg" text={'Loading Market'} />
         </>
       ) : (
         <>
