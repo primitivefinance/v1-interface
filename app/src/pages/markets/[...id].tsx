@@ -44,6 +44,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
+  const [changing, setChanging] = useState(false)
   const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active, account } = useActiveWeb3React()
   const { item, orderType } = useItem()
@@ -63,7 +64,11 @@ const Market = ({ market, data }) => {
       const handleChainChanged = () => {
         // eat errors
         clear(0)
-        router.reload()
+        setChanging(true)
+        // 5 sec timeout
+        setTimeout(() => {
+          router.reload()
+        }, 5000)
       }
       const handleAccountChanged = () => {
         if (!options.loading) {
@@ -146,8 +151,12 @@ const Market = ({ market, data }) => {
         </>
       }
     >
-      {router.isFallback ? (
-        <SplashScreen />
+      {changing ? (
+        <>
+          <Spacer />
+          <Spacer />
+          <Loader size="lg" text={'Loading Network'} />
+        </>
       ) : (
         <>
           <Disclaimer />

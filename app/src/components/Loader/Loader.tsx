@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-
+import Spacer from '@/components/Spacer'
 interface LoaderProps {
   text?: string
   dark?: boolean
@@ -23,8 +23,9 @@ const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
 
   return (
     <StyledContainer>
-      <Spinner size={s} dark={dark} />
       {!!text && <StyledText>{text}</StyledText>}
+      <Spacer />
+      <Spinner size={s} dark={dark} />
     </StyledContainer>
   )
 }
