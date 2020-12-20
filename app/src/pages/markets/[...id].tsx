@@ -6,9 +6,9 @@ import { GetServerSideProps } from 'next'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
-import BetaBanner from '@/components/BetaBanner'
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
+import SplashScreen from '@/components/SplashScreen'
 
 import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -45,7 +45,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const [expiry, setExpiry] = useState(1609286400)
+  const [changing, setChanging] = useState(false)
   const { chainId, active, account } = useActiveWeb3React()
+  const [id, storeId] = useState(chainId)
   const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
@@ -59,28 +61,34 @@ const Market = ({ market, data }) => {
       clear(0)
       router.push('/markets')
     }
-    const handleChainChanged = () => {
-      // eat errors
-      clear(0)
-      router.reload()
-    }
-    const handleAccountChanged = () => {
-      if (!options.loading) {
-        clear(0)
-        setLoading()
+    if (ethereum) {
+      const handleChainChanged = () => {
+        if (id !== chainId) {
+          setChanging(true)
+          storeId(chainId)
+          // eat errors
+          clear(0)
+          router.reload()
+        }
+      }
+      const handleAccountChanged = () => {
+        if (!options.loading) {
+          clear(0)
+          setLoading()
+        }
+      }
+      if (ethereum?.on) {
+        ethereum?.on('chainChanged', handleChainChanged)
+        ethereum?.on('accountsChanged', handleAccountChanged)
+      }
+      return () => {
+        if (ethereum?.removeListener) {
+          ethereum.removeListener('chainChanged', handleChainChanged)
+          ethereum.removeListener('accountsChanged', handleAccountChanged)
+        }
       }
     }
-
-    ethereum?.on('chainChanged', handleChainChanged)
-    ethereum?.on('accountsChanged', handleAccountChanged)
-
-    return () => {
-      if (ethereum?.removeListener) {
-        ethereum.removeListener('chainChanged', handleChainChanged)
-        ethereum.removeListener('accountsChanged', handleAccountChanged)
-      }
-    }
-  })
+  }, [id, chainId, storeId])
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
@@ -144,67 +152,77 @@ const Market = ({ market, data }) => {
         </>
       }
     >
-      <Disclaimer />
-      <Notifs />
-      <StyledMarket>
-        <Grid>
-          <Row>
-            <StyledContainer sm={12} md={8} lg={8}>
-              <StyledMain>
-                <MarketHeader
-                  marketId={market}
-                  isCall={callPutActive ? 0 : 1}
-                />
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={handleFilterType}
-                  expiry={expiry}
-                  setExpiry={handleFilterExpiry}
-                />
+      {changing ? (
+        <>
+          <Spacer />
+          <Spacer />
+          <Loader size="lg" />
+        </>
+      ) : (
+        <>
+          <Disclaimer />
+          <Notifs />
+          <StyledMarket>
+            <Grid>
+              <Row>
+                <StyledContainer sm={12} md={8} lg={8}>
+                  <StyledMain>
+                    <MarketHeader
+                      marketId={market}
+                      isCall={callPutActive ? 0 : 1}
+                    />
+                    <FilterBar
+                      active={callPutActive}
+                      setCallActive={handleFilterType}
+                      expiry={expiry}
+                      setExpiry={handleFilterExpiry}
+                    />
 
-                <ErrorBoundary
-                  fallback={
-                    <>
+                    <ErrorBoundary
+                      fallback={
+                        <>
+                          <Spacer />
+                          <StyledText>
+                            Error Loading Options, Please Refresh
+                          </StyledText>
+                        </>
+                      }
+                    >
+                      <OptionsTable
+                        asset={market}
+                        assetAddress={ADDRESS_FOR_MARKET[market]}
+                        optionExp={expiry}
+                        callActive={callPutActive}
+                      />
+                    </ErrorBoundary>
+                  </StyledMain>
+                </StyledContainer>
+                <StyledCol sm={12} md={4} lg={4}>
+                  <StyledSideBar>
+                    <ErrorBoundary
+                      fallback={
+                        <>
+                          <Spacer />
+                          <StyledText>
+                            Error Loading Positions, Please Refresh
+                          </StyledText>
+                        </>
+                      }
+                    >
+                      <Spacer size="sm" />
+                      <PositionsCard />
+                      <OrderCard orderState={data} />
+                      <BalanceCard />
+                      <TransactionCard />
                       <Spacer />
-                      <StyledText>
-                        Error Loading Options, Please Refresh
-                      </StyledText>
-                    </>
-                  }
-                >
-                  <OptionsTable
-                    asset={market}
-                    assetAddress={ADDRESS_FOR_MARKET[market]}
-                    optionExp={expiry}
-                    callActive={callPutActive}
-                  />
-                </ErrorBoundary>
-              </StyledMain>
-            </StyledContainer>
-            <StyledCol sm={12} md={4} lg={4}>
-              <StyledSideBar>
-                <ErrorBoundary
-                  fallback={
-                    <>
-                      <Spacer />
-                      <StyledText>
-                        Error Loading Positions, Please Refresh
-                      </StyledText>
-                    </>
-                  }
-                >
-                  <Spacer size="sm" />
-                  <PositionsCard />
-                  <OrderCard orderState={data} />
-                  <BalanceCard />
-                  <TransactionCard />
-                  <Spacer />
-                </ErrorBoundary>
-              </StyledSideBar>
-            </StyledCol>
-          </Row>
-        </Grid>
-      </StyledMarket>
+                    </ErrorBoundary>
+                  </StyledSideBar>
+                </StyledCol>
+              </Row>
+            </Grid>
+          </StyledMarket>
+        </>
+      )}
     </ErrorBoundary>
   )
 }

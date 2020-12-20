@@ -85,14 +85,19 @@ export class Market extends Pair {
     return new TokenAmount(this.option.underlying, premium.toString())
   }
 
+  /**
+   * @dev Spot open premium is: (1 - ( Strike Price * Underlying Reserve / Short Reserve ))
+   */
   public get spotOpenPremium(): TokenAmount {
-    return new TokenAmount(
-      this.option.underlying,
-      this.getOpenPremium(this.option.baseValue)
-        .multiply(parseEther('1').toString())
-        .divide(this.option.baseValue)
-        .toSignificant(6)
-    )
+    if (!this.hasLiquidity) {
+      return new TokenAmount(this.option.underlying, '0')
+    }
+    const one = parseEther('1')
+    const spot = parseEther(this.option.strikePrice)
+      .mul(this.reserveOf(this.option.underlying).raw.toString())
+      .div(this.reserveOf(this.option.redeem).raw.toString())
+    const spotOpenPremium = one.sub(spot).gt(0) ? one.sub(spot) : '0'
+    return new TokenAmount(this.option.underlying, spotOpenPremium.toString())
   }
 
   /**
@@ -117,18 +122,19 @@ export class Market extends Pair {
   }
 
   public get spotClosePremium(): TokenAmount {
-    return new TokenAmount(
-      this.option.underlying,
-      this.getClosePremium(
-        new TokenAmount(
-          this.option.redeem,
-          this.option.quoteValue.raw.toString()
+    if (!this.hasLiquidity) {
+      return new TokenAmount(this.option.underlying, '0')
+    }
+    const one = parseEther('1')
+    const spot = parseEther('1')
+      .mul(this.reserveOf(this.option.underlying).raw.toString())
+      .div(
+        this.option.proportionalLong(
+          this.reserveOf(this.option.redeem).raw.toString()
         )
       )
-        .multiply(parseEther('1').toString())
-        .divide(this.option.baseValue)
-        .toSignificant(6)
-    )
+    const spotClosePremium = one.sub(spot).gt(0) ? one.sub(spot) : '0'
+    return new TokenAmount(this.option.underlying, spotClosePremium.toString())
   }
 
   /**
