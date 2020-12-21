@@ -8,13 +8,11 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
-import SplashScreen from '@/components/SplashScreen'
 
 import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
-import { useItem } from '@/state/order/hooks'
 
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
@@ -44,11 +42,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-  const [expiry, setExpiry] = useState(1609286400)
-  const [changing, setChanging] = useState(false)
   const { chainId, active, account } = useActiveWeb3React()
+  const initExpiry = chainId === 1 ? 1610107199 : 1609286400
+  const [expiry, setExpiry] = useState(initExpiry)
   const [id, storeId] = useState(chainId)
-  const { item, orderType } = useItem()
+  const [changing, setChanging] = useState(false)
   const router = useRouter()
   const clear = useClearNotif()
   const options = useOptions()
@@ -121,6 +119,10 @@ const Market = ({ market, data }) => {
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
   }
+
+  useEffect(() => {
+    setExpiry(initExpiry)
+  }, [chainId])
 
   if (!active) {
     return (
