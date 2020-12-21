@@ -23,7 +23,6 @@ import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation } from '@/constants/index'
 import numeral from 'numeral'
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 
 export interface OrderContentProps {
   manage: boolean
@@ -50,7 +49,7 @@ export interface OrderProps {
 
 const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const [manage, setManage] = useState(false)
-  const { item, orderType } = useItem()
+  const { item, orderType, loading } = useItem()
   const removeItem = useRemoveItem()
   const updateItem = useUpdateItem()
   const options = useOptions()
@@ -120,6 +119,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </CustomButton>
         </Box>
         <CardContent>
+          {loading ? <LoadingOverlay></LoadingOverlay> : null}
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
             <Reverse />
             <OrderContent manage={manage} />
@@ -158,6 +158,10 @@ const StyledTitle = styled.h3`
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 100%;
   color: white;
+`
+
+const LoadingOverlay = styled.div`
+  z-index: 400;
 `
 
 const StyledLogo = styled.img`

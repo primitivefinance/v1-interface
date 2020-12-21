@@ -70,6 +70,14 @@ export const useUpdateItem = (): ((
   const clearLP = useClearLP()
   return useCallback(
     async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
+      dispatch(
+        updateItem({
+          item,
+          orderType,
+          loading: true,
+          approved: [false, false],
+        })
+      )
       let manage = false
       switch (orderType) {
         case Operation.MINT:
@@ -273,7 +281,8 @@ export const useHandleSubmitOrder = (): ((
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
-  const { item } = useItem()
+  const { item, orderType, approved } = useItem()
+  const removeItem = useRemoveItem()
   const { chainId, account } = useWeb3React()
   const slippage = useSlippage()
   const { data } = useBlockNumber()
@@ -287,6 +296,14 @@ export const useHandleSubmitOrder = (): ((
       operation: Operation,
       parsedAmountB?: BigInt
     ) => {
+      dispatch(
+        updateItem({
+          item,
+          orderType,
+          loading: true,
+          approved,
+        })
+      )
       const optionEntity: Option = item.entity
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
@@ -467,6 +484,15 @@ export const useHandleSubmitOrder = (): ((
           break
       }
       console.log(trade)
+      dispatch(
+        updateItem({
+          item,
+          orderType,
+          loading: false,
+          approved,
+        })
+      )
+      removeItem()
       executeTransaction(signer, transaction)
         .then((tx) => {
           if (tx.hash) {
