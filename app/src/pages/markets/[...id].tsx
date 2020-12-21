@@ -44,8 +44,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-  const [expiry, setExpiry] = useState(1609286400)
   const { chainId, active, account } = useActiveWeb3React()
+  const initExpiry = chainId === 1 ? 1610107199 : 1609286400
+  const [expiry, setExpiry] = useState(initExpiry)
   const { item, orderType } = useItem()
   const router = useRouter()
   const clear = useClearNotif()
@@ -113,6 +114,10 @@ const Market = ({ market, data }) => {
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
   }
+
+  useEffect(() => {
+    setExpiry(initExpiry)
+  }, [chainId])
 
   if (!active) {
     return (

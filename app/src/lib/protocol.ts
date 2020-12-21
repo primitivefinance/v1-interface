@@ -85,8 +85,7 @@ export class Protocol {
     optionAddresses: string[]
   ): Promise<any> {
     const multi = new MultiCall(provider)
-
-    const chunks = Protocol.chunkArray(optionAddresses, 30)
+    const chunks = Protocol.chunkArray(optionAddresses, 3)
     const datas = []
     let allOptionsData = []
     for (const chunk of chunks) {
