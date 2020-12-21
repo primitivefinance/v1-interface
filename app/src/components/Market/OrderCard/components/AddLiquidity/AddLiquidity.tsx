@@ -527,7 +527,7 @@ const AddLiquidity: React.FC = () => {
               disabled={
                 !approved[0] ||
                 (hasLiquidity ? null : !parsedUnderlyingAmount?.gt(0)) ||
-                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
+                !parsedOptionAmount?.gt(0) ||
                 isAboveGuardCap()
               }
               full
