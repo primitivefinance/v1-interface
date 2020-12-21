@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-
+import Spacer from '@/components/Spacer'
 interface LoaderProps {
   text?: string
   dark?: boolean
@@ -23,8 +23,13 @@ const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
 
   return (
     <StyledContainer>
+      {!!text && (
+        <>
+          <StyledText>{text}</StyledText>
+          <Spacer />
+        </>
+      )}
       <Spinner size={s} dark={dark} />
-      {!!text && <StyledText>{text}</StyledText>}
     </StyledContainer>
   )
 }
@@ -86,6 +91,10 @@ const StyledSpinner = styled.svg<StyledSpinnerProps>`
 `
 
 const StyledText = styled.div`
+  text-transform: uppercase;
+  text-decoration: none;
+  font-size: 16px;
+  letter-spacing: 1px;
   color: ${(props) => props.theme.color.grey[400]};
 `
 

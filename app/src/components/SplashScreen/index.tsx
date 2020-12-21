@@ -8,8 +8,9 @@ const SplashScreen = () => {
     <StyledContainer>
       <StyledDiv>
         <StyledLogo
-          src="https://storage.googleapis.com/app-image-cdn/background%20.png"
+          src="https://storage.googleapis.com/app-image-cdn/primitive-logo.png"
           alt="Primitive Logo"
+          style={{ width: '50px' }}
         />
       </StyledDiv>
     </StyledContainer>

@@ -80,13 +80,9 @@ export function useInactiveListener(suppress = false) {
 
     const handleChainChanged = () => {
       // eat errors
-      activate(injected, undefined, true)
-        .catch((error) => {
-          console.error('Failed to activate after chain changed', error)
-        })
-        .finally(() => {
-          router.reload()
-        })
+      activate(injected, undefined, true).catch((error) => {
+        console.error('Failed to activate after chain changed', error)
+      })
     }
 
     const handleAccountsChanged = (accounts: string[]) => {
