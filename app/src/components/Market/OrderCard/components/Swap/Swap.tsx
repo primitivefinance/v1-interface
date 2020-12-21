@@ -364,7 +364,11 @@ const Swap: React.FC = () => {
             <Spacer />
           </>
         ) : (
-          <LineItem label="Slippage" data={`${impact}`} units="%" />
+          <LineItem
+            label="Slippage"
+            data={`${Math.abs(parseFloat(impact)).toString()}`}
+            units="%"
+          />
         )}
         {parsedAmount.gt(0) ? (
           <StyledSummary column alignItems="center">
