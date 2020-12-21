@@ -46,7 +46,7 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
     const methodNames = ['name', 'symbol', 'decimals']
-    const chunks = Protocol.chunkArray(tokenAddresses, 30)
+    const chunks = Protocol.chunkArray(tokenAddresses, 10)
     const datas = []
     let tokenDatas = []
     for (const chunk of chunks) {
@@ -85,7 +85,7 @@ export class Protocol {
     optionAddresses: string[]
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const chunks = Protocol.chunkArray(optionAddresses, 3)
+    const chunks = Protocol.chunkArray(optionAddresses, 10)
     const datas = []
     let allOptionsData = []
     for (const chunk of chunks) {
@@ -131,7 +131,7 @@ export class Protocol {
   ): Promise<any> {
     const multi = new MultiCall(provider)
 
-    const chunks = Protocol.chunkArray(tokensArray, 30)
+    const chunks = Protocol.chunkArray(tokensArray, 10)
     const datas = []
     let pairAddresses = []
     for (const chunk of chunks) {
@@ -158,7 +158,7 @@ export class Protocol {
     pairAddresses
   ): Promise<any> {
     const multi = new MultiCall(provider)
-    const chunks = Protocol.chunkArray(pairAddresses, 30)
+    const chunks = Protocol.chunkArray(pairAddresses, 10)
     const datas = []
     let pairDatas = []
     for (const chunk of chunks) {
