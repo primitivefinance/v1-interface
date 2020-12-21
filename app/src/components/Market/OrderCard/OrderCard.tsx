@@ -119,8 +119,8 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           </CustomButton>
         </Box>
         <CardContent>
+          {loading ? <LoadingOverlay></LoadingOverlay> : null}
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
-            {loading ? <LoadingOverlay></LoadingOverlay> : null}
             <Reverse />
             <OrderContent manage={manage} />
             {orderType === Operation.NONE ? (
@@ -162,11 +162,6 @@ const StyledTitle = styled.h3`
 
 const LoadingOverlay = styled.div`
   z-index: 400;
-  background-color: rgba(0, 0, 0, 0.7);
-  position: absolute;
-  text-align: center;
-  width: 100%;
-  height: 100%;
 `
 
 const StyledLogo = styled.img`
