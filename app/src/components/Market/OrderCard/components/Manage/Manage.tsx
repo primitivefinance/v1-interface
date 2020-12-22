@@ -422,7 +422,7 @@ const Manage: React.FC = () => {
                   text={`${
                     !hasEnoughStrikeTokens()
                       ? 'Insufficient Strike Tokens to Redeem'
-                      : 'Confirm'
+                      : 'Confirm Transaction'
                   }`}
                 />
               </>

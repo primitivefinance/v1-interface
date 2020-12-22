@@ -1,19 +1,28 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import SettingsIcon from '@material-ui/icons/Settings'
 import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 import Button from '@/components/Button'
+import Slider from '@/components/Slider'
+
+import { useLocalStorage } from '@/hooks/utils/useLocalStorage'
 import { useClickAway } from '@/hooks/utils/useClickAway'
 import { useSlippage, useUpdateSlippage } from '@/state/user/hooks'
-import Slider from '@/components/Slider'
+import { DEFAULT_SLIPPAGE, LocalStorageKeys } from '@/constants/index'
 
 export const Settings = () => {
   const [open, setOpen] = useState(null)
   const slippage = useSlippage()
   const setSlippage = useUpdateSlippage()
-
+  const [stored, setStored] = useLocalStorage<string>(
+    LocalStorageKeys.Slippage,
+    DEFAULT_SLIPPAGE
+  )
+  useEffect(() => {
+    setSlippage(stored)
+  }, [])
   const onClick = () => {
     setOpen(true)
   }
@@ -21,10 +30,12 @@ export const Settings = () => {
     setOpen(false)
   })
   const handleSlip = (s: string) => {
+    setStored(s)
     setSlippage(s)
   }
   const handleSlippageChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
+      setStored(e.currentTarget.value.toString())
       setSlippage(e.currentTarget.value.toString())
     },
     [setSlippage]

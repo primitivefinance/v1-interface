@@ -31,7 +31,6 @@ import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
-  useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import {
@@ -50,7 +49,6 @@ const Swap: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const removeItem = useRemoveItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
   // cost state
@@ -177,8 +175,7 @@ const Swap: React.FC = () => {
       orderType,
       BigInt('0')
     )
-    removeItem()
-  }, [submitOrder, removeItem, item, library, parsedAmount, orderType])
+  }, [submitOrder, item, library, parsedAmount, orderType])
 
   useEffect(() => {
     const calculateTotalCost = async () => {
@@ -367,7 +364,11 @@ const Swap: React.FC = () => {
             <Spacer />
           </>
         ) : (
-          <LineItem label="Slippage" data={`${impact}`} units="%" />
+          <LineItem
+            label="Slippage"
+            data={`${Math.abs(parseFloat(impact)).toString()}`}
+            units="%"
+          />
         )}
         {parsedAmount.gt(0) ? (
           <StyledSummary column alignItems="center">

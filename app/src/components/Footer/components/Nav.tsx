@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Nav: React.FC = () => {
   return (
     <StyledNav>
-      <StyledLink href="https://discord.gg/JBM6APT">
+      <StyledLink target="__blank" href="https://discord.gg/JBM6APT">
         <img
           height="20px"
           width="20px"
@@ -14,7 +14,7 @@ const Nav: React.FC = () => {
           }
         />
       </StyledLink>
-      <StyledLink href="https://github.com/primitivefinance">
+      <StyledLink target="__blank" href="https://github.com/primitivefinance">
         <img
           height="20px"
           width="20px"
@@ -22,7 +22,7 @@ const Nav: React.FC = () => {
           src={'https://avatars1.githubusercontent.com/u/9919?s=200&v=4'}
         />
       </StyledLink>
-      <StyledLink href="https://twitter.com/primitivefi">
+      <StyledLink target="__blank" href="https://twitter.com/primitivefi">
         <img
           height="16px"
           width="20px"
