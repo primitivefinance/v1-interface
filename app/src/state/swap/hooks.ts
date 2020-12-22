@@ -28,6 +28,9 @@ export function useSwapActionHandlers(): {
 
   const onUserInput = useCallback(
     (typedValue: string) => {
+      if (typedValue.substr(0) === '.') {
+        typedValue = '0.'
+      }
       dispatch(typeInput({ typedValue }))
       dispatch(setLoading({ inputLoading: true }))
     },
