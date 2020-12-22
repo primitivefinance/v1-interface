@@ -423,14 +423,16 @@ const Swap: React.FC = () => {
                       </StyledData>{' '}
                       which gives you the right to withdraw{' '}
                       <StyledData>
-                        {formatEtherBalance(parsedAmount)}{' '}
+                        {formatEtherBalance(
+                          parsedAmount.div(entity.strikePrice)
+                        )}{' '}
                         {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                       </StyledData>{' '}
                       when the options expire unexercised, or the right to
                       redeem them for{' '}
                       <StyledData>
                         {' '}
-                        {calculateProportionalShort()}{' '}
+                        {formatEtherBalance(parsedAmount)}{' '}
                         {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
                       </StyledData>{' '}
                       if they are exercised.{' '}
