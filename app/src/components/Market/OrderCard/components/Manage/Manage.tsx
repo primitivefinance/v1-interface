@@ -159,35 +159,23 @@ const Manage: React.FC = () => {
     const quote = item.entity.quoteValue.raw.toString()
     switch (orderType) {
       case Operation.MINT:
-        long = size.div(BigNumber.from('1000000000000000000')).toString()
-        short = size
-          .mul(quote)
-          .div(base)
-          .div(BigNumber.from('1000000000000000000'))
-          .toString()
+        long = formatEther(size)
+        short = formatEther(entity.proportionalShort(size))
         underlying = long
         break
       case Operation.EXERCISE:
-        long = size.div(BigNumber.from('1000000000000000000')).toString()
+        long = formatEther(size)
         underlying = long
-        strike = size
-          .mul(quote)
-          .div(base)
-          .div(BigNumber.from('1000000000000000000'))
-          .toString()
+        strike = formatEther(entity.proportionalShort(size)).toString()
         break
       case Operation.REDEEM:
-        short = size.div(BigNumber.from('1000000000000000000')).toString()
+        short = formatEther(size)
         strike = short
         break
       case Operation.CLOSE:
-        long = size.div(BigNumber.from('1000000000000000000')).toString()
+        long = formatEther(size)
         underlying = long
-        short = size
-          .mul(quote)
-          .div(base)
-          .div(BigNumber.from('1000000000000000000'))
-          .toString()
+        short = formatEther(entity.proportionalShort(size))
         break
       default:
         break
@@ -252,11 +240,7 @@ const Manage: React.FC = () => {
         onClick={handleSetMax}
         balance={tokenAmount}
         valid={parseEther(underlyingTokenBalance).gt(
-          parseEther(
-            BigNumber.from(calculateCosts().long)
-              .mul(BigNumber.from('1000000000000000000'))
-              .toString()
-          ) // fix, should also check for options
+          parseEther(calculateCosts().long)
         )}
       />
       <Spacer size="sm" />
