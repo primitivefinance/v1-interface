@@ -102,7 +102,7 @@ const Swap: React.FC = () => {
   switch (orderType) {
     case Operation.LONG:
       title = {
-        text: 'Buy Long Tokens',
+        text: 'Buy Long Option Tokens',
         tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
@@ -110,7 +110,7 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Buy Short Tokens',
+        text: 'Buy Short Option Tokens',
         tip: 'Purchase tokenized, written covered options',
       }
       tokenAddress = entity.underlying.address
@@ -423,14 +423,16 @@ const Swap: React.FC = () => {
                       </StyledData>{' '}
                       which gives you the right to withdraw{' '}
                       <StyledData>
-                        {formatEtherBalance(parsedAmount)}{' '}
+                        {formatEtherBalance(
+                          parsedAmount.div(entity.strikePrice)
+                        )}{' '}
                         {entity.isPut ? 'DAI' : item.asset.toUpperCase()}
                       </StyledData>{' '}
                       when the options expire unexercised, or the right to
                       redeem them for{' '}
                       <StyledData>
                         {' '}
-                        {calculateProportionalShort()}{' '}
+                        {formatEtherBalance(parsedAmount)}{' '}
                         {entity.isPut ? item.asset.toUpperCase() : 'DAI'}
                       </StyledData>{' '}
                       if they are exercised.{' '}
