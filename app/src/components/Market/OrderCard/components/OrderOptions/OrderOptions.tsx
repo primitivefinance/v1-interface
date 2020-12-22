@@ -44,7 +44,7 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
     <>
       <Box row alignItems="center" justifyContent="space-between">
         <LineItem
-          label={'LP'}
+          label={'Liquidity'}
           data={balance ? formatEther(balance) : '0'}
           units={'UNI-V2'}
         />
