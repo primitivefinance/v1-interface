@@ -36,7 +36,6 @@ import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
-  useRemoveItem,
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
@@ -49,7 +48,6 @@ const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // option entity in order
@@ -151,10 +149,8 @@ const AddLiquidity: React.FC = () => {
       orderType,
       BigInt(parsedUnderlyingAmount.toString())
     )
-    removeItem()
   }, [
     submitOrder,
-    removeItem,
     item,
     library,
     parsedOptionAmount,
@@ -531,7 +527,7 @@ const AddLiquidity: React.FC = () => {
               disabled={
                 !approved[0] ||
                 (hasLiquidity ? null : !parsedUnderlyingAmount?.gt(0)) ||
-                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
+                !parsedOptionAmount?.gt(0) ||
                 isAboveGuardCap()
               }
               full

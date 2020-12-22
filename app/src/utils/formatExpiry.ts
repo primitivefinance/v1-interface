@@ -4,7 +4,8 @@ const formatExpiry = (unixTimestamp: BigNumberish) => {
   const month = unixDate.getUTCMonth() + 1
   const date = unixDate.getUTCDate()
   const year = unixDate.getUTCFullYear()
-  return { date, month, year }
+  const utc = unixDate.toUTCString()
+  return { date, month, year, utc }
 }
 
 export default formatExpiry

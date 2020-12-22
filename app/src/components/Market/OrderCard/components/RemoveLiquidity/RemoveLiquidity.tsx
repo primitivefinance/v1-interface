@@ -38,7 +38,6 @@ import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
-  useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 
@@ -52,7 +51,6 @@ const RemoveLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
-  const removeItem = useRemoveItem()
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -111,10 +109,8 @@ const RemoveLiquidity: React.FC = () => {
       orderType,
       BigInt(underlyingValue.toString())
     )
-    removeItem()
   }, [
     submitOrder,
-    removeItem,
     item,
     library,
     orderType,

@@ -243,10 +243,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
             <ScrollBody>
               {options[type].map((option) => {
                 if (
-                  (optionExp != option.entity.expiryValue &&
-                    option.entity.expiryValue === 0) ||
+                  optionExp != option.entity.expiryValue ||
                   (chainId === 1
-                    ? +option.entity.strikePrice !== 720
+                    ? +option.entity.strikePrice !== 700
                     : !+option.entity.strikePrice)
                 )
                   return null
