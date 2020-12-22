@@ -105,6 +105,9 @@ const AddLiquidity: React.FC = () => {
   const handleOptionInput = useCallback(
     (value: string) => {
       onOptionInput(value)
+      if (value === '0.') {
+        value = '0'
+      }
       if (tab === 1) {
         onUnderInput(
           formatEther(
