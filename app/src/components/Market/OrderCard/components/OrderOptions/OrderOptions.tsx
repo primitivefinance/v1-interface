@@ -19,6 +19,12 @@ import { usePositions } from '@/state/positions/hooks'
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import LaunchIcon from '@material-ui/icons/Launch'
+import {
+  ADDRESS_FOR_MARKET,
+  ETHERSCAN_MAINNET,
+  ETHERSCAN_RINKEBY,
+} from '@/constants/index'
 
 const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
   balance,
@@ -40,6 +46,11 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
       updateItem(item, t)
     }
   }
+
+  const baseUrl =
+    item.market.liquidityToken.chainId === 4
+      ? ETHERSCAN_RINKEBY
+      : ETHERSCAN_MAINNET
   return (
     <>
       <Box row alignItems="center" justifyContent="space-between">
@@ -48,6 +59,13 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
           data={balance ? formatEther(balance) : '0'}
           units={'UNI-V2'}
         />
+        <Spacer size="sm" />
+        <StyledARef
+          href={`${baseUrl}/${item.market.liquidityToken.address}`}
+          target="__blank"
+        >
+          <LaunchIcon style={{ fontSize: '14px' }} />
+        </StyledARef>
         <Spacer size="sm" />
         {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
       </Box>
@@ -108,7 +126,8 @@ const OrderOptions: React.FC = () => {
   const change = (t: Operation) => {
     updateItem(item, t)
   }
-
+  const baseUrl =
+    item.entity.chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   return (
     <>
       <Spacer size="sm" />
@@ -125,6 +144,13 @@ const OrderOptions: React.FC = () => {
                 data={option.long ? formatEther(option.long).toString() : '0'}
                 units={''}
               />
+              <Spacer size="sm" />
+              <StyledARef
+                href={`${baseUrl}/${item.entity.address}`}
+                target="__blank"
+              >
+                <LaunchIcon style={{ fontSize: '14px' }} />
+              </StyledARef>
               <Spacer size="sm" />
               {!order.long ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </Box>
@@ -222,6 +248,14 @@ const OrderOptions: React.FC = () => {
     </>
   )
 }
+
+const StyledARef = styled.a`
+  color: ${(props) => props.theme.color.grey[400]};
+  text-decoration: none;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
+`
 
 const StyledOrder = styled.a`
   border: 1px solid ${(props) => props.theme.color.grey[800]};
