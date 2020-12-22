@@ -121,7 +121,7 @@ const OrderOptions: React.FC = () => {
           {!positions.loading ? (
             <Box row alignItems="center" justifyContent="space-between">
               <LineItem
-                label={'Long'}
+                label={'Option'}
                 data={option.long ? formatEther(option.long).toString() : '0'}
                 units={''}
               />

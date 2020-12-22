@@ -102,7 +102,7 @@ const Swap: React.FC = () => {
   switch (orderType) {
     case Operation.LONG:
       title = {
-        text: 'Buy Long Tokens',
+        text: 'Buy Long Option Tokens',
         tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
@@ -110,7 +110,7 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Buy Short Tokens',
+        text: 'Buy Short Option Tokens',
         tip: 'Purchase tokenized, written covered options',
       }
       tokenAddress = entity.underlying.address
