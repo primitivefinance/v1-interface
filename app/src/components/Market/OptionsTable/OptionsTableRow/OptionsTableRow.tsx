@@ -142,10 +142,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <TableCell>
             <StyledR>
               <StyledT>
-                {numeral(reserves[1]).format('0a')} <Units>{'SHORT'}</Units>
+                {numeral(reserves[1]).format('0.00a')} <Units>{'SHORT'}</Units>
               </StyledT>
               <span>
-                {numeral(reserves[0]).format('0a')} <Units>{units}</Units>
+                {numeral(reserves[0]).format('0.00a')} <Units>{units}</Units>
               </span>
             </StyledR>
           </TableCell>
