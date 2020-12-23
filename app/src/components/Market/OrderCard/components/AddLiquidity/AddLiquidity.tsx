@@ -105,6 +105,9 @@ const AddLiquidity: React.FC = () => {
   const handleOptionInput = useCallback(
     (value: string) => {
       onOptionInput(value)
+      if (value === '0.') {
+        value = '0'
+      }
       if (tab === 1) {
         onUnderInput(
           formatEther(
@@ -139,8 +142,8 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   const handleSetMax = useCallback(() => {
-    underlyingTokenBalance && onUnderInput(underlyingTokenBalance)
-  }, [underlyingTokenBalance, onUnderInput])
+    underlyingTokenBalance && onOptionInput(underlyingTokenBalance)
+  }, [underlyingTokenBalance, onOptionInput])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -368,9 +371,7 @@ const AddLiquidity: React.FC = () => {
                   parseEther(underlyingTokenBalance).toString()
                 )
               }
-              valid={parseEther(underlyingTokenBalance).gt(
-                parsedUnderlyingAmount
-              )}
+              valid={parseEther(underlyingTokenBalance).gt(parsedOptionAmount)}
             />
           </StyledTabPanel>
           <StyledTabPanel>

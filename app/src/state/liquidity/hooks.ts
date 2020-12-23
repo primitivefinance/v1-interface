@@ -23,12 +23,18 @@ export function useLiquidityActionHandlers(): {
 
   const onOptionInput = useCallback(
     (optionValue: string) => {
+      if (optionValue.substr(0) === '.') {
+        optionValue = '0.'
+      }
       dispatch(optionInput({ optionValue }))
     },
     [dispatch]
   )
   const onUnderInput = useCallback(
     (underlyingValue: string) => {
+      if (underlyingValue.substr(0) === '.') {
+        underlyingValue = '0.'
+      }
       dispatch(underInput({ underlyingValue }))
     },
     [dispatch]
