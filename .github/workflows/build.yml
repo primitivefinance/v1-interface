@@ -8,7 +8,7 @@ on:
       - develop
 
 jobs:
-  deploy:
+  build:
     if: contains(github.event.head_commit.message, 'skip ci') == false
     runs-on: ubuntu-latest
     steps:
