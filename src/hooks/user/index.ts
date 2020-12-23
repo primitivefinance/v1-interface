@@ -21,11 +21,10 @@ declare global {
   }
 }
 
-// https://github.com/Uniswap/uniswap-interface/blob/master/src/hooks/index.ts
-
 export function useDisclaimer() {
   return useLocalStorage<boolean>(LocalStorageKeys.Disclaimer, true)
 }
+
 export function useTradeSettings(): TradeSettings {
   const slippage = useSlippage()
   const { account, chainId } = useWeb3React()

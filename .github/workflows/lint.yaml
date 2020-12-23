@@ -1,4 +1,4 @@
-name: Lint Check
+name: Auto-Lint
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
           node-version: '12'
       - name: Install Dependencies
         run: yarn install
-      - name: Lint Check
-        run: npx prettier --check ./src
       - name: Lint Write
         run: npx prettier --write ./src
+      - name: Lint Check
+        run: npx prettier --check ./src
