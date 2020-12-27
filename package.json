@@ -1,6 +1,6 @@
 {
-  "name": "@primitivefi/app",
-  "version": "0.2.0",
+  "name": "primitive-interface",
+  "version": "1.1.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -26,9 +26,8 @@
     "bn.js": "^5.1.1",
     "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.0.2",
-    "next": "9.5.2",
+    "next": "10.0.4",
     "next-images": "^1.6.0",
-    "next-on-netlify": "^2.6.0",
     "numeral": "^2.0.6",
     "prettier": "^2.1.2",
     "react": "^16.13.1",
@@ -49,8 +48,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "postbuild": "next-on-netlify"
+    "start": "next start"
   },
   "browserslist": {
     "production": [
