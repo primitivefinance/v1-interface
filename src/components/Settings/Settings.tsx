@@ -107,6 +107,7 @@ const StyledSlip = styled.div`
 
 const StyledTitle = styled.div`
   font-weight: 700;
+  font-size: 18px;
 `
 
 const StyledSetting = styled.div`
