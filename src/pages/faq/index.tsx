@@ -23,82 +23,23 @@ const FAQ: React.FC = () => {
         </StyledText>
         <StyledSpacer size={24} />
 
-        <StyledSubtitle>Why are options useful?</StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          Options allow you to manage portfolio risk. Traders, merchants, and
-          investors have used options to manage and hedge risk because they are
-          grant control over valuable assets for a fraction of a cost. Now
-          anyone can use this instrument to manage risk for ETH and tokens
-          issued on Ethereum (ERC-20). For further background on options and how
-          they can help manage risk, please refer to the{' '}
-          <Link
-            href={
-              'https://www.investopedia.com/options-basics-tutorial-4583012'
-            }
-          >
-            <StyledNavItem>Essential Options Trading Guide</StyledNavItem>
-          </Link>{' '}
-          by Investopedia.
-          <StyledSpacer size={24} />
-        </StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledSubtitle>How can I buy/sell an option?</StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          Depending on what position you want to take, you would take the
-          following actions:
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          1. Buy to Open (ie. go long on a Call or Put option
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          2. **Sell to Open (ie. go short on a Call or Put option)** After
-          choosing whether you want a Call or Put:
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>3. Closing Out a Position Before Expiry</StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledSubtitle>Can you walk me through an example?</StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          Let's say you are bearish on ETH and want to collect a premium, so you
-          short a Call option. These are the steps you'd take: 1. Mint the Call
-          option by depositing 1 ETH (underlying); receive Long Token, Short
-          Token, and Redeem Token which is your claim on the underlying if the
-          option never gets exercised.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>2. Sell the Long Token for a premium on an AMM.</StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          3. If the option expires Out of the Money (OTM), you use your redeem
-          token to withdraw the original 1 ETH you deposited to mint the option.
-        </StyledText>
-        <StyledSpacer size={24} />
-
         <StyledSubtitle>
-          What are the main advantages of using options on Primitive?
+          What are the main advantages of using the Primitive protocol?
         </StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
-          <strong>Increased Security</strong> - Contracts are physically settled
-          and do not rely on oracles. No special permissions given to any other
-          contract
+          <strong>Increased Security</strong>: Contracts are physically settled
+          and do not rely on oracles. They are autonomous and immutable, no
+          entity controls them.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          <strong>Flash Loan Capability</strong> - The underlying collateral can
-          be temporarily borrowed to exercise an option, rather than having to
-          put up the capital required upfront to do so
+          <strong>Simplicty</strong>: The core contracts are designed with
+          minimal code and minimal reliablility on external systems.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          <strong>Permissionless</strong> - Anyone can create any option on any
+          <strong>Permissionless</strong>: Anyone can create any option on any
           standard ERC-20
         </StyledText>
         <StyledSpacer size={24} />
@@ -115,13 +56,13 @@ const FAQ: React.FC = () => {
 
         <StyledText>
           For a more detailed version of the FAQ, please refer to the Primitive
-          Overview document:{' '}
+          Headquarters documentation page:{' '}
           <Link
             href={
-              'https://www.notion.so/primitivefi/Oracle-less-Option-Tokens-f8efc83405c74ef89c3c274ebb6c34e4'
+              'https://www.notion.so/primitivefi/Primitive-Protocol-HQ-fc081b939bb04e2a90ccaebf36faa78e'
             }
           >
-            <StyledNavItem>Oracle-less Option Tokens</StyledNavItem>
+            <StyledNavItem>Documentation</StyledNavItem>
           </Link>
         </StyledText>
         <StyledSpacer size={24} />

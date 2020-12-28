@@ -7,7 +7,8 @@ import Link from 'next/link'
 
 const Risks: React.FC = () => {
   const auditLink = 'https://blog.openzeppelin.com/primitive-audit/'
-
+  const liquidityGuide =
+    'https://www.notion.so/primitivefi/Liquidity-Providers-Guide-c06554542f0b4318a2013bbc555d2fc8'
   return (
     <>
       <StyledSpacer size={48} />
@@ -24,14 +25,14 @@ const Risks: React.FC = () => {
         <StyledSubtitle>Admin Keys</StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
-          The Primitive V1 Option has no admin functions. Every Externally Owned
-          Account and smart contract has the same permission status. This also
-          means that the core Option contract cannot be paused.
+          The Primitive V1 Option token contract has no admin functions. Every
+          Externally Owned Account and smart contract has the same permission
+          status. The core Option token contract cannot be paused or changed.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
           The Primitive Option Factory contract has an admin-controlled function
-          to pause FUTURE deployments of Options. This will only be in the BETA
+          to pause FUTURE deployments of Options. This will only be in the first
           Option Factory contract, and will be removed after the contracts have
           been battle-tested for several months. The factory has no control over
           Options which have already been deployed.
@@ -47,27 +48,25 @@ const Risks: React.FC = () => {
           </Link>
           <StyledSpacer size={24} />
           Audits do not guarantee  security of the contracts. The contracts
-          should never be considered 100% secure. Assume a contract is insecure
-          unless it has been battle-tested for more than 12 months.
+          should never be considered 100% secure.
         </StyledText>
         <StyledSpacer size={24} />
 
         <StyledSubtitle>Development Cycle</StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
-          Contracts are first designed and initially implemented in prototypes.
-          Those prototypes will never see mainnet in their first form.
+          Contracts are first designed and implemented as prototypes. These
+          prototypes will never see mainnet.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          After the prototyping stage, another round of upgrades to the
-          contracts occurs to prepare them for testnet. Contracts will live and
-          be redeployed to testnet prior to being sent for audit.
+          After the prototyping stage, the contracts are upgraded with
+          improvements and deployed to a testnet. Contracts will live and be
+          redeployed to testnet prior to being sent for audit.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>
-          The code is then frozen, the contracts are sent to auditors, and the
-          testnet contracts will continue to be used for further testing. After
+          The code is then frozen and the contracts are sent to auditors. After
           the auditors have taken several weeks to review them, they will
           recommend changes which are then implemented by the core Primitive
           developers.
@@ -84,22 +83,14 @@ const Risks: React.FC = () => {
         <StyledSubtitle>Liquidity Provision Risks</StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
-          Options are volatile instruments, which means losses can accrue
+          Please visit our guide for providing liquidity to the Primitive
+          protocol:
+          <Link href={liquidityGuide}>
+            <StyledNavItem> Liquidity Providers Guide</StyledNavItem>
+          </Link>
+          . Options are volatile instruments, which means losses can accrue
           quicker when they are provided as liquidity to Automated Market
           Makers, such as Uniswap.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          As a liquidity provider to a Uniswap option token {'<>'} stablecoin
-          pair, you are directionally exposed to the option. This requires
-          proper hedging to remain neutral. Options need to have their price,
-          volatility, and time risks hedged.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          If an option is expired and a Uniswap pair has a balance of the
-          expired option, the other reserve of the pair can effectively be
-          drained (bought using an option worth $0.00).
         </StyledText>
         <StyledSpacer size={24} />
 
