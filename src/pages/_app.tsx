@@ -62,9 +62,6 @@ const Updater = () => {
     </>
   )
 }
-export function reportWebVitals(metric) {
-  console.log(metric)
-}
 
 export default function App({ Component, pageProps }) {
   const { error, active } = useWeb3React()

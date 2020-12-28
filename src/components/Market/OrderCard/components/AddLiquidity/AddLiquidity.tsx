@@ -382,7 +382,7 @@ const AddLiquidity: React.FC = () => {
               </Tooltip>
             </StyledTab>
             <StyledTab active={tab === 1}>
-              <Tooltip text={'Add both tokens from your balance to the pool.'}>
+              <Tooltip text={'Add both tokens from your balance to the pool'}>
                 Add Direct
               </Tooltip>
             </StyledTab>
@@ -472,7 +472,7 @@ const AddLiquidity: React.FC = () => {
           <LineItem
             label="Receive"
             data={calculatePoolShare()}
-            units={`% of the Pool.`}
+            units={`% of the Pool`}
           />
           <Spacer size="sm" />
           <IconButton
