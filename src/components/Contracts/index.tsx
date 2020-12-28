@@ -71,18 +71,21 @@ const Contracts: React.FC = () => {
                     target="__none"
                     href={contract.audit !== 'N/A' ? contract.audit : null}
                   >
-                    <IconButton variant="tertiary">
-                      {contract.audit !== 'N/A' ? (
-                        <CheckIcon style={{ color: 'green' }} />
-                      ) : (
-                        <Tooltip
-                          icon={false}
-                          text="This contract is awaiting audit"
-                        >
-                          <WarningIcon style={{ color: 'yellow' }} />
-                        </Tooltip>
-                      )}
-                    </IconButton>
+                    {contract.audit !== 'N/A' ? (
+                      <Button variant="secondary">
+                        Open Zeppelin
+                        <CheckIcon
+                          style={{ marginLeft: '.5em', color: 'green' }}
+                        />
+                      </Button>
+                    ) : (
+                      <Button disabled variant="secondary">
+                        Pending
+                        <WarningIcon
+                          style={{ marginLeft: '.5em', color: 'yellow' }}
+                        />
+                      </Button>
+                    )}
                   </StyledLink>
                 </TableCell>
               </TableRow>
