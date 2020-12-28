@@ -400,7 +400,7 @@ const AddLiquidity: React.FC = () => {
                   parseEther(underlyingTokenBalance).toString()
                 )
               }
-              valid={parseEther(underlyingTokenBalance).gt(
+              valid={parseEther(underlyingTokenBalance).gte(
                 parsedUnderlyingAmount
               )}
             />
