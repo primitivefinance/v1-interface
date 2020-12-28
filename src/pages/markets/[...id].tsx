@@ -91,7 +91,7 @@ const Market = ({ market, data }) => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
-  }, [setCallPutActive])
+  }, [setCallPutActive, data])
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
@@ -211,7 +211,7 @@ const Market = ({ market, data }) => {
                         </>
                       }
                     >
-                      <Spacer size="sm" />
+                      <Spacer />
                       <PositionsCard />
                       <OrderCard orderState={data} />
                       <BalanceCard />

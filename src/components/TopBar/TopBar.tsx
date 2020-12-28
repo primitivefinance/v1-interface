@@ -30,7 +30,7 @@ const TopBar: React.FC = () => {
           <Link href="/">
             <StyledNavItem active>
               <StyledLogo
-                src="https://storage.googleapis.com/about-me-215602.appspot.com/primitive-logo.png"
+                src="https://storage.googleapis.com/app-image-cdn/primitive-logo-white.png"
                 alt="Primitive Logo"
               />
             </StyledNavItem>
@@ -127,16 +127,17 @@ interface StyledNavItemProps {
 
 const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
-    props.active ? props.theme.color.white : props.theme.color.grey[400]};
+    props.active ? props.theme.color.grey[400] : props.theme.color.white};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
+  font-weight: 700;
   letter-spacing: 1px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.white};
+    color: ${(props) => props.theme.color.grey[400]};
   }
 `
 

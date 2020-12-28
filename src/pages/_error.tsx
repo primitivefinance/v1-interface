@@ -22,7 +22,7 @@ const Error: React.FC = () => {
 const StyledTitle = styled.div`
   font-size: 36px;
   font-weight: bold;
-  color: ${(props) => props.theme.color.red};
+  color: ${(props) => props.theme.color.red[500]};
 `
 const StyledSub = styled.a`
   font-size: 20px;
