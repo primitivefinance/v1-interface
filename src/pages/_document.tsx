@@ -39,19 +39,24 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <title>Primitive Finance</title>
-          <meta name="og:title" content="Primitive Finance" />
+          <title>Primitive Interface</title>
+          <meta name="og:title" content="Primitive Interface" />
           <meta
             name="og:description"
-            content="Primitive is a decentralized options protocol built on Ethereum."
+            content="Primitive Interface - Trade & Manage Options on Ethereum"
           />
           <meta
             name="description"
-            content="Primitive is a decentralized options protocol built on Ethereum."
+            content="Primitive Interface - Trade & Manage Options on Ethereum"
           />
           <meta
             property="og:image"
             content="https://storage.googleapis.com/app-image-cdn/Screen%20Shot%202020-11-16%20at%207.21.02%20PM.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            href="https://storage.googleapis.com/app-image-cdn/primitive-logo-white.png"
           />
           <link
             href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital@0;1&display=swap"
