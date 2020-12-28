@@ -186,7 +186,14 @@ const AddLiquidity: React.FC = () => {
   // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
   const calculateOptionsAddedAsLiquidity = useCallback(() => {
-    const parsedAmount = parsedUnderlyingAmount
+    const parsedAmount =
+      tab === 1
+        ? parsedOptionAmount
+        : Trade.getQuote(
+            parsedUnderlyingAmount,
+            item.market.reserveOf(entity.underlying).raw.toString(),
+            item.market.reserveOf(entity.redeem).raw.toString()
+          )
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
