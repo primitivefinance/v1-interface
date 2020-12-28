@@ -186,27 +186,38 @@ const AddLiquidity: React.FC = () => {
   // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
   const calculateOptionsAddedAsLiquidity = useCallback(() => {
+    const parsedAmount = parsedUnderlyingAmount
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof parsedUnderlyingAmount === 'undefined' ||
+      typeof parsedAmount === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     ) {
-      return parsedUnderlyingAmount || '0'
+      return parsedAmount || '0'
     }
     const inputAmount = new TokenAmount(
       entity.underlying,
-      parsedUnderlyingAmount.toString()
+      parsedAmount.toString()
     )
     return item.market.getOptionsAddedAsLiquidity(inputAmount).raw.toString()
-  }, [item.market, lp, lpTotalSupply, parsedUnderlyingAmount])
+  }, [
+    item.market,
+    lp,
+    lpTotalSupply,
+    parsedOptionAmount,
+    parsedUnderlyingAmount,
+  ])
 
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    const parsedAmount =
+      tab === 1
+        ? parsedOptionAmount
+        : BigNumber.from(calculateOptionsAddedAsLiquidity())
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      parsedUnderlyingAmount.toString() === '0'
+      parsedAmount.toString() === '0'
     )
       return 0
     const tSupply = new TokenAmount(
@@ -231,7 +242,7 @@ const AddLiquidity: React.FC = () => {
       tokenAmountB
     )
     const poolShare =
-      supply.gt(0) && parsedUnderlyingAmount.gt(0)
+      supply.gt(0) && parsedAmount.gt(0)
         ? lpMinted.divide(tSupply.add(lpMinted))
         : new Fraction('0')
 
@@ -239,6 +250,7 @@ const AddLiquidity: React.FC = () => {
   }, [
     item.market,
     lpTotalSupply,
+    parsedOptionAmount,
     parsedUnderlyingAmount,
     calculateOptionsAddedAsLiquidity,
   ])
