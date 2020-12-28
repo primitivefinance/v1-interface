@@ -7,6 +7,7 @@ const Logo: React.FC = () => {
 
 const StyledLogo = styled.div`
   font-weight: 700;
+  color: ${(props) => props.theme.color.white};
   letter-spacing: 2px;
 `
 

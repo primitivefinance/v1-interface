@@ -6,8 +6,6 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 
 import Layout from '@/components/Layout'
-import Spacer from '@/components/Spacer'
-import Button from '@/components/Button'
 import store from '@/state/index'
 import theme from '../theme'
 import TransactionUpdater from '@/state/transactions/updater'

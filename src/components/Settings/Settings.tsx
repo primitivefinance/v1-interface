@@ -106,12 +106,13 @@ const StyledSlip = styled.div`
 `
 
 const StyledTitle = styled.div`
-  font-weight: 700;
+  font-weight: 700 !important;
+  font-size: 18px !important;
 `
 
 const StyledSetting = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
-  font-size: 12px;
+  font-size: 12px !important;
   font-weight: 400;
 `
 

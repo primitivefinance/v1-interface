@@ -147,7 +147,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
                   </>
                 ) : (
                   <>
-                    <div style={{ minHeight: '.35em' }} />
+                    <div style={{ minHeight: '.45em' }} />
                     <StyledL
                       row
                       justifyContent="flex-start"

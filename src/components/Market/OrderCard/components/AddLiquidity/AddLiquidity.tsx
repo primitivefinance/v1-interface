@@ -142,19 +142,29 @@ const AddLiquidity: React.FC = () => {
   // FIX
 
   const handleSetMax = useCallback(() => {
-    underlyingTokenBalance && onOptionInput(underlyingTokenBalance)
-  }, [underlyingTokenBalance, onOptionInput])
+    onUnderInput(underlyingTokenBalance)
+  }, [underlyingTokenBalance, onUnderInput])
 
   const handleSubmitClick = useCallback(() => {
-    submitOrder(
-      library,
-      BigInt(parsedOptionAmount.toString()),
-      orderType,
-      BigInt(parsedUnderlyingAmount.toString())
-    )
+    if (tab === 1) {
+      submitOrder(
+        library,
+        BigInt(parsedOptionAmount.toString()),
+        orderType,
+        BigInt(parsedUnderlyingAmount.toString())
+      )
+    } else {
+      submitOrder(
+        library,
+        BigInt(parsedUnderlyingAmount.toString()),
+        orderType,
+        BigInt(parsedUnderlyingAmount.toString())
+      )
+    }
   }, [
     submitOrder,
     item,
+    tab,
     library,
     parsedOptionAmount,
     parsedUnderlyingAmount,
@@ -176,27 +186,45 @@ const AddLiquidity: React.FC = () => {
   // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
   const calculateOptionsAddedAsLiquidity = useCallback(() => {
+    const parsedAmount =
+      tab === 1
+        ? parsedOptionAmount
+        : Trade.getQuote(
+            parsedUnderlyingAmount,
+            item.market.reserveOf(entity.underlying).raw.toString(),
+            item.market.reserveOf(entity.redeem).raw.toString()
+          )
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof parsedOptionAmount === 'undefined' ||
+      typeof parsedAmount === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero()
     ) {
-      return parsedOptionAmount || '0'
+      return parsedAmount || '0'
     }
     const inputAmount = new TokenAmount(
       entity.underlying,
-      parsedOptionAmount.toString()
+      parsedAmount.toString()
     )
     return item.market.getOptionsAddedAsLiquidity(inputAmount).raw.toString()
-  }, [item.market, lp, lpTotalSupply, parsedOptionAmount])
+  }, [
+    item.market,
+    lp,
+    lpTotalSupply,
+    parsedOptionAmount,
+    parsedUnderlyingAmount,
+  ])
 
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    const parsedAmount =
+      tab === 1
+        ? parsedOptionAmount
+        : BigNumber.from(calculateOptionsAddedAsLiquidity())
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      parsedOptionAmount.toString() === '0'
+      parsedAmount.toString() === '0'
     )
       return 0
     const tSupply = new TokenAmount(
@@ -221,7 +249,7 @@ const AddLiquidity: React.FC = () => {
       tokenAmountB
     )
     const poolShare =
-      supply.gt(0) && parsedOptionAmount.gt(0)
+      supply.gt(0) && parsedAmount.gt(0)
         ? lpMinted.divide(tSupply.add(lpMinted))
         : new Fraction('0')
 
@@ -230,6 +258,7 @@ const AddLiquidity: React.FC = () => {
     item.market,
     lpTotalSupply,
     parsedOptionAmount,
+    parsedUnderlyingAmount,
     calculateOptionsAddedAsLiquidity,
   ])
 
@@ -353,7 +382,7 @@ const AddLiquidity: React.FC = () => {
               </Tooltip>
             </StyledTab>
             <StyledTab active={tab === 1}>
-              <Tooltip text={'Add both tokens from your balance to the pool.'}>
+              <Tooltip text={'Add both tokens from your balance to the pool'}>
                 Add Direct
               </Tooltip>
             </StyledTab>
@@ -362,8 +391,8 @@ const AddLiquidity: React.FC = () => {
             <PriceInput
               name="primary"
               title={`Underlying Input`}
-              quantity={optionValue}
-              onChange={handleOptionInput}
+              quantity={underlyingValue}
+              onChange={handleUnderInput}
               onClick={handleSetMax}
               balance={
                 new TokenAmount(
@@ -371,7 +400,9 @@ const AddLiquidity: React.FC = () => {
                   parseEther(underlyingTokenBalance).toString()
                 )
               }
-              valid={parseEther(underlyingTokenBalance).gt(parsedOptionAmount)}
+              valid={parseEther(underlyingTokenBalance).gte(
+                parsedUnderlyingAmount
+              )}
             />
           </StyledTabPanel>
           <StyledTabPanel>
@@ -441,7 +472,7 @@ const AddLiquidity: React.FC = () => {
           <LineItem
             label="Receive"
             data={calculatePoolShare()}
-            units={`% of the Pool.`}
+            units={`% of the Pool`}
           />
           <Spacer size="sm" />
           <IconButton
@@ -527,8 +558,8 @@ const AddLiquidity: React.FC = () => {
             <Button
               disabled={
                 !approved[0] ||
-                (hasLiquidity ? null : !parsedUnderlyingAmount?.gt(0)) ||
-                !parsedOptionAmount?.gt(0) ||
+                !parsedUnderlyingAmount?.gt(0) ||
+                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
                 isAboveGuardCap()
               }
               full
