@@ -98,25 +98,13 @@ const Market = ({ market, data }) => {
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
-      if (market === 'weth') {
-        router.push(`/markets/[...id]`, `/markets/eth/puts`, {
-          shallow: true,
-        })
-      } else {
-        router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
-          shallow: true,
-        })
-      }
+      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+        shallow: true,
+      })
     } else {
-      if (market === 'weth') {
-        router.push(`/markets/[...id]`, `/markets/eth/calls`, {
-          shallow: true,
-        })
-      } else {
-        router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
-          shallow: true,
-        })
-      }
+      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+        shallow: true,
+      })
     }
   }
   const handleFilterExpiry = (exp: number) => {

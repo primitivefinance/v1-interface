@@ -198,8 +198,8 @@ export class Option extends Token {
   public getTimeToExpiry(): number {
     const expiry: number = this.expiryValue * 1000
     const now: number = new Date().valueOf()
-    const secondsInYear = 60 * 60 * 24 * 365
-    const timeLeft: number = (expiry - now) / secondsInYear
+    const milisecondsInYear = 60 * 60 * 24 * 365 * 1000
+    const timeLeft: number = (expiry - now) / milisecondsInYear
     return timeLeft
   }
 }
