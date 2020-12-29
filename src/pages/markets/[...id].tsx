@@ -55,7 +55,10 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
-    if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
+    if (
+      MetaMaskOnboarding.isMetaMaskInstalled() &&
+      (!ethereum || !web3 || market === 'eth')
+    ) {
       clear(0)
       router.push('/markets')
     }
@@ -112,7 +115,7 @@ const Market = ({ market, data }) => {
     setExpiry(initExpiry)
   }, [chainId])
 
-  if (!active) {
+  if (!active || market === 'eth') {
     return (
       <>
         <Spacer />
