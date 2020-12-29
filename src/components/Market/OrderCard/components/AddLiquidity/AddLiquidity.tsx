@@ -146,17 +146,18 @@ const AddLiquidity: React.FC = () => {
   }, [underlyingTokenBalance, onUnderInput])
 
   const handleSubmitClick = useCallback(() => {
-    if (tab === 1) {
+    if (tab !== 1 && hasLiquidity) {
       submitOrder(
         library,
-        BigInt(parsedOptionAmount.toString()),
+        BigInt(parsedUnderlyingAmount.toString()),
+
         orderType,
         BigInt(parsedUnderlyingAmount.toString())
       )
     } else {
       submitOrder(
         library,
-        BigInt(parsedUnderlyingAmount.toString()),
+        BigInt(parsedOptionAmount.toString()),
         orderType,
         BigInt(parsedUnderlyingAmount.toString())
       )
@@ -187,13 +188,14 @@ const AddLiquidity: React.FC = () => {
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
   const calculateOptionsAddedAsLiquidity = useCallback(() => {
     const parsedAmount =
-      tab === 1
-        ? parsedOptionAmount
-        : Trade.getQuote(
+      tab !== 1 && hasLiquidity
+        ? Trade.getQuote(
             parsedUnderlyingAmount,
             item.market.reserveOf(entity.underlying).raw.toString(),
             item.market.reserveOf(entity.redeem).raw.toString()
           )
+        : parsedOptionAmount
+
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
