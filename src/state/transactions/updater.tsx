@@ -96,9 +96,6 @@ export default function Updater(): null {
                 } else {
                   market = summary.option.quote.asset.symbol
                 }
-                if (market === 'weth') {
-                  market = 'eth'
-                }
                 const link = `https://app.primitive.finance/markets/${market}/${type}/${summary.option.address}/${summary.type}`
 
                 const exp = formatExpiry(summary.option.expiry)
