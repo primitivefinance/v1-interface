@@ -240,7 +240,7 @@ export class Market extends Pair {
       // sell short, RDM -> UNDER
     } else if (orderType === Operation.CLOSE_SHORT) {
       parsedAmount = new TokenAmount(this.option.redeem, inputAmount.toString())
-      spot = this.spotShortToUnderlying
+      spot = this.spotUnderlyingToShort
       const spotSize = BigNumber.from(inputAmount)
         .mul(spot.raw.toString())
         .div(parseEther('1'))
