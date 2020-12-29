@@ -6,6 +6,8 @@ import { useOptions } from '@/state/options/hooks'
 import ClearIcon from '@material-ui/icons/Clear'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import LaunchIcon from '@material-ui/icons/Launch'
+
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
 import Spacer from '@/components/Spacer'
@@ -21,7 +23,11 @@ import OrderOptions from './components/OrderOptions'
 import ManageOptions from './components/ManageOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
-import { Operation } from '@/constants/index'
+import {
+  Operation,
+  ETHERSCAN_MAINNET,
+  ETHERSCAN_RINKEBY,
+} from '@/constants/index'
 import numeral from 'numeral'
 
 export interface OrderContentProps {
@@ -98,6 +104,10 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   const clear = () => {
     removeItem()
   }
+  const baseUrl =
+    item.market.liquidityToken.chainId === 4
+      ? ETHERSCAN_RINKEBY
+      : ETHERSCAN_MAINNET
   return (
     <>
       <Card border>
@@ -110,8 +120,13 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
-
-          <Spacer size="sm" />
+          <StyledARef
+            href={`${baseUrl}/${item.entity.address}`}
+            target="__blank"
+          >
+            <LaunchIcon style={{ fontSize: '14px' }} />
+          </StyledARef>
+          <Spacer />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>
               <ClearIcon />
@@ -164,10 +179,12 @@ const LoadingOverlay = styled.div`
   z-index: 400;
 `
 
-const StyledLogo = styled.img`
-  border-radius: 50%;
-  margin-left: 1.3em;
-  height: 36px;
+const StyledARef = styled.a`
+  color: ${(props) => props.theme.color.grey[400]};
+  text-decoration: none;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
 `
 
 export default OrderCard
