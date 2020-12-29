@@ -72,7 +72,7 @@ const AddLiquidity: React.FC = () => {
   // approval
   const addNotif = useAddNotif()
   // guard cap
-  const guardCap = useGuardCap(item.asset, orderType)
+  // const guardCap = useGuardCap(item.asset, orderType)
   // pair and option entities
   const entity = item.entity
   // has liquidity?
@@ -325,10 +325,10 @@ const AddLiquidity: React.FC = () => {
     parsedUnderlyingAmount,
   ])
 
-  const isAboveGuardCap = useCallback(() => {
+  /* const isAboveGuardCap = useCallback(() => {
     const inputValue = parsedUnderlyingAmount
     return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
-  }, [parsedUnderlyingAmount, guardCap])
+  }, [parsedUnderlyingAmount, guardCap]) */
 
   const handleApproval = useCallback(() => {
     onApprove(entity.underlying.address, spender)
@@ -523,12 +523,16 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <> </>
       )}
-      {isAboveGuardCap() ? (
+      {(
+        item.entity.isCall
+          ? parseFloat(underlyingValue) >= 1000
+          : parseFloat(underlyingValue) >= 100000
+      ) ? (
         <>
           <div style={{ marginTop: '-.5em' }} />
           <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of
-            $150,000
+            This amount of underlying tokens is above our guardrail cap of 1,000
+            for calls or 100,000 for puts
           </WarningLabel>
         </>
       ) : (
@@ -562,12 +566,14 @@ const AddLiquidity: React.FC = () => {
                 !approved[0] ||
                 !parsedUnderlyingAmount?.gt(0) ||
                 (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
-                isAboveGuardCap()
+                (item.entity.isCall
+                  ? parseFloat(underlyingValue) >= 1000
+                  : parseFloat(underlyingValue) >= 100000)
               }
               full
               size="sm"
               onClick={handleSubmitClick}
-              text={isAboveGuardCap() ? 'Above Cap' : 'Confirm Transaction'}
+              text={'Confirm Transaction'}
             />
           </>
         )}
