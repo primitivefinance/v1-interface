@@ -86,16 +86,26 @@ export class Market extends Pair {
   }
 
   /**
-   * @dev Spot open premium is: (1 - ( Strike Price * Underlying Reserve / Short Reserve ))
+   * @dev Spot open premium for calls is: (1 - ( Strike Price * Underlying Reserve / Short Reserve ))
+   *      Spot premium for puts is: (1 - ( Underlying Reserve / ( Short Reserve * Strike Price ))
    */
   public get spotOpenPremium(): TokenAmount {
     if (!this.hasLiquidity) {
       return new TokenAmount(this.option.underlying, '0')
     }
     const one = parseEther('1')
-    const spot = parseEther(this.option.strikePrice)
-      .mul(this.reserveOf(this.option.underlying).raw.toString())
-      .div(this.reserveOf(this.option.redeem).raw.toString())
+    let spot
+    if (this.option.isCall) {
+      spot = parseEther(this.option.strikePrice)
+        .mul(this.reserveOf(this.option.underlying).raw.toString())
+        .div(this.reserveOf(this.option.redeem).raw.toString())
+    } else {
+      spot = parseEther('1')
+        .mul(this.reserveOf(this.option.underlying).raw.toString())
+        .div(this.reserveOf(this.option.redeem).raw.toString())
+        .mul(parseEther('1'))
+        .div(parseEther(this.option.strikePrice))
+    }
     const spotOpenPremium = one.sub(spot).gt(0) ? one.sub(spot) : '0'
     return new TokenAmount(this.option.underlying, spotOpenPremium.toString())
   }

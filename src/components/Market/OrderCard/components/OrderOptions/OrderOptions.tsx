@@ -194,7 +194,7 @@ const OrderOptions: React.FC = () => {
             </>
           ) : null}
         </StyledOrder>
-        {/* <StyledOrder
+        <StyledOrder
           onClick={() =>
             setOrder({ long: false, short: !order.short, lp: false })
           }
@@ -238,7 +238,7 @@ const OrderOptions: React.FC = () => {
               </Box>
             </>
           ) : null}
-        </StyledOrder> */}
+        </StyledOrder>
         <StyledOrder
           onClick={() => setOrder({ long: false, short: false, lp: !order.lp })}
         >
