@@ -194,7 +194,7 @@ const OrderOptions: React.FC = () => {
             </>
           ) : null}
         </StyledOrder>
-        {/* <StyledOrder
+        <StyledOrder
           onClick={() =>
             setOrder({ long: false, short: !order.short, lp: false })
           }
@@ -206,6 +206,13 @@ const OrderOptions: React.FC = () => {
                 data={option.short ? formatEther(option.short).toString() : '0'}
                 units={''}
               />
+              <Spacer size="sm" />
+              <StyledARef
+                href={`${baseUrl}/${item.entity.redeem.address}`}
+                target="__blank"
+              >
+                <LaunchIcon style={{ fontSize: '14px' }} />
+              </StyledARef>
               <Spacer size="sm" />
               {!order.short ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </Box>
@@ -238,7 +245,7 @@ const OrderOptions: React.FC = () => {
               </Box>
             </>
           ) : null}
-        </StyledOrder> */}
+        </StyledOrder>
         <StyledOrder
           onClick={() => setOrder({ long: false, short: false, lp: !order.lp })}
         >

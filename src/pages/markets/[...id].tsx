@@ -55,7 +55,10 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
-    if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
+    if (
+      MetaMaskOnboarding.isMetaMaskInstalled() &&
+      (!ethereum || !web3 || market === 'eth')
+    ) {
       clear(0)
       router.push('/markets')
     }
@@ -95,25 +98,13 @@ const Market = ({ market, data }) => {
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
-      if (market === 'weth') {
-        router.push(`/markets/[...id]`, `/markets/eth/puts`, {
-          shallow: true,
-        })
-      } else {
-        router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
-          shallow: true,
-        })
-      }
+      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+        shallow: true,
+      })
     } else {
-      if (market === 'weth') {
-        router.push(`/markets/[...id]`, `/markets/eth/calls`, {
-          shallow: true,
-        })
-      } else {
-        router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
-          shallow: true,
-        })
-      }
+      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+        shallow: true,
+      })
     }
   }
   const handleFilterExpiry = (exp: number) => {
@@ -124,7 +115,7 @@ const Market = ({ market, data }) => {
     setExpiry(initExpiry)
   }, [chainId])
 
-  if (!active) {
+  if (!active || market === 'eth') {
     return (
       <>
         <Spacer />

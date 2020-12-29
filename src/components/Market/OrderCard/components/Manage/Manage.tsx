@@ -344,7 +344,7 @@ const Manage: React.FC = () => {
         ) : (
           <>
             {orderType === Operation.EXERCISE ||
-            orderType === Operation.REDEEM ? (
+            orderType === Operation.CLOSE ? (
               <>
                 {approved[0] ? (
                   <> </>

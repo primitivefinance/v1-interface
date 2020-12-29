@@ -72,21 +72,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     const timer = setInterval(
       () => {
         if (library) {
-          if (asset === 'eth') {
-            updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
-          } else {
-            updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-          }
+          updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
         }
       },
       30000 // 30sec
     )
     if (library) {
-      if (asset === 'eth') {
-        updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
-      } else {
-        updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-      }
+      updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
     }
     return () => {
       clearInterval(timer)
@@ -199,19 +191,14 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ? [formatEther(quantityLong), numeral(slippage).format('0.00')]
           : [formatEther(quantityLong), '0']
 
-      const reserve0Units =
-        option.token0 === option.entity.underlying.address
-          ? asset.toUpperCase()
-          : 'SHORT'
+      const tableReserve0: string = formatEtherBalance(
+        option.market.reserveOf(option.entity.underlying).raw.toString()
+      ).toString()
+      const tableReserve1: string = formatEtherBalance(
+        option.market.reserveOf(option.entity.redeem).raw.toString()
+      ).toString()
 
-      const tableReserve0: string =
-        reserve0Units === asset.toUpperCase()
-          ? formatEtherBalance(option.market.reserve0.raw.toString()).toString()
-          : formatEtherBalance(option.market.reserve1.raw.toString()).toString()
-      const tableReserve1: string =
-        reserve0Units === asset.toUpperCase()
-          ? formatEtherBalance(option.market.reserve1.raw.toString()).toString()
-          : formatEtherBalance(option.market.reserve0.raw.toString()).toString()
+      // tableReserve1 should always be short option token
       const tableReserves: string[] = [tableReserve0, tableReserve1]
       const tableAddress: string = formatAddress(option.entity.address)
 

@@ -12,7 +12,7 @@ const formatEtherBalance = (
   }
   return parseFloat(formatEther(tokenBalance)).toLocaleString('en', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 4,
   })
 }
 
