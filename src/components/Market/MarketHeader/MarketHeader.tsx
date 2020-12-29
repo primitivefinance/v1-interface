@@ -136,7 +136,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
               {!options.loading ? (
                 formatEtherBalance(options.reservesTotal[isCall]) !== '0.00' ? (
                   <>
-                    <div style={{ minHeight: '.4em' }} />
+                    <div style={{ minHeight: '.20em' }} />
 
                     {`${numeral(
                       formatEtherBalance(options.reservesTotal[isCall])
@@ -147,7 +147,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
                   </>
                 ) : (
                   <>
-                    <div style={{ minHeight: '.45em' }} />
+                    <div style={{ minHeight: '.38em' }} />
                     <StyledL
                       row
                       justifyContent="flex-start"

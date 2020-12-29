@@ -39,7 +39,7 @@ export const WALLETS: { [key: string]: Wallet } = {
 
 export const NAME_FOR_MARKET: { [key: string]: string } = {
   yfi: 'Yearn',
-  eth: 'Wrapped ETH',
+  weth: 'Wrapped ETH',
   sushi: 'Sushi',
   uni: 'Uniswap',
   comp: 'Compound',
@@ -51,7 +51,7 @@ export const NAME_FOR_MARKET: { [key: string]: string } = {
 
 export const SORT_FOR_MARKET: { [key: string]: number } = {
   yfi: 0,
-  eth: 1,
+  weth: 1,
   sushi: 2,
   comp: 3,
   uni: 4,
@@ -63,7 +63,7 @@ export const SORT_FOR_MARKET: { [key: string]: number } = {
 
 export const COINGECKO_ID_FOR_MARKET: { [key: string]: string } = {
   yfi: 'yearn-finance',
-  eth: 'weth',
+  weth: 'weth',
   sushi: 'sushi',
   comp: 'compound-governance-token',
   uni: 'uniswap',
@@ -75,7 +75,7 @@ export const COINGECKO_ID_FOR_MARKET: { [key: string]: string } = {
 
 export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
   yfi: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
-  eth: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  weth: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   sushi: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
   comp: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
   uni: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
@@ -87,7 +87,7 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
 
 export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
   yfi: false,
-  eth: true,
+  weth: true,
   sushi: false,
   comp: false,
   uni: false,

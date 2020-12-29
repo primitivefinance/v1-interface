@@ -140,18 +140,12 @@ const OrderOptions: React.FC = () => {
           {!positions.loading ? (
             <Box row alignItems="center" justifyContent="space-between">
               <LineItem
-                label={'Option'}
+                label={'LONG'}
                 data={option.long ? formatEther(option.long).toString() : '0'}
                 units={''}
               />
               <Spacer size="sm" />
-              <StyledARef
-                href={`${baseUrl}/${item.entity.address}`}
-                target="__blank"
-              >
-                <LaunchIcon style={{ fontSize: '14px' }} />
-              </StyledARef>
-              <Spacer size="sm" />
+
               {!order.long ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </Box>
           ) : (
@@ -194,7 +188,7 @@ const OrderOptions: React.FC = () => {
             </>
           ) : null}
         </StyledOrder>
-        {/* <StyledOrder
+        <StyledOrder
           onClick={() =>
             setOrder({ long: false, short: !order.short, lp: false })
           }
@@ -238,7 +232,7 @@ const OrderOptions: React.FC = () => {
               </Box>
             </>
           ) : null}
-        </StyledOrder> */}
+        </StyledOrder>
         <StyledOrder
           onClick={() => setOrder({ long: false, short: false, lp: !order.lp })}
         >

@@ -72,21 +72,13 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     const timer = setInterval(
       () => {
         if (library) {
-          if (asset === 'eth') {
-            updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
-          } else {
-            updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-          }
+          updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
         }
       },
       30000 // 30sec
     )
     if (library) {
-      if (asset === 'eth') {
-        updateOptions('WETH', ADDRESS_FOR_MARKET[asset])
-      } else {
-        updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-      }
+      updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
     }
     return () => {
       clearInterval(timer)
