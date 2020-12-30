@@ -88,6 +88,16 @@ export const Wallet = () => {
       }
     }
   }, [library, account, chainId])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!triedToEagerConnect && !active && !account) {
+        router.reload()
+      }
+    }, 5000)
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [triedToEagerConnect, active, account])
 
   if (error) {
     return (
