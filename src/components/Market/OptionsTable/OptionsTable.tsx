@@ -232,16 +232,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   />
                 )
               })}
-              <NewMarketRow
-                onClick={() => {
-                  addNotif(
-                    1,
-                    'Coming Soon',
-                    'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
-                    ''
-                  )
-                }}
-              />
             </ScrollBody>
           )}
         </LitContainer>
