@@ -49,14 +49,12 @@ export interface OptionsTableProps {
 
 const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { callActive, asset, optionExp } = props
-  const updateOptions = useUpdateOptions()
   const updateItem = useUpdateItem()
   const options = useOptions()
   const addNotif = useAddNotif()
   const { library, chainId } = useWeb3React()
   const type = callActive ? 'calls' : 'puts'
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
-
   const [greeks, setGreeks] = useState(false)
   const getMarketDetails = useCallback(() => {
     const key: string = COINGECKO_ID_FOR_MARKET[asset]
@@ -67,23 +65,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   const { data } = useSWR(
     `https://api.coingecko.com/api/v3/simple/price?ids=${key}&vs_currencies=usd&include_24hr_change=true`
   )
-
-  useEffect(() => {
-    const timer = setInterval(
-      () => {
-        if (library) {
-          updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-        }
-      },
-      30000 // 30sec
-    )
-    if (library) {
-      updateOptions(asset.toUpperCase(), ADDRESS_FOR_MARKET[asset])
-    }
-    return () => {
-      clearInterval(timer)
-    }
-  }, [library, asset, updateOptions, options])
 
   const calculatePremiumInDollars = useCallback(
     (premiumWei) => {

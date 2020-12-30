@@ -42,6 +42,7 @@ export const useUpdateOptions = (): ((
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
+      if (!provider) return
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
