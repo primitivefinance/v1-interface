@@ -61,7 +61,7 @@ export default function Updater(): null {
   useEffect(() => {
     const timer = setInterval(
       () => {
-        if (library) {
+        if (library && options.calls[0].asset) {
           updateOptions(
             options.calls[0].asset.toUpperCase(),
             ADDRESS_FOR_MARKET[options.calls[0].asset]
