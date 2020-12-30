@@ -27,7 +27,7 @@ import {
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
 import { useSetLoading } from '@/state/positions/hooks'
-import { useOptions } from '@/state/options/hooks'
+import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
-  const { chainId, active, account } = useActiveWeb3React()
+  const { chainId, active, account, library } = useActiveWeb3React()
   const initExpiry = chainId === 1 ? 1610107199 : 1609286400
   const [expiry, setExpiry] = useState(initExpiry)
   const [id, storeId] = useState(chainId)
@@ -50,6 +50,7 @@ const Market = ({ market, data }) => {
   const router = useRouter()
   const clear = useClearNotif()
   const options = useOptions()
+  const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
 
   useEffect(() => {
@@ -114,7 +115,9 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
-
+  useEffect(() => {
+    updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
+  }, [])
   if (!active || market === 'eth') {
     return (
       <>
