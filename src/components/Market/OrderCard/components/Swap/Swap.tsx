@@ -500,7 +500,7 @@ const Swap: React.FC = () => {
           </StyledSummary>
         ) : null}
         <Spacer size="sm" />
-        {isAboveGuardCap() && !error ? (
+        {/*isAboveGuardCap() && !error ? (
           <>
             <div style={{ marginTop: '-.5em' }} />
             <WarningLabel>
@@ -509,7 +509,7 @@ const Swap: React.FC = () => {
           </>
         ) : (
           <></>
-        )}
+        )*/}
         {!isBelowSlippage() && !error ? (
           <>
             <div style={{ marginTop: '-.5em' }} />
@@ -562,12 +562,7 @@ const Swap: React.FC = () => {
                   )}
                   {approved[0] && approved[1] ? (
                     <Button
-                      disabled={
-                        !parsedAmount?.gt(0) ||
-                        isAboveGuardCap() ||
-                        error ||
-                        !hasLiquidity
-                      }
+                      disabled={!parsedAmount?.gt(0) || error || !hasLiquidity}
                       full
                       size="sm"
                       onClick={handleSubmitClick}
@@ -596,7 +591,6 @@ const Swap: React.FC = () => {
                     disabled={
                       !approved[0] ||
                       !parsedAmount?.gt(0) ||
-                      isAboveGuardCap() ||
                       error ||
                       !hasLiquidity
                     }

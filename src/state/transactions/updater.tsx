@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '@/hooks/user/index'
@@ -10,13 +10,9 @@ import { useUpdatePositions } from '@/state/positions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
-import { Operation } from '@/constants/index'
-import { useReserves } from '@/hooks/data/useReserves'
+import { Operation, ADDRESS_FOR_MARKET } from '@/constants/index'
 
 import numeral from 'numeral'
-import Link from 'next/link'
-import { Token, TokenAmount } from '@uniswap/sdk'
-import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -43,6 +39,7 @@ export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
   const router = useRouter()
   const options = useOptions()
+  const updateOptions = useUpdateOptions()
   const updatePositions = useUpdatePositions()
   const addNotif = useAddNotif()
   const { item, orderType, loading, approved } = useItem()
@@ -54,16 +51,37 @@ export default function Updater(): null {
     (state) => state.transactions
   )
   const transactions = chainId ? state[chainId] ?? {} : {}
+  const [first, setFirst] = useState(true)
 
   const reloadItem = (order: Operation) => {
     updateItem(item, Operation.NONE)
     updateItem(item, order)
   }
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => {
+        if (library) {
+          updateOptions(
+            options.calls[0].asset.toUpperCase(),
+            ADDRESS_FOR_MARKET[options.calls[0].asset]
+          )
+          updatePositions(options.calls.concat(options.puts))
+        }
+      },
+      10000 // 10sec
+    )
+    if (library && first && !options.loading) {
+      updatePositions(options.calls.concat(options.puts))
+      setFirst(false)
+    }
+    return () => {
+      clearInterval(timer)
+    }
+  }, [library, updatePositions, updateOptions, options])
+
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return
-    if (!options.loading) {
-      updatePositions(options.calls.concat(options.puts))
-    }
     Object.keys(transactions)
       .filter((hash) => shouldCheck(lastBlockNumber, transactions[hash]))
       .forEach((hash) => {

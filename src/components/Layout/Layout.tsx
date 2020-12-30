@@ -4,10 +4,11 @@ import { useRouter } from 'next/router'
 
 import Banner from '@/components/Banner'
 import Footer from '@/components/Footer'
+import Loader from '@/components/Loader'
 import TopBar from '@/components/TopBar'
 import SplashScreen from '@/components/SplashScreen'
 import { useResetNotif } from '@/state/notifs/hooks'
-
+import { useRemoveItem } from '@/state/order/hooks'
 interface PageProps {
   children: any
   full?: boolean
@@ -26,6 +27,10 @@ const Layout: React.FC<PageProps> = (props) => {
 }
 
 const StyledPage = styled.div``
+const StyledLoading = styled.div`
+  margin: 0 auto;
+  padding-top: 5em;
+`
 const StyledLink = styled.a`
   text-decoration: none;
   color: yellow;

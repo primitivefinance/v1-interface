@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Router from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -64,35 +63,6 @@ const Updater = () => {
 }
 
 export default function App({ Component, pageProps }) {
-  const { error, active } = useWeb3React()
-  const [loading, setLoading] = useState(null)
-  const [timeoutId, setTimeoutId] = useState(null)
-  const onDone = () => {
-    setLoading(false)
-    setTimeoutId(
-      setTimeout(() => {
-        setTimeoutId(null)
-        setLoading(null)
-      }, 250)
-    )
-  }
-  const onLoad = () => {
-    setLoading(true)
-  }
-  useEffect(
-    () => () => {
-      if (timeoutId) clearTimeout(timeoutId)
-    },
-    [timeoutId]
-  )
-  useEffect(() => {
-    Router.events.on('routeChangeStart', onLoad)
-    Router.events.on('routeChangeComplete', onDone)
-    return () => {
-      Router.events.off('routeChangeStart', onLoad)
-      Router.events.off('routeChangeComplete', onDone)
-    }
-  }, [])
   return (
     <>
       <GlobalStyle />

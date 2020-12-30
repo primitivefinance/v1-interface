@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -10,7 +10,16 @@ import { useClearNotif, useNotifs } from '@/state/notifs/hooks'
 
 const Notifs: React.FC = () => {
   const notifs = useNotifs()
+  const clear = useClearNotif()
 
+  useEffect(() => {
+    setTimeout(
+      () => {
+        clear(0)
+      },
+      30000 // 30 sec
+    )
+  }, [])
   if (notifs[0] && notifs[1] && notifs[2]) {
     return null
   }
