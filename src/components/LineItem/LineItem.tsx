@@ -2,18 +2,26 @@ import React from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
+import Loader from '@/components/Loader'
 import Tooltip from '@/components/Tooltip'
 
 import formatBalance from '@/utils/formatBalance'
 
 export interface LineItemProps {
   label: React.ReactNode
-  data: string | number | any
+  data?: string | number | any
+  loading?: boolean
   units?: any
   tip?: any
 }
 
-const LineItem: React.FC<LineItemProps> = ({ label, data, units, tip }) => {
+const LineItem: React.FC<LineItemProps> = ({
+  label,
+  data,
+  loading,
+  units,
+  tip,
+}) => {
   const sign = units
     ? units !== ''
       ? units.toString().charAt(0) === '-'
@@ -33,27 +41,33 @@ const LineItem: React.FC<LineItemProps> = ({ label, data, units, tip }) => {
   return (
     <StyledLineItem row justifyContent="space-between" alignItems="center">
       <StyledLabel>{label}</StyledLabel>
-      <span>
-        {tip ? (
-          <Tooltip text={tip}>
-            {sign}
-            {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-            <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
-          </Tooltip>
-        ) : (
-          <>
-            {sign}
-            {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-            <StyledSym>
-              {currency !== '$'
-                ? currency === 'DAI STABLECOIN'
-                  ? 'DAI'
-                  : currency
-                : null}
-            </StyledSym>
-          </>
-        )}
-      </span>
+      {loading ? (
+        <span>
+          <Loader size="sm" />
+        </span>
+      ) : (
+        <span>
+          {tip ? (
+            <Tooltip text={tip}>
+              {sign}
+              {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+              <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
+            </Tooltip>
+          ) : (
+            <>
+              {sign}
+              {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+              <StyledSym>
+                {currency !== '$'
+                  ? currency === 'DAI STABLECOIN'
+                    ? 'DAI'
+                    : currency
+                  : null}
+              </StyledSym>
+            </>
+          )}
+        </span>
+      )}
     </StyledLineItem>
   )
 }

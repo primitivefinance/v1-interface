@@ -43,9 +43,9 @@ export const Settings = () => {
   if (open) {
     return (
       <>
-        <IconButton>
-          <SettingsIcon style={{ color: 'black' }} />
-        </IconButton>
+        <StyledIconButton>
+          <SettingsIcon />
+        </StyledIconButton>
         <StyledModal ref={nodeRef}>
           <StyledContent>
             <StyledTitle>Settings</StyledTitle>
@@ -96,6 +96,12 @@ export const Settings = () => {
   )
 }
 
+const StyledIconButton = styled(IconButton)`
+  color: black;
+  &: hover {
+    color: white;
+  }
+`
 const StyledSlip = styled.div`
   margin: 0 0.4em 0 0;
   color: ${(props) => props.theme.color.white} !important;

@@ -56,12 +56,13 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
-    if (
-      MetaMaskOnboarding.isMetaMaskInstalled() &&
-      (!ethereum || !web3 || market === 'eth')
-    ) {
+    if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.push('/markets')
+    }
+
+    if (market === 'eth') {
+      router.push('/markets/weth/calls')
     }
     if (ethereum) {
       const handleChainChanged = () => {
