@@ -100,7 +100,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
 }
 
 const StyledCards = styled.div`
-  width: 900px;
+  max-width: 900px !important;
 `
 
 const StyledLoadingWrapper = styled.div`
