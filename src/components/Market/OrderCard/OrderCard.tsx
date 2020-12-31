@@ -117,12 +117,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
               '$0.00a'
             )} ${month}/${date}/${year}`}
           </StyledTitle>
-          <StyledARef
-            href={`${baseUrl}/${item.entity.address}`}
-            target="__blank"
-          >
-            <LaunchIcon style={{ fontSize: '14px' }} />
-          </StyledARef>
+
           <Spacer />
           <CustomButton>
             <Button variant="transparent" size="sm" onClick={() => clear()}>

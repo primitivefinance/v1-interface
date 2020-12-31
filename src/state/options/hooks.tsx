@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes } from './actions'
@@ -7,7 +8,6 @@ import { OptionsState } from './reducer'
 
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
-import { formatEther, parseEther } from 'ethers/lib/utils'
 
 import { Protocol } from '@/lib/protocol'
 import { Trade, Option, Market } from '@/lib/entities'
@@ -31,7 +31,6 @@ export const useUpdateOptions = (): ((
   const addNotif = useAddNotif()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-
   if (!active) {
     return useCallback(() => {
       router.push('/markets')
@@ -43,6 +42,7 @@ export const useUpdateOptions = (): ((
       const puts: OptionsAttributes[] = []
       const provider = library
       if (!provider) return
+
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
@@ -215,9 +215,9 @@ export const useUpdateOptions = (): ((
               }
             })
         })
-        .catch((error) =>
+        .catch((error) => {
           addNotif(0, 'Option Multicall Error', error.message, '')
-        )
+        })
     },
     [dispatch, library, chainId, updateOptions, addNotif]
   )
