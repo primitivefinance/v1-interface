@@ -16,9 +16,6 @@ import { usePositions } from '@/state/positions/hooks'
 import { useItem } from '@/state/order/hooks'
 
 import { Operation, STABLECOINS } from '@/constants/index'
-import numeral from 'numeral'
-import formatEtherBalance from '@/utils/formatEtherBalance'
-import formatBalance from '@/utils/formatBalance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { formatEther } from 'ethers/lib/utils'
@@ -93,8 +90,6 @@ const BalanceCard: React.FC = () => {
   return (
     <>
       <CustomCard>
-        <LineItem label={`DAI Balance`} data={daiBal} />
-        <Spacer size="sm" />
         <LineItem
           label={`${balance.token.symbol} Balance`}
           data={formatEther(balance.raw.toString())}
@@ -110,6 +105,8 @@ const BalanceCard: React.FC = () => {
             />
           </>
         ) : null}
+        <Spacer size="sm" />
+        <LineItem label={`DAI Balance`} data={daiBal} />
       </CustomCard>
     </>
   )

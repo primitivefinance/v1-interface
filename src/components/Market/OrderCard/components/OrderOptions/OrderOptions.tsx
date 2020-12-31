@@ -155,7 +155,11 @@ const OrderOptions: React.FC = () => {
               {!order.long ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </Box>
           ) : (
-            <Loader size="sm" />
+            <Box row alignItems="center" justifyContent="space-between">
+              <LineItem label={'LONG'} loading={true} />
+              <Spacer size="sm" />
+              {!order.long ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            </Box>
           )}
           {order.long ? (
             <>
@@ -217,7 +221,11 @@ const OrderOptions: React.FC = () => {
               {!order.short ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </Box>
           ) : (
-            <Loader size="sm" />
+            <Box row alignItems="center" justifyContent="space-between">
+              <LineItem label={'SHORT'} loading={true} />
+              <Spacer size="sm" />
+              {!order.short ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            </Box>
           )}
           {order.short ? (
             <>
