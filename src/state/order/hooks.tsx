@@ -227,8 +227,8 @@ export const useUpdateItem = (): ((
               tokenAddress = item.entity.underlying.address
               break
             case Operation.WRITE:
-              tokenAddress = item.entity.address
-              secondaryAddress = item.entity.underlying.address
+              tokenAddress = item.entity.underlying.address
+              secondaryAddress = item.entity.address
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
