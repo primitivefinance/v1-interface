@@ -122,8 +122,8 @@ const Swap: React.FC = () => {
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
       }
-      tokenAddress = entity.address
-      secondaryAddress = entity.underlying.address
+      tokenAddress = entity.underlying.address
+      secondaryAddress = entity.address
       balance = entity.underlying
       break
     case Operation.CLOSE_LONG:
@@ -500,7 +500,7 @@ const Swap: React.FC = () => {
           </StyledSummary>
         ) : null}
         <Spacer size="sm" />
-        {/*isAboveGuardCap() && !error ? (
+        {/* {isAboveGuardCap() && !error ? (
           <>
             <div style={{ marginTop: '-.5em' }} />
             <WarningLabel>
@@ -509,7 +509,7 @@ const Swap: React.FC = () => {
           </>
         ) : (
           <></>
-        )*/}
+        )} */}
         {!isBelowSlippage() && !error ? (
           <>
             <div style={{ marginTop: '-.5em' }} />
