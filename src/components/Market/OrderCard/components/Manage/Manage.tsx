@@ -291,11 +291,15 @@ const Manage: React.FC = () => {
         </>
       ) : orderType === Operation.CLOSE ? (
         <>
-          <LineItem
-            label={'Burn'}
-            data={calculateCosts().long}
-            units={`- LONG`}
-          />
+          {item.entity.getTimeToExpiry() === 0 ? (
+            <LineItem
+              label={'Burn'}
+              data={calculateCosts().long}
+              units={`- LONG`}
+            />
+          ) : (
+            <> </>
+          )}
           <LineItem
             label={'Burn'}
             data={calculateCosts().short}
