@@ -291,7 +291,7 @@ const Manage: React.FC = () => {
         </>
       ) : orderType === Operation.CLOSE ? (
         <>
-          {item.entity.getTimeToExpiry() === 0 ? (
+          {item.entity.getTimeToExpiry() <= 0 ? (
             <LineItem
               label={'Burn'}
               data={calculateCosts().long}
@@ -373,25 +373,26 @@ const Manage: React.FC = () => {
                     />
                   </>
                 )}
-                <Button
-                  disabled={
-                    !approved[0] ||
-                    !parsedAmount.gt(0) ||
-                    loading ||
-                    !hasEnoughStrikeTokens()
-                  }
-                  full
-                  size="sm"
-                  onClick={handleSubmitClick}
-                  isLoading={loading}
-                  text={`${
-                    !hasEnoughStrikeTokens()
-                      ? 'Insufficient Strike Tokens to Redeem'
-                      : 'Confirm Transaction'
-                  }`}
-                />
               </>
             )}
+
+            <Button
+              disabled={
+                !approved[0] ||
+                !parsedAmount.gt(0) ||
+                loading ||
+                !hasEnoughStrikeTokens()
+              }
+              full
+              size="sm"
+              onClick={handleSubmitClick}
+              isLoading={loading}
+              text={`${
+                !hasEnoughStrikeTokens()
+                  ? 'Insufficient Strike Tokens to Redeem'
+                  : 'Confirm Transaction'
+              }`}
+            />
           </>
         )}
       </Box>
