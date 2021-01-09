@@ -48,7 +48,8 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
               {ACTIVE_EXPIRIES.map((expiryValue, i) => {
                 return (
                   <StyledOption key={i} value={expiryValue}>
-                    Expiring {formatExpiry(expiryValue).utc}
+                    {expiryValue >= Date.now() / 1000 ? `Expiring` : 'Expired'}{' '}
+                    {formatExpiry(expiryValue).utc}
                   </StyledOption>
                 )
               })}

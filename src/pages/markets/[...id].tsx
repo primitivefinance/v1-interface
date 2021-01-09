@@ -9,7 +9,11 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
 
-import { ADDRESS_FOR_MARKET, Operation } from '@/constants/index'
+import {
+  ADDRESS_FOR_MARKET,
+  Operation,
+  ACTIVE_EXPIRIES,
+} from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
@@ -43,7 +47,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 const Market = ({ market, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const { chainId, active, account, library } = useActiveWeb3React()
-  const initExpiry = chainId === 1 ? 1610107199 : 1609286400
+  const initExpiry = ACTIVE_EXPIRIES[ACTIVE_EXPIRIES.length - 1]
   const [expiry, setExpiry] = useState(initExpiry)
   const [id, storeId] = useState(chainId)
   const [changing, setChanging] = useState(false)
