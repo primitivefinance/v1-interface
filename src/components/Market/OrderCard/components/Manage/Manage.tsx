@@ -12,8 +12,6 @@ import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import { Operation, TRADER } from '@/constants/index'
 
-import useGuardCap from '@/hooks/transactions/useGuardCap'
-
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
@@ -52,8 +50,6 @@ const Manage: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
-  // guard cap
-  const guardCap = useGuardCap(item.asset, orderType)
 
   // pair and option entities
   const entity = item.entity
@@ -183,11 +179,6 @@ const Manage: React.FC = () => {
     return { long, short, underlying, strike }
   }, [item, orderType, parsedAmount])
 
-  const isAboveGuardCap = useCallback(() => {
-    const inputValue = parsedAmount
-    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
-  }, [parsedAmount, guardCap])
-
   const hasEnoughStrikeTokens = useCallback(() => {
     const inputValue = parsedAmount
     if (orderType === Operation.REDEEM) {
@@ -300,11 +291,15 @@ const Manage: React.FC = () => {
         </>
       ) : orderType === Operation.CLOSE ? (
         <>
-          <LineItem
-            label={'Burn'}
-            data={calculateCosts().long}
-            units={`- LONG`}
-          />
+          {item.entity.getTimeToExpiry() === 0 ? (
+            <LineItem
+              label={'Burn'}
+              data={calculateCosts().long}
+              units={`- LONG`}
+            />
+          ) : (
+            <> </>
+          )}
           <LineItem
             label={'Burn'}
             data={calculateCosts().short}
@@ -320,19 +315,6 @@ const Manage: React.FC = () => {
         <></>
       )}
       <Spacer size="sm" />
-
-      {isAboveGuardCap() ? (
-        <>
-          <div style={{ marginTop: '-.5em' }} />
-          <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of
-            $10,000
-          </WarningLabel>
-          <Spacer size="sm" />
-        </>
-      ) : (
-        <></>
-      )}
 
       <Box row justifyContent="flex-start">
         {loading ? (
@@ -396,7 +378,6 @@ const Manage: React.FC = () => {
                     !approved[0] ||
                     !parsedAmount.gt(0) ||
                     loading ||
-                    isAboveGuardCap() ||
                     !hasEnoughStrikeTokens()
                   }
                   full
