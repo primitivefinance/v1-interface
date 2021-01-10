@@ -86,7 +86,7 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
 }
 
 export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
-  yfi: false,
+  yfi: true,
   weth: true,
   sushi: false,
   comp: false,
@@ -176,6 +176,8 @@ export const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/address'
 export const DEFAULT_ALLOWANCE = parseEther('10000000')
 
 export const WEI_ADJ = 1000000000000000000
+
+export const ACTIVE_EXPIRIES = [1610107199, 1614340799, 1611907200, 1619769600]
 
 export enum Operation {
   MINT,

@@ -89,13 +89,13 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       >
         <TableCell>
           <span>
-            {numeral(strike).format('0.00a')} <Units>DAI</Units>
+            {numeral(strike).format('0.00')} <Units>DAI</Units>
           </span>
         </TableCell>
         <TableCell>
           {!isZero(parseEther(premium)) ? (
             <span>
-              {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
+              {numeral(breakeven).format('0.00')} <Units>DAI</Units>
             </span>
           ) : (
             <>{`-`}</>

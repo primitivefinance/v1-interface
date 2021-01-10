@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { updatePositions, setLoading } from './actions'
+import { updatePositions, setLoading, clearPositions } from './actions'
 
 import { TokenAmount } from '@uniswap/sdk'
 import { BigNumberish } from 'ethers'
@@ -44,6 +44,9 @@ export default createReducer(initialState, (builder) =>
       }
     )
     .addCase(setLoading, () => {
+      return initialState
+    })
+    .addCase(clearPositions, () => {
       return initialState
     })
 )

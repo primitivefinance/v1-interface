@@ -7,6 +7,7 @@ import Label from '@/components/Label'
 import ToggleButton from '@/components/ToggleButton'
 import Spacer from '@/components/Spacer'
 import formatExpiry from '@/utils/formatExpiry'
+import { ACTIVE_EXPIRIES } from '@/constants/index'
 
 export interface FilterBarProps {
   active: boolean
@@ -17,7 +18,6 @@ export interface FilterBarProps {
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
   const { active, setCallActive, expiry, setExpiry } = props
-  const { utc } = formatExpiry(expiry)
 
   const handleToggleClick = useCallback(() => {
     setCallActive(!active)
@@ -45,7 +45,14 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
           <Spacer size="lg" />
           <StyledSelectWrapper>
             <StyledSelect value={expiry} onChange={handleFilter}>
-              <StyledOption>Expiring {utc}</StyledOption>
+              {ACTIVE_EXPIRIES.map((expiryValue, i) => {
+                return (
+                  <StyledOption key={i} value={expiryValue}>
+                    {expiryValue >= Date.now() / 1000 ? `Expiring` : 'Expired'}{' '}
+                    {formatExpiry(expiryValue).utc}
+                  </StyledOption>
+                )
+              })}
             </StyledSelect>
           </StyledSelectWrapper>
         </StyledFilterBarInner>
