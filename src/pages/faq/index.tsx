@@ -1,73 +1,13 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-
-import Link from 'next/link'
+import FaqTable from '@/components/FaqTable'
+import Spacer from '@/components/Spacer'
 
 const FAQ: React.FC = () => {
   return (
     <>
-      <StyledSpacer size={48} />
-      <StyledFAQ>
-        <StyledTitle>Frequently Asked Questions</StyledTitle>
-        <StyledSpacer size={24} />
-
-        <StyledText>A simple explainer to get you started.</StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledSubtitle>What is Primitive?</StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          Primitive is an autonomous options platform for decentralized finance.
-          Option tokens are traded and settled permissionlessly using the
-          protocol's smart contracts.
-        </StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledSubtitle>
-          What are the main advantages of using the Primitive protocol?
-        </StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          <strong>Increased Security</strong>: Contracts are physically settled
-          and do not rely on oracles. They are autonomous and immutable, no
-          entity controls them.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          <strong>Simplicty</strong>: The core contracts are designed with
-          minimal code and minimal reliablility on external systems.
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledText>
-          <strong>Permissionless</strong>: Anyone can create any option on any
-          standard ERC-20
-        </StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledSubtitle>What are the risks involved?</StyledSubtitle>
-        <StyledSpacer size={24} />
-        <StyledText>
-          Please see our Risks page for more information:{' '}
-          <Link href={'/risks'}>
-            <StyledNavItem>Risks using Primitive Finance</StyledNavItem>
-          </Link>
-        </StyledText>
-        <StyledSpacer size={24} />
-
-        <StyledText>
-          For a more detailed version of the FAQ, please refer to the Primitive
-          Headquarters documentation page:{' '}
-          <Link
-            href={
-              'https://www.notion.so/primitivefi/Primitive-Protocol-HQ-fc081b939bb04e2a90ccaebf36faa78e'
-            }
-          >
-            <StyledNavItem>Documentation</StyledNavItem>
-          </Link>
-        </StyledText>
-        <StyledSpacer size={24} />
-        <StyledSpacer size={24} />
-      </StyledFAQ>
+      <Spacer></Spacer>
+      <FaqTable />
     </>
   )
 }
