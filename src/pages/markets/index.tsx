@@ -5,6 +5,7 @@ import MarketCards from '@/components/MarketCards'
 import Spacer from '@/components/Spacer'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
+import { useClearOptions } from '@/state/options/hooks'
 
 const days: { [key: number]: React.ReactNode } = {
   1: (
@@ -92,6 +93,7 @@ const days: { [key: number]: React.ReactNode } = {
 const Markets: React.FC = () => {
   const [day, setDay] = useState(0)
   const clear = useClearNotif()
+  const clearOptions = useClearOptions()
 
   const isItPiDay = (dateObject) => {
     const date = dateObject.getDate()
@@ -107,6 +109,7 @@ const Markets: React.FC = () => {
     const date = new Date()
     clear(0)
     const currentDay = date.getDay()
+    clearOptions()
     if (isItPiDay(date)) {
       setDay(8)
     } else {

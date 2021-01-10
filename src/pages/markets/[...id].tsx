@@ -63,6 +63,7 @@ const Market = ({ market, data }) => {
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.push('/markets')
+      updateOptions('')
     }
 
     if (market === 'eth') {

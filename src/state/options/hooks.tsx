@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { updateOptions, OptionsAttributes } from './actions'
+import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 import { OptionsState } from './reducer'
 
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
@@ -21,6 +21,14 @@ export const useOptions = (): OptionsState => {
     (state) => state.options
   )
   return state
+}
+
+export const useClearOptions = (): (() => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(() => {
+    dispatch(clearOptions())
+  }, [dispatch])
 }
 
 export const useUpdateOptions = (): ((
