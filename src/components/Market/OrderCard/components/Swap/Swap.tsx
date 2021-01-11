@@ -271,14 +271,9 @@ const Swap: React.FC = () => {
     return formatEtherBalance(entity.proportionalShort(sizeWei))
   }, [item, parsedAmount])
 
-  const isAboveGuardCap = useCallback(() => {
-    const inputValue = parsedAmount
-    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
-  }, [parsedAmount, guardCap])
-
   const isBelowSlippage = useCallback(() => {
     return impact !== 'NaN'
-      ? parseFloat(impact) < parseFloat(slippage) * 100
+      ? Math.abs(parseFloat(impact)) < parseFloat(slippage) * 100
       : true
   }, [impact, slippage])
 
@@ -562,7 +557,12 @@ const Swap: React.FC = () => {
                   )}
                   {approved[0] && approved[1] ? (
                     <Button
-                      disabled={!parsedAmount?.gt(0) || error || !hasLiquidity}
+                      disabled={
+                        !parsedAmount?.gt(0) ||
+                        error ||
+                        !hasLiquidity ||
+                        !isBelowSlippage()
+                      }
                       full
                       size="sm"
                       onClick={handleSubmitClick}
@@ -592,7 +592,8 @@ const Swap: React.FC = () => {
                       !approved[0] ||
                       !parsedAmount?.gt(0) ||
                       error ||
-                      !hasLiquidity
+                      !hasLiquidity ||
+                      !isBelowSlippage()
                     }
                     full
                     size="sm"

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 
 import { OptionPosition } from './reducer'
-import { updatePositions, setLoading } from './actions'
+import { updatePositions, setLoading, clearPositions } from './actions'
 
 import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
@@ -23,6 +23,14 @@ export const usePositions = (): {
     (state) => state.positions
   )
   return state
+}
+
+export const useClearPositions = (): (() => void) => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(() => {
+    dispatch(clearPositions())
+  }, [dispatch])
 }
 
 export const useSetLoading = (): (() => void) => {

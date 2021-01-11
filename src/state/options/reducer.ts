@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { updateOptions, OptionsAttributes } from './actions'
+import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 
 import { Option, Market } from '@/lib/entities'
 import { BigNumberish } from 'ethers'
@@ -27,10 +27,14 @@ export const initialState: OptionsState = {
 }
 
 export default createReducer(initialState, (builder) =>
-  builder.addCase(
-    updateOptions,
-    (state, { payload: { loading, calls, puts, reservesTotal } }) => {
-      return { ...state, loading, calls, puts, reservesTotal }
-    }
-  )
+  builder
+    .addCase(
+      updateOptions,
+      (state, { payload: { loading, calls, puts, reservesTotal } }) => {
+        return { ...state, loading, calls, puts, reservesTotal }
+      }
+    )
+    .addCase(clearOptions, (state) => {
+      return initialState
+    })
 )

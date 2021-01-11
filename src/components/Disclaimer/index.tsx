@@ -16,10 +16,11 @@ const Disclaimer: React.FC = () => {
   return (
     <Backdrop>
       <StyledCard>
-        <StyledDis>Primitive Security Disclosure</StyledDis>
+        <StyledDis>Primitive Disclosure</StyledDis>
         <Body>
-          The Primitive Interface is an open source web application. Please use
-          the Primitive Interface and Primitive Protocol at your own risk.
+          The Primitive Interface is an open source and free web application.
+          Please use the Primitive Interface and Primitive Protocol at your own
+          risk.
         </Body>
         <Body>
           Visit the{' '}
@@ -29,6 +30,15 @@ const Disclaimer: React.FC = () => {
             </LinkInt>
           </StyledLink>{' '}
           page for more information.
+        </Body>
+        <Body>
+          Visit the{' '}
+          <StyledLink href={'/faq'}>
+            <LinkInt>
+              FAQ <LaunchIcon style={{ fontSize: '12px' }} />{' '}
+            </LinkInt>
+          </StyledLink>{' '}
+          page for contract specification information.
         </Body>
         <Button full onClick={handleConfirm}>
           I Accept
@@ -40,14 +50,15 @@ const Disclaimer: React.FC = () => {
 
 const LinkInt = styled.span`
   text-decoration: none;
-  &: hover {
+  &:hover {
     color: ${(props) => props.theme.color.grey[400]};
+    cursor: pointer;
   }
 `
 const StyledLink = styled(Link)``
 
 const Body = styled.h4`
-  color ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.grey[400]};
 `
 const StyledDis = styled.h3`
   color: white;

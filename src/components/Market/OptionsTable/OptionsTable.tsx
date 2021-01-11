@@ -210,13 +210,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                if (
-                  optionExp != option.entity.expiryValue ||
-                  (chainId === 1
-                    ? +option.entity.strikePrice !== 700
-                    : !+option.entity.strikePrice)
-                )
-                  return null
+                if (optionExp != option.entity.expiryValue) return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
                 return (
