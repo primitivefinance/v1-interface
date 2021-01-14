@@ -19,16 +19,16 @@ const OptionsTableHeader: React.FC = () => {
         'The price the underlying asset must reach to reach a net cost of zero',
     },
     {
-      name: 'Price',
+      name: 'Bid',
       tip:
-        'The current spot price of an option token, not accounting for slippage',
+        'The current spot price of an option token willing to be purchased at.',
     },
     {
-      name: 'Depth',
-      tip: 'Slippage incurred for purchasing 2% of the underlying reserves',
+      name: 'Ask',
+      tip: 'The current spot price of an option token willing to be sold at.',
     },
     { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
-    { name: 'Contract', tip: 'The address of the Option token' },
+    { name: 'Expiry', tip: 'The maturity date of the option token.' },
     { name: '', tip: null },
   ]
 

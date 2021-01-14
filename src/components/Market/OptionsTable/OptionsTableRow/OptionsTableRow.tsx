@@ -18,17 +18,17 @@ import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
 import { parseEther } from 'ethers/lib/utils'
+import formatExpiry from '@/utils/formatExpiry'
 
 export interface TableColumns {
   key: string
   asset: string
   strike: string
   breakeven: string
-  premium: string
-  premiumUnderlying: string
-  depth: string[]
+  bid: string
+  ask: string
   reserves: string[]
-  address: string
+  expiry: number
   isCall: boolean
 }
 
@@ -47,16 +47,17 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
 }) => {
   const [toggle, setToggle] = useState(false)
   const { item } = useItem()
+  const currentTimestamp = new Date()
+  console.log({ currentTimestamp })
   const {
     key,
     asset,
     strike,
     breakeven,
-    premium,
-    premiumUnderlying,
-    depth,
+    bid,
+    ask,
     reserves,
-    address,
+    expiry,
     isCall,
   } = columns
   const handleOnClick = useCallback(() => {
@@ -93,70 +94,62 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           </span>
         </TableCell>
         <TableCell>
-          {!isZero(parseEther(premium)) ? (
+          {!isZero(parseEther(bid)) ? (
             <span>
-              {numeral(breakeven).format('0.00')} <Units>DAI</Units>
+              {numeral(breakeven).format('0.00')} <Units>$</Units>
             </span>
           ) : (
             <>{`-`}</>
           )}
         </TableCell>
-        {!isZero(parseEther(premium)) ? (
+        {!isZero(parseEther(bid)) ? (
           <TableCell>
             {isCall ? (
-              <StyledR>
-                <StyledT>
-                  <span>
-                    {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
-                  </span>
-                </StyledT>
-                <span>
-                  {numeral(premiumUnderlying).format('(0.000a)')}{' '}
-                  <Units>{units}</Units>
-                </span>
-              </StyledR>
+              <span>
+                {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
+              </span>
             ) : (
               <span>
-                {numeral(premium).format('(0.000a)')} <Units>DAI</Units>
+                {numeral(bid).format('(0.000a)')} <Units>$</Units>
               </span>
             )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {+depth[1] > 0 ? (
+        {!isZero(parseEther(ask)) ? (
           <TableCell>
-            <StyledR>
-              <StyledT>
-                {numeral(depth[0]).format('0.00a')} <Units>{`LONG`}</Units>
-              </StyledT>
+            {isCall ? (
               <span>
-                {depth[1]} <Units>{'%'}</Units>
+                {numeral(ask).format('(0.000a)')} <Units>{units}</Units>
               </span>
-            </StyledR>
+            ) : (
+              <span>
+                {numeral(ask).format('(0.000a)')} <Units>$</Units>
+              </span>
+            )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {parseInt(reserves[1]) > 0 ? (
+        {parseFloat(reserves[0]) > 0 ? (
           <TableCell>
-            <StyledR>
-              <StyledT>
-                {numeral(reserves[1]).format('0.00a')} <Units>{'SHORT'}</Units>
-              </StyledT>
-              <span>
-                {numeral(reserves[0]).format('0.00a')} <Units>{units}</Units>
-              </span>
-            </StyledR>
+            <span>
+              {numeral(reserves[0]).format('0.00a')} <Units>{units}</Units>
+            </span>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        <TableCell key={address}>
-          <StyledARef href={href} target="__blank">
-            {address} <LaunchIcon style={{ fontSize: '14px' }} />
-          </StyledARef>
-        </TableCell>
+        {expiry ? (
+          <TableCell>
+            <span>
+              <Units>{formatExpiry(expiry).utc}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
         <StyledButtonCell key={'Open'}>
           <IconButton
             onClick={onClick}

@@ -148,29 +148,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           )
         )
       ).toString()
-      const tablePremium: string = formatBalance(
-        option.entity.isPut
-          ? formatEther(option.market.spotOpenPremium.raw.toString())
-          : calculatePremiumInDollars(
-              option.market.spotOpenPremium.raw.toString()
-            )
+      const tableBid: string = formatEtherBalance(
+        option.market.spotClosePremium.raw.toString()
       ).toString()
-      const tablePremiumUnderlying: string = formatEtherBalance(
+      const tableAsk: string = formatEtherBalance(
         option.market.spotOpenPremium.raw.toString()
       ).toString()
-      const quantityLong: BigNumber = BigNumber.from(
-        option.market.reserveOf(option.entity.underlying).raw.toString()
-      )
-        .mul(2)
-        .div(100)
-      const [, , slippage] = option.market.getExecutionPrice(
-        Operation.LONG,
-        quantityLong
-      )
-      const tableDepth: string[] =
-        slippage && slippage > 0
-          ? [formatEther(quantityLong), numeral(slippage).format('0.00')]
-          : [formatEther(quantityLong), '0']
 
       const tableReserve0: string = formatEtherBalance(
         option.market.reserveOf(option.entity.underlying).raw.toString()
@@ -181,18 +164,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
       // tableReserve1 should always be short option token
       const tableReserves: string[] = [tableReserve0, tableReserve1]
-      const tableAddress: string = formatAddress(option.entity.address)
+      const tableExpiry: number = option.entity.expiryValue
 
       const tableColumns: TableColumns = {
         key: tableKey,
         asset: tableAssset,
         strike: tableStrike,
         breakeven: tableBreakeven,
-        premium: tablePremium,
-        premiumUnderlying: tablePremiumUnderlying,
-        depth: tableDepth,
+        bid: tableBid,
+        ask: tableAsk,
         reserves: tableReserves,
-        address: tableAddress,
+        expiry: tableExpiry,
         isCall: option.entity.isCall,
       }
       return tableColumns
@@ -210,7 +192,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                if (optionExp != option.entity.expiryValue) return null
+                if (+new Date() / 1000 >= option.entity.expiryValue) return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
                 return (
