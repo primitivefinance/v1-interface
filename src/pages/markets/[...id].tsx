@@ -165,9 +165,9 @@ const Market = ({ market, data }) => {
           <Disclaimer />
           <Notifs />
           <StyledMarket>
-            <Grid>
+            <Grid id={'market-grid'}>
               <Row>
-                <StyledContainer sm={12} md={8} lg={8}>
+                <StyledContainer sm={12} md={8} lg={8} id="table-column">
                   <StyledMain>
                     <MarketHeader
                       marketId={market}
@@ -199,7 +199,7 @@ const Market = ({ market, data }) => {
                     </ErrorBoundary>
                   </StyledMain>
                 </StyledContainer>
-                <StyledCol sm={12} md={4} lg={4}>
+                <StyledCol sm={12} md={4} lg={4} id="sidebar-column">
                   <StyledSideBar>
                     <ErrorBoundary
                       fallback={
@@ -248,7 +248,7 @@ const StyledMarket = styled.div`
   height: 90%;
   position: absolute;
   overflow-x: hidden;
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
 `
 
 const StyledSideBar = styled.div`
@@ -266,7 +266,8 @@ const StyledSideBar = styled.div`
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
+  justify-content: center;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
