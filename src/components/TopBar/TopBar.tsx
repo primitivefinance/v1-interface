@@ -50,6 +50,13 @@ const TopBar: React.FC = () => {
               Markets
             </StyledNavItem>
           </Link>
+          <Link href="/liquidity">
+            <StyledNavItem
+              active={location.pathname === '/liquidity' ? true : false}
+            >
+              Liquidity
+            </StyledNavItem>
+          </Link>
           <Link href="/contracts">
             <StyledNavItem
               active={
@@ -127,7 +134,7 @@ interface StyledNavItemProps {
 
 const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
-    props.active ? props.theme.color.grey[400] : props.theme.color.white};
+    props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-transform: uppercase;
@@ -137,7 +144,7 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
   letter-spacing: 1px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.grey[400]};
+    color: ${(props) => props.theme.color.white};
   }
 `
 
