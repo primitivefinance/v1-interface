@@ -63,10 +63,15 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   return (
     <StyledPosition onClick={handleClick} height={48}>
       <TableCell>
+        <StyledValue>{`${formatEtherBalance(option.long, 2)}`}</StyledValue>
+      </TableCell>
+
+      <TableCell>
         <StyledValue>
           {` ${option.attributes.entity.isCall ? 'Call' : 'Put'} `}
         </StyledValue>
       </TableCell>
+
       <TableCell>
         <StyledValue>
           {`${
@@ -76,15 +81,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           }`}{' '}
         </StyledValue>
       </TableCell>
+
       <TableCell>
         <StyledValue>{`${utc.substr(4, 8)}`}</StyledValue>
       </TableCell>
-      <TableCell>
-        <StyledValue>{`+ ${formatEtherBalance(option.long, 2)}`}</StyledValue>
-      </TableCell>
+
       <TableCell>
         <StyledValue>
-          $ {formatBalance(formatEther(option.long), 2)}
+          {numeral(formatEther(option.long)).format('$0.00')}
         </StyledValue>
       </TableCell>
       {/* <StyledPrices row justifyContent="space-between" alignItems="center">
@@ -107,6 +111,11 @@ const Position: React.FC<TokenProps> = ({ option }) => {
 
 const headers = [
   {
+    name: 'Qty',
+    tip:
+      'The price the underlying asset must reach to reach a net cost of zero',
+  },
+  {
     name: 'Type',
     tip: 'The purchase price for the underlying asset of this option',
   },
@@ -118,13 +127,9 @@ const headers = [
     name: 'Expiry',
     tip: 'The purchase price for the underlying asset of this option',
   },
+
   {
-    name: 'Qty',
-    tip:
-      'The price the underlying asset must reach to reach a net cost of zero',
-  },
-  {
-    name: 'Bid',
+    name: 'Value',
     tip:
       'The current spot price of an option token willing to be purchased at.',
   },
@@ -140,13 +145,21 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <>
-        <Spacer />
-        <Loader size="lg" />
-      </>
+      <Card border>
+        <CardContent>
+          <StyledEmptyContent>
+            <Spacer size="sm" />
+            <StyledEmptyMessage>Loading...</StyledEmptyMessage>
+            <StyledEmptyMessage>
+              <Loader size="lg" />
+            </StyledEmptyMessage>
+            <Spacer size="sm" />
+          </StyledEmptyContent>
+        </CardContent>
+      </Card>
     )
   }
-  if (!positions.loading && !positions.exists) {
+  if (!positions.exists) {
     return (
       <Card border>
         <CardContent>
@@ -194,7 +207,11 @@ const PositionsCard: React.FC = () => {
                   </TableRow>
                 </StyledTableHead>
                 {positions.options.map((pos, i) => {
-                  return <Position key={i} option={pos} />
+                  return (
+                    <StyledTableBorder>
+                      <Position key={i} option={pos} />
+                    </StyledTableBorder>
+                  )
                 })}
               </Table>
             </CardContent>
@@ -207,6 +224,9 @@ const PositionsCard: React.FC = () => {
 
 const StyledTableHead = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.color.grey[500]};
+`
+const StyledTableBorder = styled.div`
+  border-bottom: 1px solid ${(props) => props.theme.color.grey[700]};
 `
 
 const LoadingMess = styled.h3`
@@ -247,7 +267,7 @@ const StyledPrice = styled.div`
   color: ${(props) => props.theme.color.grey[600]};
 `
 const StyledValue = styled.div`
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   //letter-spacing: 0.5px;
 `
 
@@ -292,7 +312,7 @@ const StyledPositionHeader = styled.a`
 const StyledPosition = styled(TableRow)`
   color: ${(props) => props.theme.color.white};
   padding-right: 0 !important;
-  border-color: ${(props) => props.theme.color.grey[700]} !important;
+  border: 1px solid ${(props) => props.theme.color.grey[500]} !important;
 `
 
 const StyledEmptyContent = styled.div`

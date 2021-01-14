@@ -70,10 +70,10 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
           {iv < 1000 && iv > 0 ? `${(iv * 100).toFixed(3)}%` : 'N/A'}
         </TableCell>
         <TableCell>{delta}</TableCell>
-        <TableCell>{theta}</TableCell>
+        <TableCell>{theta / 365}</TableCell>
         <TableCell>{gamma}</TableCell>
         <TableCell>{vega}</TableCell>
-        <TableCell>{rho}</TableCell>
+        <TableCell>{rho / 10000}</TableCell>
       </StyledTableRow>
     </>
   )
@@ -92,7 +92,8 @@ const StyledTableRow = styled.div<StyleProps>`
       props.isHead || props.isActive
         ? 'transparent'
         : props.theme.color.grey[700]};
-  color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
+  color: ${(props) =>
+    props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
   display: flex;
   height: ${(props) => props.theme.rowHeight}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
