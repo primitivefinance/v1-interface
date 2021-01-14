@@ -44,9 +44,7 @@ const TopBar: React.FC = () => {
         </StyledFlex>
         <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
-            <StyledNavItem
-              active={location.pathname === '/markets' ? true : false}
-            >
+            <StyledNavItem active={location.pathname.startsWith('/markets')}>
               Markets
             </StyledNavItem>
           </Link>
@@ -127,7 +125,7 @@ interface StyledNavItemProps {
 
 const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
-    props.active ? props.theme.color.grey[400] : props.theme.color.white};
+    props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-transform: uppercase;
@@ -137,7 +135,7 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
   letter-spacing: 1px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.grey[400]};
+    color: ${(props) => props.theme.color.white};
   }
 `
 

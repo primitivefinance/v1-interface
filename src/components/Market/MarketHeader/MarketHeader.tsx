@@ -207,6 +207,7 @@ const StyledIcon = styled(LaunchIcon)`
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   margin-left: 2em;
+  margin-right: 2em;
 `
 const StyledLink = styled.a`
   text-decoration: none;
@@ -227,6 +228,7 @@ const StyledTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
+  justify-content: space-between;
 `
 
 const StyledName = styled.span`

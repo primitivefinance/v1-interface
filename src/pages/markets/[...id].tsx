@@ -173,13 +173,14 @@ const Market = ({ market, data }) => {
                       marketId={market}
                       isCall={callPutActive ? 0 : 1}
                     />
+                    <Spacer size="sm" />
                     <FilterBar
                       active={callPutActive}
                       setCallActive={handleFilterType}
                       expiry={expiry}
                       setExpiry={handleFilterExpiry}
                     />
-
+                    <Spacer size="sm" />
                     <ErrorBoundary
                       fallback={
                         <>
