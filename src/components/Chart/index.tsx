@@ -28,7 +28,7 @@ export const Chart: React.FC = () => {
   ])
   return (
     <Wrapper>
-      <div ref={ref} id={'test-id' + 'BAR'} />
+      <div ref={ref} />
       {chart.timeScale().fitContent()}
     </Wrapper>
   )
