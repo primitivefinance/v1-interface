@@ -6,7 +6,7 @@ const TableCell: React.FC = (props) => {
 }
 
 const StyledTableCell = styled.div`
-  color: ${(props) => props.theme.color.white};
+  color: inherit;
   flex: 1;
 `
 

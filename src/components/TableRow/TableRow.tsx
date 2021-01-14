@@ -5,6 +5,7 @@ export interface TableRowProps {
   isHead?: boolean
   onClick?: any
   isActive?: boolean
+  height?: number
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
@@ -13,6 +14,7 @@ const TableRow: React.FC<TableRowProps> = (props) => {
       onClick={props.onClick}
       isActive={props.isActive}
       isHead={props.isHead}
+      height={props.height}
     >
       {props.children}
     </StyledTableRow>
@@ -22,6 +24,7 @@ const TableRow: React.FC<TableRowProps> = (props) => {
 interface StyleProps {
   isHead?: boolean
   isActive?: boolean
+  height?: number
 }
 
 const StyledTableRow = styled.div<StyleProps>`
@@ -33,7 +36,7 @@ const StyledTableRow = styled.div<StyleProps>`
   color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
   cursor: ${(props) => (props.isHead ? null : 'pointer')};
   display: flex;
-  height: ${(props) => props.theme.rowHeight}px;
+  height: ${(props) => (props.height ? props.height : props.theme.rowHeight)}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
   padding-left: ${(props) => props.theme.spacing[4]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;

@@ -67,7 +67,7 @@ export const useUpdatePositions = (): ((
 
       const balance = new TokenAmount(
         options[0].entity.underlying,
-        bal.toString()
+        bal ? bal.toString() : '0'
       )
       // underlying balance
 

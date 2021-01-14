@@ -13,6 +13,7 @@ import { useWeb3React } from '@web3-react/core'
 
 import Table from '@/components/Table'
 import TableRow from '@/components/TableRow'
+import TableCell from '@/components/TableCell'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
@@ -21,6 +22,7 @@ import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import Loader from '@/components/Loader'
+import Tooltip from '@/components/Tooltip'
 
 import {
   ETHERSCAN_MAINNET,
@@ -34,6 +36,9 @@ import {
 import { usePositions } from '@/state/positions/hooks'
 import { useUpdateItem, useItem } from '@/state/order/hooks'
 import formatEtherBalance from '@/utils/formatEtherBalance'
+import formatBalance from '@/utils/formatBalance'
+
+import { formatEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
 import LineItem from '@/components/LineItem'
 import { useClickAway } from '@/hooks/utils/useClickAway'
@@ -45,7 +50,7 @@ export interface TokenProps {
 const Position: React.FC<TokenProps> = ({ option }) => {
   const { chainId, library } = useWeb3React()
   const updateItem = useUpdateItem()
-  const { date, month, year } = formatExpiry(
+  const { date, month, year, utc } = formatExpiry(
     option.attributes.entity.expiryValue
   )
 
@@ -56,22 +61,33 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   return (
-    <StyledPosition onClick={handleClick}>
-      <Spacer />
-      <Box row justifyContent="flex-start" alignItems="center">
-        <Spacer size="sm" />
-        <Box row justifyContent="space-between" alignItems="center">
-          <StyledTitle>
-            {`${option.attributes.asset} ${
-              option.attributes.entity.isCall ? 'Call' : 'Put'
-            } `}
-            {`${numeral(option.attributes.entity.strikePrice).format(
-              '$0.00a'
-            )} ${month}/${date}/${year}`}
-          </StyledTitle>
-        </Box>
-      </Box>
-      <StyledPrices row justifyContent="space-between" alignItems="center">
+    <StyledPosition onClick={handleClick} height={48}>
+      <TableCell>
+        <StyledValue>
+          {` ${option.attributes.entity.isCall ? 'Call' : 'Put'} `}
+        </StyledValue>
+      </TableCell>
+      <TableCell>
+        <StyledValue>
+          {`${
+            option.attributes.entity.strikePrice <= 1
+              ? numeral(option.attributes.entity.strikePrice).format('$0.00')
+              : numeral(option.attributes.entity.strikePrice).format('$0')
+          }`}{' '}
+        </StyledValue>
+      </TableCell>
+      <TableCell>
+        <StyledValue>{`${utc.substr(4, 8)}`}</StyledValue>
+      </TableCell>
+      <TableCell>
+        <StyledValue>{`+ ${formatEtherBalance(option.long, 2)}`}</StyledValue>
+      </TableCell>
+      <TableCell>
+        <StyledValue>
+          $ {formatBalance(formatEther(option.long), 2)}
+        </StyledValue>
+      </TableCell>
+      {/* <StyledPrices row justifyContent="space-between" alignItems="center">
         <StyledPrice>
           <StyledT>Long</StyledT>
           {formatEtherBalance(option.long)}
@@ -84,10 +100,35 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           <StyledT>LP</StyledT>
           {formatEtherBalance(option.lp)}
         </StyledPrice>
-      </StyledPrices>
+      </StyledPrices> */}
     </StyledPosition>
   )
 }
+
+const headers = [
+  {
+    name: 'Type',
+    tip: 'The purchase price for the underlying asset of this option',
+  },
+  {
+    name: 'Strike',
+    tip: 'The purchase price for the underlying asset of this option',
+  },
+  {
+    name: 'Expiry',
+    tip: 'The purchase price for the underlying asset of this option',
+  },
+  {
+    name: 'Qty',
+    tip:
+      'The price the underlying asset must reach to reach a net cost of zero',
+  },
+  {
+    name: 'Bid',
+    tip:
+      'The current spot price of an option token willing to be purchased at.',
+  },
+]
 
 const PositionsCard: React.FC = () => {
   const item = useItem()
@@ -130,7 +171,7 @@ const PositionsCard: React.FC = () => {
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
             <StyledBox row justifyContent="space-between" alignItems="center">
-              <Title>{`Active Positions`}</Title>
+              <Title>{`Active ${item.item.asset.toUpperCase()} Positions`}</Title>
               <Spacer />
               {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </StyledBox>
@@ -142,9 +183,20 @@ const PositionsCard: React.FC = () => {
         ) : (
           <Scroll>
             <CardContent>
-              {positions.options.map((pos, i) => {
-                return <Position key={i} option={pos} />
-              })}
+              <Table>
+                <StyledTableHead>
+                  <TableRow isHead height={48}>
+                    {headers.map((header) => {
+                      return (
+                        <TableCell key={header.name}>{header.name}</TableCell>
+                      )
+                    })}
+                  </TableRow>
+                </StyledTableHead>
+                {positions.options.map((pos, i) => {
+                  return <Position key={i} option={pos} />
+                })}
+              </Table>
             </CardContent>
           </Scroll>
         )}
@@ -152,6 +204,10 @@ const PositionsCard: React.FC = () => {
     </div>
   )
 }
+
+const StyledTableHead = styled.div`
+  border-bottom: 1px solid ${(props) => props.theme.color.grey[500]};
+`
 
 const LoadingMess = styled.h3`
   color: ${(props) => props.theme.color.grey[400]};
@@ -188,44 +244,55 @@ const StyledPrice = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0.3em;
-  color: white;
+  color: ${(props) => props.theme.color.grey[600]};
 `
+const StyledValue = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  //letter-spacing: 0.5px;
+`
+
+const StyledTableRow = styled(TableRow)`
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  margin: 0.5em;
+  padding: 0em 0.3em 0.7em 0.3em;
+  cursor: pointer;
+`
+
 const StyledPrices = styled(Box)`
   border-radius: 5px;
   border-width: 2px;
   border-color: ${(props) => props.theme.color.grey[600]};
-  background: ${(props) => props.theme.color.black};
+  background: ${(props) => props.theme.color.white};
   border-style: solid;
   margin: 0 0.5em 0 0.5em;
   padding: 0 1em 0 1em;
 `
-const StyledTitle = styled.h4`
-  color: ${(props) => props.theme.color.white};
+const StyledTitle = styled.span`
+  color: ${(props) => props.theme.color.grey[600]};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   margin-top: -0.5em;
   margin-bottom: 0.1em;
+  opacity: 0.66;
+  text-transform: uppercase;
 `
-const StyledPosition = styled.a`
-  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
-  color: ${(props) => props.theme.color.white} !important;
-  border-radius: 0.5em;
-  height: 6em;
-  cursor: pointer;
-  margin-bottom: 0.2em;
-  margin-top: -0.2em;
+
+const StyledPositionHeader = styled.a`
+  display: flex;
+  flex-direction: row;
   padding: 0em 0.3em 0.7em 0.3em;
-  &:hover {
-    border: 1.5px solid ${(props) => props.theme.color.grey[600]};
-    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
-    background: ${(props) => props.theme.color.black};
-  }
+  margin-left: 0.5em;
+  justify-content: space-between;
+  flex: 1;
 `
-const StyledLink = styled.a`
-  text-decoration: none;
-  cursor: grab;
-  color: ${(props) => props.theme.color.grey[400]};
+
+const StyledPosition = styled(TableRow)`
+  color: ${(props) => props.theme.color.white};
+  padding-right: 0 !important;
+  border-color: ${(props) => props.theme.color.grey[700]} !important;
 `
 
 const StyledEmptyContent = styled.div`

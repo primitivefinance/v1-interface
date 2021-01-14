@@ -13,8 +13,8 @@ const StyledCardTitle = styled.div`
   user-select: none;
   font-size: 18px;
   padding-top: ${(props) => props.theme.spacing[2]}px;
-  padding-left: ${(props) => props.theme.spacing[3]}px;
-  padding-right: ${(props) => props.theme.spacing[3]}px;
+  padding-left: ${(props) => props.theme.spacing[4]}px;
+  padding-right: ${(props) => props.theme.spacing[4]}px;
   padding-bottom: ${(props) => props.theme.spacing[0]}px;
 `
 
