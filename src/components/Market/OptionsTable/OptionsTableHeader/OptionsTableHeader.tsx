@@ -10,12 +10,12 @@ import LitContainer from '@/components/LitContainer'
 export const headers = [
   {
     name: 'Strike',
-    tip: 'The purchase price for the underlying asset of this option',
+    tip: 'The purchase price for the underlying asset of this option.',
   },
   {
     name: 'Break-Even',
     tip:
-      'The price the underlying asset must reach to reach a net cost of zero',
+      'The price the underlying asset must reach to reach a net cost of zero.',
   },
   {
     name: 'Bid',
@@ -26,7 +26,7 @@ export const headers = [
     name: 'Ask',
     tip: 'The current spot price of an option token willing to be sold at.',
   },
-  { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
+  { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   { name: '', tip: null },
 ]

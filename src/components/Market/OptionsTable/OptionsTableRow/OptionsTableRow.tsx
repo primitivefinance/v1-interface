@@ -48,7 +48,6 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   const [toggle, setToggle] = useState(false)
   const { item } = useItem()
   const currentTimestamp = new Date()
-  console.log({ currentTimestamp })
   const {
     key,
     asset,
@@ -90,7 +89,8 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       >
         <TableCell>
           <span>
-            {numeral(strike).format('0.00')} <Units>DAI</Units>
+            {numeral(strike).format(+strike >= 1 ? '0' : '0.00')}{' '}
+            <Units>DAI</Units>
           </span>
         </TableCell>
         <TableCell>
@@ -144,7 +144,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         {expiry ? (
           <TableCell>
             <span>
-              <Units>{formatExpiry(expiry).utc}</Units>
+              <Units>{formatExpiry(expiry).utc.substr(4)}</Units>
             </span>
           </TableCell>
         ) : (

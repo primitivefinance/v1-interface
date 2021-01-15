@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components'
 import TableBody from '../../TableBody'
 import TableRow from '../../TableRow'
 import TableCell from '../../TableCell'
+import Spacer from '@/components/Spacer'
 
 export interface EmptyTableProps {
   columns: Array<any>
@@ -16,9 +17,12 @@ const EmptyTable: React.FC<EmptyTableProps> = (props) => {
         {props.columns.map((column, index) => {
           if (index === props.columns.length - 1) {
             return (
-              <StyledButtonCell key={index}>
-                <StyledLoadingBlock />
-              </StyledButtonCell>
+              <>
+                <Spacer />
+                <Spacer size="sm" />
+                <Spacer size="sm" />
+                <Spacer size="sm" />
+              </>
             )
           }
           return (
