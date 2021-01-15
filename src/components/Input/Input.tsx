@@ -140,6 +140,7 @@ const StyledInput = styled.input<StyledInputProps>`
   outline: none;
   text-indent: ${(props) => props.theme.spacing[3]}px;
   &:focus {
+    background: ${(props) => props.theme.color.grey[800]};
     border: 1px solid ${(props) => props.theme.color.white} !important;
     transition: border-color 0.25s ease-in-out;
   }

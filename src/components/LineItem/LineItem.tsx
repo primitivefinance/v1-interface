@@ -13,6 +13,7 @@ export interface LineItemProps {
   loading?: boolean
   units?: any
   tip?: any
+  color?: string
 }
 
 const LineItem: React.FC<LineItemProps> = ({
@@ -21,6 +22,7 @@ const LineItem: React.FC<LineItemProps> = ({
   loading,
   units,
   tip,
+  color,
 }) => {
   const sign = units
     ? units !== ''
@@ -56,7 +58,9 @@ const LineItem: React.FC<LineItemProps> = ({
           ) : (
             <>
               {sign}
-              {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+              <Color color={color}>
+                {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+              </Color>
               <StyledSym>
                 {currency !== '$'
                   ? currency === 'DAI STABLECOIN'
@@ -71,6 +75,15 @@ const LineItem: React.FC<LineItemProps> = ({
     </StyledLineItem>
   )
 }
+
+interface ColorProps {
+  color?: string
+}
+
+const Color = styled.span<ColorProps>`
+  color: ${(props) =>
+    props.color == 'red' ? props.theme.color.red[500] : 'inherit'};
+`
 
 const StyledSym = styled.a`
   opacity: 0.66;

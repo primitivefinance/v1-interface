@@ -10,6 +10,8 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
+import Toggle from '@/components/Toggle'
+import ToggleButton from '@/components/ToggleButton'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -44,6 +46,7 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
+import { updateOptions } from '@/state/options/actions'
 
 const Swap: React.FC = () => {
   // executes transactions
@@ -102,7 +105,7 @@ const Swap: React.FC = () => {
   switch (orderType) {
     case Operation.LONG:
       title = {
-        text: 'Buy Options',
+        text: 'Trade Options',
         tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
@@ -118,7 +121,7 @@ const Swap: React.FC = () => {
       break
     case Operation.WRITE:
       title = {
-        text: 'Write Options',
+        text: 'Trade Options',
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
       }
@@ -128,7 +131,7 @@ const Swap: React.FC = () => {
       break
     case Operation.CLOSE_LONG:
       title = {
-        text: 'Close Long Position',
+        text: 'Trade Options',
         tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.address
@@ -292,56 +295,56 @@ const Swap: React.FC = () => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
   }, [item, onApprove])
+
+  const [active, setCallActive] = useState(
+    orderType === Operation.LONG ? true : false
+  )
+
+  const handleToggleClick = useCallback(() => {
+    setCallActive(!active)
+    updateItem(item, active ? Operation.LONG : Operation.CLOSE_LONG)
+  }, [active, setCallActive])
+
+  const StyledFilterBarInner = styled.div`
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    height: ${(props) => props.theme.barHeight}px;
+  `
+
+  const StyledToggleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  `
   return (
     <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Spacer size="sm" />
+      <Box column alignItems="center">
         <StyledTitle>
           <Tooltip text={title.tip}>{title.text}</Tooltip>
         </StyledTitle>
-      </Box>
-      <Box column alignItems="center">
+        <StyledToggleContainer>
+          <StyledFilterBarInner>
+            <Toggle>
+              <ToggleButton
+                active={active}
+                onClick={handleToggleClick}
+                text="Buy"
+              />
+              <ToggleButton
+                active={!active}
+                onClick={handleToggleClick}
+                text="Sell"
+              />
+            </Toggle>
+          </StyledFilterBarInner>
+        </StyledToggleContainer>
         {hasLiquidity ? null : (
           <WarningTooltip>
             <h5>There is no liquidity in this option market</h5>
           </WarningTooltip>
         )}
-        <Spacer size="sm" />
-        {!inputLoading ? (
-          <>
-            {orderType === Operation.SHORT ||
-            orderType === Operation.CLOSE_SHORT ? (
-              <LineItem
-                label="Short Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : orderType === Operation.WRITE ||
-              orderType === Operation.CLOSE_LONG ? (
-              <LineItem
-                label="Option Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : (
-              <LineItem
-                label="Option Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            )}
-          </>
-        ) : (
-          <>{hasLiquidity ? <Loader /> : null}</>
-        )}
-
         <Spacer size="sm" />
         <PriceInput
           title="Quantity"
@@ -352,6 +355,35 @@ const Swap: React.FC = () => {
           balance={tokenAmount}
           valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
         />
+        <Spacer />
+        <StyledTitle>Order Summary</StyledTitle>
+        {!inputLoading ? (
+          <>
+            {orderType === Operation.SHORT ||
+            orderType === Operation.CLOSE_SHORT ? (
+              <LineItem
+                label="Price"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            ) : orderType === Operation.WRITE ||
+              orderType === Operation.CLOSE_LONG ? (
+              <LineItem
+                label="Price"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            ) : (
+              <LineItem
+                label="Price"
+                data={formatBalance(prem)}
+                units={entity.isPut ? 'DAI' : item.asset}
+              />
+            )}
+          </>
+        ) : (
+          <>{hasLiquidity ? <Loader /> : null}</>
+        )}
         <Spacer size="sm" />
         {inputLoading && hasLiquidity ? (
           <>
@@ -363,13 +395,122 @@ const Swap: React.FC = () => {
             label="Slippage"
             data={`${Math.abs(parseFloat(impact)).toString()}`}
             units="%"
+            color="red"
           />
         )}
+        {/* {!isBelowSlippage() && !error ? (
+          <>
+            <div style={{ marginTop: '-.5em' }} />
+            <WarningLabel>
+              Expected Slippage on this order is higher than the user limit of{' '}
+              {numeral(parseFloat(slippage)).format('0.00a%')}
+            </WarningLabel>
+          </>
+        ) : (
+          <></>
+        )} */}
+        <Spacer />
+        <StyledEnd row justifyContent="flex-start">
+          {loading ? (
+            <div style={{ width: '100%' }}>
+              <Box column alignItems="center" justifyContent="center">
+                <Loader />
+              </Box>
+            </div>
+          ) : (
+            <>
+              {orderType === Operation.WRITE ? (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve Options"
+                      />
+                    </>
+                  )}
+                  {approved[1] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleSecondaryApproval}
+                        isLoading={loading}
+                        text="Approve Tokens"
+                      />
+                    </>
+                  )}
+                  {approved[0] && approved[1] ? (
+                    <Button
+                      disabled={
+                        !parsedAmount?.gt(0) ||
+                        error ||
+                        !hasLiquidity ||
+                        !isBelowSlippage()
+                      }
+                      full
+                      size="sm"
+                      onClick={handleSubmitClick}
+                      isLoading={loading}
+                      text="Confirm Transaction"
+                    />
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve"
+                      />
+                    </>
+                  )}
+                  <Button
+                    disabled={
+                      !approved[0] ||
+                      !parsedAmount?.gt(0) ||
+                      error ||
+                      !hasLiquidity ||
+                      !isBelowSlippage()
+                    }
+                    full
+                    size="sm"
+                    onClick={handleSubmitClick}
+                    isLoading={loading}
+                    text={
+                      !isBelowSlippage()
+                        ? 'Slippage Too High'
+                        : 'Confirm Transaction'
+                    }
+                  />
+                </>
+              )}
+            </>
+          )}
+        </StyledEnd>
+        <Spacer size="sm" />
+        <StyledTitle>Description</StyledTitle>
         {parsedAmount.gt(0) ? (
-          <StyledSummary column alignItems="center">
+          <StyledSummary column alignItems="flex-start">
             {parsedAmount.gt(0) && !error ? (
               <PurchaseInfo>
-                <p>
+                <span>
                   You will{' '}
                   <StyledData>
                     {orderType === Operation.LONG ||
@@ -483,7 +624,7 @@ const Swap: React.FC = () => {
                       .{' '}
                     </>
                   )}
-                </p>
+                </span>
               </PurchaseInfo>
             ) : (
               <>
@@ -495,28 +636,7 @@ const Swap: React.FC = () => {
           </StyledSummary>
         ) : null}
         <Spacer size="sm" />
-        {/* {isAboveGuardCap() && !error ? (
-          <>
-            <div style={{ marginTop: '-.5em' }} />
-            <WarningLabel>
-              This amount of tokens is above our guardrail cap of $100,000
-            </WarningLabel>
-          </>
-        ) : (
-          <></>
-        )} */}
-        {!isBelowSlippage() && !error ? (
-          <>
-            <div style={{ marginTop: '-.5em' }} />
-            <WarningLabel>
-              Expected Slippage on this order is higher than the user limit of{' '}
-              {numeral(parseFloat(slippage)).format('0.00a%')}
-            </WarningLabel>
-          </>
-        ) : (
-          <></>
-        )}
-        <StyledEnd row justifyContent="flex-start">
+        {/* <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>
               <Box column alignItems="center" justifyContent="center">
@@ -599,20 +719,27 @@ const Swap: React.FC = () => {
                     size="sm"
                     onClick={handleSubmitClick}
                     isLoading={loading}
-                    text="Confirm Transaction"
+                    text={
+                      !isBelowSlippage()
+                        ? 'Slippage Too High'
+                        : 'Confirm Transaction'
+                    }
                   />
                 </>
               )}
             </>
           )}
-        </StyledEnd>
+        </StyledEnd> */}
       </Box>
     </>
   )
 }
 
 const StyledSummary = styled(Box)`
+  display: flex;
+  flex: 1;
   min-width: 100%;
+  margin-bottom: ${(props) => props.theme.spacing[3]}px;
 `
 const StyledEnd = styled(Box)`
   min-width: 100%;
@@ -631,16 +758,18 @@ const WarningTooltip = styled.div`
   font-size: 14px;
   opacity: 1;
 `
-const StyledTitle = styled.h5`
+const StyledTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
+  display: flex;
+  flex: 1;
+  width: 100%;
 `
 
 const PurchaseInfo = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
-  text-align: center;
   vertical-align: middle;
   display: table;
   margin-bottom: -1em;
@@ -649,7 +778,7 @@ const PurchaseInfo = styled.div`
 const StyledData = styled.span`
   color: ${(props) => props.theme.color.white};
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
 `
 export default Swap
