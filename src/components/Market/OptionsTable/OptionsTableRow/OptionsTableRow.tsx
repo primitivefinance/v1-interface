@@ -143,9 +143,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         )}
         {expiry ? (
           <TableCell>
-            <span>
-              <Units>{formatExpiry(expiry).utc.substr(4)}</Units>
-            </span>
+            <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>

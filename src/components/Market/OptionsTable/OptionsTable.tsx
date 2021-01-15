@@ -103,7 +103,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           : 0
         : 0
       blackScholes.setRiskFree(0)
-      blackScholes.setDeviation(0.1)
+      blackScholes.setDeviation(1)
       blackScholes.setPrice(price)
       const delta = blackScholes.delta()
       const theta = blackScholes.theta()
