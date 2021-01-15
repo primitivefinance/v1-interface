@@ -50,7 +50,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           <StyledValue>
             {numeral(
               formatEther(
-                BigNumber.from(option.long)
+                BigNumber.from(option.long ? option.long : 0)
                   .mul(option.attributes.market.spotClosePremium.raw.toString())
                   .div(parseEther('1'))
               )

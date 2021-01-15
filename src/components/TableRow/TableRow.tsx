@@ -33,8 +33,7 @@ const StyledTableRow = styled.div<StyleProps>`
     props.isActive ? 'transparent' : 'transparent'};
   border-bottom: 1px solid
     ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[800])};
-  color: ${(props) =>
-    props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
+  color: ${(props) => props.theme.color.white};
   cursor: ${(props) => (props.isHead ? null : 'pointer')};
   display: flex;
   height: ${(props) => (props.height ? props.height : props.theme.rowHeight)}px;
@@ -45,7 +44,7 @@ const StyledTableRow = styled.div<StyleProps>`
     background-color: ${(props) =>
       props.isHead ? 'transparent' : props.theme.color.grey[800]};
     color: ${(props) =>
-      props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
+      props.isHead ? props.theme.color.white : props.theme.color.white};
     //font-weight: ${(props) => (props.isHead ? '400' : '600')};
   }
 `

@@ -110,7 +110,7 @@ const StyledNav = styled.div<NavProps>`
   align-items: center;
   display: flex;
   flex: 1;
-  font-weight: 700;
+  font-weight: 500;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 1px;
   justify-content: center;
@@ -131,7 +131,7 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
   &:hover {

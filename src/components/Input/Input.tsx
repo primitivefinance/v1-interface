@@ -96,13 +96,6 @@ const Input: React.FC<InputProps> = ({
           </StyledAd>
         )}
       </StyledInputWrapper>
-
-      {typeof valid !== 'undefined' && (
-        <>
-          <Spacer size="sm" />
-          <Validated valid={valid} />{' '}
-        </>
-      )}
     </Box>
   )
 }
