@@ -6,6 +6,7 @@ export interface TableRowProps {
   onClick?: any
   isActive?: boolean
   height?: number
+  align?: string
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
@@ -15,6 +16,7 @@ const TableRow: React.FC<TableRowProps> = (props) => {
       isActive={props.isActive}
       isHead={props.isHead}
       height={props.height}
+      align={props.align}
     >
       {props.children}
     </StyledTableRow>
@@ -25,10 +27,11 @@ interface StyleProps {
   isHead?: boolean
   isActive?: boolean
   height?: number
+  align?: string
 }
 
 const StyledTableRow = styled.div<StyleProps>`
-  align-items: center;
+  align-items: ${(props) => (props.align === 'top' ? null : 'center')};
   background-color: ${(props) =>
     props.isActive ? 'transparent' : 'transparent'};
   border-bottom: 1px solid
