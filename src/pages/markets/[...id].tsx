@@ -250,6 +250,22 @@ const StyledMarket = styled.div`
   position: absolute;
   overflow-x: hidden;
   overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
 `
 
 const StyledSideBar = styled.div`
