@@ -28,6 +28,8 @@ import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
 import { Trade } from '@/lib/entities'
 
 import formatBalance from '@/utils/formatBalance'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import {
   useItem,
@@ -49,11 +51,18 @@ import { tryParseAmount } from '@/utils/tryParseAmount'
 import { updateOptions } from '@/state/options/actions'
 
 const Swap: React.FC = () => {
+  //state
+
+  const [description, setDescription] = useState(false)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
+  const [active, setCallActive] = useState(
+    orderType === Operation.LONG ? true : false
+  )
+
   // cost state
   const [cost, setCost] = useState({
     debit: '0',
@@ -170,6 +179,11 @@ const Swap: React.FC = () => {
   const handleSetMax = useCallback(() => {
     tokenBalance && onUserInput(tokenBalance)
   }, [tokenBalance, onUserInput])
+
+  const handleToggleClick = useCallback(() => {
+    setCallActive(!active)
+    updateItem(item, !active ? Operation.LONG : Operation.CLOSE_LONG)
+  }, [active, setCallActive])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -296,28 +310,6 @@ const Swap: React.FC = () => {
       })
   }, [item, onApprove])
 
-  const [active, setCallActive] = useState(
-    orderType === Operation.LONG ? true : false
-  )
-
-  const handleToggleClick = useCallback(() => {
-    setCallActive(!active)
-    updateItem(item, active ? Operation.LONG : Operation.CLOSE_LONG)
-  }, [active, setCallActive])
-
-  const StyledFilterBarInner = styled.div`
-    align-items: center;
-    display: flex;
-    justify-content: flex-start;
-    height: ${(props) => props.theme.barHeight}px;
-  `
-
-  const StyledToggleContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-  `
   return (
     <>
       <Box column alignItems="center">
@@ -326,7 +318,7 @@ const Swap: React.FC = () => {
         </StyledTitle>
         <StyledToggleContainer>
           <StyledFilterBarInner>
-            <Toggle>
+            <Toggle full>
               <ToggleButton
                 active={active}
                 onClick={handleToggleClick}
@@ -345,7 +337,7 @@ const Swap: React.FC = () => {
             <h5>There is no liquidity in this option market</h5>
           </WarningTooltip>
         )}
-        <Spacer size="sm" />
+        <Spacer />
         <PriceInput
           title="Quantity"
           name="primary"
@@ -359,27 +351,12 @@ const Swap: React.FC = () => {
         <StyledTitle>Order Summary</StyledTitle>
         {!inputLoading ? (
           <>
-            {orderType === Operation.SHORT ||
-            orderType === Operation.CLOSE_SHORT ? (
-              <LineItem
-                label="Price"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : orderType === Operation.WRITE ||
-              orderType === Operation.CLOSE_LONG ? (
-              <LineItem
-                label="Price"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : (
-              <LineItem
-                label="Price"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            )}
+            <LineItem
+              label="Price"
+              data={formatBalance(prem)}
+              units={entity.isPut ? 'DAI' : item.asset}
+              tip="The price per 1 option token."
+            />
           </>
         ) : (
           <>{hasLiquidity ? <Loader /> : null}</>
@@ -392,30 +369,25 @@ const Swap: React.FC = () => {
           </>
         ) : (
           <LineItem
-            label="Slippage"
+            label={isBelowSlippage() ? 'Slippage' : 'Slippage too high'}
             data={`${Math.abs(parseFloat(impact)).toString()}`}
             units="%"
-            color="red"
+            color={isBelowSlippage() ? null : 'red'}
+            tip="The % change in the price paid."
           />
         )}
-        {/* {!isBelowSlippage() && !error ? (
-          <>
-            <div style={{ marginTop: '-.5em' }} />
-            <WarningLabel>
-              Expected Slippage on this order is higher than the user limit of{' '}
-              {numeral(parseFloat(slippage)).format('0.00a%')}
-            </WarningLabel>
-          </>
-        ) : (
-          <></>
-        )} */}
         <Spacer />
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>
-              <Box column alignItems="center" justifyContent="center">
-                <Loader />
-              </Box>
+              <Button
+                disabled={loading}
+                full
+                size="sm"
+                onClick={handleApproval}
+                isLoading={loading}
+                text="Confirm"
+              />
             </div>
           ) : (
             <>
@@ -461,7 +433,7 @@ const Swap: React.FC = () => {
                       size="sm"
                       onClick={handleSubmitClick}
                       isLoading={loading}
-                      text="Confirm Transaction"
+                      text="Confirm"
                     />
                   ) : null}
                 </>
@@ -493,24 +465,53 @@ const Swap: React.FC = () => {
                     size="sm"
                     onClick={handleSubmitClick}
                     isLoading={loading}
-                    text={
-                      !isBelowSlippage()
-                        ? 'Slippage Too High'
-                        : 'Confirm Transaction'
-                    }
+                    text={'Confirm'}
                   />
                 </>
               )}
             </>
           )}
         </StyledEnd>
-        <Spacer size="sm" />
-        <StyledTitle>Description</StyledTitle>
-        {parsedAmount.gt(0) ? (
+
+        {error ? (
+          <StyledSummary column alignItems="flex-start">
+            <PurchaseInfo>
+              <StyledSpan>
+                <Spacer />
+                <WarningLabel>Order quantity too large!</WarningLabel>
+              </StyledSpan>
+            </PurchaseInfo>
+          </StyledSummary>
+        ) : null}
+
+        <Spacer />
+        <IconButton
+          text=""
+          full
+          variant="transparent"
+          onClick={() => {
+            setDescription(!description)
+          }}
+        >
+          <StyledInnerTitle>Description</StyledInnerTitle>
+          {description ? <ExpandLessIcon /> : <ExpandMoreIcon />}{' '}
+        </IconButton>
+
+        {parsedAmount.eq(0) && !error && description ? (
+          <StyledSummary column alignItems="flex-start">
+            <PurchaseInfo>
+              <StyledSpan>Enter an amount of options to trade.</StyledSpan>
+            </PurchaseInfo>
+          </StyledSummary>
+        ) : (
+          <> </>
+        )}
+
+        {parsedAmount.gt(0) && description ? (
           <StyledSummary column alignItems="flex-start">
             {parsedAmount.gt(0) && !error ? (
               <PurchaseInfo>
-                <span>
+                <StyledSpan>
                   You will{' '}
                   <StyledData>
                     {orderType === Operation.LONG ||
@@ -624,116 +625,41 @@ const Swap: React.FC = () => {
                       .{' '}
                     </>
                   )}
-                </span>
+                </StyledSpan>
               </PurchaseInfo>
             ) : (
               <>
-                {error ? (
-                  <WarningLabel>Order quantity too large!</WarningLabel>
-                ) : null}
+                <PurchaseInfo>
+                  <StyledSpan>The order size is too large.</StyledSpan>
+                </PurchaseInfo>
               </>
             )}
           </StyledSummary>
         ) : null}
-        <Spacer size="sm" />
-        {/* <StyledEnd row justifyContent="flex-start">
-          {loading ? (
-            <div style={{ width: '100%' }}>
-              <Box column alignItems="center" justifyContent="center">
-                <Loader />
-              </Box>
-            </div>
-          ) : (
-            <>
-              {orderType === Operation.WRITE ? (
-                <>
-                  {approved[0] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleApproval}
-                        isLoading={loading}
-                        text="Approve Options"
-                      />
-                    </>
-                  )}
-                  {approved[1] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleSecondaryApproval}
-                        isLoading={loading}
-                        text="Approve Tokens"
-                      />
-                    </>
-                  )}
-                  {approved[0] && approved[1] ? (
-                    <Button
-                      disabled={
-                        !parsedAmount?.gt(0) ||
-                        error ||
-                        !hasLiquidity ||
-                        !isBelowSlippage()
-                      }
-                      full
-                      size="sm"
-                      onClick={handleSubmitClick}
-                      isLoading={loading}
-                      text="Confirm Transaction"
-                    />
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  {approved[0] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleApproval}
-                        isLoading={loading}
-                        text="Approve"
-                      />
-                    </>
-                  )}
-                  <Button
-                    disabled={
-                      !approved[0] ||
-                      !parsedAmount?.gt(0) ||
-                      error ||
-                      !hasLiquidity ||
-                      !isBelowSlippage()
-                    }
-                    full
-                    size="sm"
-                    onClick={handleSubmitClick}
-                    isLoading={loading}
-                    text={
-                      !isBelowSlippage()
-                        ? 'Slippage Too High'
-                        : 'Confirm Transaction'
-                    }
-                  />
-                </>
-              )}
-            </>
-          )}
-        </StyledEnd> */}
+        <Spacer />
       </Box>
     </>
   )
 }
+
+const StyledFilterBarInner = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  height: ${(props) => props.theme.barHeight}px;
+  width: 100%;
+`
+
+const StyledToggleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+`
+
+const StyledSpan = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+`
 
 const StyledSummary = styled(Box)`
   display: flex;
@@ -766,6 +692,17 @@ const StyledTitle = styled.div`
   display: flex;
   flex: 1;
   width: 100%;
+  letter-spacing: 0.5px;
+`
+
+const StyledInnerTitle = styled.div`
+  color: ${(props) => props.theme.color.white};
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  letter-spacing: 0.5px;
 `
 
 const PurchaseInfo = styled.div`
