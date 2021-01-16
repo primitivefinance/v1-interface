@@ -1,54 +1,69 @@
-import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import React, { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
-
-import { GetServerSideProps } from 'next'
-import { useActiveWeb3React } from '@/hooks/user/index'
-import MetaMaskOnboarding from '@metamask/onboarding'
-
-import Notifs from '@/components/Notifs'
+import PageHeader from '@/components/PageHeader'
+import MarketCards from '@/components/MarketCards'
 import Spacer from '@/components/Spacer'
-
-import {
-  ADDRESS_FOR_MARKET,
-  Operation,
-  ACTIVE_EXPIRIES,
-} from '@/constants/index'
-import ErrorBoundary from '@/components/ErrorBoundary'
-import { Grid, Col, Row } from 'react-styled-flexboxgrid'
-import { useClearNotif } from '@/state/notifs/hooks'
-
+import Box from '@/components/Box'
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
 
-import {
-  FilterBar,
-  MarketHeader,
-  OptionsTable,
-  TransactionCard,
-  OrderCard,
-  PositionsCard,
-} from '@/components/Market'
-import BalanceCard from '@/components/Market/BalanceCard'
-import { useSetLoading } from '@/state/positions/hooks'
+import MetaMaskOnboarding from '@metamask/onboarding'
+
+import Notifs from '@/components/Notifs'
+
+import { useActiveWeb3React } from '@/hooks/user/index'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { useRouter } from 'next/router'
+import { GetServerSideProps } from 'next'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import { useClearNotif } from '@/state/notifs/hooks'
+import { useSetLoading } from '@/state/positions/hooks'
+
+import LiquidityTable from '@/components/Liquidity/LiquidityTable'
+
+import PositionsCard from '@/components/Market/PositionsCard'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
 
   return {
     props: {
-      market: data[0],
+      user: data[0],
       data: data,
     },
   }
 }
 
-const Market = ({ market, data }) => {
+interface CardProps {
+  title?: string
+  description?: string
+  multiplier?: number
+}
+
+export const DataCard: React.FC<CardProps> = ({
+  title,
+  description,
+  multiplier,
+}) => {
+  return (
+    <StyledCardContainer multiplier={multiplier ? multiplier : 2}>
+      <CardContent>
+        <CardTitle>{title ? title : 'No title'}</CardTitle>
+      </CardContent>
+      <CardContent>
+        <Text>{description ? description : 'No description'}</Text>
+      </CardContent>
+    </StyledCardContainer>
+  )
+}
+
+export const Graph: React.FC = () => {
+  return <Box>Graph</Box>
+}
+
+const Liquidity = ({ user, data }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const { chainId, active, account, library } = useActiveWeb3React()
-  const initExpiry = ACTIVE_EXPIRIES[ACTIVE_EXPIRIES.length - 1]
-  const [expiry, setExpiry] = useState(initExpiry)
   const [id, storeId] = useState(chainId)
   const [changing, setChanging] = useState(false)
   const router = useRouter()
@@ -62,12 +77,7 @@ const Market = ({ market, data }) => {
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      router.push('/liquidity')
-      updateOptions('')
-    }
-
-    if (market === 'eth') {
-      router.push('/markets/weth/calls')
+      router.push(`/liquidity`)
     }
     if (ethereum) {
       const handleChainChanged = () => {
@@ -97,34 +107,8 @@ const Market = ({ market, data }) => {
       }
     }
   }, [id, chainId, storeId])
-  useEffect(() => {
-    if (data[1]) {
-      setCallPutActive(data[1] === 'calls')
-    }
-  }, [setCallPutActive, data])
-  const handleFilterType = () => {
-    setCallPutActive(!callPutActive)
-    if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
-        shallow: true,
-      })
-    } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
-    }
-  }
-  const handleFilterExpiry = (exp: number) => {
-    setExpiry(exp)
-  }
 
-  useEffect(() => {
-    setExpiry(initExpiry)
-  }, [chainId])
-  useEffect(() => {
-    updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
-  }, [])
-  if (!active || market === 'eth') {
+  if (!active) {
     return (
       <>
         <Spacer />
@@ -133,24 +117,25 @@ const Market = ({ market, data }) => {
     )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
+    return <Text>Please switch to Rinkeby or Mainnet Networks</Text>
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||
     !(window as any)?.ethereum ||
     !(window as any)?.web3
   ) {
-    return <StyledText>Please Install Metamask to View Markets</StyledText>
+    return <Text>Please Install Metamask to View Markets</Text>
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
-    return <StyledText>Please Connect to Metamask to View Markets</StyledText>
+    return <Text>Please Connect to Metamask to View Markets</Text>
   }
+
   return (
     <ErrorBoundary
       fallback={
         <>
           <Spacer />
-          <StyledText>Error Loading Market, Please Refresh</StyledText>
+          <Text>Error Loading Liquidity, Please Refresh</Text>
         </>
       }
     >
@@ -163,114 +148,80 @@ const Market = ({ market, data }) => {
       ) : (
         <>
           <Disclaimer />
-          <Notifs />
-          <StyledMarket>
-            <Grid>
-              <Row>
-                <StyledContainer sm={12} md={8} lg={8}>
-                  <StyledMain>
-                    <MarketHeader
-                      marketId={market}
-                      isCall={callPutActive ? 0 : 1}
-                    />
-                    <FilterBar
-                      active={callPutActive}
-                      setCallActive={handleFilterType}
-                      expiry={expiry}
-                      setExpiry={handleFilterExpiry}
-                    />
-
-                    <ErrorBoundary
-                      fallback={
-                        <>
-                          <Spacer />
-                          <StyledText>
-                            Error Loading Options, Please Refresh
-                          </StyledText>
-                        </>
-                      }
-                    >
-                      <OptionsTable
-                        asset={market}
-                        assetAddress={ADDRESS_FOR_MARKET[market]}
-                        optionExp={expiry}
-                        callActive={callPutActive}
-                      />
-                    </ErrorBoundary>
-                  </StyledMain>
-                </StyledContainer>
-                <StyledCol sm={12} md={4} lg={4}>
-                  <StyledSideBar>
-                    <ErrorBoundary
-                      fallback={
-                        <>
-                          <Spacer />
-                          <StyledText>
-                            Error Loading Positions, Please Refresh
-                          </StyledText>
-                        </>
-                      }
-                    >
-                      <Spacer />
-                      <PositionsCard />
-                      <OrderCard orderState={data} />
-                      <BalanceCard />
-                      <TransactionCard />
-                      <Spacer />
-                    </ErrorBoundary>
-                  </StyledSideBar>
-                </StyledCol>
-              </Row>
-            </Grid>
-          </StyledMarket>
+          <StyledLitContainer>
+            <StyledLitContainerContent>
+              <StyledHeaderContainer>
+                <DataCard
+                  title={'Total Liquidity'}
+                  multiplier={3}
+                  description={'10 WETH'}
+                />
+                <DataCard multiplier={3} />
+                <DataCard multiplier={3} />
+              </StyledHeaderContainer>
+              <Spacer />
+              <StyledHeaderContainer>
+                <LiquidityTable />
+                <Text>{user}</Text>
+              </StyledHeaderContainer>
+            </StyledLitContainerContent>
+          </StyledLitContainer>
         </>
       )}
     </ErrorBoundary>
   )
 }
 
-const StyledCol = styled(Col)`
-  overflow-x: hidden;
-`
-
-const StyledContainer = styled(Col)`
-  height: 100%;
+const StyledLitContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  align-items: center;
-  flex-grow: 1;
 `
-const StyledMain = styled.div``
-
-const StyledMarket = styled.div`
-  width: 100%;
-  height: 90%;
-  position: absolute;
-  overflow-x: hidden;
-  overflow-y: scroll !important;
+const StyledLitContainerContent = styled.div`
+  width: ${(props) => props.theme.contentWidth}px;
 `
 
-const StyledSideBar = styled.div`
-  background: none;
-  width: 25em;
-  box-sizing: border-box;
-  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  padding: ${(props) => props.theme.spacing[2]}px
-    ${(props) => props.theme.spacing[2]}px
-    ${(props) => props.theme.spacing[4]}px
-    ${(props) => props.theme.spacing[4]}px;
-  padding-top: 0 !important;
-  height: 90vh;
-  position: fixed;
-  overflow: auto;
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: scroll;
+const StyledHeaderContainer = styled.div`
+  //background-color: ${(props) => props.theme.color.grey[700]};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: ${(props) => props.theme.spacing[3]}px;
 `
-const StyledText = styled.h4`
-  color: ${(props) => props.theme.color.white};
+
+interface CardContainerProps {
+  multiplier: number
+}
+
+const StyledCardContainer = styled.span<CardContainerProps>`
+  background: ${(props) => props.theme.color.grey[900]};
+  border: 1px solid grey;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  margin: ${(props) => props.theme.spacing[3]}px;
+  padding: ${(props) => props.theme.spacing[2]}px;
+  width: ${(props) => props.theme.contentWidth * (1 / props.multiplier)}px;
+`
+
+const CardTitle = styled.span`
   font-size: 18px;
+  color: ${(props) => props.theme.color.white};
+  opacity: 0.5;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 `
 
-export default Market
+const Text = styled.span`
+  color: ${(props) => props.theme.color.white};
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+`
+
+const CardContent = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  padding: ${(props) => props.theme.spacing[2]}px;
+`
+
+export default Liquidity

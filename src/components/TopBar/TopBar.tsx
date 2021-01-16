@@ -16,7 +16,7 @@ import { useWeb3React } from '@web3-react/core'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
-  const { chainId } = useWeb3React()
+  const { chainId, account } = useWeb3React()
   return (
     <StyledTopBar>
       <Container
@@ -48,10 +48,8 @@ const TopBar: React.FC = () => {
               Markets
             </StyledNavItem>
           </Link>
-          <Link href="/liquidity">
-            <StyledNavItem
-              active={location.pathname === '/liquidity' ? true : false}
-            >
+          <Link href={`/liquidity/${encodeURIComponent(account)}`}>
+            <StyledNavItem active={location.pathname.startsWith('/liquidity')}>
               Liquidity
             </StyledNavItem>
           </Link>

@@ -77,7 +77,7 @@ const PositionsCard: React.FC = () => {
         <CardContent>
           <StyledEmptyContent>
             <Spacer size="sm" />
-            <StyledEmptyMessage>Loading...</StyledEmptyMessage>
+            <StyledEmptyMessage>Loading Positions...</StyledEmptyMessage>
             <StyledEmptyMessage>
               <Loader size="lg" />
             </StyledEmptyMessage>

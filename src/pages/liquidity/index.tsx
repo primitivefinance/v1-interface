@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
 import PageHeader from '@/components/PageHeader'
 import MarketCards from '@/components/MarketCards'
 import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
-import LitContainer from '@/components/LitContainer'
-import Chart from '@/components/Chart'
+
+import Card from '@/components/Card'
+import CardTitle from '@/components/CardTitle'
+import CardContent from '@/components/CardContent'
 
 interface CardProps {
   title?: string
@@ -49,8 +51,7 @@ const Liquidity: React.FC = () => {
         </StyledHeaderContainer>
         <Spacer />
         <StyledHeaderContainer>
-          {/* <Chart /> */}
-          <DataCard />
+          {/* <LiquidityTable /> */}
         </StyledHeaderContainer>
       </StyledLitContainerContent>
     </StyledLitContainer>
@@ -78,7 +79,7 @@ interface CardContainerProps {
   multiplier: number
 }
 
-const StyledCardContainer = styled(Box)<CardContainerProps>`
+const StyledCardContainer = styled(Card)<CardContainerProps>`
   border: 1px solid grey;
   border-radius: ${(props) => props.theme.borderRadius}px;
   margin: ${(props) => props.theme.spacing[3]}px;
@@ -86,13 +87,13 @@ const StyledCardContainer = styled(Box)<CardContainerProps>`
   width: ${(props) => props.theme.contentWidth * (1 / props.multiplier)}px;
 `
 
-const CardTitle = styled.span`
+/* const CardTitle = styled.span`
   font-size: 18px;
   color: ${(props) => props.theme.color.white};
   opacity: 0.5;
   letter-spacing: 1px;
   text-transform: uppercase;
-`
+` */
 
 const Text = styled.span`
   color: ${(props) => props.theme.color.white};
@@ -102,10 +103,10 @@ const Text = styled.span`
   text-transform: uppercase;
 `
 
-const CardContent = styled(Box)`
+/* const CardContent = styled(Box)`
   display: flex;
   flex-direction: column;
   padding: ${(props) => props.theme.spacing[2]}px;
-`
+` */
 
 export default Liquidity

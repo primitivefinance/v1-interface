@@ -97,11 +97,13 @@ const Market = ({ market, data }) => {
       }
     }
   }, [id, chainId, storeId])
+
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
   }, [setCallPutActive, data])
+
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
@@ -121,9 +123,11 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
+
   useEffect(() => {
     updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
   }, [])
+
   if (!active || market === 'eth') {
     return (
       <>
