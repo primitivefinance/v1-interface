@@ -17,16 +17,13 @@ import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import WarningIcon from '@material-ui/icons/Warning'
+
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
-import { useReserves } from '@/hooks/data'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
-import { Trade } from '@/lib/entities'
 
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -51,11 +48,9 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
-import { updateOptions } from '@/state/options/actions'
 
 const Swap: React.FC = () => {
   //state
-
   const [description, setDescription] = useState(false)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
@@ -93,10 +88,7 @@ const Swap: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
-  // guard cap
-  const guardCap = useGuardCap(item.asset, orderType)
-  // price
-  const price = usePrice()
+
   // slippage
   const slippage = useSlippage()
   // pair and option entities
