@@ -22,8 +22,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 
-import { Trade, Market } from '@/lib/entities/index'
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { Trade, Market } from '@primitivefi/sdk'
 import { Fraction, Pair } from '@uniswap/sdk'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'

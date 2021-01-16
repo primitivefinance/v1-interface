@@ -9,8 +9,8 @@ import { OptionsState } from './reducer'
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 
-import { Protocol } from '@/lib/protocol'
-import { Trade, Option, Market } from '@/lib/entities'
+import { Protocol } from '@primitivefi/sdk'
+import { Trade, Option, Market } from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'

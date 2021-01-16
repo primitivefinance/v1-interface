@@ -7,7 +7,6 @@ import { Token, TokenAmount, Pair, JSBI, ChainId } from '@uniswap/sdk'
 import { useWeb3React } from '@web3-react/core'
 import { DataType } from './index'
 import { useContract, useKeepSWRDataLiveAsBlocksArrive } from '../utils/index'
-import { STABLECOIN_ADDRESS } from '../../lib/constants'
 import { isAddress, getAddress } from '@ethersproject/address'
 
 export function getReserves(

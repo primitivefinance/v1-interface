@@ -2103,6 +2103,24 @@
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
+"@primitivefi/sdk@0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-0.2.5.tgz#43daea57aedb4e7908c15d73301e9398dbaee531"
+  integrity sha512-zY3v4VLNUuPaZUWcEHnjSjBc+9qP/+86FNv2NeT2OMaUrAE1jilVF8IKk2LlhMOzdVVj6LeqS42/7wYBbv7d2g==
+  dependencies:
+    "@ethersproject/providers" "^5.0.5"
+    "@primitivefi/contracts" "0.4.4"
+    "@primitivefi/v1-connectors" "1.2.2"
+    "@uniswap/v2-core" "^1.0.1"
+    "@uniswap/v2-periphery" "^1.1.0-beta.0"
+    bignumber.js "^9.0.0"
+    bn.js "^5.1.1"
+    ethers "^5.0.2"
+    numeral "^2.0.6"
+    prettier "^2.1.2"
+    web3 "^1.2.6"
+    web3modal "^1.5.0"
+
 "@primitivefi/v1-connectors@1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.2.tgz#78b4447704f11e1b8e2ecd62058f71667556cd42"

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { approve } from '@/lib/erc20'
+import { approve } from '@primitivefi/sdk'
 import { Operation } from '@/constants/index'
 import ethers from 'ethers'
 

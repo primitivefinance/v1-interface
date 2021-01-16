@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Option } from '@/lib/entities/option'
-import { Protocol } from '@/lib/index'
+import { Option, Protocol } from '@primitivefi/sdk'
 import { useWeb3React } from '@web3-react/core'
 
 export interface OptionEntities {
