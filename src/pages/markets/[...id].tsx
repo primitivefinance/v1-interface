@@ -269,19 +269,22 @@ const StyledSideBar = styled.div`
   overflow-x: hidden;
   overflow-y: scroll !important;
   justify-content: center;
-  &::-webkit-scrollbar-thumb {
-    color: ${(props) => props.theme.color.grey[400]};
-  }
   &::-webkit-scrollbar {
-    width: 10px;
-    color: ${(props) => props.theme.color.grey[400]};
-    scrollbar-base-color: ${(props) => props.theme.color.grey[400]};
-    //border: 1px solid red !important;
+    width: 5px;
+    height: 15px;
   }
-  &::scroller {
-    width: 10px;
-    border: 1px solid red !important;
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
   }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};
