@@ -117,13 +117,13 @@ const LargeLabel = styled.div`
 
 const StyledInputWrapper = styled.div<StyledInputProps>`
   align-items: center;
-  background: ${(props) => props.theme.color.black};
+  background: ${(props) => props.theme.color.grey[800]};
   border-radius: ${(props) => props.theme.borderRadius}px;
   display: flex;
   height: ${(props) => props.height};
   width: 100%;
   &:hover {
-    background: ${(props) => props.theme.color.grey[800]};
+    background: ${(props) => props.theme.color.grey[700]};
   }
 `
 
@@ -140,7 +140,7 @@ const StyledInput = styled.input<StyledInputProps>`
   outline: none;
   text-indent: ${(props) => props.theme.spacing[3]}px;
   &:focus {
-    background: ${(props) => props.theme.color.grey[800]};
+    background: ${(props) => props.theme.color.grey[700]};
     border: 1px solid ${(props) => props.theme.color.white} !important;
     transition: border-color 0.25s ease-in-out;
   }
