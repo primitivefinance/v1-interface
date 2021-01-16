@@ -30,7 +30,7 @@ import useTokenAllowance, {
 } from '@/hooks/useTokenAllowance'
 import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
 import { useReserves } from '@/hooks/data'
-import executeTransaction from '@/lib/utils/executeTransaction'
+import executeTransaction from '@/utils/executeTransaction'
 
 import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
@@ -147,7 +147,7 @@ export const useUpdateItem = (): ((
             return
           }
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
-          const spender = UNISWAP_ROUTER02_V2
+          const spender = UNI_ROUTER_ADDRESS
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -210,7 +210,7 @@ export const useUpdateItem = (): ((
         } else {
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-              ? UNISWAP_ROUTER02_V2
+              ? UNI_ROUTER_ADDRESS
               : UNISWAP_CONNECTOR[chainId]
           let tokenAddress
           let secondaryAddress
@@ -340,7 +340,7 @@ export const useHandleSubmitOrder = (): ((
         signer
       )
       const factory = new ethers.Contract(
-        UNISWAP_FACTORY_V2,
+        FACTORY_ADDRESS,
         UniswapV2Factory.abi,
         signer
       )

@@ -74,7 +74,7 @@ const RemoveLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender =
     orderType === Operation.REMOVE_LIQUIDITY
-      ? UNISWAP_ROUTER02_V2
+      ? UNI_ROUTER_ADDRESS
       : UNISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 

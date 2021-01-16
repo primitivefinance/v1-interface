@@ -18,7 +18,6 @@ import { TradeSettings } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
 
-import executeTransaction from '@primitivefi/sdk'
 import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useItem } from '@/state/order/hooks'
@@ -86,7 +85,7 @@ const getTrade = async (
     signer
   )
   const factory = new ethers.Contract(
-    UNISWAP_FACTORY_V2,
+    FACTORY_ADDRESS,
     UniswapV2Factory.abi,
     signer
   )

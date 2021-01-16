@@ -19,7 +19,7 @@ import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
 import { Token, TokenAmount } from '@uniswap/sdk'
 
-import executeTransaction from '@primitivefi/sdk'
+import executeTransaction from '@/utils/executeTransaction'
 import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
 import { useWeb3React } from '@web3-react/core'
 import { useSlippage } from '@/state/user/hooks'
@@ -83,7 +83,7 @@ const getTrade = async (
     signer
   )
   const factory = new ethers.Contract(
-    UNISWAP_FACTORY_V2,
+    FACTORY_ADDRESS,
     UniswapV2Factory.abi,
     signer
   )

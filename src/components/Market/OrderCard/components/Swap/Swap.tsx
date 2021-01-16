@@ -171,7 +171,7 @@ const Swap: React.FC = () => {
   )
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-      ? UNISWAP_ROUTER02_V2
+      ? UNI_ROUTER_ADDRESS
       : UNISWAP_CONNECTOR[chainId]
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const onApprove = useApprove()
