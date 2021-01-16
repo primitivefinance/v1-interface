@@ -267,8 +267,21 @@ const StyledSideBar = styled.div`
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll !important;
   justify-content: center;
+  &::-webkit-scrollbar-thumb {
+    color: ${(props) => props.theme.color.grey[400]};
+  }
+  &::-webkit-scrollbar {
+    width: 10px;
+    color: ${(props) => props.theme.color.grey[400]};
+    scrollbar-base-color: ${(props) => props.theme.color.grey[400]};
+    //border: 1px solid red !important;
+  }
+  &::scroller {
+    width: 10px;
+    border: 1px solid red !important;
+  }
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};

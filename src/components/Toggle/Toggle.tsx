@@ -28,10 +28,10 @@ interface SwitchProps {
 
 const StyledSwtich = styled.div<SwitchProps>`
   align-items: center;
-  background: ${(props) => props.theme.color.grey[800]};
+  background: ${(props) => props.theme.color.grey[900]};
   border-radius: ${(props) => props.theme.borderRadius}px;
   display: flex;
-  padding: ${(props) => props.theme.spacing[2]}px;
+  padding: ${(props) => (props.full ? null : props.theme.spacing[2])}px;
   width: ${(props) => (props.full ? '100%' : null)};
 `
 

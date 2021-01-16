@@ -29,14 +29,14 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const { utc } = formatExpiry(option.attributes.entity.expiryValue)
 
   const handleClick = () => {
-    updateItem(option.attributes, Operation.NONE)
+    updateItem(option.attributes, Operation.LONG)
   }
 
   return (
     <StyledPosition onClick={handleClick}>
       <StyledPrice>
         <StyledExpiryContainer>
-          <StyledExpiry>Expires: {utc.substr(4, 12)}</StyledExpiry>
+          <StyledExpiry>{utc.substr(4, 12)}</StyledExpiry>
           <StyledExpiry>Total Value</StyledExpiry>
         </StyledExpiryContainer>
         <StyledValuesContainer>
@@ -187,7 +187,7 @@ const StyledValue = styled.div`
 
 const StyledExpiry = styled.span`
   color: ${(props) => props.theme.color.grey[500]};
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.5px;
 `
 

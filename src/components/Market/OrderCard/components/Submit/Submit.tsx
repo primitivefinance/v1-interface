@@ -52,12 +52,12 @@ const Submit: React.FC<SubmitProps> = () => {
 
 const StyledDiv = styled.div`
   padding: 1em;
-  background: black;
+  //background: black;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid ${(props) => props.theme.color.grey[600]};
-  border-radius: 10px;
+  //border: 1px solid ${(props) => props.theme.color.grey[600]};
+  //border-radius: 10px;
 `
 
 export default Submit

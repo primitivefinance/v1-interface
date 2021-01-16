@@ -19,7 +19,7 @@ const Card: React.FC<CardProps> = (props) => {
 
 const StyledCard = styled.div<CardProps>`
   background-color: ${(props) =>
-    props.dark ? props.theme.color.black : props.theme.color.grey[900]};
+    props.dark ? props.theme.color.black : props.theme.color.grey[800]};
   border: 1px solid
     ${(props) =>
       props.border

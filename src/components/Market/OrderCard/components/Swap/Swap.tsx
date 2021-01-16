@@ -12,6 +12,7 @@ import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import Toggle from '@/components/Toggle'
 import ToggleButton from '@/components/ToggleButton'
+import ClearIcon from '@material-ui/icons/Clear'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -30,11 +31,13 @@ import { Trade } from '@/lib/entities'
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import formatExpiry from '@/utils/formatExpiry'
 
 import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
+  useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import {
@@ -114,7 +117,11 @@ const Swap: React.FC = () => {
   switch (orderType) {
     case Operation.LONG:
       title = {
-        text: 'Trade Options',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
@@ -130,7 +137,11 @@ const Swap: React.FC = () => {
       break
     case Operation.WRITE:
       title = {
-        text: 'Trade Options',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
       }
@@ -140,7 +151,11 @@ const Swap: React.FC = () => {
       break
     case Operation.CLOSE_LONG:
       title = {
-        text: 'Trade Options',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.address
@@ -310,12 +325,32 @@ const Swap: React.FC = () => {
       })
   }, [item, onApprove])
 
+  const CustomButton = styled.div`
+    margin-top: -0.1em;
+    background: none;
+  `
+
+  const removeItem = useRemoveItem()
+
   return (
     <>
       <Box column alignItems="center">
         <StyledTitle>
           <Tooltip text={title.tip}>{title.text}</Tooltip>
+          <CustomButton>
+            <Button
+              variant="transparent"
+              size="sm"
+              onClick={() => removeItem()}
+            >
+              <ClearIcon />
+            </Button>
+          </CustomButton>
         </StyledTitle>
+
+        <Separator />
+        <Spacer size="sm" />
+
         <StyledToggleContainer>
           <StyledFilterBarInner>
             <Toggle full>
@@ -332,10 +367,14 @@ const Swap: React.FC = () => {
             </Toggle>
           </StyledFilterBarInner>
         </StyledToggleContainer>
+
         {hasLiquidity ? null : (
-          <WarningTooltip>
-            <h5>There is no liquidity in this option market</h5>
-          </WarningTooltip>
+          <>
+            <Spacer />
+            <WarningTooltip>
+              There is no liquidity in this option market
+            </WarningTooltip>
+          </>
         )}
         <Spacer />
         <PriceInput
@@ -636,11 +675,16 @@ const Swap: React.FC = () => {
             )}
           </StyledSummary>
         ) : null}
-        <Spacer />
+        <Spacer size="sm" />
       </Box>
     </>
   )
 }
+
+const Separator = styled.div`
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
+  width: 100%;
+`
 
 const StyledFilterBarInner = styled.div`
   align-items: center;
@@ -685,14 +729,16 @@ const WarningTooltip = styled.div`
   opacity: 1;
 `
 const StyledTitle = styled.div`
+  align-items: center;
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   margin: ${(props) => props.theme.spacing[2]}px;
   display: flex;
   flex: 1;
   width: 100%;
   letter-spacing: 0.5px;
+  justify-content: space-between;
 `
 
 const StyledInnerTitle = styled.div`
