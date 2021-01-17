@@ -8,18 +8,18 @@ import LineItem from '@/components/LineItem'
 import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
-import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
-import Toggle from '@/components/Toggle'
-import ToggleButton from '@/components/ToggleButton'
 import Title from '@/components/Title'
-import ClearIcon from '@material-ui/icons/Clear'
+import Description from '@/components/Description'
+import CardHeader from '@/components/CardHeader'
+import Switch from '@/components/Switch'
+import Separator from '@/components/Separator'
+import OptionTextInfo from '@/components/OptionTextInfo'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
-import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
@@ -43,185 +43,11 @@ import {
   useSwap,
   useSetSwapLoaded,
 } from '@/state/swap/hooks'
-import { usePrice } from '@/state/price/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
-
-interface SwitchProps {
-  active: boolean
-  onClick: () => void
-}
-
-const Switch: React.FC<SwitchProps> = ({ active, onClick }) => {
-  return (
-    <StyledToggleContainer>
-      <StyledFilterBarInner>
-        <Toggle full>
-          <ToggleButton active={active} onClick={onClick} text="Buy" />
-          <ToggleButton active={!active} onClick={onClick} text="Sell" />
-        </Toggle>
-      </StyledFilterBarInner>
-    </StyledToggleContainer>
-  )
-}
-
-interface TitleType {
-  tip: string
-  text: string
-}
-
-interface CardHeaderProps {
-  title: TitleType
-  onClick: () => void
-}
-
-const CardHeader: React.FC<CardHeaderProps> = ({ title, onClick }) => {
-  return (
-    <Title full>
-      <Tooltip text={title.tip}>{title.text}</Tooltip>
-      <CustomButton>
-        <Button variant="transparent" size="sm" onClick={onClick}>
-          <ClearIcon />
-        </Button>
-      </CustomButton>
-    </Title>
-  )
-}
-
-interface OptionTextInfoProps {
-  orderType?: Operation
-  parsedAmount?: BigNumber
-  isPut?: boolean
-  strike?: TokenAmount
-  underlying?: TokenAmount
-  debit?: TokenAmount
-  credit?: TokenAmount
-  short?: TokenAmount
-}
-
-const formatParsedAmount = (amount: BigNumberish) => {
-  const bigAmt = ethers.BigNumber.from(amount)
-  return numeral(formatEther(bigAmt)).format(
-    bigAmt.lt(parseEther('0.01')) ? '0.0000' : '0.00'
-  )
-}
-
-const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
-  orderType,
-  parsedAmount,
-  isPut,
-  strike,
-  underlying,
-  debit,
-  credit,
-  short,
-}) => {
-  const getOrderTitle = useCallback(() => {
-    switch (orderType) {
-      case Operation.LONG:
-        return 'BUY'
-      case Operation.SHORT:
-        return 'BUY'
-      case Operation.WRITE:
-        return 'SELL TO OPEN'
-      default:
-        return 'SELL'
-    }
-  }, [orderType])
-
-  const calculateProportionalShort = useCallback(() => {
-    return parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-  }, [parsedAmount, orderType, strike])
-
-  return (
-    <StyledSpan>
-      You will <StyledData>{getOrderTitle()}</StyledData>{' '}
-      <StyledData>
-        {' '}
-        {formatParsedAmount(parsedAmount)}{' '}
-        {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
-          ? 'SHORT'
-          : ''}{' '}
-        {isPut ? 'PUT' : 'CALL'}{' '}
-      </StyledData>
-      {orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE ? (
-        <>
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
-          </StyledData>
-          .{' '}
-        </>
-      ) : orderType === Operation.CLOSE_SHORT ? (
-        <>
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
-          </StyledData>
-          .{' '}
-        </>
-      ) : orderType === Operation.SHORT ? (
-        <>
-          for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
-          </StyledData>{' '}
-          which gives you the right to withdraw{' '}
-          <StyledData>
-            {formatParsedAmount(
-              parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-            )}{' '}
-            {underlying.token.symbol}
-          </StyledData>{' '}
-          when the options expire unexercised, or the right to redeem them for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(parsedAmount)} {strike.token.symbol}
-          </StyledData>{' '}
-          if they are exercised.{' '}
-        </>
-      ) : orderType === Operation.LONG ? (
-        <>
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
-          </StyledData>{' '}
-          which gives you the right to purchase{' '}
-          <StyledData>
-            {formatParsedAmount(parsedAmount)} {underlying.token.symbol}
-          </StyledData>{' '}
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(calculateProportionalShort())}{' '}
-            {strike.token.symbol}
-          </StyledData>
-          .{' '}
-        </>
-      ) : (
-        <>
-          which gives you the right to purchase{' '}
-          <StyledData>
-            {underlying.raw.toString()} {underlying.token.symbol}
-          </StyledData>{' '}
-          for{' '}
-          <StyledData>
-            {isPut ? +strike.raw.toString() : +strike.raw.toString()}{' '}
-            {strike.token.symbol}
-          </StyledData>
-          .{' '}
-        </>
-      )}
-    </StyledSpan>
-  )
-}
-
-const EMPTY_TOKEN_AMOUNT = (chainId) => {
-  return new TokenAmount(new Token(chainId, ADDRESS_ZERO, 18), '0')
-}
 
 const Swap: React.FC = () => {
   //state
@@ -397,12 +223,6 @@ const Swap: React.FC = () => {
         }
         if (orderType === Operation.LONG) {
           if (parsedAmount.gt(BigNumber.from(0))) {
-            /* ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
-              orderType,
-              size
-            )
-            setImpact(slip)
-            setPrem(formatEther(spot.raw.toString())) */
             debit = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
@@ -414,12 +234,6 @@ const Swap: React.FC = () => {
           orderType === Operation.WRITE
         ) {
           if (parsedAmount.gt(BigNumber.from(0))) {
-            ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
-              orderType,
-              size
-            )
-            setImpact(slip)
-            setPrem(formatEther(spot.raw.toString()))
             credit = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
@@ -428,14 +242,6 @@ const Swap: React.FC = () => {
           // buy short swap from UNDER -> RDM
         } else if (orderType === Operation.SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
-            /* ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
-              orderType,
-              size
-            )
-            setImpact(slip)
-            setPrem(
-              formatEther(item.market.spotUnderlyingToShort.raw.toString())
-            ) */
             short = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
@@ -446,14 +252,6 @@ const Swap: React.FC = () => {
           // sell short, RDM -> UNDER
         } else if (orderType === Operation.CLOSE_SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
-            /* ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
-              orderType,
-              size
-            )
-            setImpact(slip)
-            setPrem(
-              formatEther(item.market.spotUnderlyingToShort.raw.toString())
-            ) */
             short = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
@@ -526,6 +324,7 @@ const Swap: React.FC = () => {
             </WarningTooltip>
           </>
         )}
+
         <Spacer />
         <PriceInput
           title="Quantity"
@@ -535,6 +334,7 @@ const Swap: React.FC = () => {
           onClick={handleSetMax}
           balance={tokenAmount}
         />
+
         <Spacer />
         <Title full>Order Summary</Title>
         {!inputLoading ? (
@@ -549,6 +349,7 @@ const Swap: React.FC = () => {
         ) : (
           <>{hasLiquidity ? <Loader /> : null}</>
         )}
+
         <Spacer size="sm" />
         {inputLoading && hasLiquidity ? (
           <>
@@ -564,6 +365,7 @@ const Swap: React.FC = () => {
             tip="The % change in the price paid."
           />
         )}
+
         <Spacer />
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
@@ -662,14 +464,10 @@ const Swap: React.FC = () => {
         </StyledEnd>
 
         {error ? (
-          <StyledSummary column alignItems="flex-start">
-            <PurchaseInfo>
-              <StyledSpan>
-                <Spacer />
-                <WarningLabel>Order quantity too large!</WarningLabel>
-              </StyledSpan>
-            </PurchaseInfo>
-          </StyledSummary>
+          <Description>
+            <Spacer />
+            <WarningLabel>Order quantity too large!</WarningLabel>
+          </Description>
         ) : null}
 
         <Spacer />
@@ -686,53 +484,43 @@ const Swap: React.FC = () => {
         </IconButton>
 
         {parsedAmount.eq(0) && !error && description ? (
-          <StyledSummary column alignItems="flex-start">
-            <PurchaseInfo>
-              <StyledSpan>Enter an amount of options to trade.</StyledSpan>
-            </PurchaseInfo>
-          </StyledSummary>
+          <Description>Enter an amount of options to trade.</Description>
         ) : (
           <> </>
         )}
 
-        {parsedAmount.gt(0) && description ? (
-          <StyledSummary column alignItems="flex-start">
-            {parsedAmount.gt(0) && !error ? (
-              <PurchaseInfo>
-                <OptionTextInfo
-                  orderType={orderType}
-                  parsedAmount={parsedAmount}
-                  isPut={entity.isPut}
-                  strike={entity.quoteValue}
-                  underlying={entity.baseValue}
-                  debit={
-                    new TokenAmount(
-                      entity.underlying,
-                      parseEther(cost.debit).toString()
-                    )
-                  }
-                  credit={
-                    new TokenAmount(
-                      entity.underlying,
-                      parseEther(cost.credit).toString()
-                    )
-                  }
-                  short={
-                    new TokenAmount(
-                      entity.underlying,
-                      parseEther(cost.short).toString()
-                    )
-                  }
-                />
-              </PurchaseInfo>
-            ) : (
-              <>
-                <PurchaseInfo>
-                  <StyledSpan>The order size is too large.</StyledSpan>
-                </PurchaseInfo>
-              </>
-            )}
-          </StyledSummary>
+        {parsedAmount.gt(0) && !error ? (
+          <Description>
+            <PurchaseInfo>
+              <OptionTextInfo
+                orderType={orderType}
+                parsedAmount={parsedAmount}
+                isPut={entity.isPut}
+                strike={entity.quoteValue}
+                underlying={entity.baseValue}
+                debit={
+                  new TokenAmount(
+                    entity.underlying,
+                    parseEther(cost.debit).toString()
+                  )
+                }
+                credit={
+                  new TokenAmount(
+                    entity.underlying,
+                    parseEther(cost.credit).toString()
+                  )
+                }
+                short={
+                  new TokenAmount(
+                    entity.underlying,
+                    parseEther(cost.short).toString()
+                  )
+                }
+              />
+            </PurchaseInfo>
+          </Description>
+        ) : !description ? (
+          <Description>The order size is too large.</Description>
         ) : null}
         <Spacer size="sm" />
       </Box>
@@ -740,36 +528,6 @@ const Swap: React.FC = () => {
   )
 }
 
-const Separator = styled.div`
-  border: 1px solid ${(props) => props.theme.color.grey[600]};
-  width: 100%;
-`
-
-const StyledFilterBarInner = styled.div`
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-  height: ${(props) => props.theme.barHeight}px;
-  width: 100%;
-`
-
-const StyledToggleContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
-`
-
-const StyledSpan = styled.span`
-  color: ${(props) => props.theme.color.grey[400]};
-`
-
-const StyledSummary = styled(Box)`
-  display: flex;
-  flex: 1;
-  min-width: 100%;
-  margin-bottom: ${(props) => props.theme.spacing[3]}px;
-`
 const StyledEnd = styled(Box)`
   min-width: 100%;
 `
@@ -786,10 +544,6 @@ const WarningTooltip = styled.div`
   vertical-align: middle;
   font-size: 14px;
   opacity: 1;
-`
-const CustomButton = styled.div`
-  margin-top: -0.1em;
-  background: none;
 `
 
 const StyledInnerTitle = styled.div`
@@ -809,10 +563,4 @@ const PurchaseInfo = styled.div`
   margin-bottom: -1em;
 `
 
-const StyledData = styled.span`
-  color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 500;
-  text-transform: uppercase;
-`
 export default Swap
