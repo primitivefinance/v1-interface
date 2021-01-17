@@ -362,9 +362,11 @@ const Swap: React.FC = () => {
   }, [tokenBalance, onUserInput])
 
   const handleToggleClick = useCallback(() => {
+    const prevTypedValue = typedValue
     setCallActive(!active)
     updateItem(item, !active ? Operation.LONG : Operation.CLOSE_LONG)
-  }, [active, setCallActive])
+    onUserInput(prevTypedValue ? prevTypedValue : '0')
+  }, [active, setCallActive, typedValue, onUserInput])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
