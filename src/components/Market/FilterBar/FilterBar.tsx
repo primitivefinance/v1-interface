@@ -43,7 +43,7 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
-          <StyledSelectWrapper>
+          {/* <StyledSelectWrapper>
             <StyledSelect value={expiry} onChange={handleFilter}>
               {ACTIVE_EXPIRIES.map((expiryValue, i) => {
                 return (
@@ -54,7 +54,7 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
                 )
               })}
             </StyledSelect>
-          </StyledSelectWrapper>
+          </StyledSelectWrapper> */}
         </StyledFilterBarInner>
       </LitContainer>
     </StyledFilterBar>

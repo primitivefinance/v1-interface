@@ -1,90 +1,64 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-
-import LaunchIcon from '@material-ui/icons/Launch'
-
-import { Protocol } from '@/lib/protocol'
-
-import { useWeb3React } from '@web3-react/core'
-
-import Table from '@/components/Table'
-import TableRow from '@/components/TableRow'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Spacer from '@/components/Spacer'
-import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
-import Button from '@/components/Button'
 import Loader from '@/components/Loader'
 
-import {
-  ETHERSCAN_MAINNET,
-  ETHERSCAN_RINKEBY,
-  Operation,
-  getIconForMarket,
-  COINGECKO_ID_FOR_MARKET,
-  POSITIONS_LOADING,
-} from '@/constants/index'
+import { Operation } from '@/constants/index'
 
 import { usePositions } from '@/state/positions/hooks'
 import { useUpdateItem, useItem } from '@/state/order/hooks'
-import formatEtherBalance from '@/utils/formatEtherBalance'
+
+import { BigNumber } from 'ethers'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
-import LineItem from '@/components/LineItem'
-import { useClickAway } from '@/hooks/utils/useClickAway'
 import numeral from 'numeral'
 export interface TokenProps {
   option: any // replace with option type
 }
 
 const Position: React.FC<TokenProps> = ({ option }) => {
-  const { chainId, library } = useWeb3React()
   const updateItem = useUpdateItem()
-  const { date, month, year } = formatExpiry(
-    option.attributes.entity.expiryValue
-  )
+  const { utc } = formatExpiry(option.attributes.entity.expiryValue)
 
   const handleClick = () => {
-    updateItem(option.attributes, Operation.NONE)
+    updateItem(option.attributes, Operation.LONG)
   }
-
-  const baseUrl = chainId === 4 ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
 
   return (
     <StyledPosition onClick={handleClick}>
-      <Spacer />
-      <Box row justifyContent="flex-start" alignItems="center">
-        <Spacer size="sm" />
-        <Box row justifyContent="space-between" alignItems="center">
-          <StyledTitle>
-            {`${option.attributes.asset} ${
-              option.attributes.entity.isCall ? 'Call' : 'Put'
-            } `}
-            {`${numeral(option.attributes.entity.strikePrice).format(
-              '$0.00a'
-            )} ${month}/${date}/${year}`}
-          </StyledTitle>
-        </Box>
-      </Box>
-      <StyledPrices row justifyContent="space-between" alignItems="center">
-        <StyledPrice>
-          <StyledT>Long</StyledT>
-          {formatEtherBalance(option.long)}
-        </StyledPrice>
-        <StyledPrice>
-          <StyledT>Short</StyledT>
-          {formatEtherBalance(option.redeem)}
-        </StyledPrice>
-        <StyledPrice>
-          <StyledT>LP</StyledT>
-          {formatEtherBalance(option.lp)}
-        </StyledPrice>
-      </StyledPrices>
+      <StyledPrice>
+        <StyledExpiryContainer>
+          <StyledExpiry>{utc.substr(4, 12)}</StyledExpiry>
+          <StyledExpiry>Total Value</StyledExpiry>
+        </StyledExpiryContainer>
+        <StyledValuesContainer>
+          <StyledValue>
+            {numeral(option.attributes.entity.strikePrice).format(
+              option.attributes.entity.strikePrice >= 1 ? '$0' : '$0.00'
+            )}{' '}
+            {option.attributes.entity.isCall ? 'Call' : 'Put'}
+          </StyledValue>
+          <Spacer size="sm" />
+          <StyledValue>
+            {numeral(
+              formatEther(
+                BigNumber.from(option.long ? option.long : 0)
+                  .mul(option.attributes.market.spotClosePremium.raw.toString())
+                  .div(parseEther('1'))
+              )
+            ).format('0.00')}{' '}
+            {option.attributes.asset.toUpperCase()}
+          </StyledValue>
+        </StyledValuesContainer>
+      </StyledPrice>
     </StyledPosition>
   )
 }
@@ -99,13 +73,21 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <>
-        <Spacer />
-        <Loader size="lg" />
-      </>
+      <Card border>
+        <CardContent>
+          <StyledEmptyContent>
+            <Spacer size="sm" />
+            <StyledEmptyMessage>Loading Positions...</StyledEmptyMessage>
+            <StyledEmptyMessage>
+              <Loader size="lg" />
+            </StyledEmptyMessage>
+            <Spacer size="sm" />
+          </StyledEmptyContent>
+        </CardContent>
+      </Card>
     )
   }
-  if (!positions.loading && !positions.exists) {
+  if (!positions.exists) {
     return (
       <Card border>
         <CardContent>
@@ -130,7 +112,7 @@ const PositionsCard: React.FC = () => {
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
             <StyledBox row justifyContent="space-between" alignItems="center">
-              <Title>{`Active Positions`}</Title>
+              <Title>{`Active ${item.item.asset.toUpperCase()} Positions`}</Title>
               <Spacer />
               {!open ? <ExpandMoreIcon /> : <ExpandLessIcon />}
             </StyledBox>
@@ -153,10 +135,6 @@ const PositionsCard: React.FC = () => {
   )
 }
 
-const LoadingMess = styled.h3`
-  color: ${(props) => props.theme.color.grey[400]};
-`
-
 const Scroll = styled.div`
   overflow: scroll;
   max-height: 20em;
@@ -175,57 +153,58 @@ const Title = styled.h4`
 const Reverse = styled.div`
   margin-top: -1.1em;
 `
-const StyledT = styled.h5`
-  opacity: 66%;
-  margin-bottom: -2px;
-  margin-top: -0px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 13px;
+
+const StyledExpiryContainer = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  justify-content: space-between;
+  padding-left: ${(props) => props.theme.spacing[4]}px;
+  padding-right: ${(props) => props.theme.spacing[4]}px;
+`
+
+const StyledValuesContainer = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-left: ${(props) => props.theme.spacing[4]}px;
+  padding-right: ${(props) => props.theme.spacing[4]}px;
 `
 
 const StyledPrice = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.3em;
-  color: white;
-`
-const StyledPrices = styled(Box)`
-  border-radius: 5px;
-  border-width: 2px;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  background: ${(props) => props.theme.color.black};
-  border-style: solid;
-  margin: 0 0.5em 0 0.5em;
-  padding: 0 1em 0 1em;
-`
-const StyledTitle = styled.h4`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  flex-direction: row;
+  height: 100%;
   justify-content: flex-start;
-  margin-top: -0.5em;
-  margin-bottom: 0.1em;
 `
+const StyledValue = styled.div`
+  color: ${(props) => props.theme.color.white};
+  font-size: 18px;
+  letter-spacing: 0.5px;
+`
+
+const StyledExpiry = styled.span`
+  color: ${(props) => props.theme.color.grey[500]};
+  font-size: 12px;
+  letter-spacing: 0.5px;
+`
+
 const StyledPosition = styled.a`
-  border: 1.5px solid ${(props) => props.theme.color.grey[800]};
+  background-color: 'transparent';
+  border: 1.5px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white} !important;
   border-radius: 0.5em;
-  height: 6em;
+  height: 5em;
   cursor: pointer;
-  margin-bottom: 0.2em;
+  margin-bottom: 1em;
   margin-top: -0.2em;
-  padding: 0em 0.3em 0.7em 0.3em;
   &:hover {
     border: 1.5px solid ${(props) => props.theme.color.grey[600]};
     box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
-    background: ${(props) => props.theme.color.black};
+    background-color: ${(props) => props.theme.color.grey[700]};
   }
-`
-const StyledLink = styled.a`
-  text-decoration: none;
-  cursor: grab;
-  color: ${(props) => props.theme.color.grey[400]};
 `
 
 const StyledEmptyContent = styled.div`
@@ -250,11 +229,6 @@ const StyledEmptyMessage = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   margin-top: ${(props) => props.theme.spacing[3]}px;
   text-align: center;
-`
-
-const StyledLogo = styled.img`
-  border-radius: 50%;
-  height: 36px;
 `
 
 export default PositionsCard

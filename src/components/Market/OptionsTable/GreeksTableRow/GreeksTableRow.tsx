@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
+import numeral from 'numeral'
 
 export interface Greeks {
   iv: number
@@ -67,13 +68,15 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
       </StyledTableRow>
       <StyledTableRow onClick={onClick}>
         <TableCell>
-          {iv < 1000 && iv > 0 ? `${(iv * 100).toFixed(3)}%` : 'N/A'}
+          {numeral(
+            typeof iv === 'number' && iv < 1000 && iv > 0 ? iv * 100 : 0
+          ).format('0.00%')}
         </TableCell>
-        <TableCell>{delta}</TableCell>
-        <TableCell>{theta}</TableCell>
-        <TableCell>{gamma}</TableCell>
-        <TableCell>{vega}</TableCell>
-        <TableCell>{rho}</TableCell>
+        <TableCell>{numeral(delta).format('0.00')}</TableCell>
+        <TableCell>{numeral(theta / 365).format('0.00')}</TableCell>
+        <TableCell>{numeral(gamma).format('0.00')}</TableCell>
+        <TableCell>{numeral(vega / 100).format('0.00')}</TableCell>
+        <TableCell>{numeral(rho / 100).format('0.00')}</TableCell>
       </StyledTableRow>
     </>
   )
@@ -92,7 +95,8 @@ const StyledTableRow = styled.div<StyleProps>`
       props.isHead || props.isActive
         ? 'transparent'
         : props.theme.color.grey[700]};
-  color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
+  color: ${(props) =>
+    props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
   display: flex;
   height: ${(props) => props.theme.rowHeight}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;

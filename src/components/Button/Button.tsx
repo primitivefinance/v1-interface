@@ -224,7 +224,6 @@ const StyledButton = styled.button<StyledButtonProps>`
   &:hover {
     background: ${(props) => props.hoverBackgroundColor};
     border-color: ${(props) => props.hoverBorderColor};
-    box-shadow: rgba(231, 221, 222, 0.05) 0px 8px 40px;
     color: ${(props) => props.hoverColor};
   }
 `

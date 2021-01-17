@@ -10,27 +10,31 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
+import Toggle from '@/components/Toggle'
+import ToggleButton from '@/components/ToggleButton'
+import ClearIcon from '@material-ui/icons/Clear'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import WarningIcon from '@material-ui/icons/Warning'
+
 import useGuardCap from '@/hooks/transactions/useGuardCap'
 import useApprove from '@/hooks/transactions/useApprove'
-import { useReserves } from '@/hooks/data'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
 import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
-import { Trade } from '@/lib/entities'
 
 import formatBalance from '@/utils/formatBalance'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import formatExpiry from '@/utils/formatExpiry'
 
 import {
   useItem,
   useUpdateItem,
   useHandleSubmitOrder,
+  useRemoveItem,
 } from '@/state/order/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import {
@@ -46,11 +50,17 @@ import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
 
 const Swap: React.FC = () => {
+  //state
+  const [description, setDescription] = useState(false)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
+  const [active, setCallActive] = useState(
+    orderType === Operation.LONG ? true : false
+  )
+
   // cost state
   const [cost, setCost] = useState({
     debit: '0',
@@ -78,10 +88,7 @@ const Swap: React.FC = () => {
   // web3
   const { library, chainId } = useWeb3React()
   const addNotif = useAddNotif()
-  // guard cap
-  const guardCap = useGuardCap(item.asset, orderType)
-  // price
-  const price = usePrice()
+
   // slippage
   const slippage = useSlippage()
   // pair and option entities
@@ -102,7 +109,11 @@ const Swap: React.FC = () => {
   switch (orderType) {
     case Operation.LONG:
       title = {
-        text: 'Buy Long Option Tokens',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: 'Purchase and hold option tokens',
       }
       tokenAddress = entity.underlying.address
@@ -110,7 +121,7 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Buy Short Option Tokens',
+        text: 'Buy Short Options',
         tip: 'Purchase tokenized, written covered options',
       }
       tokenAddress = entity.underlying.address
@@ -118,7 +129,11 @@ const Swap: React.FC = () => {
       break
     case Operation.WRITE:
       title = {
-        text: 'Write Options',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip:
           'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
       }
@@ -128,7 +143,11 @@ const Swap: React.FC = () => {
       break
     case Operation.CLOSE_LONG:
       title = {
-        text: 'Close Long Position',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: `Sell option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.address
@@ -167,6 +186,11 @@ const Swap: React.FC = () => {
   const handleSetMax = useCallback(() => {
     tokenBalance && onUserInput(tokenBalance)
   }, [tokenBalance, onUserInput])
+
+  const handleToggleClick = useCallback(() => {
+    setCallActive(!active)
+    updateItem(item, !active ? Operation.LONG : Operation.CLOSE_LONG)
+  }, [active, setCallActive])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -292,57 +316,59 @@ const Swap: React.FC = () => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
   }, [item, onApprove])
+
+  const CustomButton = styled.div`
+    margin-top: -0.1em;
+    background: none;
+  `
+
+  const removeItem = useRemoveItem()
+
   return (
     <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Spacer size="sm" />
+      <Box column alignItems="center">
         <StyledTitle>
           <Tooltip text={title.tip}>{title.text}</Tooltip>
+          <CustomButton>
+            <Button
+              variant="transparent"
+              size="sm"
+              onClick={() => removeItem()}
+            >
+              <ClearIcon />
+            </Button>
+          </CustomButton>
         </StyledTitle>
-      </Box>
-      <Box column alignItems="center">
-        {hasLiquidity ? null : (
-          <WarningTooltip>
-            <h5>There is no liquidity in this option market</h5>
-          </WarningTooltip>
-        )}
-        <Spacer size="sm" />
-        {!inputLoading ? (
-          <>
-            {orderType === Operation.SHORT ||
-            orderType === Operation.CLOSE_SHORT ? (
-              <LineItem
-                label="Short Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : orderType === Operation.WRITE ||
-              orderType === Operation.CLOSE_LONG ? (
-              <LineItem
-                label="Option Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            ) : (
-              <LineItem
-                label="Option Premium"
-                data={formatBalance(prem)}
-                units={entity.isPut ? 'DAI' : item.asset}
-              />
-            )}
-          </>
-        ) : (
-          <>{hasLiquidity ? <Loader /> : null}</>
-        )}
 
+        <Separator />
         <Spacer size="sm" />
+
+        <StyledToggleContainer>
+          <StyledFilterBarInner>
+            <Toggle full>
+              <ToggleButton
+                active={active}
+                onClick={handleToggleClick}
+                text="Buy"
+              />
+              <ToggleButton
+                active={!active}
+                onClick={handleToggleClick}
+                text="Sell"
+              />
+            </Toggle>
+          </StyledFilterBarInner>
+        </StyledToggleContainer>
+
+        {hasLiquidity ? null : (
+          <>
+            <Spacer />
+            <WarningTooltip>
+              There is no liquidity in this option market
+            </WarningTooltip>
+          </>
+        )}
+        <Spacer />
         <PriceInput
           title="Quantity"
           name="primary"
@@ -352,6 +378,20 @@ const Swap: React.FC = () => {
           balance={tokenAmount}
           valid={parseEther(underlyingTokenBalance).gt(parseEther(cost.debit))}
         />
+        <Spacer />
+        <StyledTitle>Order Summary</StyledTitle>
+        {!inputLoading ? (
+          <>
+            <LineItem
+              label="Price"
+              data={formatBalance(prem)}
+              units={entity.isPut ? 'DAI' : item.asset}
+              tip="The price per 1 option token."
+            />
+          </>
+        ) : (
+          <>{hasLiquidity ? <Loader /> : null}</>
+        )}
         <Spacer size="sm" />
         {inputLoading && hasLiquidity ? (
           <>
@@ -360,16 +400,149 @@ const Swap: React.FC = () => {
           </>
         ) : (
           <LineItem
-            label="Slippage"
+            label={isBelowSlippage() ? 'Slippage' : 'Slippage too high'}
             data={`${Math.abs(parseFloat(impact)).toString()}`}
             units="%"
+            color={isBelowSlippage() ? null : 'red'}
+            tip="The % change in the price paid."
           />
         )}
-        {parsedAmount.gt(0) ? (
-          <StyledSummary column alignItems="center">
+        <Spacer />
+        <StyledEnd row justifyContent="flex-start">
+          {loading ? (
+            <div style={{ width: '100%' }}>
+              <Button
+                disabled={loading}
+                full
+                size="sm"
+                onClick={handleApproval}
+                isLoading={loading}
+                text="Confirm"
+              />
+            </div>
+          ) : (
+            <>
+              {orderType === Operation.WRITE ? (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve Options"
+                      />
+                    </>
+                  )}
+                  {approved[1] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleSecondaryApproval}
+                        isLoading={loading}
+                        text="Approve Tokens"
+                      />
+                    </>
+                  )}
+                  {approved[0] && approved[1] ? (
+                    <Button
+                      disabled={
+                        !parsedAmount?.gt(0) ||
+                        error ||
+                        !hasLiquidity ||
+                        !isBelowSlippage()
+                      }
+                      full
+                      size="sm"
+                      onClick={handleSubmitClick}
+                      isLoading={loading}
+                      text="Confirm"
+                    />
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {approved[0] ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={loading}
+                        full
+                        size="sm"
+                        onClick={handleApproval}
+                        isLoading={loading}
+                        text="Approve"
+                      />
+                    </>
+                  )}
+                  <Button
+                    disabled={
+                      !approved[0] ||
+                      !parsedAmount?.gt(0) ||
+                      error ||
+                      !hasLiquidity ||
+                      !isBelowSlippage()
+                    }
+                    full
+                    size="sm"
+                    onClick={handleSubmitClick}
+                    isLoading={loading}
+                    text={'Confirm'}
+                  />
+                </>
+              )}
+            </>
+          )}
+        </StyledEnd>
+
+        {error ? (
+          <StyledSummary column alignItems="flex-start">
+            <PurchaseInfo>
+              <StyledSpan>
+                <Spacer />
+                <WarningLabel>Order quantity too large!</WarningLabel>
+              </StyledSpan>
+            </PurchaseInfo>
+          </StyledSummary>
+        ) : null}
+
+        <Spacer />
+        <IconButton
+          text=""
+          full
+          variant="transparent"
+          onClick={() => {
+            setDescription(!description)
+          }}
+        >
+          <StyledInnerTitle>Description</StyledInnerTitle>
+          {description ? <ExpandLessIcon /> : <ExpandMoreIcon />}{' '}
+        </IconButton>
+
+        {parsedAmount.eq(0) && !error && description ? (
+          <StyledSummary column alignItems="flex-start">
+            <PurchaseInfo>
+              <StyledSpan>Enter an amount of options to trade.</StyledSpan>
+            </PurchaseInfo>
+          </StyledSummary>
+        ) : (
+          <> </>
+        )}
+
+        {parsedAmount.gt(0) && description ? (
+          <StyledSummary column alignItems="flex-start">
             {parsedAmount.gt(0) && !error ? (
               <PurchaseInfo>
-                <p>
+                <StyledSpan>
                   You will{' '}
                   <StyledData>
                     {orderType === Operation.LONG ||
@@ -483,136 +656,52 @@ const Swap: React.FC = () => {
                       .{' '}
                     </>
                   )}
-                </p>
+                </StyledSpan>
               </PurchaseInfo>
             ) : (
               <>
-                {error ? (
-                  <WarningLabel>Order quantity too large!</WarningLabel>
-                ) : null}
+                <PurchaseInfo>
+                  <StyledSpan>The order size is too large.</StyledSpan>
+                </PurchaseInfo>
               </>
             )}
           </StyledSummary>
         ) : null}
         <Spacer size="sm" />
-        {/* {isAboveGuardCap() && !error ? (
-          <>
-            <div style={{ marginTop: '-.5em' }} />
-            <WarningLabel>
-              This amount of tokens is above our guardrail cap of $100,000
-            </WarningLabel>
-          </>
-        ) : (
-          <></>
-        )} */}
-        {!isBelowSlippage() && !error ? (
-          <>
-            <div style={{ marginTop: '-.5em' }} />
-            <WarningLabel>
-              Expected Slippage on this order is higher than the user limit of{' '}
-              {numeral(parseFloat(slippage)).format('0.00a%')}
-            </WarningLabel>
-          </>
-        ) : (
-          <></>
-        )}
-        <StyledEnd row justifyContent="flex-start">
-          {loading ? (
-            <div style={{ width: '100%' }}>
-              <Box column alignItems="center" justifyContent="center">
-                <Loader />
-              </Box>
-            </div>
-          ) : (
-            <>
-              {orderType === Operation.WRITE ? (
-                <>
-                  {approved[0] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleApproval}
-                        isLoading={loading}
-                        text="Approve Options"
-                      />
-                    </>
-                  )}
-                  {approved[1] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleSecondaryApproval}
-                        isLoading={loading}
-                        text="Approve Tokens"
-                      />
-                    </>
-                  )}
-                  {approved[0] && approved[1] ? (
-                    <Button
-                      disabled={
-                        !parsedAmount?.gt(0) ||
-                        error ||
-                        !hasLiquidity ||
-                        !isBelowSlippage()
-                      }
-                      full
-                      size="sm"
-                      onClick={handleSubmitClick}
-                      isLoading={loading}
-                      text="Confirm Transaction"
-                    />
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  {approved[0] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleApproval}
-                        isLoading={loading}
-                        text="Approve"
-                      />
-                    </>
-                  )}
-                  <Button
-                    disabled={
-                      !approved[0] ||
-                      !parsedAmount?.gt(0) ||
-                      error ||
-                      !hasLiquidity ||
-                      !isBelowSlippage()
-                    }
-                    full
-                    size="sm"
-                    onClick={handleSubmitClick}
-                    isLoading={loading}
-                    text="Confirm Transaction"
-                  />
-                </>
-              )}
-            </>
-          )}
-        </StyledEnd>
       </Box>
     </>
   )
 }
 
+const Separator = styled.div`
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
+  width: 100%;
+`
+
+const StyledFilterBarInner = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  height: ${(props) => props.theme.barHeight}px;
+  width: 100%;
+`
+
+const StyledToggleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+`
+
+const StyledSpan = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+`
+
 const StyledSummary = styled(Box)`
+  display: flex;
+  flex: 1;
   min-width: 100%;
+  margin-bottom: ${(props) => props.theme.spacing[3]}px;
 `
 const StyledEnd = styled(Box)`
   min-width: 100%;
@@ -631,16 +720,31 @@ const WarningTooltip = styled.div`
   font-size: 14px;
   opacity: 1;
 `
-const StyledTitle = styled.h5`
+const StyledTitle = styled.div`
+  align-items: center;
+  color: ${(props) => props.theme.color.white};
+  font-size: 16px;
+  font-weight: 700;
+  margin: ${(props) => props.theme.spacing[2]}px;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  letter-spacing: 0.5px;
+  justify-content: space-between;
+`
+
+const StyledInnerTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  letter-spacing: 0.5px;
 `
 
 const PurchaseInfo = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
-  text-align: center;
   vertical-align: middle;
   display: table;
   margin-bottom: -1em;
@@ -649,7 +753,7 @@ const PurchaseInfo = styled.div`
 const StyledData = styled.span`
   color: ${(props) => props.theme.color.white};
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
 `
 export default Swap

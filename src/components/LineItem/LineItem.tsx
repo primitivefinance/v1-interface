@@ -13,6 +13,7 @@ export interface LineItemProps {
   loading?: boolean
   units?: any
   tip?: any
+  color?: string
 }
 
 const LineItem: React.FC<LineItemProps> = ({
@@ -21,6 +22,7 @@ const LineItem: React.FC<LineItemProps> = ({
   loading,
   units,
   tip,
+  color,
 }) => {
   const sign = units
     ? units !== ''
@@ -40,49 +42,63 @@ const LineItem: React.FC<LineItemProps> = ({
     : null
   return (
     <StyledLineItem row justifyContent="space-between" alignItems="center">
-      <StyledLabel>{label}</StyledLabel>
+      {tip ? (
+        <Tooltip text={tip}>
+          <StyledLabel>{label}</StyledLabel>
+        </Tooltip>
+      ) : (
+        <StyledLabel>{label}</StyledLabel>
+      )}
       {loading ? (
         <span>
           <Loader size="sm" />
         </span>
       ) : (
         <span>
-          {tip ? (
-            <Tooltip text={tip}>
-              {sign}
+          <>
+            {sign}
+            <Color color={color}>
               {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-              <StyledSym>{currency !== '$' ? currency : null}</StyledSym>
-            </Tooltip>
-          ) : (
-            <>
-              {sign}
-              {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-              <StyledSym>
-                {currency !== '$'
-                  ? currency === 'DAI STABLECOIN'
-                    ? 'DAI'
-                    : currency
-                  : null}
-              </StyledSym>
-            </>
-          )}
+            </Color>
+            <StyledSym>
+              {currency !== '$'
+                ? currency === 'DAI STABLECOIN'
+                  ? 'DAI'
+                  : currency
+                : null}
+            </StyledSym>
+          </>
         </span>
       )}
     </StyledLineItem>
   )
 }
 
+interface ColorProps {
+  color?: string
+}
+
+const Color = styled.span<ColorProps>`
+  color: ${(props) =>
+    props.color == 'red' ? props.theme.color.red[500] : 'inherit'};
+`
+
 const StyledSym = styled.a`
   opacity: 0.66;
 `
-const StyledLabel = styled.div`
-  color: ${(props) => props.theme.color.grey[400]};
+const StyledLabel = styled.span<ColorProps>`
+  align-items: center;
+  color: ${(props) =>
+    props.color == 'red'
+      ? props.theme.color.red[500]
+      : props.theme.color.grey[400]};
   display: flex;
   flex: 1;
   letter-spacing: 1px;
   opacity: 1;
   font-size: 14px;
   text-transform: uppercase;
+  font-weight: 550;
 `
 
 const StyledLineItem = styled(Box)`

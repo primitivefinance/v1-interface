@@ -15,7 +15,7 @@ const StyledLitContainer = styled.div`
   justify-content: flex-start;
 `
 const StyledLitContainerContent = styled.div`
-  width: ${(props) => props.theme.contentWidth * (2 / 3)}px;
+  width: ${(props) => props.theme.flexboxgrid.container.sm}rem;
 `
 
 export default LitContainer

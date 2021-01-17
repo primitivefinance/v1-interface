@@ -97,11 +97,13 @@ const Market = ({ market, data }) => {
       }
     }
   }, [id, chainId, storeId])
+
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
   }, [setCallPutActive, data])
+
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
     if (callPutActive) {
@@ -121,9 +123,11 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
+
   useEffect(() => {
     updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
   }, [])
+
   if (!active || market === 'eth') {
     return (
       <>
@@ -165,21 +169,22 @@ const Market = ({ market, data }) => {
           <Disclaimer />
           <Notifs />
           <StyledMarket>
-            <Grid>
+            <Grid id={'market-grid'}>
               <Row>
-                <StyledContainer sm={12} md={8} lg={8}>
+                <StyledContainer sm={12} md={8} lg={8} id="table-column">
                   <StyledMain>
                     <MarketHeader
                       marketId={market}
                       isCall={callPutActive ? 0 : 1}
                     />
+                    <Spacer size="sm" />
                     <FilterBar
                       active={callPutActive}
                       setCallActive={handleFilterType}
                       expiry={expiry}
                       setExpiry={handleFilterExpiry}
                     />
-
+                    <Spacer size="sm" />
                     <ErrorBoundary
                       fallback={
                         <>
@@ -199,7 +204,7 @@ const Market = ({ market, data }) => {
                     </ErrorBoundary>
                   </StyledMain>
                 </StyledContainer>
-                <StyledCol sm={12} md={4} lg={4}>
+                <StyledCol sm={12} md={4} lg={4} id="sidebar-column">
                   <StyledSideBar>
                     <ErrorBoundary
                       fallback={
@@ -248,7 +253,23 @@ const StyledMarket = styled.div`
   height: 90%;
   position: absolute;
   overflow-x: hidden;
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
 `
 
 const StyledSideBar = styled.div`
@@ -266,7 +287,24 @@ const StyledSideBar = styled.div`
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: scroll !important;
+  justify-content: center;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
 `
 const StyledText = styled.h4`
   color: ${(props) => props.theme.color.white};

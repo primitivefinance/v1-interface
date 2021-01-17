@@ -5,6 +5,7 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
+import Box from '@/components/Box'
 import { BigNumberish } from 'ethers'
 
 import { TokenAmount, JSBI } from '@uniswap/sdk'
@@ -34,7 +35,33 @@ const PriceInput: React.FC<PriceInputProps> = ({
 }) => {
   return (
     <StyledContainer>
-      <Label text={title} />
+      {balance ? (
+        <Box row justifyContent="space-between">
+          <Label text={title} />
+          <ContainerSpan>
+            <LeftSpan>
+              <OpacitySpan>Max</OpacitySpan>
+            </LeftSpan>{' '}
+            <Spacer size="sm" />
+            <RightSpan onClick={onClick}>
+              {formatEtherBalance(balance.raw.toString())}{' '}
+              <OpacitySpan>
+                {/** second conditional is a testnet hotfix */}
+                {balance.token.symbol.toUpperCase() === 'RDM'
+                  ? 'SHORT'
+                  : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
+                  ? 'DAI'
+                  : balance.token.symbol.toUpperCase()}
+              </OpacitySpan>
+            </RightSpan>
+          </ContainerSpan>
+        </Box>
+      ) : (
+        <>
+          <Label text={title} />{' '}
+        </>
+      )}
+
       <Spacer size="sm" />
       <Input
         name={name}
@@ -47,35 +74,15 @@ const PriceInput: React.FC<PriceInputProps> = ({
         }
         valid={valid}
       />
-      <Spacer size="sm" />
-      {balance ? (
-        <ContainerSpan>
-          <LeftSpan>
-            <OpacitySpan>
-              <Label text={'balance'} />
-            </OpacitySpan>
-          </LeftSpan>
-          <RightSpan>
-            {formatEtherBalance(balance.raw.toString())}{' '}
-            <OpacitySpan>
-              {/** second conditional is a testnet hotfix */}
-              {balance.token.symbol.toUpperCase() === 'RDM'
-                ? 'SHORT'
-                : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
-                ? 'DAI'
-                : balance.token.symbol.toUpperCase()}
-            </OpacitySpan>
-          </RightSpan>
-        </ContainerSpan>
-      ) : (
-        <> </>
-      )}
     </StyledContainer>
   )
 }
 
 const ContainerSpan = styled.span`
   display: flex;
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 const LeftSpan = styled.span`

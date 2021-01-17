@@ -5,7 +5,8 @@ const formatExpiry = (unixTimestamp: BigNumberish) => {
   const date = unixDate.getUTCDate()
   const year = unixDate.getUTCFullYear()
   const utc = unixDate.toUTCString()
-  return { date, month, year, utc }
+  const time = unixDate.getUTCHours()
+  return { unixDate, date, month, year, utc, time }
 }
 
 export default formatExpiry

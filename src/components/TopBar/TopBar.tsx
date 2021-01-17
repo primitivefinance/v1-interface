@@ -16,7 +16,7 @@ import { useWeb3React } from '@web3-react/core'
 
 const TopBar: React.FC = () => {
   const location = useRouter()
-  const { chainId } = useWeb3React()
+  const { chainId, account } = useWeb3React()
   return (
     <StyledTopBar>
       <Container
@@ -44,10 +44,13 @@ const TopBar: React.FC = () => {
         </StyledFlex>
         <StyledNav isMain={chainId !== 1}>
           <Link href="/markets">
-            <StyledNavItem
-              active={location.pathname === '/markets' ? true : false}
-            >
+            <StyledNavItem active={location.pathname.startsWith('/markets')}>
               Markets
+            </StyledNavItem>
+          </Link>
+          <Link href={`/liquidity/${encodeURIComponent(account)}`}>
+            <StyledNavItem active={location.pathname.startsWith('/liquidity')}>
+              Liquidity
             </StyledNavItem>
           </Link>
           <Link href="/contracts">
@@ -112,7 +115,7 @@ const StyledNav = styled.div<NavProps>`
   align-items: center;
   display: flex;
   flex: 1;
-  font-weight: 700;
+  font-weight: 500;
   border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
   width: 1px;
   justify-content: center;
@@ -127,17 +130,17 @@ interface StyledNavItemProps {
 
 const StyledNavItem = styled.a<StyledNavItemProps>`
   color: ${(props) =>
-    props.active ? props.theme.color.grey[400] : props.theme.color.white};
+    props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 1px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.color.grey[400]};
+    color: ${(props) => props.theme.color.white};
   }
 `
 

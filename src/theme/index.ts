@@ -34,6 +34,24 @@ const theme = {
     },
   },
   contentWidth: 1200,
+  flexboxgrid: {
+    // Defaults
+    gridSize: 12, // columns
+    gutterWidth: 1, // rem
+    outerMargin: 1, // rem
+    mediaQuery: 'only screen',
+    container: {
+      sm: 54, // rem
+      md: 70, // rem
+      lg: 85, // rem
+    },
+    breakpoints: {
+      xs: 0, // em
+      sm: 48, // em
+      md: 64, // em
+      lg: 72, // em
+    },
+  },
   rowHeight: 64,
   sidebarWidth: 25,
   spacing: {

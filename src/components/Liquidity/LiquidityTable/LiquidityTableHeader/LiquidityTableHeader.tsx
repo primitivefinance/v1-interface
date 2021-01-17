@@ -5,7 +5,12 @@ import Spacer from '@/components/Spacer'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
 import TableRow from '@/components/TableRow'
-import LitContainer from '@/components/LitContainer'
+import Button from '@/components/Button'
+
+import {
+  LiquidityTableContainer,
+  LiquidityTableContent,
+} from '../../LiquidityTable'
 
 export const headers = [
   {
@@ -13,52 +18,55 @@ export const headers = [
     tip: 'The purchase price for the underlying asset of this option.',
   },
   {
-    name: 'Break-Even',
+    name: 'Share',
     tip:
       'The price the underlying asset must reach to reach a net cost of zero.',
   },
   {
-    name: 'Bid',
+    name: 'Asset 1',
     tip:
       'The current spot price of an option token willing to be purchased at.',
   },
   {
-    name: 'Ask',
+    name: 'Asset 2',
     tip: 'The current spot price of an option token willing to be sold at.',
+  },
+  {
+    name: 'Fees',
+    tip: 'The profit or loss of the position.',
   },
   { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   { name: '', tip: null },
 ]
 
-const OptionsTableHeader: React.FC = () => {
+const LiquidityTableHeader: React.FC = () => {
   return (
     <StyledTableHead>
-      <LitContainer>
-        <TableRow isHead>
-          {headers.map((header, index) => {
-            if (index === headers.length - 1) {
-              return (
-                <>
-                  <Spacer />
-                  <Spacer size="sm" />
-                  <Spacer size="sm" />
-                  <Spacer size="sm" />
-                </>
-              )
-            }
-            if (header.tip) {
-              return (
-                <TableCell key={header.name}>
-                  <Tooltip text={header.tip}>{header.name}</Tooltip>
-                </TableCell>
-              )
-            }
-            return <TableCell key={header.name}>{header.name}</TableCell>
-          })}
-        </TableRow>
-        <GreyBack />
-      </LitContainer>
+      <LiquidityTableContainer>
+        <LiquidityTableContent>
+          <TableRow isHead>
+            {headers.map((header, index) => {
+              if (index === headers.length - 1) {
+                return (
+                  <>
+                    <TableCell></TableCell>
+                  </>
+                )
+              }
+              if (header.tip) {
+                return (
+                  <TableCell key={header.name}>
+                    <Tooltip text={header.tip}>{header.name}</Tooltip>
+                  </TableCell>
+                )
+              }
+              return <TableCell key={header.name}>{header.name}</TableCell>
+            })}
+          </TableRow>
+          <GreyBack />
+        </LiquidityTableContent>
+      </LiquidityTableContainer>
     </StyledTableHead>
   )
 }
@@ -83,4 +91,4 @@ const StyledButtonCell = styled.div`
   width: ${(props) => props.theme.buttonSize}px;
 `
 
-export default OptionsTableHeader
+export default LiquidityTableHeader

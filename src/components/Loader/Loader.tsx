@@ -25,7 +25,9 @@ const Loader: React.FC<LoaderProps> = ({ text, dark = false, size = 'md' }) => {
     <StyledContainer>
       {!!text && (
         <>
-          <StyledText>{text}</StyledText>
+          <StyledText size={s} dark={dark}>
+            {text}
+          </StyledText>
           <Spacer />
         </>
       )}
@@ -64,7 +66,8 @@ const StyledSpinner = styled.svg<StyledSpinnerProps>`
   height: ${(props) => props.size}px;
   width: ${(props) => props.size}px;
   & .path {
-    stroke: #ffffff;
+    stroke: ${(props) =>
+      props.dark ? props.theme.color.black : props.theme.color.white};
     stroke-linecap: round;
     animation: dash 1.5s ease-in-out infinite;
   }
@@ -90,12 +93,13 @@ const StyledSpinner = styled.svg<StyledSpinnerProps>`
   }
 `
 
-const StyledText = styled.div`
+const StyledText = styled.div<StyledSpinnerProps>`
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
   letter-spacing: 1px;
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) =>
+    props.dark ? props.theme.color.grey[900] : props.theme.color.grey[400]};
 `
 
 export default Loader

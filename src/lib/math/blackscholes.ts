@@ -221,11 +221,9 @@ export class BlackScholes implements BlackScholesInterface {
 
   get d1(): number | null {
     const timeToExpiry = this.option.getTimeToExpiry()
-
     if (timeToExpiry < 0) {
       return null
     }
-
     return (
       (Math.log(this.assetPrice / +this.option.strikePrice) +
         (this.riskFree + Math.pow(this.deviation, 2) / 2) * timeToExpiry) /
@@ -253,22 +251,14 @@ export class BlackScholes implements BlackScholesInterface {
 
   /// @author Matt Loppatto
   getImpliedVolatility(expectedCost, estimate) {
-    estimate = estimate || 0.1
+    estimate = 0.1
     var low = 0
     var high = Infinity
     // perform 100 iterations max
     for (var i = 0; i < 100; i++) {
-      /* console.log(
-        this.assetPrice,
-        this.option.strikePrice,
-        this.option.getTimeToExpiry(),
-        estimate,
-        this.riskFree,
-        this.option.isCall
-      ) */
       var actualCost = this.blackScholes(
         this.assetPrice,
-        this.option.strikePrice,
+        +this.option.strikePrice,
         this.option.getTimeToExpiry(),
         estimate,
         this.riskFree,

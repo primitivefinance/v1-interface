@@ -48,14 +48,15 @@ const FaqTable: React.FC = () => {
           {SPECIFICATIONS.map((specification, i) => {
             return (
               <>
-                <TableRow key={i} isHead>
+                <TableRow key={i} isHead align="top" height={84}>
                   <TableCell>
-                    <StyledSub>{specification.name}</StyledSub>
+                    <StyledName>{specification.name}</StyledName>
                   </TableCell>
                   <TableCell>
                     <StyledSub>{specification.description}</StyledSub>
                   </TableCell>
                 </TableRow>
+                <StyledDivLight />
                 <Spacer size="sm" />
               </>
             )
@@ -72,28 +73,22 @@ const StyledDiv = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[600]};
 `
 
+const StyledDivLight = styled.div`
+  border: 1px solid ${(props) => props.theme.color.grey[800]};
+`
+
 const StyledTableBody = styled(TableBody)`
   width: 50em;
 `
-const StyledLink = styled.a`
+const StyledSub = styled.span`
   color: white;
-  text-decoration: none;
-  width: 30%;
+  opacity: 0.66;
 `
-const StyledSub = styled.h4`
+const StyledName = styled.span`
   color: white;
+  font-weight: bold;
 `
-const StyledCol = styled(Col)`
-  margin: 0.5em;
-  overflow: visible;
-`
-const StyledARef = styled.a`
-  color: ${(props) => props.theme.color.grey[400]};
-  text-decoration: none;
-  &:hover {
-    color: ${(props) => props.theme.color.white};
-  }
-`
+
 const StyledTitle = styled.h2`
   color: white;
   font-weight: bold;

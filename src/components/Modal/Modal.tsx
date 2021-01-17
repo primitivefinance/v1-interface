@@ -3,9 +3,10 @@ import styled, { keyframes } from 'styled-components'
 
 export interface ModalProps {
   onDismiss?: () => void
+  isOpen?: boolean
 }
 
-const Modal: React.FC = ({ children }) => {
+const Modal: React.FC<ModalProps> = ({ children, isOpen }) => {
   return (
     <StyledResponsiveWrapper>
       <StyledModal>{children}</StyledModal>

@@ -14,6 +14,7 @@ import LaunchIcon from '@material-ui/icons/Launch'
 import CheckIcon from '@material-ui/icons/Check'
 import { Container } from '@material-ui/core'
 import ClearIcon from '@material-ui/icons/Clear'
+import Label from '@/components/Label'
 
 import escapeRegExp from '@/utils/escapeRegExp'
 export interface InputProps {
@@ -88,21 +89,14 @@ const Input: React.FC<InputProps> = ({
           placeholder={placeholder}
           value={value}
         />
-        {!!endAdornment && (
+        {/* {!!endAdornment && (
           <StyledAd>
             <Spacer size="sm" />
             {endAdornment}
             <Spacer size="sm" />
           </StyledAd>
-        )}
+        )} */}
       </StyledInputWrapper>
-
-      {typeof valid !== 'undefined' && (
-        <>
-          <Spacer size="sm" />
-          <Validated valid={valid} />{' '}
-        </>
-      )}
     </Box>
   )
 }
@@ -114,20 +108,29 @@ interface StyledInputProps {
   height: number
 }
 
+const LargeLabel = styled.div`
+  color: ${(props) => props.theme.color.grey[400]};
+  letter-spacing: 1px;
+  font-size: 24px;
+  text-transform: uppercase;
+`
+
 const StyledInputWrapper = styled.div<StyledInputProps>`
   align-items: center;
-  background: ${(props) => props.theme.color.black};
+  background: ${(props) => props.theme.color.grey[800]};
   border-radius: ${(props) => props.theme.borderRadius}px;
-  border: 1px solid ${(props) => props.theme.color.grey[600]};
   display: flex;
   height: ${(props) => props.height};
-  padding: 0 ${(props) => props.theme.spacing[2]}px;
   width: 100%;
+  &:hover {
+    background: ${(props) => props.theme.color.grey[700]};
+  }
 `
 
 const StyledInput = styled.input<StyledInputProps>`
+  border-radius: ${(props) => props.theme.borderRadius}px;
   background: transparent;
-  border: 0;
+  border: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
   flex: 1;
@@ -136,6 +139,11 @@ const StyledInput = styled.input<StyledInputProps>`
   padding: 0;
   outline: none;
   text-indent: ${(props) => props.theme.spacing[3]}px;
+  &:focus {
+    background: ${(props) => props.theme.color.grey[700]};
+    border: 1px solid ${(props) => props.theme.color.white} !important;
+    transition: border-color 0.25s ease-in-out;
+  }
   -webkit-appearance: none;
   -moz-appearance: textfield !important;
 `
