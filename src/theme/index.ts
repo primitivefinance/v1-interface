@@ -55,6 +55,7 @@ const theme = {
   rowHeight: 64,
   sidebarWidth: 25,
   spacing: {
+    0: 0,
     1: 4,
     2: 8,
     3: 16,
