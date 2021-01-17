@@ -184,8 +184,15 @@ const Swap: React.FC = () => {
   )
 
   const handleSetMax = useCallback(() => {
-    tokenBalance && onUserInput(tokenBalance)
-  }, [tokenBalance, onUserInput])
+    if (orderType === Operation.LONG) {
+      const maxOptions = parseEther(tokenBalance)
+        .mul(parseEther('1'))
+        .div(parseEther(prem))
+      onUserInput(formatEther(maxOptions))
+    } else {
+      tokenBalance && onUserInput(tokenBalance)
+    }
+  }, [tokenBalance, onUserInput, prem])
 
   const handleToggleClick = useCallback(() => {
     const prevTypedValue = typedValue
@@ -270,7 +277,7 @@ const Swap: React.FC = () => {
     if (item.market && inputLoading) {
       calculateTotalCost()
     }
-  }, [item, parsedAmount, inputLoading, item.market])
+  }, [item, parsedAmount, inputLoading, item.market, typedValue, orderType])
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount

@@ -7,6 +7,8 @@ export function tryParseAmount(value?: string): BigNumber | undefined {
     value === '0' ||
     value === '.' ||
     value === undefined ||
+    value === '00' ||
+    value.startsWith('00') ||
     (value.indexOf('0') === 0 && value.indexOf('.') === 1)
   ) {
     if (value.length >= 3 && value.substr(2, 1) !== '.') {
