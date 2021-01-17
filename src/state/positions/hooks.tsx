@@ -9,7 +9,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
 
 import { OptionsAttributes } from '../options/actions'
-import { getBalance } from '@/lib/erc20'
+import { getBalance } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { TokenAmount } from '@uniswap/sdk'
 

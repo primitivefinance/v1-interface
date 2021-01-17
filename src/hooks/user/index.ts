@@ -8,7 +8,7 @@ import { useLocalStorage } from '../utils/useLocalStorage'
 import { injected } from '../../connectors'
 import { LocalStorageKeys, DEFAULT_SLIPPAGE } from '@/constants/index'
 import { useSlippage } from '@/state/user/hooks'
-import { TradeSettings } from '@/lib/types'
+import { TradeSettings } from '@primitivefi/sdk'
 import {
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
@@ -38,7 +38,9 @@ export function useTradeSettings(): TradeSettings {
   return tradeSettings
 }
 
-export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & {
+export function useActiveWeb3React(): Web3ReactContextInterface<
+  Web3Provider
+> & {
   chainId?: any
 } {
   const context = useWeb3React<Web3Provider>()

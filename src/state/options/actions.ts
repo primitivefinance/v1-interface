@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
-import { Option, Market } from '@/lib/entities'
+import { Option, Market } from '@primitivefi/sdk'
 import { BigNumberish } from 'ethers'
 import { ChainId } from '@uniswap/sdk'
 

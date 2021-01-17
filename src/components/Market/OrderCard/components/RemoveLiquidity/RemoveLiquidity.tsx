@@ -27,8 +27,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
-import { Trade } from '@/lib/entities/trade'
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -75,7 +74,7 @@ const RemoveLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
   const spender =
     orderType === Operation.REMOVE_LIQUIDITY
-      ? UNISWAP_ROUTER02_V2
+      ? UNI_ROUTER_ADDRESS
       : UNISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 

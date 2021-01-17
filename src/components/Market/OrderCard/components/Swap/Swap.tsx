@@ -23,7 +23,7 @@ import useApprove from '@/hooks/transactions/useApprove'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
 
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -171,7 +171,7 @@ const Swap: React.FC = () => {
   )
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-      ? UNISWAP_ROUTER02_V2
+      ? UNI_ROUTER_ADDRESS
       : UNISWAP_CONNECTOR[chainId]
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const onApprove = useApprove()

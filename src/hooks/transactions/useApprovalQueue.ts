@@ -5,7 +5,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Trade, TokenAmount, CurrencyAmount, ETHER } from '@uniswap/sdk'
 import { useCallback, useMemo, useState } from 'react'
 import { useTokenAllowance } from '@/hooks/data/useTokenAllowance'
-import { getAllowance } from '@/lib/erc20'
+import { getAllowance } from '@primitivefi/sdk'
 
 import { Operation } from '@/constants/index'
 

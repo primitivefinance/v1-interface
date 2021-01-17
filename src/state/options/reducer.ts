@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 
-import { Option, Market } from '@/lib/entities'
+import { Option, Market } from '@primitivefi/sdk'
 import { BigNumberish } from 'ethers'
 
 export interface OptionsState {

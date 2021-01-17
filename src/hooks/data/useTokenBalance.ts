@@ -3,7 +3,7 @@ import { formatEther } from 'ethers/lib/utils'
 
 import { useWeb3React } from '@web3-react/core'
 
-import { getBalance } from '../../lib/erc20'
+import { getBalance } from '@primitivefi/sdk'
 
 export const useTokenBalance = (tokenAddress: string) => {
   const [balance, setBalance] = useState('0')
