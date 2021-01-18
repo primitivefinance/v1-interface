@@ -4,12 +4,10 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
-import Loader from '@/components/Loader'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
-import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 import numeral from 'numeral'
 import formatExpiry from '@/utils/formatExpiry'
@@ -17,26 +15,18 @@ import formatExpiry from '@/utils/formatExpiry'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import useGuardCap from '@/hooks/transactions/useGuardCap'
 
 import { Trade, Market } from '@primitivefi/sdk'
 import { Fraction, Pair } from '@uniswap/sdk'
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import isZero from '@/utils/isZero'
-
-import Title from '@/components/Title'
-import Description from '@/components/Description'
-import CardHeader from '@/components/CardHeader'
-import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 
 import {
@@ -534,7 +524,7 @@ const AddLiquidity: React.FC = () => {
         </Box>
       </Column>
 
-      <Spacer />
+      <Spacer size="lg" />
 
       <Column>
         {hasLiquidity ? (
@@ -623,7 +613,7 @@ interface TabProps {
 const StyledTabPanel = styled(TabPanel)``
 const StyledTab = styled(Tab)<TabProps>`
   background-color: ${(props) =>
-    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
+    !props.active ? props.theme.color.grey[800] : props.theme.color.grey[700]};
   color: ${(props) => props.theme.color.white};
   font-weight: ${(props) => (props.active ? 600 : 500)};
   padding: 0.5em 0.5em 0.5em 1em;

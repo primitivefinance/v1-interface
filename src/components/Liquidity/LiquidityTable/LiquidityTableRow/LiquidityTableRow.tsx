@@ -9,17 +9,12 @@ import { parseEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import Button from '@/components/Button'
-import { useClickAway } from '@/hooks/utils/useClickAway'
-import AddIcon from '@material-ui/icons/Add'
-import CheckIcon from '@material-ui/icons/Check'
-import PriceInput from '@/components/PriceInput'
-import ClearIcon from '@material-ui/icons/Clear'
-import Tooltip from '@/components/Tooltip'
 import Box from '@/components/Box'
-import Spacer from '@/components/Spacer'
 import Switch from '@/components/Switch'
 
 import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
+import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
+import { Operation } from '@primitivefi/sdk'
 
 export interface TableColumns {
   key: string
@@ -45,8 +40,18 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   columns,
   href,
 }) => {
+  const [provide, setProvide] = useState(true)
   const [toggle, setToggle] = useState(false)
   const { item } = useItem()
+  const updateItem = useUpdateItem()
+
+  useEffect(() => {
+    if (provide) {
+      updateItem(item, Operation.ADD_LIQUIDITY, item.market)
+    } else {
+      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
+    }
+  }, [provide, item, updateItem])
 
   const currentTimestamp = new Date()
   const {
@@ -62,7 +67,8 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     isCall,
   } = columns
   const handleOnClick = useCallback(() => {
-    onClick()
+    //setProvide(true)
+    //onClick()
     setToggle(!toggle)
   }, [toggle, setToggle, item])
   const handleOnAdd = (e) => {
@@ -184,7 +190,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         </StyledButtonCell>
       </TableRow>
       {toggle && item.entity ? (
-        <OrderTableRow onClick={handleOnAdd} id="order-row">
+        <OrderTableRow onClick={() => {}} id="order-row">
           <OrderContainer>
             {/* <Spacer />
             <StyledTitle>
@@ -227,12 +233,12 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             /> */}
 
             <Switch
-              active={true}
-              onClick={() => {}}
+              active={provide}
+              onClick={() => setProvide(!provide)}
               primaryText="Add"
               secondaryText="Remove"
             />
-            <AddLiquidity />
+            {provide ? <AddLiquidity /> : <RemoveLiquidity />}
           </OrderContainer>
         </OrderTableRow>
       ) : (
