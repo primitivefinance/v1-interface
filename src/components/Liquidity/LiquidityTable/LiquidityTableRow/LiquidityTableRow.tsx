@@ -224,35 +224,12 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
           <TableCell>
             <span>
               {numeral(
-                formatEther(calculateLiquidityValuePerShare().underlyingPerLp)
-              ).format('(0.00a)')}{' '}
-              <Units>{assetSymbols().asset1Symbol}</Units>
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(asset2)) ? (
-          <TableCell>
-            <span>
-              {numeral(
-                formatEther(calculateLiquidityValuePerShare().shortPerLp)
-              ).format('(0.00a)')}{' '}
-              <Units>{assetSymbols().asset2Symbol}</Units>
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(asset2)) && !isZero(parseEther(asset1)) ? (
-          <TableCell>
-            <span>
-              {numeral(
                 formatEther(
-                  calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                  entity.proportionalShort(
+                    market.spotUnderlyingToShort.raw.toString()
+                  )
                 )
-              ).format('(0.00a)')}{' '}
-              <Units>{assetSymbols().asset1Symbol}</Units>
+              ).format('(0.00)')}{' '}
             </span>
           </TableCell>
         ) : (
@@ -266,7 +243,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        <StyledButtonCell key={'Open'}>
+        <TableCell key={'Open'}>
           <Button
             onClick={handleOnClick}
             variant={
@@ -279,51 +256,11 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             size="sm"
             text="Add Liquidity"
           />
-        </StyledButtonCell>
+        </TableCell>
       </TableRow>
       {toggle && item.entity ? (
         <OrderTableRow onClick={() => {}} id="order-row">
           <OrderContainer>
-            {/* <Spacer />
-            <StyledTitle>
-              <Tooltip text={'Manage tokens in the pool.'}>
-                {'Pool Liquidity'}
-              </Tooltip>
-              <CustomButton>
-                <Button variant="transparent" size="sm" onClick={handleOnClick}>
-                  <ClearIcon />
-                </Button>
-              </CustomButton>
-            </StyledTitle>
-            <Separator />
-            <Spacer />
-
-            <Switch
-              active={true}
-              onClick={() => {}}
-              primaryText="Add"
-              secondaryText="Remove"
-            />
-
-            <Spacer />
-            <PriceInput
-              title="Quantity"
-              name="primary"
-              onChange={() => {}}
-              quantity={'1'}
-              onClick={() => {}}
-              valid={true}
-            />
-            <Spacer />
-            <Button
-              disabled={false}
-              full
-              size="sm"
-              onClick={() => {}}
-              isLoading={false}
-              text={'Confirm'}
-            /> */}
-
             <Switch
               active={provide}
               onClick={() => setProvide(!provide)}
