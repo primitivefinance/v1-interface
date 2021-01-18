@@ -16,12 +16,12 @@ import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquid
 import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
 
 import { useWeb3React } from '@web3-react/core'
-import { useItem, useUpdateItem } from '@/state/order/hooks'
+import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useClickAway } from '@/hooks/utils/useClickAway'
 
-import { Option, Market } from '@primitivefi/sdk'
+import { Option, Market, Operation } from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
 
 export interface TableColumns {
@@ -70,6 +70,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   const [toggle, setToggle] = useState(false)
   const { item } = useItem()
   const updateItem = useUpdateItem()
+  const removeItem = useRemoveItem()
   const { account, active, library } = useWeb3React()
   const lpToken = market ? market.liquidityToken.address : ''
   const token0 = market ? market.token0.symbol : ''
@@ -149,6 +150,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   }
   const nodeRef = useClickAway(() => {
     setToggle(false)
+    removeItem()
   })
 
   const units = isCall ? asset.toUpperCase() : 'DAI'

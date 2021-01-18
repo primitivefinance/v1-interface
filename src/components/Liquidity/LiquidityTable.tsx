@@ -19,10 +19,16 @@ import { BigNumber } from 'ethers'
 import { Operation } from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
 
-const LiquidityTable: React.FC = (props) => {
+export interface OptionsTableProps {
+  callActive: boolean
+}
+
+const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
+  const { callActive } = props
   const positions = usePositions()
   const updateItem = useUpdateItem()
   const options = useOptions()
+  const type = callActive ? 'calls' : 'puts'
   /* const tableColumns: TableColumns = {
     key: 'key',
     asset: 'tableAssset',
@@ -100,7 +106,7 @@ const LiquidityTable: React.FC = (props) => {
               <LoadingTable />
             ) : (
               <ScrollBody>
-                {options.calls.map((option) => {
+                {options[type].map((option) => {
                   const tableColumns: TableColumns = formatTableColumns(option)
                   const hasPosition =
                     positions.options
@@ -131,18 +137,6 @@ const LiquidityTable: React.FC = (props) => {
                 })}
               </ScrollBody>
             )}
-            {/* <LiquidityTableRow
-              key={'test'}
-              onClick={() => {}}
-              href={`/liquidity`}
-              columns={tableColumns}
-            />
-            <LiquidityTableRow
-              key={'test'}
-              onClick={() => {}}
-              href={`/liquidity`}
-              columns={tableColumns}
-            /> */}
           </LiquidityTableContent>
         </LiquidityTableContainer>
       </Table>

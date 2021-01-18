@@ -42,7 +42,7 @@ const theme = {
     mediaQuery: 'only screen',
     container: {
       sm: 54, // rem
-      md: 70, // rem
+      md: 78, // rem
       lg: 85, // rem
     },
     breakpoints: {

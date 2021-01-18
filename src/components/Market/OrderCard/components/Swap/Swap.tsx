@@ -184,7 +184,7 @@ const Swap: React.FC = () => {
   )
 
   const handleSetMax = useCallback(() => {
-    if (orderType === Operation.LONG) {
+    if (orderType === Operation.LONG && !parseEther(prem).isZero()) {
       const maxOptions = parseEther(tokenBalance)
         .mul(parseEther('1'))
         .div(parseEther(prem))

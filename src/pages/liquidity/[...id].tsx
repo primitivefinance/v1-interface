@@ -20,12 +20,18 @@ import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useSetLoading } from '@/state/positions/hooks'
 
+import { Grid, Col, Row } from 'react-styled-flexboxgrid'
+
 import LiquidityTable from '@/components/Liquidity/LiquidityTable'
 import numeral from 'numeral'
 import { formatEther } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
 
 import PositionsCard from '@/components/Market/PositionsCard'
+import Switch from '@/components/Switch'
+import MarketHeader from '@/components/Market/MarketHeader'
+import FilterBar from '@/components/Market/FilterBar'
+import { useRemoveItem } from '@/state/order/hooks'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -83,9 +89,10 @@ const Liquidity = ({ user, data }) => {
   const options = useOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
+  const removeItem = useRemoveItem()
 
   useEffect(() => {
-    updateOptions('weth')
+    updateOptions('weth') //hardcoded
   }, [user])
 
   useEffect(() => {
@@ -164,67 +171,64 @@ const Liquidity = ({ user, data }) => {
       ) : (
         <>
           <Disclaimer />
-          <StyledLitContainer>
-            <StyledLitContainerContent>
-              <StyledHeaderContainer>
-                <DataCard title={'Total Call Liquidity'} multiplier={2}>
-                  {!options.loading ? (
-                    !isZero(options.reservesTotal[0]) ? (
-                      <>
-                        {`${numeral(
-                          formatEther(options.reservesTotal[0])
-                        ).format('0.00a')} ${' '} ${true ? 'weth' : 'DAI'}`}
-                      </>
-                    ) : (
-                      <Tooltip text={`Choose an option and add liquidity!`}>
-                        None
-                      </Tooltip>
-                    )
-                  ) : (
-                    <>
-                      <Loader size="sm" />
-                    </>
-                  )}
-                </DataCard>
-                <DataCard title={'Total Put Liquidity'} multiplier={2}>
-                  {!options.loading ? (
-                    !isZero(options.reservesTotal[1]) ? (
-                      <>
-                        {`${numeral(
-                          formatEther(options.reservesTotal[1])
-                        ).format('0.00a')} ${' '} ${'DAI'}`}
-                      </>
-                    ) : (
-                      <Tooltip text={`Choose an option and add liquidity!`}>
-                        None
-                      </Tooltip>
-                    )
-                  ) : (
-                    <>
-                      <Loader size="sm" />
-                    </>
-                  )}
-                </DataCard>
-              </StyledHeaderContainer>
-              <Spacer />
-              <StyledHeaderContainer>
-                <LiquidityTable />
-              </StyledHeaderContainer>
-            </StyledLitContainerContent>
-          </StyledLitContainer>
+          <StyledMarket>
+            <Grid id={'market-grid'}>
+              <Row>
+                <StyledLitContainer>
+                  <div>
+                    <StyledHeaderContainer>
+                      <MarketHeader
+                        marketId={'weth'}
+                        isCall={callPutActive ? 0 : 1}
+                      />
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={() => setCallPutActive(!callPutActive)}
+                      />
+                    </StyledHeaderContainer>
+
+                    <StyledHeaderContainer>
+                      <LiquidityTable callActive={callPutActive} />
+                    </StyledHeaderContainer>
+                  </div>
+                </StyledLitContainer>
+              </Row>
+            </Grid>
+          </StyledMarket>
         </>
       )}
     </ErrorBoundary>
   )
 }
 
-const StyledLitContainer = styled.div`
+const StyledMarket = styled.div`
+  width: 100%;
+  height: 90%;
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
+`
+
+export const StyledLitContainer = styled(Col)`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-`
-const StyledLitContainerContent = styled.div`
-  width: ${(props) => props.theme.contentWidth}px;
 `
 
 const StyledHeaderContainer = styled.div`
@@ -276,6 +280,14 @@ const CardContent = styled(Box)`
   flex-direction: column;
   justify-content: center;
   padding: ${(props) => props.theme.spacing[2]}px;
+`
+const StyledContainer = styled(Col)`
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-grow: 1;
 `
 
 export default Liquidity
