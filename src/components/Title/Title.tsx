@@ -37,6 +37,18 @@ const StyledTitle = styled.div<TitleProps>`
   font-size: 16px;
   font-weight: ${(props) => (props.weight ? props.weight : 700)};
   margin: ${(props) => props.theme.spacing[props.margin ? props.margin : 2]}px;
+  margin-right: ${(props) =>
+    props.margin
+      ? props.margin === 0
+        ? 0
+        : props.theme.spacing[2]
+      : props.theme.spacing[2]}px;
+  margin-left: ${(props) =>
+    props.margin
+      ? props.margin === 0
+        ? 0
+        : props.theme.spacing[2]
+      : props.theme.spacing[2]}px;
   display: flex;
   flex: 1;
   width: ${(props) => (props.full ? '100%' : null)};

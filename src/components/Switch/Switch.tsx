@@ -6,15 +6,30 @@ import ToggleButton from '@/components/ToggleButton'
 interface SwitchProps {
   active: boolean
   onClick: () => void
+  primaryText?: string
+  secondaryText?: string
 }
 
-const Switch: React.FC<SwitchProps> = ({ active, onClick }) => {
+const Switch: React.FC<SwitchProps> = ({
+  active,
+  onClick,
+  primaryText,
+  secondaryText,
+}) => {
   return (
     <StyledToggleContainer>
       <StyledFilterBarInner>
         <Toggle full>
-          <ToggleButton active={active} onClick={onClick} text="Buy" />
-          <ToggleButton active={!active} onClick={onClick} text="Sell" />
+          <ToggleButton
+            active={active}
+            onClick={onClick}
+            text={primaryText ? primaryText : 'Buy'}
+          />
+          <ToggleButton
+            active={!active}
+            onClick={onClick}
+            text={secondaryText ? secondaryText : 'Sell'}
+          />
         </Toggle>
       </StyledFilterBarInner>
     </StyledToggleContainer>

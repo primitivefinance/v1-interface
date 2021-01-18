@@ -11,6 +11,8 @@ import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import numeral from 'numeral'
+import formatExpiry from '@/utils/formatExpiry'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -30,6 +32,12 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import isZero from '@/utils/isZero'
+
+import Title from '@/components/Title'
+import Description from '@/components/Description'
+import CardHeader from '@/components/CardHeader'
+import Switch from '@/components/Switch'
+import Separator from '@/components/Separator'
 
 import {
   useItem,
@@ -343,7 +351,11 @@ const AddLiquidity: React.FC = () => {
   }, [entity.underlying, tokenAllowance, onApprove])
 
   const title = {
-    text: 'Add Liquidity',
+    text: `${numeral(item.entity.strikePrice).format(
+      +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+    )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+      item.entity.expiryValue
+    ).utc.substr(4, 12)}`,
     tip:
       'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
   }
@@ -356,230 +368,255 @@ const AddLiquidity: React.FC = () => {
   }
 
   return (
-    <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
+    <LiquidityContainer id="liquidity-component">
+      <Column>
+        <Separator />
         <Spacer size="sm" />
-        <StyledTitle>
-          <Tooltip text={title.tip}>{title.text}</Tooltip>
-        </StyledTitle>
-      </Box>
-      {hasLiquidity ? (
-        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-          <StyledTabList>
-            <StyledTab active={tab === 0}>
-              <Tooltip
-                text={
-                  'Add underlying to the liquidity pool at the current premium'
+
+        {hasLiquidity ? (
+          <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
+            <StyledTabList>
+              <StyledTab active={tab === 0}>
+                <Tooltip
+                  text={
+                    'Add underlying to the liquidity pool at the current premium'
+                  }
+                >
+                  Pile-On
+                </Tooltip>
+              </StyledTab>
+              <StyledTab active={tab === 1}>
+                <Tooltip text={'Add both tokens from your balance to the pool'}>
+                  Add Direct
+                </Tooltip>
+              </StyledTab>
+            </StyledTabList>
+
+            <Spacer />
+
+            <StyledTabPanel>
+              <PriceInput
+                name="primary"
+                title={`Underlying`}
+                quantity={underlyingValue}
+                onChange={handleUnderInput}
+                onClick={handleSetMax}
+                balance={
+                  new TokenAmount(
+                    entity.underlying,
+                    parseEther(underlyingTokenBalance).toString()
+                  )
                 }
-              >
-                Pile-On
-              </Tooltip>
-            </StyledTab>
-            <StyledTab active={tab === 1}>
-              <Tooltip text={'Add both tokens from your balance to the pool'}>
-                Add Direct
-              </Tooltip>
-            </StyledTab>
-          </StyledTabList>
-          <StyledTabPanel>
+                valid={parseEther(underlyingTokenBalance).gte(
+                  parsedUnderlyingAmount
+                )}
+              />
+            </StyledTabPanel>
+            <StyledTabPanel>
+              <PriceInput
+                name="primary"
+                title={`Short`}
+                quantity={optionValue}
+                onChange={handleOptionInput}
+                onClick={() => console.log('Max unavailable.')} //
+                balance={shortAmount}
+              />
+              <Spacer size="sm" />
+              <PriceInput
+                name="secondary"
+                title={`Underlying`}
+                quantity={underlyingValue}
+                onChange={handleUnderInput}
+                onClick={handleSetMax}
+                balance={underlyingAmount}
+              />
+            </StyledTabPanel>
+          </StyledTabs>
+        ) : (
+          <>
+            <StyledSubtitle>{noLiquidityTitle.text}</StyledSubtitle>
+            <Spacer size="sm" />
             <PriceInput
               name="primary"
-              title={`Underlying Input`}
-              quantity={underlyingValue}
-              onChange={handleUnderInput}
-              onClick={handleSetMax}
-              balance={
-                new TokenAmount(
-                  entity.underlying,
-                  parseEther(underlyingTokenBalance).toString()
-                )
-              }
-              valid={parseEther(underlyingTokenBalance).gte(
-                parsedUnderlyingAmount
-              )}
-            />
-          </StyledTabPanel>
-          <StyledTabPanel>
-            <PriceInput
-              name="primary"
-              title={`SHORT Input`}
+              title={`LONG Input`}
               quantity={optionValue}
               onChange={handleOptionInput}
               onClick={() => console.log('Max unavailable.')} //
-              balance={shortAmount}
             />
-            <Spacer size="sm" />
             <PriceInput
               name="secondary"
               title={`Underlying Input`}
               quantity={underlyingValue}
               onChange={handleUnderInput}
-              onClick={handleSetMax}
+              onClick={() => console.log('Max unavailable.')} //
               balance={underlyingAmount}
-            />
-          </StyledTabPanel>
-        </StyledTabs>
-      ) : (
-        <>
-          <StyledSubtitle>{noLiquidityTitle.text}</StyledSubtitle>
-          <Spacer size="sm" />
-          <PriceInput
-            name="primary"
-            title={`LONG Input`}
-            quantity={optionValue}
-            onChange={handleOptionInput}
-            onClick={() => console.log('Max unavailable.')} //
-          />
-          <PriceInput
-            name="secondary"
-            title={`Underlying Input`}
-            quantity={underlyingValue}
-            onChange={handleUnderInput}
-            onClick={() => console.log('Max unavailable.')} //
-            balance={underlyingAmount}
-          />
-        </>
-      )}
-
-      <Spacer size="sm" />
-      <LineItem
-        label="LP for"
-        data={formatEther(calculateOptionsAddedAsLiquidity())}
-        units={`LONG`}
-      />
-      <Spacer size="sm" />
-      {!hasLiquidity || tab === 1 ? (
-        <>
-          <LineItem
-            label="Implied Option Price"
-            data={`${calculateImpliedPrice()}`}
-            units={`${entity.underlying.symbol.toUpperCase()}`}
-          />
-          <Spacer size="sm" />{' '}
-        </>
-      ) : (
-        <></>
-      )}
-
-      {hasLiquidity ? (
-        <>
-          <LineItem
-            label="Receive"
-            data={calculatePoolShare()}
-            units={`% of the Pool`}
-          />
-          <Spacer size="sm" />
-          <IconButton
-            text="Advanced"
-            variant="transparent"
-            onClick={() => setAdvanced(!advanced)}
-          >
-            {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
-        </>
-      ) : null}
-
-      {advanced && hasLiquidity ? (
-        <>
-          <LineItem
-            label="Short per LP token"
-            data={`${calculateLiquidityValuePerShare().shortPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label="Underlying per LP Token"
-            data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
-            data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token0} per ${token1}`}
-            data={calculateToken0PerToken1()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token1} per ${token0}`}
-            data={calculateToken1PerToken0()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Your Share % of Pool`}
-            data={calculatePoolShare()}
-            units={`%`}
-          />
-        </>
-      ) : (
-        <> </>
-      )}
-      {(
-        item.entity.isCall
-          ? parseFloat(underlyingValue) >= 1000
-          : parseFloat(underlyingValue) >= 100000
-      ) ? (
-        <>
-          <div style={{ marginTop: '-.5em' }} />
-          <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of 1,000
-            for calls or 100,000 for puts
-          </WarningLabel>
-        </>
-      ) : (
-        <></>
-      )}
-      <Spacer size="sm" />
-      <Box row justifyContent="flex-start">
-        {loading ? (
-          <div style={{ width: '100%' }}>
-            <Box column alignItems="center" justifyContent="center">
-              <Loader />
-            </Box>
-          </div>
-        ) : (
-          <>
-            {approved[0] ? (
-              <> </>
-            ) : (
-              <>
-                <Button
-                  full
-                  size="sm"
-                  onClick={handleApproval}
-                  text={`Approve ${entity.underlying.symbol.toUpperCase()}`}
-                />
-              </>
-            )}
-
-            <Button
-              disabled={
-                !approved[0] ||
-                !parsedUnderlyingAmount?.gt(0) ||
-                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
-                (item.entity.isCall
-                  ? parseFloat(underlyingValue) >= 1000
-                  : parseFloat(underlyingValue) >= 100000)
-              }
-              full
-              size="sm"
-              onClick={handleSubmitClick}
-              text={'Confirm Transaction'}
             />
           </>
         )}
-      </Box>
-    </>
+      </Column>
+
+      <Spacer size="lg" />
+
+      <Column>
+        <Separator />
+        <Spacer size="sm" />
+        <StyledInnerTitle>Order Summary</StyledInnerTitle>
+        <Spacer size="sm" />
+        <LineItem
+          label="LP for"
+          data={formatEther(calculateOptionsAddedAsLiquidity())}
+          units={`LONG`}
+        />
+        <Spacer size="sm" />
+        {!hasLiquidity || tab === 1 ? (
+          <>
+            <LineItem
+              label="Implied Option Price"
+              data={`${calculateImpliedPrice()}`}
+              units={`${entity.underlying.symbol.toUpperCase()}`}
+            />
+            <Spacer size="sm" />{' '}
+          </>
+        ) : (
+          <></>
+        )}
+        <LineItem
+          label="Receive"
+          data={!hasLiquidity ? '0.00' : calculatePoolShare()}
+          units={`% of Pool`}
+        />
+
+        <Spacer />
+        <Box row justifyContent="flex-start">
+          {loading ? (
+            <div style={{ width: '100%' }}>
+              <Box column alignItems="center" justifyContent="center">
+                <Button
+                  disabled={true}
+                  full
+                  size="sm"
+                  onClick={() => {}}
+                  text={`Confirm`}
+                />
+              </Box>
+            </div>
+          ) : (
+            <>
+              {approved[0] ? (
+                <> </>
+              ) : (
+                <>
+                  <Button
+                    full
+                    size="sm"
+                    onClick={handleApproval}
+                    text={`Approve ${entity.underlying.symbol.toUpperCase()}`}
+                  />
+                </>
+              )}
+
+              <Button
+                disabled={
+                  !approved[0] ||
+                  !parsedUnderlyingAmount?.gt(0) ||
+                  (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
+                  (item.entity.isCall
+                    ? parseFloat(underlyingValue) >= 1000
+                    : parseFloat(underlyingValue) >= 100000)
+                }
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                text={'Confirm'}
+              />
+            </>
+          )}
+        </Box>
+      </Column>
+
+      <Spacer />
+
+      <Column>
+        {hasLiquidity ? (
+          <>
+            <Separator />
+            <Spacer size="sm" />
+            <IconButton
+              text=""
+              variant="transparent"
+              onClick={() => setAdvanced(!advanced)}
+            >
+              <StyledInnerTitle>Advanced</StyledInnerTitle>
+              {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </>
+        ) : null}
+
+        {advanced && hasLiquidity ? (
+          <>
+            {/* <Spacer size="sm" />
+            <LineItem
+              label="Short per LP"
+              data={`${calculateLiquidityValuePerShare().shortPerLp}`}
+            />
+            <Spacer size="sm" />
+            <LineItem
+              label="Underlying per LP"
+              data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
+            /> */}
+            <Spacer size="sm" />
+            <LineItem
+              label={`Total ${entity.underlying.symbol.toUpperCase()} per LP`}
+              data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
+            />
+            <Spacer size="sm" />
+            <LineItem
+              label={`${token0} per ${token1}`}
+              data={calculateToken0PerToken1()}
+            />
+            <Spacer size="sm" />
+            <LineItem
+              label={`${token1} per ${token0}`}
+              data={calculateToken1PerToken0()}
+            />
+            <Spacer size="sm" />
+            <LineItem
+              label={`Ownership`}
+              data={calculatePoolShare()}
+              units={`%`}
+            />
+          </>
+        ) : (
+          <> </>
+        )}
+      </Column>
+    </LiquidityContainer>
   )
 }
+
+const StyledInnerTitle = styled.div`
+  color: ${(props) => props.theme.color.white};
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  letter-spacing: 0.5px;
+  height: 44px;
+  align-items: center;
+`
+
+const Column = styled(Box)`
+  flex-direction: column;
+  flex: 1;
+`
+
+const LiquidityContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+`
+
 interface TabProps {
   active?: boolean
 }
@@ -607,19 +644,7 @@ const StyledTabList = styled(TabList)`
 `
 const StyledTabs = styled(Tabs)`
   width: 100%;
-`
-const StyledText = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
-const StyledTitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 18px;
-  font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
+  min-height: 25%;
 `
 const StyledSubtitle = styled.div`
   color: yellow;

@@ -7,7 +7,7 @@ import numeral from 'numeral'
 import isZero from '@/utils/isZero'
 import { parseEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
-import { useItem } from '@/state/order/hooks'
+import { useItem, useUpdateItem } from '@/state/order/hooks'
 import Button from '@/components/Button'
 import { useClickAway } from '@/hooks/utils/useClickAway'
 import AddIcon from '@material-ui/icons/Add'
@@ -17,6 +17,9 @@ import ClearIcon from '@material-ui/icons/Clear'
 import Tooltip from '@/components/Tooltip'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
+import Switch from '@/components/Switch'
+
+import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
 
 export interface TableColumns {
   key: string
@@ -44,6 +47,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 }) => {
   const [toggle, setToggle] = useState(false)
   const { item } = useItem()
+
   const currentTimestamp = new Date()
   const {
     key,
@@ -58,8 +62,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     isCall,
   } = columns
   const handleOnClick = useCallback(() => {
+    onClick()
     setToggle(!toggle)
-  }, [toggle, setToggle])
+  }, [toggle, setToggle, item])
   const handleOnAdd = (e) => {
     e.stopPropagation()
     onClick()
@@ -69,6 +74,20 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   }) */
 
   const units = isCall ? asset.toUpperCase() : 'DAI'
+
+  const assetSymbols = useCallback(() => {
+    let asset1Symbol
+    let asset2Symbol
+    if (parseEther(asset1).gt(parseEther(asset2))) {
+      asset1Symbol = 'SHORT'
+      asset2Symbol = units
+    } else {
+      asset1Symbol = units
+      asset2Symbol = 'SHORT'
+    }
+
+    return { asset1Symbol, asset2Symbol }
+  }, [asset1, asset2, units])
 
   return (
     <StyledDiv>
@@ -100,30 +119,20 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         </TableCell>
         {!isZero(parseEther(asset1)) ? (
           <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(asset1).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(asset1).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
+            <span>
+              {numeral(asset1).format('(0.000a)')}{' '}
+              <Units>{assetSymbols().asset1Symbol}</Units>
+            </span>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
         {!isZero(parseEther(asset2)) ? (
           <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(asset2).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(asset2).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
+            <span>
+              {numeral(asset2).format('(0.000a)')}{' '}
+              <Units>{assetSymbols().asset2Symbol}</Units>
+            </span>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -174,13 +183,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
           />
         </StyledButtonCell>
       </TableRow>
-      {toggle ? (
-        <OrderTableRow onClick={() => {}}>
-          <Box column>
-            <Spacer />
+      {toggle && item.entity ? (
+        <OrderTableRow onClick={handleOnAdd} id="order-row">
+          <OrderContainer>
+            {/* <Spacer />
             <StyledTitle>
-              <Tooltip text={'Provide assets to the pool.'}>
-                {'Add Liquidity'}
+              <Tooltip text={'Manage tokens in the pool.'}>
+                {'Pool Liquidity'}
               </Tooltip>
               <CustomButton>
                 <Button variant="transparent" size="sm" onClick={handleOnClick}>
@@ -189,6 +198,15 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
               </CustomButton>
             </StyledTitle>
             <Separator />
+            <Spacer />
+
+            <Switch
+              active={true}
+              onClick={() => {}}
+              primaryText="Add"
+              secondaryText="Remove"
+            />
+
             <Spacer />
             <PriceInput
               title="Quantity"
@@ -206,8 +224,16 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
               onClick={() => {}}
               isLoading={false}
               text={'Confirm'}
+            /> */}
+
+            <Switch
+              active={true}
+              onClick={() => {}}
+              primaryText="Add"
+              secondaryText="Remove"
             />
-          </Box>
+            <AddLiquidity />
+          </OrderContainer>
         </OrderTableRow>
       ) : (
         <></>
@@ -215,6 +241,11 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     </StyledDiv>
   )
 }
+
+const OrderContainer = styled(Box)`
+  flex-direction: column;
+  flex: 1;
+`
 
 const CustomButton = styled.div`
   margin-top: -0.1em;
@@ -264,10 +295,8 @@ const OrderTableRow = styled.div<StyleProps>`
   color: ${(props) =>
     props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
   display: flex;
-  height: 25em;
   margin-left: -${(props) => props.theme.spacing[4]}px;
-  padding-left: ${(props) => props.theme.spacing[4]}px;
-  padding-right: ${(props) => props.theme.spacing[4]}px;
+  padding: ${(props) => props.theme.spacing[4]}px;
 `
 
 export default LiquidityTableRow

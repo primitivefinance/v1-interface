@@ -73,6 +73,10 @@ const Liquidity = ({ user, data }) => {
   const setLoading = useSetLoading()
 
   useEffect(() => {
+    updateOptions('weth')
+  }, [user])
+
+  useEffect(() => {
     const { ethereum, web3 } = window as any
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
@@ -162,7 +166,6 @@ const Liquidity = ({ user, data }) => {
               <Spacer />
               <StyledHeaderContainer>
                 <LiquidityTable />
-                <Text>{user}</Text>
               </StyledHeaderContainer>
             </StyledLitContainerContent>
           </StyledLitContainer>
