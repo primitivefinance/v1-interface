@@ -8,6 +8,7 @@ interface SwitchProps {
   onClick: () => void
   primaryText?: string
   secondaryText?: string
+  variant?: 'primary' | 'secondary' | 'transparent' | 'outlined'
 }
 
 const Switch: React.FC<SwitchProps> = ({
@@ -15,6 +16,7 @@ const Switch: React.FC<SwitchProps> = ({
   onClick,
   primaryText,
   secondaryText,
+  variant,
 }) => {
   return (
     <StyledToggleContainer>

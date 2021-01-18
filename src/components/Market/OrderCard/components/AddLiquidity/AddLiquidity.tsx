@@ -424,7 +424,9 @@ const AddLiquidity: React.FC = () => {
           </StyledTabs>
         ) : (
           <>
-            <StyledSubtitle>{noLiquidityTitle.text}</StyledSubtitle>
+            <StyledSubtitle>
+              {!loading ? noLiquidityTitle.text : null}
+            </StyledSubtitle>
             <Spacer size="sm" />
             <PriceInput
               name="primary"

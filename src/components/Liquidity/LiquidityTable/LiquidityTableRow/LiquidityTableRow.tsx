@@ -45,13 +45,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   const { item } = useItem()
   const updateItem = useUpdateItem()
 
-  useEffect(() => {
-    if (provide) {
+  /* useEffect(() => {
+    if (provide && item) {
       updateItem(item, Operation.ADD_LIQUIDITY, item.market)
-    } else {
+    } else if (item) {
       updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
     }
-  }, [provide, item, updateItem])
+  }, [provide, item, updateItem]) */
 
   const currentTimestamp = new Date()
   const {
@@ -68,7 +68,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   } = columns
   const handleOnClick = useCallback(() => {
     //setProvide(true)
-    //onClick()
+    onClick()
     setToggle(!toggle)
   }, [toggle, setToggle, item])
   const handleOnAdd = (e) => {

@@ -310,37 +310,13 @@ const RemoveLiquidity: React.FC = () => {
 
   const [tab, setTab] = useState(0)
 
-  interface TabProps {
-    active?: boolean
-  }
-  const StyledTabPanel = styled(TabPanel)``
-  const StyledTab = styled(Tab)<TabProps>`
-    background-color: ${(props) =>
-      !props.active
-        ? props.theme.color.grey[800]
-        : props.theme.color.grey[700]};
-    color: ${(props) => props.theme.color.white};
-    font-weight: ${(props) => (props.active ? 600 : 500)};
-    padding: 0.5em 0.5em 0.5em 1em;
-    border-radius: 0.3em 0.3em 0 0;
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: ${(props) => props.theme.color.grey[600]};
-    width: 50%;
-    list-style: none;
-    cursor: pointer;
-  `
-  const StyledTabList = styled(TabList)`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-content: baseline;
-    margin-left: -2.5em;
-  `
-  const StyledTabs = styled(Tabs)`
-    width: 100%;
-    min-height: 25%;
-  `
+  useEffect(() => {
+    if (tab === 1) {
+      updateItem(item, Operation.REMOVE_LIQUIDITY, item.market)
+    } else {
+      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
+    }
+  }, [tab])
 
   return (
     <LiquidityContainer id="liquidity-component">
@@ -353,23 +329,76 @@ const RemoveLiquidity: React.FC = () => {
             <StyledTab active={tab === 0}>
               <Tooltip
                 text={
-                  'Add underlying to the liquidity pool at the current premium'
+                  'Remove tokens from pool and burn options to receive only underlying tokens.'
                 }
               >
-                Pile-On
+                Exit Position
               </Tooltip>
             </StyledTab>
             <StyledTab active={tab === 1}>
-              <Tooltip text={'Add both tokens from your balance to the pool'}>
-                Add Direct
+              <Tooltip text={'Remove both tokens from the pool.'}>
+                Remove Tokens
               </Tooltip>
             </StyledTab>
           </StyledTabList>
 
           <Spacer />
 
-          <StyledTabPanel></StyledTabPanel>
           <StyledTabPanel>
+            <LineItem
+              label={'Amount'}
+              data={Math.round(10 * (ratio / 10)) / 10 + '%'}
+              units={'%'}
+            ></LineItem>
+            <Spacer size="sm" />
+            <Slider
+              min={1}
+              max={1000}
+              step={1}
+              value={ratio}
+              onChange={handleRatioChange}
+            />
+            <Spacer size="sm" />
+            <Box row justifyContent="flex-start">
+              <Button
+                variant="secondary"
+                text="25%"
+                onClick={() => {
+                  handleRatio(250)
+                }}
+              />
+              <div style={{ width: '5px' }} />
+              <Button
+                variant="secondary"
+                text="50%"
+                onClick={() => {
+                  handleRatio(500)
+                }}
+              />
+              <div style={{ width: '5px' }} />
+              <Button
+                variant="secondary"
+                text="75%"
+                onClick={() => {
+                  handleRatio(750)
+                }}
+              />
+              <div style={{ width: '5px' }} />
+              <Button
+                variant="secondary"
+                text="100%"
+                onClick={() => {
+                  handleRatio(1000)
+                }}
+              />
+            </Box>
+          </StyledTabPanel>
+          <StyledTabPanel>
+            <LineItem
+              label={'Amount'}
+              data={Math.round(10 * (ratio / 10)) / 10 + '%'}
+              units={'%'}
+            ></LineItem>
             <Spacer size="sm" />
             <Slider
               min={1}
@@ -415,7 +444,7 @@ const RemoveLiquidity: React.FC = () => {
           </StyledTabPanel>
         </StyledTabs>
 
-        <Toggle>
+        {/* <Toggle>
           <ToggleButton
             active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
             onClick={() =>
@@ -430,10 +459,10 @@ const RemoveLiquidity: React.FC = () => {
             }
             text="Exit"
           />
-        </Toggle>
+        </Toggle> */}
         <Spacer />
 
-        <LineItem
+        {/* <LineItem
           label={'Amount'}
           data={Math.round(10 * (ratio / 10)) / 10 + '%'}
           units={'%'}
@@ -480,7 +509,7 @@ const RemoveLiquidity: React.FC = () => {
               handleRatio(1000)
             }}
           />
-        </Box>
+        </Box> */}
       </Column>
 
       <Spacer size="lg" />
@@ -663,6 +692,36 @@ const RemoveLiquidity: React.FC = () => {
   )
 }
 
+interface TabProps {
+  active?: boolean
+}
+const StyledTabPanel = styled(TabPanel)``
+const StyledTab = styled(Tab)<TabProps>`
+  background-color: ${(props) =>
+    !props.active ? props.theme.color.grey[800] : props.theme.color.grey[700]};
+  color: ${(props) => props.theme.color.white};
+  font-weight: ${(props) => (props.active ? 600 : 500)};
+  padding: 0.5em 0.5em 0.5em 1em;
+  border-radius: 0.3em 0.3em 0 0;
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: ${(props) => props.theme.color.grey[600]};
+  width: 50%;
+  list-style: none;
+  cursor: pointer;
+`
+const StyledTabList = styled(TabList)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: baseline;
+  margin-left: -2.5em;
+`
+const StyledTabs = styled(Tabs)`
+  width: 100%;
+  min-height: 25%;
+`
+
 const LiquidityContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -686,13 +745,4 @@ const Column = styled(Box)`
   flex: 1;
 `
 
-const StyledTitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 18px;
-  font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
-const StyledRatio = styled.h4`
-  color: ${(props) => props.theme.color.white};
-`
 export default RemoveLiquidity
