@@ -197,7 +197,8 @@ const AddLiquidity: React.FC = () => {
       typeof item.market === 'undefined' ||
       item.market === null ||
       typeof parsedAmount === 'undefined' ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
+      BigNumber.from(parsedAmount).isZero()
     ) {
       return parsedAmount || '0'
     }
@@ -215,7 +216,8 @@ const AddLiquidity: React.FC = () => {
   ])
 
   const calculatePoolShare = useCallback(() => {
-    const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    const none = { addedPoolShare: '0', newPoolShare: '0' }
+    const supply = parseEther(lpTotalSupply)
     const parsedAmount =
       tab === 1
         ? parsedOptionAmount
@@ -223,9 +225,9 @@ const AddLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      parsedAmount.toString() === '0'
+      supply.isZero()
     )
-      return 0
+      return none
     const tSupply = new TokenAmount(
       item.market.liquidityToken,
       parseEther(lpTotalSupply).toString()
@@ -238,10 +240,14 @@ const AddLiquidity: React.FC = () => {
     ).toString()
 
     if (isZero(amountADesired) || isZero(amountBDesired)) {
-      return '0'
+      return none
     }
     const tokenAmountA = new TokenAmount(entity.underlying, amountADesired)
     const tokenAmountB = new TokenAmount(entity.redeem, amountBDesired)
+    const lpHold = new TokenAmount(
+      item.market.liquidityToken,
+      parseEther(lp).toString()
+    )
     const lpMinted = item.market.getLiquidityMinted(
       tSupply,
       tokenAmountA,
@@ -252,9 +258,17 @@ const AddLiquidity: React.FC = () => {
         ? lpMinted.divide(tSupply.add(lpMinted))
         : new Fraction('0')
 
-    return poolShare.multiply('100').toSignificant(6)
+    const newPoolShare = poolShare
+      .add(
+        supply.gt(0) ? lpHold.divide(tSupply.add(lpMinted)) : new Fraction('0')
+      )
+      .multiply('100')
+      .toSignificant(6)
+    const addedPoolShare = poolShare.multiply('100').toSignificant(6)
+    return { addedPoolShare, newPoolShare }
   }, [
     item.market,
+    lp,
     lpTotalSupply,
     parsedOptionAmount,
     parsedUnderlyingAmount,
@@ -474,7 +488,7 @@ const AddLiquidity: React.FC = () => {
         )}
         <LineItem
           label="Receive"
-          data={!hasLiquidity ? '0.00' : calculatePoolShare()}
+          data={!hasLiquidity ? '0.00' : calculatePoolShare().addedPoolShare}
           units={`% of Pool`}
         />
 
@@ -529,22 +543,18 @@ const AddLiquidity: React.FC = () => {
       <Spacer size="lg" />
 
       <Column>
-        {hasLiquidity ? (
-          <>
-            <Separator />
-            <Spacer size="sm" />
-            <IconButton
-              text=""
-              variant="transparent"
-              onClick={() => setAdvanced(!advanced)}
-            >
-              <StyledInnerTitle>Advanced</StyledInnerTitle>
-              {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </IconButton>
-          </>
-        ) : null}
+        <Separator />
+        <Spacer size="sm" />
+        <IconButton
+          text=""
+          variant="transparent"
+          onClick={() => setAdvanced(!advanced)}
+        >
+          <StyledInnerTitle>Advanced</StyledInnerTitle>
+          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
 
-        {advanced && hasLiquidity ? (
+        {advanced ? (
           <>
             {/* <Spacer size="sm" />
             <LineItem
@@ -574,7 +584,7 @@ const AddLiquidity: React.FC = () => {
             <Spacer size="sm" />
             <LineItem
               label={`Ownership`}
-              data={calculatePoolShare()}
+              data={calculatePoolShare().newPoolShare}
               units={`%`}
             />
           </>

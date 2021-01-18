@@ -3,23 +3,34 @@ import styled from 'styled-components'
 import TableRow from '@/components/TableRow'
 import TableCell from '@/components/TableCell'
 
+import { BigNumber } from 'ethers'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
-import { parseEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
-import { useItem, useUpdateItem } from '@/state/order/hooks'
 import Button from '@/components/Button'
 import Box from '@/components/Box'
 import Switch from '@/components/Switch'
 
 import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
 import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
-import { Operation } from '@primitivefi/sdk'
+
+import { useWeb3React } from '@web3-react/core'
+import { useItem, useUpdateItem } from '@/state/order/hooks'
+import useTokenBalance from '@/hooks/useTokenBalance'
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import { useClickAway } from '@/hooks/utils/useClickAway'
+
+import { Option, Market } from '@primitivefi/sdk'
+import { Fraction, TokenAmount } from '@uniswap/sdk'
 
 export interface TableColumns {
   key: string
   asset: string
+  entity: Option
+  market: Market
   strike: string
+  ask: string
   share: string
   asset1: string
   asset2: string
@@ -40,24 +51,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   columns,
   href,
 }) => {
-  const [provide, setProvide] = useState(true)
-  const [toggle, setToggle] = useState(false)
-  const { item } = useItem()
-  const updateItem = useUpdateItem()
-
-  /* useEffect(() => {
-    if (provide && item) {
-      updateItem(item, Operation.ADD_LIQUIDITY, item.market)
-    } else if (item) {
-      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
-    }
-  }, [provide, item, updateItem]) */
-
-  const currentTimestamp = new Date()
   const {
     key,
     asset,
+    entity,
+    market,
     strike,
+    ask,
     share,
     asset1,
     asset2,
@@ -66,6 +66,78 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     expiry,
     isCall,
   } = columns
+  const [provide, setProvide] = useState(true)
+  const [toggle, setToggle] = useState(false)
+  const { item } = useItem()
+  const updateItem = useUpdateItem()
+  const { account, active, library } = useWeb3React()
+  const lpToken = market ? market.liquidityToken.address : ''
+  const token0 = market ? market.token0.symbol : ''
+  const token1 = market ? market.token1.symbol : ''
+  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const shortTokenBalance = useTokenBalance(entity.redeem.address)
+  const lp = useTokenBalance(lpToken)
+  const lpTotalSupply = useTokenTotalSupply(lpToken)
+  /* useEffect(() => {
+    if (provide && item) {
+      updateItem(item, Operation.ADD_LIQUIDITY, market)
+    } else if (item) {
+      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, market)
+    }
+  }, [provide, item, updateItem]) */
+
+  const calculatePoolShare = useCallback(() => {
+    const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    if (typeof market === 'undefined' || market === null || supply.isZero())
+      return 0
+    const tSupply = new TokenAmount(
+      market.liquidityToken,
+      parseEther(lpTotalSupply).toString()
+    )
+
+    const lpBal = new TokenAmount(
+      market.liquidityToken,
+      parseEther(lp).toString()
+    )
+    const poolShare = supply.gt(0) ? lpBal.divide(tSupply) : new Fraction('0')
+
+    return poolShare.multiply('100').toSignificant(6)
+  }, [market, lpTotalSupply, lp])
+
+  const calculateLiquidityValuePerShare = useCallback(() => {
+    if (
+      typeof market === 'undefined' ||
+      market === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = market.getLiquidityValuePerShare(
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
+    const shortPerLp = parseEther(lp)
+      .mul(shortValue.raw.toString())
+      .div(parseEther('1'))
+    const underlyingPerLp = parseEther(lp)
+      .mul(underlyingValue.raw.toString())
+      .div(parseEther('1'))
+    const totalUnderlyingPerLp = parseEther(lp)
+      .mul(totalUnderlyingValue.raw.toString())
+      .div(parseEther('1'))
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [market, lp, lpTotalSupply])
+
   const handleOnClick = useCallback(() => {
     //setProvide(true)
     onClick()
@@ -75,9 +147,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     e.stopPropagation()
     onClick()
   }
-  /* const nodeRef = useClickAway(() => {
+  const nodeRef = useClickAway(() => {
     setToggle(false)
-  }) */
+  })
 
   const units = isCall ? asset.toUpperCase() : 'DAI'
 
@@ -96,7 +168,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   }, [asset1, asset2, units])
 
   return (
-    <StyledDiv>
+    <StyledDiv ref={nodeRef}>
       <TableRow
         isActive={
           item.entity === null
@@ -114,50 +186,31 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             <Units>DAI</Units>
           </span>
         </TableCell>
-        <TableCell>
-          {!isZero(parseEther(asset1)) ? (
-            <span>
-              {numeral(share).format('0.00')} <Units>$</Units>
-            </span>
-          ) : (
-            <>{`-`}</>
-          )}
-        </TableCell>
-        {!isZero(parseEther(asset1)) ? (
-          <TableCell>
-            <span>
-              {numeral(asset1).format('(0.000a)')}{' '}
-              <Units>{assetSymbols().asset1Symbol}</Units>
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(asset2)) ? (
-          <TableCell>
-            <span>
-              {numeral(asset2).format('(0.000a)')}{' '}
-              <Units>{assetSymbols().asset2Symbol}</Units>
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(fees)) ? (
+        {!isZero(parseEther(ask)) ? (
           <TableCell>
             {isCall ? (
               <span>
-                {numeral(fees).format('(0.000a)')} <Units>{units}</Units>
+                {numeral(formatEther(ask)).format('(0.000a)')}{' '}
+                <Units>{units}</Units>
               </span>
             ) : (
               <span>
-                {numeral(fees).format('(0.000a)')} <Units>$</Units>
+                {numeral(formatEther(ask)).format('(0.000a)')} <Units>$</Units>
               </span>
             )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
+        <TableCell>
+          {!isZero(parseEther(lp)) ? (
+            <span>
+              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
+            </span>
+          ) : (
+            <>{`-`}</>
+          )}
+        </TableCell>
         {parseFloat(liquidity[0]) > 0 ? (
           <TableCell>
             <span>
@@ -167,6 +220,45 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
+        {!isZero(parseEther(asset1)) ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(calculateLiquidityValuePerShare().underlyingPerLp)
+              ).format('(0.00a)')}{' '}
+              <Units>{assetSymbols().asset1Symbol}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
+        {!isZero(parseEther(asset2)) ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(calculateLiquidityValuePerShare().shortPerLp)
+              ).format('(0.00a)')}{' '}
+              <Units>{assetSymbols().asset2Symbol}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
+        {!isZero(parseEther(asset2)) && !isZero(parseEther(asset1)) ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(
+                  calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                )
+              ).format('(0.00a)')}{' '}
+              <Units>{assetSymbols().asset1Symbol}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
+
         {expiry ? (
           <TableCell>
             <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>

@@ -10,6 +10,7 @@ import Disclaimer from '@/components/Disclaimer'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
+import Tooltip from '@/components/Tooltip'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -20,6 +21,9 @@ import { useClearNotif } from '@/state/notifs/hooks'
 import { useSetLoading } from '@/state/positions/hooks'
 
 import LiquidityTable from '@/components/Liquidity/LiquidityTable'
+import numeral from 'numeral'
+import { formatEther } from 'ethers/lib/utils'
+import isZero from '@/utils/isZero'
 
 import PositionsCard from '@/components/Market/PositionsCard'
 
@@ -41,6 +45,7 @@ interface CardProps {
 }
 
 export const DataCard: React.FC<CardProps> = ({
+  children,
   title,
   description,
   multiplier,
@@ -51,11 +56,18 @@ export const DataCard: React.FC<CardProps> = ({
         <CardTitle>{title ? title : 'No title'}</CardTitle>
       </CardContent>
       <CardContent>
-        <Text>{description ? description : 'No description'}</Text>
+        <Text>
+          {description ? description : children ? children : 'No description'}
+        </Text>
       </CardContent>
     </StyledCardContainer>
   )
 }
+
+const StyledL = styled(Box)`
+  margin-top: -1.5em;
+  margin-bottom: -1.1em;
+`
 
 export const Graph: React.FC = () => {
   return <Box>Graph</Box>
@@ -155,13 +167,44 @@ const Liquidity = ({ user, data }) => {
           <StyledLitContainer>
             <StyledLitContainerContent>
               <StyledHeaderContainer>
-                <DataCard
-                  title={'Total Liquidity'}
-                  multiplier={3}
-                  description={'10 WETH'}
-                />
-                <DataCard multiplier={3} />
-                <DataCard multiplier={3} />
+                <DataCard title={'Total Call Liquidity'} multiplier={2}>
+                  {!options.loading ? (
+                    !isZero(options.reservesTotal[0]) ? (
+                      <>
+                        {`${numeral(
+                          formatEther(options.reservesTotal[0])
+                        ).format('0.00a')} ${' '} ${true ? 'weth' : 'DAI'}`}
+                      </>
+                    ) : (
+                      <Tooltip text={`Choose an option and add liquidity!`}>
+                        None
+                      </Tooltip>
+                    )
+                  ) : (
+                    <>
+                      <Loader size="sm" />
+                    </>
+                  )}
+                </DataCard>
+                <DataCard title={'Total Put Liquidity'} multiplier={2}>
+                  {!options.loading ? (
+                    !isZero(options.reservesTotal[1]) ? (
+                      <>
+                        {`${numeral(
+                          formatEther(options.reservesTotal[1])
+                        ).format('0.00a')} ${' '} ${'DAI'}`}
+                      </>
+                    ) : (
+                      <Tooltip text={`Choose an option and add liquidity!`}>
+                        None
+                      </Tooltip>
+                    )
+                  ) : (
+                    <>
+                      <Loader size="sm" />
+                    </>
+                  )}
+                </DataCard>
               </StyledHeaderContainer>
               <Spacer />
               <StyledHeaderContainer>
@@ -197,12 +240,15 @@ interface CardContainerProps {
 }
 
 const StyledCardContainer = styled.span<CardContainerProps>`
-  background: ${(props) => props.theme.color.grey[900]};
-  border: 1px solid grey;
+  background: ${(props) => props.theme.color.grey[800]};
+  //border: 1px solid grey;
   border-radius: ${(props) => props.theme.borderRadius}px;
   margin: ${(props) => props.theme.spacing[3]}px;
   padding: ${(props) => props.theme.spacing[2]}px;
   width: ${(props) => props.theme.contentWidth * (1 / props.multiplier)}px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 `
 
 const CardTitle = styled.span`
@@ -211,6 +257,8 @@ const CardTitle = styled.span`
   opacity: 0.5;
   letter-spacing: 1px;
   text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 const Text = styled.span`
@@ -219,11 +267,14 @@ const Text = styled.span`
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 const CardContent = styled(Box)`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   padding: ${(props) => props.theme.spacing[2]}px;
 `
 

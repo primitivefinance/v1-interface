@@ -18,24 +18,30 @@ export const headers = [
     tip: 'The purchase price for the underlying asset of this option.',
   },
   {
+    name: 'Price',
+    tip: 'The ask price of 1 option token.',
+  },
+  {
     name: 'Share',
-    tip:
-      'The price the underlying asset must reach to reach a net cost of zero.',
+    tip: 'The proportion of ownership of the option pair.',
   },
   {
-    name: 'Asset 1',
-    tip:
-      'The current spot price of an option token willing to be purchased at.',
+    name: 'Pool Size',
+    tip: 'The amount of underlying tokens in the pool.',
   },
   {
-    name: 'Asset 2',
-    tip: 'The current spot price of an option token willing to be sold at.',
+    name: 'Balance 1',
+    tip: 'Your balance of token 1 in the option pair.',
   },
   {
-    name: 'Fees',
-    tip: 'The profit or loss of the position.',
+    name: 'Balance 2',
+    tip: 'Your balance of token 2 in the option pair.',
   },
-  { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
+  {
+    name: 'Total Assets',
+    tip: 'Your total balance of underlying tokens in the option pair.',
+  },
+
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   { name: '', tip: null },
 ]
