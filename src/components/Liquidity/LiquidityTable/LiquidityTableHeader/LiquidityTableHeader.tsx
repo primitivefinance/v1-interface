@@ -18,24 +18,21 @@ export const headers = [
     tip: 'The purchase price for the underlying asset of this option.',
   },
   {
+    name: 'Price',
+    tip: 'The ask price of 1 option token.',
+  },
+  {
     name: 'Share',
-    tip:
-      'The price the underlying asset must reach to reach a net cost of zero.',
+    tip: 'The proportion of ownership of the option pair.',
   },
   {
-    name: 'Asset 1',
-    tip:
-      'The current spot price of an option token willing to be purchased at.',
+    name: 'Pool Size',
+    tip: 'The amount of underlying tokens in the pool.',
   },
   {
-    name: 'Asset 2',
-    tip: 'The current spot price of an option token willing to be sold at.',
+    name: 'Pool Ratio',
+    tip: 'The ratio of underlying tokens to short option tokens.',
   },
-  {
-    name: 'Fees',
-    tip: 'The profit or loss of the position.',
-  },
-  { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   { name: '', tip: null },
 ]
@@ -50,7 +47,11 @@ const LiquidityTableHeader: React.FC = () => {
               if (index === headers.length - 1) {
                 return (
                   <>
-                    <TableCell></TableCell>
+                    <TableCell>
+                      <StyledButtonCell key={'Open'}>
+                        <Spacer />
+                      </StyledButtonCell>
+                    </TableCell>
                   </>
                 )
               }

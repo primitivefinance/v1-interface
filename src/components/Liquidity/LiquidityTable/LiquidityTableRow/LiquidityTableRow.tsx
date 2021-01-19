@@ -3,25 +3,34 @@ import styled from 'styled-components'
 import TableRow from '@/components/TableRow'
 import TableCell from '@/components/TableCell'
 
+import { BigNumber } from 'ethers'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
-import { parseEther } from 'ethers/lib/utils'
 import formatExpiry from '@/utils/formatExpiry'
-import { useItem } from '@/state/order/hooks'
 import Button from '@/components/Button'
-import { useClickAway } from '@/hooks/utils/useClickAway'
-import AddIcon from '@material-ui/icons/Add'
-import CheckIcon from '@material-ui/icons/Check'
-import PriceInput from '@/components/PriceInput'
-import ClearIcon from '@material-ui/icons/Clear'
-import Tooltip from '@/components/Tooltip'
 import Box from '@/components/Box'
-import Spacer from '@/components/Spacer'
+import Switch from '@/components/Switch'
+
+import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
+import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
+
+import { useWeb3React } from '@web3-react/core'
+import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
+import useTokenBalance from '@/hooks/useTokenBalance'
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import { useClickAway } from '@/hooks/utils/useClickAway'
+
+import { Option, Market, Operation } from '@primitivefi/sdk'
+import { Fraction, TokenAmount } from '@uniswap/sdk'
 
 export interface TableColumns {
   key: string
   asset: string
+  entity: Option
+  market: Market
   strike: string
+  ask: string
   share: string
   asset1: string
   asset2: string
@@ -42,13 +51,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   columns,
   href,
 }) => {
-  const [toggle, setToggle] = useState(false)
-  const { item } = useItem()
-  const currentTimestamp = new Date()
   const {
     key,
     asset,
+    entity,
+    market,
     strike,
+    ask,
     share,
     asset1,
     asset2,
@@ -57,21 +66,111 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     expiry,
     isCall,
   } = columns
+  const [provide, setProvide] = useState(true)
+  const [toggle, setToggle] = useState(false)
+  const { item } = useItem()
+  const updateItem = useUpdateItem()
+  const removeItem = useRemoveItem()
+  const { account, active, library } = useWeb3React()
+  const lpToken = market ? market.liquidityToken.address : ''
+  const token0 = market ? market.token0.symbol : ''
+  const token1 = market ? market.token1.symbol : ''
+  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const shortTokenBalance = useTokenBalance(entity.redeem.address)
+  const lp = useTokenBalance(lpToken)
+  const lpTotalSupply = useTokenTotalSupply(lpToken)
+  /* useEffect(() => {
+    if (provide && item) {
+      updateItem(item, Operation.ADD_LIQUIDITY, market)
+    } else if (item) {
+      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, market)
+    }
+  }, [provide, item, updateItem]) */
+
+  const calculatePoolShare = useCallback(() => {
+    const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    if (typeof market === 'undefined' || market === null || supply.isZero())
+      return 0
+    const tSupply = new TokenAmount(
+      market.liquidityToken,
+      parseEther(lpTotalSupply).toString()
+    )
+
+    const lpBal = new TokenAmount(
+      market.liquidityToken,
+      parseEther(lp).toString()
+    )
+    const poolShare = supply.gt(0) ? lpBal.divide(tSupply) : new Fraction('0')
+
+    return poolShare.multiply('100').toSignificant(6)
+  }, [market, lpTotalSupply, lp])
+
+  const calculateLiquidityValuePerShare = useCallback(() => {
+    if (
+      typeof market === 'undefined' ||
+      market === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = market.getLiquidityValuePerShare(
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
+    const shortPerLp = parseEther(lp)
+      .mul(shortValue.raw.toString())
+      .div(parseEther('1'))
+    const underlyingPerLp = parseEther(lp)
+      .mul(underlyingValue.raw.toString())
+      .div(parseEther('1'))
+    const totalUnderlyingPerLp = parseEther(lp)
+      .mul(totalUnderlyingValue.raw.toString())
+      .div(parseEther('1'))
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [market, lp, lpTotalSupply])
+
   const handleOnClick = useCallback(() => {
+    //setProvide(true)
+    onClick()
     setToggle(!toggle)
-  }, [toggle, setToggle])
+  }, [toggle, setToggle, item])
   const handleOnAdd = (e) => {
     e.stopPropagation()
     onClick()
   }
-  /* const nodeRef = useClickAway(() => {
+  const nodeRef = useClickAway(() => {
     setToggle(false)
-  }) */
+    removeItem()
+  })
 
   const units = isCall ? asset.toUpperCase() : 'DAI'
 
+  const assetSymbols = useCallback(() => {
+    let asset1Symbol
+    let asset2Symbol
+    if (parseEther(asset1).gt(parseEther(asset2))) {
+      asset1Symbol = 'SHORT'
+      asset2Symbol = units
+    } else {
+      asset1Symbol = units
+      asset2Symbol = 'SHORT'
+    }
+
+    return { asset1Symbol, asset2Symbol }
+  }, [asset1, asset2, units])
+
   return (
-    <StyledDiv>
+    <StyledDiv ref={nodeRef}>
       <TableRow
         isActive={
           item.entity === null
@@ -89,60 +188,31 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             <Units>DAI</Units>
           </span>
         </TableCell>
+        {!isZero(parseEther(ask)) ? (
+          <TableCell>
+            {isCall ? (
+              <span>
+                {numeral(formatEther(ask)).format('(0.000a)')}{' '}
+                <Units>{units}</Units>
+              </span>
+            ) : (
+              <span>
+                {numeral(formatEther(ask)).format('(0.000a)')} <Units>$</Units>
+              </span>
+            )}
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
         <TableCell>
-          {!isZero(parseEther(asset1)) ? (
+          {!isZero(parseEther(lp)) ? (
             <span>
-              {numeral(share).format('0.00')} <Units>$</Units>
+              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
             </span>
           ) : (
             <>{`-`}</>
           )}
         </TableCell>
-        {!isZero(parseEther(asset1)) ? (
-          <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(asset1).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(asset1).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(asset2)) ? (
-          <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(asset2).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(asset2).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(fees)) ? (
-          <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(fees).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(fees).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
         {parseFloat(liquidity[0]) > 0 ? (
           <TableCell>
             <span>
@@ -152,6 +222,22 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
+        {!isZero(parseEther(asset1)) ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(
+                  entity.proportionalShort(
+                    market.spotUnderlyingToShort.raw.toString()
+                  )
+                )
+              ).format('(0.00)')}{' '}
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
+
         {expiry ? (
           <TableCell>
             <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>
@@ -159,7 +245,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        <StyledButtonCell key={'Open'}>
+        <TableCell key={'Open'}>
           <Button
             onClick={handleOnClick}
             variant={
@@ -172,42 +258,19 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             size="sm"
             text="Add Liquidity"
           />
-        </StyledButtonCell>
+        </TableCell>
       </TableRow>
-      {toggle ? (
-        <OrderTableRow onClick={() => {}}>
-          <Box column>
-            <Spacer />
-            <StyledTitle>
-              <Tooltip text={'Provide assets to the pool.'}>
-                {'Add Liquidity'}
-              </Tooltip>
-              <CustomButton>
-                <Button variant="transparent" size="sm" onClick={handleOnClick}>
-                  <ClearIcon />
-                </Button>
-              </CustomButton>
-            </StyledTitle>
-            <Separator />
-            <Spacer />
-            <PriceInput
-              title="Quantity"
-              name="primary"
-              onChange={() => {}}
-              quantity={'1'}
-              onClick={() => {}}
-              valid={true}
+      {toggle && item.entity ? (
+        <OrderTableRow onClick={() => {}} id="order-row">
+          <OrderContainer>
+            <Switch
+              active={provide}
+              onClick={() => setProvide(!provide)}
+              primaryText="Add"
+              secondaryText="Remove"
             />
-            <Spacer />
-            <Button
-              disabled={false}
-              full
-              size="sm"
-              onClick={() => {}}
-              isLoading={false}
-              text={'Confirm'}
-            />
-          </Box>
+            {provide ? <AddLiquidity /> : <RemoveLiquidity />}
+          </OrderContainer>
         </OrderTableRow>
       ) : (
         <></>
@@ -215,6 +278,11 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     </StyledDiv>
   )
 }
+
+const OrderContainer = styled(Box)`
+  flex-direction: column;
+  flex: 1;
+`
 
 const CustomButton = styled.div`
   margin-top: -0.1em;
@@ -264,10 +332,8 @@ const OrderTableRow = styled.div<StyleProps>`
   color: ${(props) =>
     props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
   display: flex;
-  height: 25em;
   margin-left: -${(props) => props.theme.spacing[4]}px;
-  padding-left: ${(props) => props.theme.spacing[4]}px;
-  padding-right: ${(props) => props.theme.spacing[4]}px;
+  padding: ${(props) => props.theme.spacing[4]}px;
 `
 
 export default LiquidityTableRow

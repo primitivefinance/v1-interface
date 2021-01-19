@@ -10,6 +10,7 @@ import Disclaimer from '@/components/Disclaimer'
 import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
+import Tooltip from '@/components/Tooltip'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -19,9 +20,18 @@ import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useSetLoading } from '@/state/positions/hooks'
 
+import { Grid, Col, Row } from 'react-styled-flexboxgrid'
+
 import LiquidityTable from '@/components/Liquidity/LiquidityTable'
+import numeral from 'numeral'
+import { formatEther } from 'ethers/lib/utils'
+import isZero from '@/utils/isZero'
 
 import PositionsCard from '@/components/Market/PositionsCard'
+import Switch from '@/components/Switch'
+import MarketHeader from '@/components/Market/MarketHeader'
+import FilterBar from '@/components/Market/FilterBar'
+import { useRemoveItem } from '@/state/order/hooks'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -41,6 +51,7 @@ interface CardProps {
 }
 
 export const DataCard: React.FC<CardProps> = ({
+  children,
   title,
   description,
   multiplier,
@@ -51,11 +62,18 @@ export const DataCard: React.FC<CardProps> = ({
         <CardTitle>{title ? title : 'No title'}</CardTitle>
       </CardContent>
       <CardContent>
-        <Text>{description ? description : 'No description'}</Text>
+        <Text>
+          {description ? description : children ? children : 'No description'}
+        </Text>
       </CardContent>
     </StyledCardContainer>
   )
 }
+
+const StyledL = styled(Box)`
+  margin-top: -1.5em;
+  margin-bottom: -1.1em;
+`
 
 export const Graph: React.FC = () => {
   return <Box>Graph</Box>
@@ -71,6 +89,11 @@ const Liquidity = ({ user, data }) => {
   const options = useOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
+  const removeItem = useRemoveItem()
+
+  useEffect(() => {
+    updateOptions('weth') //hardcoded
+  }, [user])
 
   useEffect(() => {
     const { ethereum, web3 } = window as any
@@ -148,37 +171,64 @@ const Liquidity = ({ user, data }) => {
       ) : (
         <>
           <Disclaimer />
-          <StyledLitContainer>
-            <StyledLitContainerContent>
-              <StyledHeaderContainer>
-                <DataCard
-                  title={'Total Liquidity'}
-                  multiplier={3}
-                  description={'10 WETH'}
-                />
-                <DataCard multiplier={3} />
-                <DataCard multiplier={3} />
-              </StyledHeaderContainer>
-              <Spacer />
-              <StyledHeaderContainer>
-                <LiquidityTable />
-                <Text>{user}</Text>
-              </StyledHeaderContainer>
-            </StyledLitContainerContent>
-          </StyledLitContainer>
+          <StyledMarket>
+            <Grid id={'market-grid'}>
+              <Row>
+                <StyledLitContainer>
+                  <div>
+                    <StyledHeaderContainer>
+                      <MarketHeader
+                        marketId={'weth'}
+                        isCall={callPutActive ? 0 : 1}
+                      />
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={() => setCallPutActive(!callPutActive)}
+                      />
+                    </StyledHeaderContainer>
+
+                    <StyledHeaderContainer>
+                      <LiquidityTable callActive={callPutActive} />
+                    </StyledHeaderContainer>
+                  </div>
+                </StyledLitContainer>
+              </Row>
+            </Grid>
+          </StyledMarket>
         </>
       )}
     </ErrorBoundary>
   )
 }
 
-const StyledLitContainer = styled.div`
+const StyledMarket = styled.div`
+  width: 100%;
+  height: 90%;
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: ${(props) => props.theme.color.grey[800]};
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[700]};
+  }
+  scrollbar-color: ${(props) => props.theme.color.grey[700]}
+    ${(props) => props.theme.color.grey[800]};
+  scrollbar-width: thin;
+`
+
+export const StyledLitContainer = styled(Col)`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-`
-const StyledLitContainerContent = styled.div`
-  width: ${(props) => props.theme.contentWidth}px;
 `
 
 const StyledHeaderContainer = styled.div`
@@ -194,12 +244,15 @@ interface CardContainerProps {
 }
 
 const StyledCardContainer = styled.span<CardContainerProps>`
-  background: ${(props) => props.theme.color.grey[900]};
-  border: 1px solid grey;
+  background: ${(props) => props.theme.color.grey[800]};
+  //border: 1px solid grey;
   border-radius: ${(props) => props.theme.borderRadius}px;
   margin: ${(props) => props.theme.spacing[3]}px;
   padding: ${(props) => props.theme.spacing[2]}px;
   width: ${(props) => props.theme.contentWidth * (1 / props.multiplier)}px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 `
 
 const CardTitle = styled.span`
@@ -208,6 +261,8 @@ const CardTitle = styled.span`
   opacity: 0.5;
   letter-spacing: 1px;
   text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 const Text = styled.span`
@@ -216,12 +271,23 @@ const Text = styled.span`
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 const CardContent = styled(Box)`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   padding: ${(props) => props.theme.spacing[2]}px;
+`
+const StyledContainer = styled(Col)`
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-grow: 1;
 `
 
 export default Liquidity

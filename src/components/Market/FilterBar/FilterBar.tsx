@@ -12,8 +12,8 @@ import { ACTIVE_EXPIRIES } from '@/constants/index'
 export interface FilterBarProps {
   active: boolean
   setCallActive: any
-  expiry: number
-  setExpiry: any
+  expiry?: number
+  setExpiry?: any
 }
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
@@ -23,9 +23,6 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
     setCallActive(!active)
   }, [active, setCallActive])
 
-  const handleFilter = (event: any) => {
-    setExpiry(event.target.value)
-  }
   return (
     <StyledFilterBar>
       <LitContainer>
