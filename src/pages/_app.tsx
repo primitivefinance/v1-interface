@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -33,20 +33,6 @@ const GlobalStyle = createGlobalStyle`
     color: white;
   }
 `
-const StyledText = styled.div`
-  font-size: 18px;
-  color: ${(props) => props.theme.color.white};
-`
-const WaitingRoom = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  font-size: 36px;
-  justify-content: center;
-  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  width: 100%;
-`
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -62,7 +48,7 @@ const Updater = () => {
   )
 }
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }): any {
   return (
     <>
       <GlobalStyle />

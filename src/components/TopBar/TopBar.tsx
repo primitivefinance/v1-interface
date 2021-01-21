@@ -3,8 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import styled from 'styled-components'
 
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import NotificationsIcon from '@material-ui/icons/Notifications'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
@@ -53,15 +52,16 @@ const TopBar: React.FC = () => {
               Liquidity
             </StyledNavItem>
           </Link>
-          <Link href="/contracts">
-            <StyledNavItem
-              active={
-                location.pathname.indexOf('/contracts') !== -1 ? true : false
-              }
-            >
-              Contracts
+          <a
+            style={{ textDecoration: 'none' }}
+            href="https://snapshot.page/#/primitive.eth"
+            target="__blank"
+          >
+            <StyledNavItem active={false}>
+              Governance{' '}
+              <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
             </StyledNavItem>
-          </Link>
+          </a>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ
@@ -133,6 +133,9 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
