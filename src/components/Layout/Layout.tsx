@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useRouter } from 'next/router'
 
-import Banner from '@/components/Banner'
+import Spacer from '@/components/Spacer'
 import Footer from '@/components/Footer'
 import Loader from '@/components/Loader'
 import TopBar from '@/components/TopBar'
-import SplashScreen from '@/components/SplashScreen'
-import { useResetNotif } from '@/state/notifs/hooks'
-import { useRemoveItem } from '@/state/order/hooks'
 interface PageProps {
   children: any
   full?: boolean
+  loading?: boolean
 }
 
 const Layout: React.FC<PageProps> = (props) => {
+  if (props.loading) {
+    return (
+      <>
+        <TopBar />
+        <StyledPage>
+          <Spacer />
+          <Loader />
+        </StyledPage>
+        <Footer />
+      </>
+    )
+  }
   return (
     <>
       <TopBar />

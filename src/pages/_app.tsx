@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -49,6 +50,33 @@ const Updater = () => {
 }
 
 export default function App({ Component, pageProps }): any {
+  const router = useRouter()
+  const [load, setLoad] = useState(false)
+
+  useEffect(() => {
+    const handleRouteChange = (url, { shallow }) => {
+      console.log(
+        `App is changing to ${url} ${
+          shallow ? 'with' : 'without'
+        } shallow routing`
+      )
+      setLoad(true)
+    }
+
+    const handleRouteComplete = () => {
+      setLoad(false)
+    }
+    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on('routeChangeComplete', handleRouteComplete)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.off('routeChangeComplete', handleRouteComplete)
+    }
+  }, [])
+
   return (
     <>
       <GlobalStyle />
@@ -57,7 +85,7 @@ export default function App({ Component, pageProps }): any {
           <>
             <Provider store={store}>
               <Updater />
-              <Layout>
+              <Layout loading={load}>
                 <Component {...pageProps} />
               </Layout>
             </Provider>
