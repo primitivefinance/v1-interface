@@ -47,7 +47,7 @@ const TopBar: React.FC = () => {
               Markets
             </StyledNavItem>
           </Link>
-          <Link href={`/liquidity/${encodeURIComponent(account)}`}>
+          <Link href={`/liquidity`}>
             <StyledNavItem active={location.pathname.startsWith('/liquidity')}>
               Liquidity
             </StyledNavItem>

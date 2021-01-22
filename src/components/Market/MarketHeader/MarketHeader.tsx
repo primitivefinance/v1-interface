@@ -36,9 +36,14 @@ const formatName = (name: any) => {
 export interface MarketHeaderProps {
   marketId: string
   isCall: number
+  children?: any
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({
+  marketId,
+  isCall,
+  children,
+}) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const options = useOptions()
@@ -88,7 +93,7 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
       <LitContainer>
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-          <Spacer />
+          <div style={{ margin: '.5em' }} />
           <StyledContent>
             <div style={{ marginTop: '.3em' }} />
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
@@ -98,12 +103,13 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
               target="_blank"
               rel="noreferrer"
             >
-              <StyledName>{formatName(name)}</StyledName>
-              <StyledIcon />
+              <StyledName>
+                {formatName(name)} <StyledIcon />
+              </StyledName>
             </StyledLink>
           </StyledContent>
 
-          <Spacer size="md" />
+          <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />
@@ -116,7 +122,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
             </StyledPrice>
           </StyledContent>
 
-          <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>24hr Change</StyledSymbol>
             <Spacer size="sm" />
@@ -128,49 +133,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
               )}
             </StyledPrice>
           </StyledContent>
-
-          <Spacer size="lg" />
-          <StyledContent>
-            <StyledSymbol>Total Liquidity</StyledSymbol>
-            <StyledPrice size="sm">
-              {!options.loading ? (
-                formatEtherBalance(options.reservesTotal[isCall]) !== '0.00' ? (
-                  <>
-                    <div style={{ minHeight: '.20em' }} />
-
-                    {`${numeral(
-                      formatEtherBalance(options.reservesTotal[isCall])
-                    ).format('0.00a')} ${' '} ${
-                      isCall === 0 ? symbol.toUpperCase() : 'DAI'
-                    }`}
-                    <div style={{ minHeight: '.25em' }} />
-                  </>
-                ) : (
-                  <>
-                    <div style={{ minHeight: '.38em' }} />
-                    <StyledL
-                      row
-                      justifyContent="flex-start"
-                      alignItems="center"
-                    >
-                      <div style={{ minWidth: '.2em' }} />
-                      <h4>
-                        <Tooltip text={`Choose an option and add liquidity!`}>
-                          None
-                        </Tooltip>
-                      </h4>
-                    </StyledL>
-                  </>
-                )
-              ) : (
-                <>
-                  <div style={{ minHeight: '.4em' }} />
-                  <Loader size="sm" />
-                  <div style={{ minHeight: '.55em' }} />
-                </>
-              )}
-            </StyledPrice>
-          </StyledContent>
+          <Spacer />
+          {children}
         </StyledTitle>
       </LitContainer>
       <Reverse />
@@ -198,6 +162,8 @@ const StyledContent = styled(Box)`
   align-items: baseline;
   flex-direction: row;
   justify-content: flex-start;
+  min-width: 8em;
+  margin-right: 2em;
 `
 const StyledIcon = styled(LaunchIcon)`
   color: ${(props) => props.theme.color.grey[400]};
@@ -231,12 +197,16 @@ const StyledTitle = styled.div`
   justify-content: space-between;
 `
 
-const StyledName = styled.span`
+const StyledName = styled.div`
   font-size: 24px;
   font-weight: 700;
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 12em;
   &:hover {
     color: ${(props) => props.theme.color.grey[400]};
   }

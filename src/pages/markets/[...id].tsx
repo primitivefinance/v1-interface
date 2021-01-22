@@ -66,9 +66,6 @@ const Market = ({ market, data }) => {
       updateOptions('')
     }
 
-    if (market === 'eth') {
-      router.push('/markets/weth/calls')
-    }
     if (ethereum) {
       const handleChainChanged = () => {
         if (id !== chainId) {
@@ -176,15 +173,16 @@ const Market = ({ market, data }) => {
                     <MarketHeader
                       marketId={market}
                       isCall={callPutActive ? 0 : 1}
-                    />
-                    <Spacer size="sm" />
-                    <FilterBar
-                      active={callPutActive}
-                      setCallActive={handleFilterType}
-                      expiry={expiry}
-                      setExpiry={handleFilterExpiry}
-                    />
-                    <Spacer size="sm" />
+                    >
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={handleFilterType}
+                        expiry={expiry}
+                        setExpiry={handleFilterExpiry}
+                      />
+                    </MarketHeader>
+
+                    <Spacer />
                     <ErrorBoundary
                       fallback={
                         <>

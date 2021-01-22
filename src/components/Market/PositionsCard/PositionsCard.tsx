@@ -77,11 +77,11 @@ const PositionsCard: React.FC = () => {
         <CardContent>
           <StyledEmptyContent>
             <Spacer size="sm" />
-            <StyledEmptyMessage>Loading Positions...</StyledEmptyMessage>
+            <StyledEmptyMessage>Loading Positions</StyledEmptyMessage>
             <StyledEmptyMessage>
-              <Loader size="lg" />
+              <Loader />
             </StyledEmptyMessage>
-            <Spacer size="sm" />
+            <Spacer />
           </StyledEmptyContent>
         </CardContent>
       </Card>
