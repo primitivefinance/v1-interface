@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import PageHeader from '@/components/PageHeader'
 import MarketCards from '@/components/MarketCards'
+import MarketTable from '@/components/MarketTable/MarketTable'
 import Spacer from '@/components/Spacer'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import { useClearNotif } from '@/state/notifs/hooks'
@@ -92,7 +93,32 @@ const days: { [key: number]: React.ReactNode } = {
   ),
 }
 
-const Markets: React.FC = () => {
+export async function getStaticProps() {
+  const a = await fetch(
+    `https://raw.githubusercontent.com/primitivefinance/primitive-token-lists/main/crypto-assets.json`
+  )
+  const asset = await a.json()
+
+  const d = await fetch(
+    `https://raw.githubusercontent.com/primitivefinance/primitive-token-lists/main/defi-tokens.json`
+  )
+  const defi = await d.json()
+
+  if (!asset || !defi) {
+    return {
+      notFound: true,
+    }
+  }
+
+  return {
+    props: {
+      asset,
+      defi,
+    }, // will be passed to the page component as props
+  }
+}
+
+const Markets: React.FC = ({ asset, defi }) => {
   const [day, setDay] = useState(0)
   const clear = useClearNotif()
   const clearOptions = useClearOptions()
@@ -124,22 +150,25 @@ const Markets: React.FC = () => {
   }, [day, setDay])
 
   return (
-    <Grid>
-      <Col xs={12}>
-        <Row center="xs">
-          <PageHeader
-            icon={days[day]}
-            title="Option Markets"
-            subtitle="View available options, trade tokens, and manage positions."
-          />
-        </Row>
-        <Row center="xs">
-          <MarketCards />
-        </Row>
-        <Spacer />
-      </Col>
-    </Grid>
+    <>
+      <StyledContainer>
+        <PageHeader
+          icon={days[day]}
+          title="Option Markets"
+          subtitle="View available options, trade tokens, and manage positions"
+        />
+        <MarketTable lists={{ asset, defi }} />
+      </StyledContainer>
+      <Spacer />
+    </>
   )
 }
 
+const StyledContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 50em;
+  max-width: 1000px;
+`
 export default Markets

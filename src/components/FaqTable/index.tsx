@@ -33,6 +33,7 @@ const FaqTable: React.FC = () => {
       <Spacer />
       <StyledTitle>Frequently Asked Questions</StyledTitle>
       <Spacer />
+      <Spacer />
       <StyledTableBody>
         <Spacer size="sm" />
         {SPECIFICATIONS.map((specification, i) => {
