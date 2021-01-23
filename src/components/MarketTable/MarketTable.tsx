@@ -14,10 +14,10 @@ import { MARKETS, Market } from '@/constants/index'
 
 const headers = [
   {
-    name: 'Asset',
+    name: 'Market',
   },
   {
-    name: 'Catagory',
+    name: 'Category',
   },
 ]
 
@@ -32,6 +32,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
           return <TableCell key={index}>{head.name}</TableCell>
         })}
       </StyledTableRow>
+      <GreyBack />
       {lists?.asset ? (
         lists.asset.tokens.map((token, index) => {
           return (
@@ -54,7 +55,8 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                     ) : (
                       <></>
                     )}
-                    <Spacer />
+                    <Spacer size="sm" />
+                    <Spacer size="sm" />
                     {token.name}
                   </Asset>
                 </TableCell>
@@ -90,7 +92,8 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                     ) : (
                       <></>
                     )}
-                    <Spacer />
+                    <Spacer size="sm" />
+                    <Spacer size="sm" />
                     {token.name}
                   </Asset>
                 </TableCell>
@@ -107,6 +110,15 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
     </TableBody>
   )
 }
+
+const GreyBack = styled.div`
+  background: ${(props) => props.theme.color.grey[800]};
+  position: absolute;
+  z-index: -100;
+  min-height: 2px;
+  min-width: 4000px;
+  left: 0;
+`
 
 const Asset = styled.div`
   display: flex;

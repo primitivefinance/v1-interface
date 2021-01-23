@@ -374,7 +374,6 @@ const AddLiquidity: React.FC = () => {
   return (
     <LiquidityContainer id="liquidity-component">
       <Column>
-        <Separator />
         <Spacer size="sm" />
 
         {hasLiquidity ? (
@@ -438,9 +437,6 @@ const AddLiquidity: React.FC = () => {
           </StyledTabs>
         ) : (
           <>
-            <StyledSubtitle>
-              {!loading ? noLiquidityTitle.text : null}
-            </StyledSubtitle>
             <Spacer size="sm" />
             <PriceInput
               name="primary"
@@ -464,7 +460,6 @@ const AddLiquidity: React.FC = () => {
       <Spacer size="lg" />
 
       <Column>
-        <Separator />
         <Spacer size="sm" />
         <StyledInnerTitle>Order Summary</StyledInnerTitle>
         <Spacer size="sm" />
@@ -543,18 +538,12 @@ const AddLiquidity: React.FC = () => {
       <Spacer size="lg" />
 
       <Column>
-        <Separator />
-        <Spacer size="sm" />
-        <IconButton
-          text=""
-          variant="transparent"
-          onClick={() => setAdvanced(!advanced)}
-        >
-          <StyledInnerTitle>Advanced</StyledInnerTitle>
-          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
+        <Internal>
+          <Reverse />
+          <Spacer size="sm" />
 
-        {advanced ? (
+          <StyledInnerTitle>Pool Breakdown</StyledInnerTitle>
+
           <>
             {/* <Spacer size="sm" />
             <LineItem
@@ -587,10 +576,16 @@ const AddLiquidity: React.FC = () => {
               data={calculatePoolShare().newPoolShare}
               units={`%`}
             />
+            {!hasLiquidity ? (
+              <>
+                <Spacer size="sm" />
+                <StyledSubtitle>
+                  {!loading ? noLiquidityTitle.text : null}
+                </StyledSubtitle>
+              </>
+            ) : null}
           </>
-        ) : (
-          <> </>
-        )}
+        </Internal>
       </Column>
     </LiquidityContainer>
   )
@@ -612,13 +607,22 @@ const Column = styled(Box)`
   flex-direction: column;
   flex: 1;
 `
+const Internal = styled.div`
+  background: black;
+  margin: 0.5em;
+  padding: 0 1em 1em 1em;
+  border-radius: 0.5em;
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.1);
+`
 
 const LiquidityContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1;
 `
-
+const Reverse = styled.div`
+  margin-top: -5em;
+`
 interface TabProps {
   active?: boolean
 }
@@ -656,8 +660,7 @@ const StyledSubtitle = styled.div`
   width: 100%;
   letter-spacing: 1px;
   text-transform: uppercase;
-  text-align: center;
-  vertical-align: middle;
+
   font-size: 13px;
   opacity: 1;
   margin: ${(props) => props.theme.spacing[2]}px;

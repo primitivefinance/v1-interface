@@ -99,16 +99,18 @@ const Market = ({ market, data }) => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
-  }, [setCallPutActive, data])
+  }, [data])
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
-    if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+
+    if (!callPutActive) {
+      console.log('reached')
+      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
         shallow: true,
       })
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
         shallow: true,
       })
     }
@@ -170,15 +172,10 @@ const Market = ({ market, data }) => {
               <Row>
                 <StyledContainer sm={12} md={8} lg={8} id="table-column">
                   <StyledMain>
-                    <MarketHeader
-                      marketId={market}
-                      isCall={callPutActive ? 0 : 1}
-                    >
+                    <MarketHeader marketId={market}>
                       <FilterBar
                         active={callPutActive}
                         setCallActive={handleFilterType}
-                        expiry={expiry}
-                        setExpiry={handleFilterExpiry}
                       />
                     </MarketHeader>
 
@@ -253,20 +250,19 @@ const StyledMarket = styled.div`
   overflow-x: hidden;
   overflow-y: auto !important;
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 1px;
     height: 15px;
   }
 
   &::-webkit-scrollbar-track-piece {
-    background-color: ${(props) => props.theme.color.grey[800]};
+    background-color: transparent;
   }
 
   &::-webkit-scrollbar-thumb:vertical {
     height: 30px;
-    background-color: ${(props) => props.theme.color.grey[700]};
+    background-color: ${(props) => props.theme.color.grey[600]};
   }
-  scrollbar-color: ${(props) => props.theme.color.grey[700]}
-    ${(props) => props.theme.color.grey[800]};
+  scrollbar-color: transparent;
   scrollbar-width: thin;
 `
 
@@ -291,17 +287,20 @@ const StyledSideBar = styled.div`
     width: 5px;
     height: 15px;
   }
+  &::-webkit-scrollbar {
+    width: 1px;
+    height: 15px;
+  }
 
   &::-webkit-scrollbar-track-piece {
-    background-color: ${(props) => props.theme.color.grey[800]};
+    background-color: transparent;
   }
 
   &::-webkit-scrollbar-thumb:vertical {
     height: 30px;
-    background-color: ${(props) => props.theme.color.grey[700]};
+    background-color: transparent;
   }
-  scrollbar-color: ${(props) => props.theme.color.grey[700]}
-    ${(props) => props.theme.color.grey[800]};
+  scrollbar-color: transparent;
   scrollbar-width: thin;
 `
 const StyledText = styled.h4`

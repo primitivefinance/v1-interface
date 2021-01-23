@@ -127,9 +127,9 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
                   return (
                     <LiquidityTableRow
                       key={option.entity.address}
-                      onClick={() =>
+                      onClick={() => {
                         updateItem(option, Operation.ADD_LIQUIDITY)
-                      }
+                      }}
                       href={`/liquidity`}
                       columns={tableColumns}
                     />

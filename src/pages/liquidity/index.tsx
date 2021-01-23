@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import styled from 'styled-components'
-import PageHeader from '@/components/PageHeader'
-import MarketCards from '@/components/MarketCards'
 import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
@@ -9,13 +7,9 @@ import Disclaimer from '@/components/Disclaimer'
 
 import MetaMaskOnboarding from '@metamask/onboarding'
 
-import Notifs from '@/components/Notifs'
-import Tooltip from '@/components/Tooltip'
-
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { GetServerSideProps } from 'next'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { useClearNotif } from '@/state/notifs/hooks'
 import { useSetLoading } from '@/state/positions/hooks'
@@ -23,15 +17,34 @@ import { useSetLoading } from '@/state/positions/hooks'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 
 import LiquidityTable from '@/components/Liquidity/LiquidityTable'
-import numeral from 'numeral'
-import { formatEther } from 'ethers/lib/utils'
-import isZero from '@/utils/isZero'
 
-import PositionsCard from '@/components/Market/PositionsCard'
-import Switch from '@/components/Switch'
-import MarketHeader from '@/components/Market/MarketHeader'
+import LiquidityHeader from '@/components/Liquidity/LiquidityHeader'
 import FilterBar from '@/components/Market/FilterBar'
 import { useRemoveItem } from '@/state/order/hooks'
+
+export async function getStaticProps() {
+  const a = await fetch(
+    `https://raw.githubusercontent.com/primitivefinance/primitive-token-lists/main/crypto-assets.json`
+  )
+  const asset = await a.json()
+
+  const d = await fetch(
+    `https://raw.githubusercontent.com/primitivefinance/primitive-token-lists/main/defi-tokens.json`
+  )
+  const defi = await d.json()
+
+  if (!asset || !defi) {
+    return {
+      notFound: true,
+    }
+  }
+  const icons = asset?.tokens
+  return {
+    props: {
+      icons,
+    }, // will be passed to the page component as props
+  }
+}
 interface CardProps {
   title?: string
   description?: string
@@ -67,7 +80,7 @@ export const Graph: React.FC = () => {
   return <Box>Graph</Box>
 }
 
-const Liquidity = () => {
+const Liquidity = ({ icons }) => {
   const [callPutActive, setCallPutActive] = useState(true)
   const { chainId, active, account, library } = useActiveWeb3React()
   const [id, storeId] = useState(chainId)
@@ -89,6 +102,7 @@ const Liquidity = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.push(`/liquidity`)
+      updateOptions('')
     }
     if (ethereum) {
       const handleChainChanged = () => {
@@ -165,14 +179,12 @@ const Liquidity = () => {
                 <StyledLitContainer>
                   <div>
                     <StyledHeaderContainer>
-                      <MarketHeader
-                        marketId={'weth'}
-                        isCall={callPutActive ? 0 : 1}
-                      />
-                      <FilterBar
-                        active={callPutActive}
-                        setCallActive={() => setCallPutActive(!callPutActive)}
-                      />
+                      <LiquidityHeader icons={icons} isCall={callPutActive}>
+                        <FilterBar
+                          active={callPutActive}
+                          setCallActive={() => setCallPutActive(!callPutActive)}
+                        />
+                      </LiquidityHeader>
                     </StyledHeaderContainer>
 
                     <StyledHeaderContainer>
@@ -196,7 +208,7 @@ const StyledMarket = styled.div`
   overflow-x: hidden;
   overflow-y: auto !important;
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 0px;
     height: 15px;
   }
 

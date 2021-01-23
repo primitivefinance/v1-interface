@@ -35,15 +35,10 @@ const formatName = (name: any) => {
 
 export interface MarketHeaderProps {
   marketId: string
-  isCall: number
   children?: any
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = ({
-  marketId,
-  isCall,
-  children,
-}) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const options = useOptions()
@@ -109,7 +104,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({
             </StyledLink>
           </StyledContent>
 
-          <Spacer size="lg" />
+          <Spacer />
+          <Spacer />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />

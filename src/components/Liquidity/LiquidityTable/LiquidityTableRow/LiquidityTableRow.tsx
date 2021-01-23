@@ -8,9 +8,11 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
 import formatExpiry from '@/utils/formatExpiry'
-import Button from '@/components/Button'
+import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Switch from '@/components/Switch'
+import Spacer from '@/components/Spacer'
+import Loader from '@/components/Loader'
 
 import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
 import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
@@ -20,6 +22,8 @@ import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useClickAway } from '@/hooks/utils/useClickAway'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import { Option, Market, Operation } from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
@@ -141,12 +145,21 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 
   const handleOnClick = useCallback(() => {
     //setProvide(true)
-    onClick()
     setToggle(!toggle)
+
+    onClick()
   }, [toggle, setToggle, item])
   const handleOnAdd = (e) => {
     e.stopPropagation()
     onClick()
+  }
+  const handlePause = () => {
+    if (toggle) {
+      setToggle(false)
+      removeItem()
+    } else {
+      setToggle(true)
+    }
   }
   const nodeRef = useClickAway(() => {
     setToggle(false)
@@ -173,7 +186,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     <StyledDiv ref={nodeRef}>
       <TableRow
         isActive={
-          item.entity === null
+          item.entity === null || !toggle
             ? false
             : item?.entity.address === key
             ? true
@@ -182,12 +195,39 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         key={key}
         onClick={handleOnClick}
       >
+        {parseFloat(liquidity[0]) > 0 ? (
+          <TableCell>
+            <span>
+              {numeral(liquidity[0]).format('0.00a')} <Units>{units}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
         <TableCell>
-          <span>
-            {numeral(strike).format(+strike >= 1 ? '0' : '0.00')}{' '}
-            <Units>DAI</Units>
-          </span>
+          {!isZero(parseEther(lp)) ? (
+            <span>
+              {numeral(calculatePoolShare()).format('0.00%')} <Units>%</Units>
+            </span>
+          ) : (
+            <>{`-`}</>
+          )}
         </TableCell>
+        {!isZero(parseEther(asset1)) ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(
+                  entity.proportionalShort(
+                    market.spotUnderlyingToShort.raw.toString()
+                  )
+                )
+              ).format('(0.00)')}{' '}
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
         {!isZero(parseEther(ask)) ? (
           <TableCell>
             {isCall ? (
@@ -204,39 +244,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        <TableCell>
-          {!isZero(parseEther(lp)) ? (
-            <span>
-              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
-            </span>
-          ) : (
-            <>{`-`}</>
-          )}
-        </TableCell>
-        {parseFloat(liquidity[0]) > 0 ? (
-          <TableCell>
-            <span>
-              {numeral(liquidity[0]).format('0.00a')} <Units>{units}</Units>
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(asset1)) ? (
-          <TableCell>
-            <span>
-              {numeral(
-                formatEther(
-                  entity.proportionalShort(
-                    market.spotUnderlyingToShort.raw.toString()
-                  )
-                )
-              ).format('(0.00)')}{' '}
-            </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
 
         {expiry ? (
           <TableCell>
@@ -245,30 +252,52 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
+        <TableCell>
+          <span>
+            {numeral(strike).format(+strike >= 1 ? '0' : '0.00')}{' '}
+            <Units>DAI</Units>
+          </span>
+        </TableCell>
         <TableCell key={'Open'}>
-          <Button
-            onClick={handleOnClick}
-            variant={
-              item.entity === null
-                ? 'outlined'
-                : item.entity.address === key
-                ? 'selected-outlined'
-                : 'outlined'
-            }
-            size="sm"
-            text="Add Liquidity"
-          />
+          <Box row justifyContent="center" alignItems="center">
+            <span></span>
+            <Spacer />
+
+            {item.entity === null ? (
+              <IconButton size="lg" variant="outlined">
+                <ExpandMoreIcon />
+              </IconButton>
+            ) : item.entity.address === key && toggle ? (
+              <IconButton size="lg">
+                <ExpandLessIcon />
+              </IconButton>
+            ) : (
+              <IconButton size="lg" variant="outlined">
+                <ExpandMoreIcon />
+              </IconButton>
+            )}
+          </Box>
         </TableCell>
       </TableRow>
-      {toggle && item.entity ? (
-        <OrderTableRow onClick={() => {}} id="order-row">
+      {toggle && item.entity === null ? (
+        <OrderTableRow onClick={handlePause} id="order-row">
           <OrderContainer>
-            <Switch
-              active={provide}
-              onClick={() => setProvide(!provide)}
-              primaryText="Add"
-              secondaryText="Remove"
-            />
+            <Loader />
+          </OrderContainer>
+        </OrderTableRow>
+      ) : null}
+      {toggle && item.entity ? (
+        <OrderTableRow onClick={handlePause} id="order-row">
+          <OrderContainer>
+            <StyledSwitch>
+              <Switch
+                active={provide}
+                onClick={() => setProvide(!provide)}
+                primaryText="Add"
+                secondaryText="Remove"
+              />
+            </StyledSwitch>
+
             {provide ? <AddLiquidity /> : <RemoveLiquidity />}
           </OrderContainer>
         </OrderTableRow>
@@ -282,6 +311,10 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 const OrderContainer = styled(Box)`
   flex-direction: column;
   flex: 1;
+`
+
+const Reverse = styled.div`
+  margin-right: -2em;
 `
 
 const CustomButton = styled.div`
@@ -321,6 +354,10 @@ interface StyleProps {
   isHead?: boolean
   isActive?: boolean
 }
+
+const StyledSwitch = styled.div`
+  width: 66%;
+`
 
 const OrderTableRow = styled.div<StyleProps>`
   background-color: ${(props) => props.theme.color.grey[800]};

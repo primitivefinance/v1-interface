@@ -118,7 +118,7 @@ export async function getStaticProps() {
   }
 }
 
-const Markets: React.FC = ({ asset, defi }) => {
+const Markets: React.FC<any> = ({ asset, defi }) => {
   const [day, setDay] = useState(0)
   const clear = useClearNotif()
   const clearOptions = useClearOptions()
@@ -155,7 +155,7 @@ const Markets: React.FC = ({ asset, defi }) => {
         <PageHeader
           icon={days[day]}
           title="Option Markets"
-          subtitle="View available options, trade tokens, and manage positions"
+          subtitle="View available options, trade tokens, and manage positions."
         />
         <MarketTable lists={{ asset, defi }} />
       </StyledContainer>

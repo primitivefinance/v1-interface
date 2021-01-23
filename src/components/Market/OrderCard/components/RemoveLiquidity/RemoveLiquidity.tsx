@@ -321,7 +321,6 @@ const RemoveLiquidity: React.FC = () => {
   return (
     <LiquidityContainer id="liquidity-component">
       <Column>
-        <Separator />
         <Spacer size="sm" />
 
         <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
@@ -515,7 +514,6 @@ const RemoveLiquidity: React.FC = () => {
       <Spacer size="lg" />
 
       <Column>
-        <Separator />
         <Spacer size="sm" />
         <StyledInnerTitle>Order Summary</StyledInnerTitle>
         <Spacer size="sm" />
@@ -639,18 +637,13 @@ const RemoveLiquidity: React.FC = () => {
       <Spacer size="lg" />
 
       <Column>
-        <Separator />
-        <Spacer size="sm" />
-        <IconButton
-          text=""
-          variant="transparent"
-          onClick={() => setAdvanced(!advanced)}
-        >
-          <StyledInnerTitle>Advanced</StyledInnerTitle>
-          {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
+        <Internal>
+          <Reverse />
 
-        {advanced ? (
+          <Spacer size="sm" />
+
+          <StyledInnerTitle>Pool Breakdown</StyledInnerTitle>
+
           <>
             {/* <LineItem
               label="Short per LP"
@@ -684,9 +677,7 @@ const RemoveLiquidity: React.FC = () => {
             />
             <Spacer size="sm" />
           </>
-        ) : (
-          <> </>
-        )}
+        </Internal>
       </Column>
     </LiquidityContainer>
   )
@@ -720,6 +711,16 @@ const StyledTabList = styled(TabList)`
 const StyledTabs = styled(Tabs)`
   width: 100%;
   min-height: 25%;
+`
+const Internal = styled.div`
+  background: black;
+  margin: 0.5em;
+  padding: 0 1em 1em 1em;
+  border-radius: 0.5em;
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.1);
+`
+const Reverse = styled.div`
+  margin-top: -5em;
 `
 
 const LiquidityContainer = styled.div`

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-
+import { useRemoveItem } from '@/state/order/hooks'
 import Spacer from '@/components/Spacer'
 import Footer from '@/components/Footer'
 import Loader from '@/components/Loader'
@@ -12,6 +12,15 @@ interface PageProps {
 }
 
 const Layout: React.FC<PageProps> = (props) => {
+  const removeItem = useRemoveItem()
+
+  useEffect(() => {
+    if (props.loading) {
+      // purge orders on route change
+      removeItem()
+    }
+  }, [props.loading])
+
   if (props.loading) {
     return (
       <>

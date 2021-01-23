@@ -14,26 +14,28 @@ import {
 
 export const headers = [
   {
-    name: 'Strike',
-    tip: 'The purchase price for the underlying asset of this option.',
-  },
-  {
-    name: 'Price',
-    tip: 'The ask price of 1 option token.',
+    name: 'Pool Size',
+    tip: 'The amount of underlying tokens in the pool.',
   },
   {
     name: 'Share',
     tip: 'The proportion of ownership of the option pair.',
   },
-  {
-    name: 'Pool Size',
-    tip: 'The amount of underlying tokens in the pool.',
-  },
+
   {
     name: 'Pool Ratio',
     tip: 'The ratio of underlying tokens to short option tokens.',
   },
+  {
+    name: 'Price',
+    tip: 'The ask price of 1 option token.',
+  },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
+  {
+    name: 'Strike',
+    tip: 'The purchase price for the underlying asset of this option.',
+  },
+
   { name: '', tip: null },
 ]
 
