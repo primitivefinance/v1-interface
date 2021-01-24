@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import useSWR from 'swr'
 import styled from 'styled-components'
 import Link from 'next/link'
 import TableCell from '@/components/TableCell'
@@ -8,9 +7,6 @@ import TableRow from '@/components/TableRow'
 import Spacer from '@/components/Spacer'
 
 import Loader from '../Loader'
-import LockIcon from '@material-ui/icons/Lock'
-import { useWeb3React } from '@web3-react/core'
-import { MARKETS, Market } from '@/constants/index'
 
 const headers = [
   {
@@ -56,7 +52,6 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                       <></>
                     )}
                     <Spacer size="sm" />
-                    <Spacer size="sm" />
                     {token.name}
                   </Asset>
                 </TableCell>
@@ -93,11 +88,23 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                       <></>
                     )}
                     <Spacer size="sm" />
-                    <Spacer size="sm" />
                     {token.name}
                   </Asset>
                 </TableCell>
                 <TableCell>DeFi Token</TableCell>
+                {/**
+                 * 
+                 * <TableCell>
+                  <Asset>
+                    <img
+                      height="32"
+                      src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png"
+                      style={{ borderRadius: '50%' }}
+                      alt={'icon'}
+                    />
+                  </Asset>
+                </TableCell>
+                 */}
               </TableRow>
             </Link>
           )
@@ -116,7 +123,7 @@ const GreyBack = styled.div`
   position: absolute;
   z-index: -100;
   min-height: 2px;
-  min-width: 4000px;
+  min-width: 100%;
   left: 0;
 `
 

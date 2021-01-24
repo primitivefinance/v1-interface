@@ -21,21 +21,9 @@ const Layout: React.FC<PageProps> = (props) => {
     }
   }, [props.loading])
 
-  if (props.loading) {
-    return (
-      <>
-        <TopBar />
-        <StyledPage>
-          <Spacer />
-          <Loader />
-        </StyledPage>
-        <Footer />
-      </>
-    )
-  }
   return (
     <>
-      <TopBar />
+      <TopBar loading={props.loading} />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>

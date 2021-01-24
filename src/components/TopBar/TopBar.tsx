@@ -12,8 +12,11 @@ import Logo from '@/components/Logo'
 import Settings from '@/components/Settings'
 import { Wallet } from '@/components/Wallet'
 import { useWeb3React } from '@web3-react/core'
-
-const TopBar: React.FC = () => {
+interface BarProps {
+  children?: any
+  loading?: boolean
+}
+const TopBar: React.FC<BarProps> = ({ children, loading }) => {
   const location = useRouter()
   const { chainId, account } = useWeb3React()
   return (
@@ -84,10 +87,62 @@ const TopBar: React.FC = () => {
           <Settings />
         </StyledFlex>
       </Container>
+
+      {loading ? (
+        <StyledLoading>
+          <StyledBar />
+        </StyledLoading>
+      ) : (
+        <div style={{ minHeight: '3px' }} />
+      )}
     </StyledTopBar>
   )
 }
 
+const StyledLoading = styled.div`
+  background: ${(props) => props.theme.color.grey[800]};
+  min-height: 3px;
+  animation: start 0.3s ease-in;
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  @keyframes start {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+`
+
+const StyledBar = styled.div`
+  z-index: 400;
+  background: ${(props) => props.theme.color.grey[800]};
+  height: 3px;
+  margin: 0 auto;
+  animation: growBar1 2s infinite;
+  animation-timing-function: linear;
+  @keyframes growBar1 {
+    0% {
+      background: ${(props) => props.theme.color.grey[800]};
+      width: 10%;
+    }
+    25% {
+      background: ${(props) => props.theme.color.grey[600]};
+      width: 23%;
+    }
+    50% {
+      background: ${(props) => props.theme.color.grey[600]};
+      width: 100%;
+    }
+    100% {
+      background: ${(props) => props.theme.color.grey[800]};
+      width: 33%;
+    }
+  }
+`
 interface NavProps {
   isMain: boolean
 }

@@ -13,7 +13,6 @@ import TransactionUpdater from '@/state/transactions/updater'
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-
     line-height: 1.5;
     margin: 0;
   }
@@ -28,6 +27,7 @@ const GlobalStyle = createGlobalStyle`
   #app {
     background-color: #040404;
     min-height: 100%;
+    overflow-x: hidden;
     min-width: 100%;
   }
   span {
@@ -55,12 +55,9 @@ export default function App({ Component, pageProps }): any {
 
   useEffect(() => {
     const handleRouteChange = (url, { shallow }) => {
-      console.log(
-        `App is changing to ${url} ${
-          shallow ? 'with' : 'without'
-        } shallow routing`
-      )
-      setLoad(true)
+      if (!shallow) {
+        setLoad(true)
+      }
     }
 
     const handleRouteComplete = () => {
