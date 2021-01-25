@@ -4,6 +4,8 @@ import { useClearOptions } from '@/state/options/hooks'
 import { useRemoveItem } from '@/state/order/hooks'
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import { useWeb3React } from '@web3-react/core'
+import { useClearPositions } from '@/state/positions/hooks'
 interface PageProps {
   children: any
   full?: boolean
@@ -13,18 +15,20 @@ interface PageProps {
 const Layout: React.FC<PageProps> = (props) => {
   const removeItem = useRemoveItem()
   const clearOptions = useClearOptions()
-
+  const clearPositions = useClearPositions()
+  const { active, account } = useWeb3React()
   useEffect(() => {
     if (props.loading) {
       // purge orders on route change
       removeItem()
+      clearPositions()
       clearOptions()
     }
   }, [props.loading])
 
   return (
     <>
-      <TopBar loading={props.loading} />
+      <TopBar loading={props.loading && active} />
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>

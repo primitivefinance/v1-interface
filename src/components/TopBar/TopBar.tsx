@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import LaunchIcon from '@material-ui/icons/Launch'
 
@@ -99,10 +99,16 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
   )
 }
 
+const changeColorWhileLoading = (color) => keyframes`
+  0%   {background-color: ${color.grey[800]};}
+  50%  {background-color: ${color.grey[600]};}
+  100%  {background-color: ${color.grey[800]};}
+`
+
 const StyledLoading = styled.div`
-  background: transparent;
-  min-height: 2px;
-  animation: start 0.5s ease-in;
+  background: ${(props) => props.theme.color.grey[800]};
+  min-height: 3px;
+  animation: start 0.3s ease-in;
   position: relative;
   width: 100%;
   margin: 0 auto;
@@ -119,32 +125,26 @@ const StyledLoading = styled.div`
 
 const StyledBar = styled.div`
   z-index: 400;
-  background: ${(props) => props.theme.color.grey[800]};
-  height: 2px;
-  margin: 0 auto;
-  width: 35%;
+  height: 3px;
+  width: 15%;
 
-  animation: growBar1 3s infinite;
-  animation-timing-function: linear;
+  animation: growBar1 1s linear infinite alternate;
   @keyframes growBar1 {
     0% {
       background: ${(props) => props.theme.color.grey[800]};
-      width: 35%;
-    }
-    25% {
-      background: ${(props) => props.theme.color.grey[600]};
-      width: 40%;
+      margin: 0 0 0 0;
     }
     50% {
       background: ${(props) => props.theme.color.grey[600]};
-      width: 25%;
+      margin: 0 50em 0 50em;
     }
     100% {
       background: ${(props) => props.theme.color.grey[800]};
-      width: 40%;
+      margin: 0 0 0 100em;
     }
   }
 `
+
 interface NavProps {
   isMain: boolean
 }
@@ -205,7 +205,6 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
 `
 
 const StyledLogo = styled.img`
-  padding-top: 0.3em;
   width: ${(props) => props.theme.spacing[5]}px;
   height: ${(props) => props.theme.spacing[5]}px;
 `
