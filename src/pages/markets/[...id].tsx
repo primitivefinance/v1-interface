@@ -136,24 +136,34 @@ const Market = ({ market, data }) => {
     )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
+    return <Text>Switch to Rinkeby or Mainnet Networks</Text>
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||
     !(window as any)?.ethereum ||
     !(window as any)?.web3
   ) {
-    return <StyledText>Please Install Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Install Metamask to View Markets</Text>
+      </>
+    )
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
-    return <StyledText>Please Connect to Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Connect to Metamask to View Markets</Text>
+      </>
+    )
   }
   return (
     <ErrorBoundary
       fallback={
         <>
           <Spacer />
-          <StyledText>Error Loading Market, Please Refresh</StyledText>
+          <Text>Error Loading Market, Please Refresh</Text>
         </>
       }
     >
@@ -184,9 +194,7 @@ const Market = ({ market, data }) => {
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Options, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Options, Please Refresh</Text>
                         </>
                       }
                     >
@@ -303,9 +311,14 @@ const StyledSideBar = styled.div`
   scrollbar-color: transparent;
   scrollbar-width: thin;
 `
-const StyledText = styled.h4`
+const Text = styled.span`
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 export default Market

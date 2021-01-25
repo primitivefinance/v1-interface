@@ -100,9 +100,9 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
 }
 
 const StyledLoading = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
-  min-height: 3px;
-  animation: start 0.3s ease-in;
+  background: transparent;
+  min-height: 2px;
+  animation: start 0.5s ease-in;
   position: relative;
   width: 100%;
   margin: 0 auto;
@@ -120,26 +120,28 @@ const StyledLoading = styled.div`
 const StyledBar = styled.div`
   z-index: 400;
   background: ${(props) => props.theme.color.grey[800]};
-  height: 3px;
+  height: 2px;
   margin: 0 auto;
-  animation: growBar1 2s infinite;
+  width: 35%;
+
+  animation: growBar1 3s infinite;
   animation-timing-function: linear;
   @keyframes growBar1 {
     0% {
       background: ${(props) => props.theme.color.grey[800]};
-      width: 10%;
+      width: 35%;
     }
     25% {
       background: ${(props) => props.theme.color.grey[600]};
-      width: 23%;
+      width: 40%;
     }
     50% {
       background: ${(props) => props.theme.color.grey[600]};
-      width: 100%;
+      width: 25%;
     }
     100% {
       background: ${(props) => props.theme.color.grey[800]};
-      width: 33%;
+      width: 40%;
     }
   }
 `

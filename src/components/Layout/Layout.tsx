@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { useRemoveItem } from '@/state/order/hooks'
-import Spacer from '@/components/Spacer'
 import Footer from '@/components/Footer'
-import Loader from '@/components/Loader'
 import TopBar from '@/components/TopBar'
+import { useClearOptions } from '@/state/options/hooks'
+import { useRemoveItem } from '@/state/order/hooks'
+import React, { useEffect } from 'react'
+import styled from 'styled-components'
 interface PageProps {
   children: any
   full?: boolean
@@ -13,11 +12,13 @@ interface PageProps {
 
 const Layout: React.FC<PageProps> = (props) => {
   const removeItem = useRemoveItem()
+  const clearOptions = useClearOptions()
 
   useEffect(() => {
     if (props.loading) {
       // purge orders on route change
       removeItem()
+      clearOptions()
     }
   }, [props.loading])
 

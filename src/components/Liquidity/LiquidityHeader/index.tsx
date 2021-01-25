@@ -47,24 +47,10 @@ const LiquidityHeader: React.FC<MarketHeaderProps> = ({
       <LitContainer>
         <StyledTitle>
           <StyledName>Liquidity Pools</StyledName>
-          {isCall ? (
-            <StyledSub>
-              Supply call market pools with liquidity and earn option trading
-              fees
-            </StyledSub>
-          ) : (
-            <StyledSub>
-              Supply put market pools with liquidity and earn option trading
-              fees
-            </StyledSub>
-          )}
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <Spacer size="md" />
-          <Spacer size="sm" />
-          <Spacer size="sm" />
+          <Spacer />
           {children}
+          <Spacer />
+          <Spacer />
         </StyledTitle>
       </LitContainer>
       <Reverse />
@@ -75,35 +61,10 @@ const Reverse = styled.div`
   margin-bottom: -1em;
 `
 
-const StyledL = styled(Box)`
-  margin-top: -1.5em;
-  margin-bottom: -1.1em;
-`
-
-const GreyBack = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
-  position: absolute;
-  z-index: -100;
-  min-height: 310px;
-  min-width: 4500px;
-  left: 0;
-`
-const StyledContent = styled(Box)`
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
-  min-width: 8em;
-  margin-right: 2em;
-`
-const StyledIcon = styled(LaunchIcon)`
-  color: ${(props) => props.theme.color.grey[400]};
-  font-size: 14px !important;
-  margin-left: 10px;
-`
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   margin-left: 2em;
-  margin-right: 2em;
+  margin-right: 1em;
   margin-top: -1em;
 `
 
@@ -113,7 +74,7 @@ const StyledTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
-  justify-content: space-between;
+  justify-content: flex-start;
 `
 
 const StyledName = styled.div`
@@ -125,7 +86,7 @@ const StyledName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  min-width: 12em;
+  min-width: 7em;
 `
 const StyledSub = styled.div`
   font-size: 18px;
@@ -137,7 +98,7 @@ const StyledSub = styled.div`
   flex-direction: row;
   align-items: center;
   margin-top: 0.5em;
-  min-width: 20em;
+  min-width: 40em;
 `
 
 const StyledSymbol = styled.span`
