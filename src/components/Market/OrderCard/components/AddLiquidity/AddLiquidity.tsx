@@ -20,7 +20,7 @@ import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
-import { Trade, Market } from '@primitivefi/sdk'
+import { Trade, UniswapMarket, SushiSwapMarket, Venue } from '@primitivefi/sdk'
 import { Fraction, Pair } from '@uniswap/sdk'
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -324,7 +324,11 @@ const AddLiquidity: React.FC = () => {
         entity.underlying,
         parsedUnderlyingAmount.toString()
       )
-      const tempMarket = new Market(entity, redeemAmount, underlyingAmount)
+      const tempMarket = new UniswapMarket(
+        entity,
+        redeemAmount,
+        underlyingAmount
+      )
       return formatEther(tempMarket.spotOpenPremium.raw.toString())
     }
     return formatEther(item.market.spotOpenPremium.raw.toString())

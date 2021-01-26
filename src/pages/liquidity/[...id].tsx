@@ -11,6 +11,7 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
 import Tooltip from '@/components/Tooltip'
+import { Venue } from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -92,7 +93,7 @@ const Liquidity = ({ user, data }) => {
   const removeItem = useRemoveItem()
 
   useEffect(() => {
-    updateOptions('weth') //hardcoded
+    updateOptions('weth', Venue.UNISWAP) //hardcoded
   }, [user])
 
   useEffect(() => {

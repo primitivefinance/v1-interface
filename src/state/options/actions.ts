@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
-import { Option, Market } from '@primitivefi/sdk'
+import { Option, UniswapMarket, SushiSwapMarket, Venue } from '@primitivefi/sdk'
 import { BigNumberish } from 'ethers'
 import { ChainId } from '@uniswap/sdk'
 
@@ -12,9 +12,10 @@ export interface OptionsData {
 
 export type OptionsAttributes = {
   entity: Option
-  market: Market
+  market: UniswapMarket | SushiSwapMarket
   asset: string
   id: string
+  venue: Venue
 }
 
 export const updateOptions = createAction<OptionsData>('options/updateOptions')

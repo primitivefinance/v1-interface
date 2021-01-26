@@ -9,6 +9,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
 import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
+import * as SushiSwapSDK from '@sushiswap/sdk'
 import { OptionsAttributes } from '../options/actions'
 import {
   DEFAULT_DEADLINE,
@@ -56,7 +57,7 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  lpPair?: Pair
+  lpPair?: Pair | SushiSwapSDK.Pair
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -64,7 +65,11 @@ export const useUpdateItem = (): ((
   const clear = useClearSwap()
   const clearLP = useClearLP()
   return useCallback(
-    async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
+    async (
+      item: OptionsAttributes,
+      orderType: Operation,
+      lpPair?: Pair | SushiSwapSDK.Pair
+    ) => {
       dispatch(
         updateItem({
           item,
@@ -337,6 +342,7 @@ export const useHandleSubmitOrder = (): ((
         inputAmount,
         outputAmount,
         operation,
+        item.venue,
         signer
       )
       const factory = new ethers.Contract(

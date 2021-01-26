@@ -12,7 +12,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.10.0",
     "@metamask/onboarding": "^1.0.0",
-    "@primitivefi/sdk": "0.2.5",
+    "@primitivefi/sdk": "0.3.0",
     "@primitivefi/v1-connectors": "1.2.2",
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^4.2.4",
@@ -66,6 +66,7 @@
   },
   "devDependencies": {
     "@primitivefi/contracts": "0.4.4",
+    "@sushiswap/sdk": "^3.0.2",
     "@types/jest": "^26.0.7",
     "@types/node": "^14.0.26",
     "@types/react": "^16.9.43",

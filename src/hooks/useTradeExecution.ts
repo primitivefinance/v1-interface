@@ -12,7 +12,7 @@ import {
 import { FACTORY_ADDRESS } from '@uniswap/sdk'
 import { Option, EMPTY_ASSET } from '@primitivefi/sdk'
 import { parseEther } from 'ethers/lib/utils'
-import { Trade } from '@primitivefi/sdk'
+import { Trade, Venue } from '@primitivefi/sdk'
 import { Uniswap, Trader, Protocol } from '@primitivefi/sdk'
 import { SinglePositionParameters, TradeSettings } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
@@ -80,6 +80,7 @@ const getTrade = async (
     inputAmount,
     outputAmount,
     operation,
+    Venue.UNISWAP,
     signer
   )
   const factory = new ethers.Contract(
