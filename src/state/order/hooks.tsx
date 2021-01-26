@@ -23,7 +23,14 @@ import { FACTORY_ADDRESS } from '@uniswap/sdk'
 import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
 import { Option, createOptionEntityWithAddress } from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import { Trade, Trader, Uniswap } from '@primitivefi/sdk'
+import {
+  Trade,
+  Trader,
+  Uniswap,
+  Venue,
+  SUSHISWAP_CONNECTOR,
+  SUSHI_ROUTER_ADDRESS,
+} from '@primitivefi/sdk'
 import { TradeSettings, SinglePositionParameters } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
@@ -112,7 +119,10 @@ export const useUpdateItem = (): ((
           orderType === Operation.ADD_LIQUIDITY ||
           orderType === Operation.REMOVE_LIQUIDITY_CLOSE
         ) {
-          const spender = UNISWAP_CONNECTOR[chainId]
+          const spender =
+            item.venue === Venue.UNISWAP
+              ? UNISWAP_CONNECTOR[chainId]
+              : SUSHISWAP_CONNECTOR[chainId]
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
               item.entity.underlying.address,
@@ -152,7 +162,10 @@ export const useUpdateItem = (): ((
             return
           }
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
-          const spender = UNI_ROUTER_ADDRESS
+          const spender =
+            item.venue === Venue.UNISWAP
+              ? UNI_ROUTER_ADDRESS
+              : SUSHI_ROUTER_ADDRESS
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -213,10 +226,15 @@ export const useUpdateItem = (): ((
           )
           return
         } else {
+          const isUniswap = item.venue === Venue.UNISWAP ? true : false
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-              ? UNI_ROUTER_ADDRESS
-              : UNISWAP_CONNECTOR[chainId]
+              ? isUniswap
+                ? UNI_ROUTER_ADDRESS
+                : SUSHI_ROUTER_ADDRESS
+              : isUniswap
+              ? UNISWAP_CONNECTOR[chainId]
+              : SUSHISWAP_CONNECTOR[chainId]
           let tokenAddress
           let secondaryAddress
           switch (orderType) {

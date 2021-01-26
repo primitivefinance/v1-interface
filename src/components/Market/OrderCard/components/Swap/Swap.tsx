@@ -24,7 +24,13 @@ import useApprove from '@/hooks/transactions/useApprove'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
-import { UNI_ROUTER_ADDRESS, ADDRESS_ZERO } from '@primitivefi/sdk'
+import {
+  UNI_ROUTER_ADDRESS,
+  ADDRESS_ZERO,
+  Venue,
+  SUSHI_ROUTER_ADDRESS,
+  SUSHISWAP_CONNECTOR,
+} from '@primitivefi/sdk'
 
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -169,10 +175,18 @@ const Swap: React.FC = () => {
     balance,
     parseEther(tokenBalance).toString()
   )
+
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
+
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-      ? UNI_ROUTER_ADDRESS
-      : UNISWAP_CONNECTOR[chainId]
+      ? isUniswap
+        ? UNI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS
+      : isUniswap
+      ? UNISWAP_CONNECTOR[chainId]
+      : SUSHISWAP_CONNECTOR[chainId]
+
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const onApprove = useApprove()
 

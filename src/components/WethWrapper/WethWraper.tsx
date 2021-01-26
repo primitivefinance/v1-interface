@@ -36,8 +36,9 @@ const WethWrapper: React.FC = () => {
   const [wrap, setWrap] = useState(true)
   const [weth, setWeth] = useState('')
   const [ethBal, setEthBal] = useState('0')
-  const { typedValue, inputLoading } = useSwap()
-  const { onUserInput } = useSwapActionHandlers()
+  //const { typedValue, inputLoading } = useSwap()
+  const [typedValue, setTypedValue] = useState('')
+  //const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
   const onApprove = useApprove()
   const addNotif = useAddNotif()
@@ -49,6 +50,16 @@ const WethWrapper: React.FC = () => {
     18,
     'ETH',
     'Ether'
+  )
+
+  const onUserInput = useCallback(
+    (value: string) => {
+      if (value.substr(0) === '.') {
+        value = '0.'
+      }
+      setTypedValue(value)
+    },
+    [setTypedValue]
   )
 
   useEffect(() => {
@@ -182,10 +193,8 @@ const WethWrapper: React.FC = () => {
           />
           <Spacer size="sm" />
           <Button
-            onClick={
-              !isApproved() || !wrap ? handleSubmitClick : handleApproval
-            }
-            text={!isApproved() || !wrap ? 'Confirm' : 'Approve'}
+            onClick={isApproved() || wrap ? handleSubmitClick : handleApproval}
+            text={isApproved() || wrap ? 'Confirm' : 'Approve'}
           />
           <Spacer />
         </CardContent>
