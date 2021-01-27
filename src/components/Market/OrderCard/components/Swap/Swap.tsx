@@ -331,6 +331,8 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
+        <Separator />
+
         <Switch
           active={orderType !== Operation.CLOSE_LONG}
           onClick={() => {
@@ -363,7 +365,49 @@ const Swap: React.FC = () => {
           }
         />
 
-        <Spacer />
+        {parsedAmount.eq(0) && !error ? <Description></Description> : <></>}
+
+        {parsedAmount.gt(0) && !error ? (
+          <>
+            <Spacer />
+            <StyledInnerTitle>Description</StyledInnerTitle>
+            <Spacer size="sm" />
+            <Description>
+              <PurchaseInfo>
+                <OptionTextInfo
+                  orderType={orderType}
+                  parsedAmount={parsedAmount}
+                  isPut={entity.isPut}
+                  strike={entity.quoteValue}
+                  underlying={entity.baseValue}
+                  debit={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.debit).toString()
+                    )
+                  }
+                  credit={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.credit).toString()
+                    )
+                  }
+                  short={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.short).toString()
+                    )
+                  }
+                />
+              </PurchaseInfo>
+            </Description>
+            <Spacer />
+            <Spacer size="sm" />
+            <Separator />
+          </>
+        ) : null}
+
+        <Spacer size="sm" />
         <Title full>Order Summary</Title>
         {!inputLoading ? (
           <>
@@ -395,6 +439,13 @@ const Swap: React.FC = () => {
         )}
 
         <Spacer size="sm" />
+
+        {error ? (
+          <Description>
+            <Spacer />
+            <WarningLabel>Order quantity too large!</WarningLabel>
+          </Description>
+        ) : null}
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>
@@ -490,55 +541,6 @@ const Swap: React.FC = () => {
             </>
           )}
         </StyledEnd>
-
-        {error ? (
-          <Description>
-            <Spacer />
-            <WarningLabel>Order quantity too large!</WarningLabel>
-          </Description>
-        ) : null}
-
-        <Spacer />
-
-        <StyledInnerTitle>Description</StyledInnerTitle>
-
-        {parsedAmount.eq(0) && !error ? (
-          <Description>Enter an amount of options to trade.</Description>
-        ) : (
-          <> </>
-        )}
-
-        {parsedAmount.gt(0) && !error ? (
-          <Description>
-            <PurchaseInfo>
-              <OptionTextInfo
-                orderType={orderType}
-                parsedAmount={parsedAmount}
-                isPut={entity.isPut}
-                strike={entity.quoteValue}
-                underlying={entity.baseValue}
-                debit={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.debit).toString()
-                  )
-                }
-                credit={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.credit).toString()
-                  )
-                }
-                short={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.short).toString()
-                  )
-                }
-              />
-            </PurchaseInfo>
-          </Description>
-        ) : null}
       </Box>
     </>
   )
