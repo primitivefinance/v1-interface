@@ -73,14 +73,16 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <StyledEmptyContent>
-        <Spacer size="sm" />
-        <StyledEmptyMessage>LOADING POSITIONS</StyledEmptyMessage>
-        <StyledEmptyMessage>
-          <Loader />
-        </StyledEmptyMessage>
-        <Spacer />
-      </StyledEmptyContent>
+      <Card border>
+        <StyledEmptyContent>
+          <Spacer size="sm" />
+          <StyledEmptyMessage>LOADING POSITIONS</StyledEmptyMessage>
+          <StyledEmptyMessage>
+            <Loader />
+          </StyledEmptyMessage>
+          <Spacer />
+        </StyledEmptyContent>
+      </Card>
     )
   }
   if (!positions.exists) {
