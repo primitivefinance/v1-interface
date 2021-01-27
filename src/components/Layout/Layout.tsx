@@ -20,7 +20,7 @@ const Layout: React.FC<PageProps> = (props) => {
   const router = useRouter()
   const { active, account } = useWeb3React()
   useEffect(() => {
-    if (props.loading) {
+    if (!props.loading) {
       // purge orders on route change
       removeItem()
       clearPositions()
@@ -40,6 +40,7 @@ const Layout: React.FC<PageProps> = (props) => {
 }
 
 const StyledPage = styled.div``
+
 const StyledLoading = styled.div`
   margin: 0 auto;
   padding-top: 5em;
