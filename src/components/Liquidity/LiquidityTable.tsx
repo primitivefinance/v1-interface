@@ -158,8 +158,8 @@ const ScrollBody = styled(TableBody)`
 `
 
 const OptionsContainer = styled.div`
-  margin-left: 0em;
-  margin-top: -0.2em;
+  margin-left: 1em;
+  margin-top: -1em;
 `
 
 export default LiquidityTable
