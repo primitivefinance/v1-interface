@@ -202,6 +202,7 @@ export const useUpdateOptions = (): ((
                                 asset: assetName,
                                 market: market,
                                 id: option.name,
+                                venue: Venue.SUSHISWAP,
                               })
                             }
                           } else {
@@ -219,6 +220,7 @@ export const useUpdateOptions = (): ((
                                 asset: assetName,
                                 market: market,
                                 id: option.name,
+                                venue: Venue.SUSHISWAP,
                               })
                             }
                           }
@@ -242,6 +244,7 @@ export const useUpdateOptions = (): ((
                                 asset: assetName,
                                 market: market,
                                 id: option.name,
+                                venue: Venue.SUSHISWAP,
                               })
                             }
                           } else {
@@ -263,6 +266,7 @@ export const useUpdateOptions = (): ((
                                 asset: assetName,
                                 market: market,
                                 id: option.name,
+                                venue: Venue.SUSHISWAP,
                               })
                             }
                           }
