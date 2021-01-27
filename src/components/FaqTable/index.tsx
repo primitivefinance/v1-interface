@@ -1,16 +1,11 @@
 import React from 'react'
-import Link from 'next/link'
 import styled from 'styled-components'
 import {
   NAME_FOR_SPECIFICATION,
   DESCRIPTION_FOR_SPECIFICATION,
   SPECIFICATIONS,
 } from '@/constants/specifications'
-import { ETHERSCAN_MAINNET } from '@/constants/index'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
-import CheckIcon from '@material-ui/icons/Check'
-import LaunchIcon from '@material-ui/icons/Launch'
-import WarningIcon from '@material-ui/icons/Warning'
 
 import IconButton from '@/components/IconButton'
 import Button from '@/components/Button'
@@ -33,38 +28,34 @@ const FaqTable: React.FC = () => {
     },
   ]
   return (
-    <>
-      <StyledTitle>Smart Contract Specification</StyledTitle>
+    <StyledFAQ>
       <Spacer />
-      <LitContainer>
-        <StyledTableBody>
-          <TableRow isHead>
-            {headers.map((header, index) => {
-              return <TableCell key={header.name}>{header.name}</TableCell>
-            })}
-          </TableRow>
-          <StyledDiv />
-          <Spacer size="sm" />
-          {SPECIFICATIONS.map((specification, i) => {
-            return (
-              <>
-                <TableRow key={i} isHead>
-                  <TableCell>
-                    <StyledSub>{specification.name}</StyledSub>
-                  </TableCell>
-                  <TableCell>
-                    <StyledSub>{specification.description}</StyledSub>
-                  </TableCell>
-                </TableRow>
-                <Spacer size="sm" />
-              </>
-            )
-          })}
-        </StyledTableBody>
-        <Spacer />
-        <Spacer />
-      </LitContainer>
-    </>
+      <Spacer />
+      <StyledTitle>Frequently Asked Questions</StyledTitle>
+      <Spacer />
+      <Spacer />
+      <StyledTableBody>
+        <Spacer size="sm" />
+        {SPECIFICATIONS.map((specification, i) => {
+          return (
+            <>
+              <TableRow key={i} isHead align="top" height={84}>
+                <TableCell>
+                  <StyledName>{specification.name}</StyledName>
+                </TableCell>
+                <TableCell>
+                  <StyledSub>{specification.description}</StyledSub>
+                </TableCell>
+              </TableRow>
+              <StyledDivLight />
+              <Spacer size="sm" />
+            </>
+          )
+        })}
+      </StyledTableBody>
+      <Spacer />
+      <Spacer />
+    </StyledFAQ>
   )
 }
 
@@ -72,30 +63,32 @@ const StyledDiv = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[600]};
 `
 
+const StyledDivLight = styled.div`
+  border: 1px solid ${(props) => props.theme.color.grey[800]};
+`
+
 const StyledTableBody = styled(TableBody)`
-  width: 50em;
+  width: 100%;
 `
-const StyledLink = styled.a`
+const StyledSub = styled.span`
   color: white;
-  text-decoration: none;
-  width: 30%;
+  opacity: 0.66;
 `
-const StyledSub = styled.h4`
-  color: white;
-`
-const StyledCol = styled(Col)`
-  margin: 0.5em;
-  overflow: visible;
-`
-const StyledARef = styled.a`
-  color: ${(props) => props.theme.color.grey[400]};
-  text-decoration: none;
-  &:hover {
-    color: ${(props) => props.theme.color.white};
-  }
-`
-const StyledTitle = styled.h2`
+const StyledName = styled.span`
   color: white;
   font-weight: bold;
+`
+const StyledTitle = styled.div`
+  color: white;
+  font-weight: bold;
+  font-size: 36px;
+`
+const StyledFAQ = styled.div`
+  align-items: left;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
+  max-width: 1000px;
+  margin: 0 2em 0 2em;
 `
 export default FaqTable

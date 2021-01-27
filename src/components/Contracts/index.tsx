@@ -28,7 +28,7 @@ import Spacer from '@/components/Spacer'
 const Contracts: React.FC = () => {
   const headers = [
     {
-      name: 'Name',
+      name: 'Contract Name',
     },
     {
       name: 'Address',
@@ -39,8 +39,6 @@ const Contracts: React.FC = () => {
   ]
   return (
     <>
-      <StyledTitle>Deployed Contracts</StyledTitle>
-      <Spacer />
       <LitContainer>
         <StyledTableBody>
           <TableRow isHead>
@@ -72,18 +70,10 @@ const Contracts: React.FC = () => {
                     href={contract.audit !== 'N/A' ? contract.audit : null}
                   >
                     {contract.audit !== 'N/A' ? (
-                      <Button variant="secondary">
-                        Open Zeppelin
-                        <CheckIcon
-                          style={{ marginLeft: '.5em', color: 'green' }}
-                        />
-                      </Button>
+                      <Button variant="secondary">Open Zeppelin</Button>
                     ) : (
                       <Button disabled variant="secondary">
                         Pending
-                        <WarningIcon
-                          style={{ marginLeft: '.5em', color: 'yellow' }}
-                        />
                       </Button>
                     )}
                   </StyledLink>
@@ -92,8 +82,7 @@ const Contracts: React.FC = () => {
             )
           })}
         </StyledTableBody>
-        <Spacer />
-        <Spacer />
+        <Spacer size="sm" />
       </LitContainer>
     </>
   )
@@ -105,6 +94,8 @@ const StyledDiv = styled.div`
 
 const StyledTableBody = styled(TableBody)`
   width: 50em;
+  display: flex;
+  justify-content: center;
 `
 const StyledLink = styled.a`
   color: white;
@@ -124,9 +115,5 @@ const StyledARef = styled.a`
   &:hover {
     color: ${(props) => props.theme.color.white};
   }
-`
-const StyledTitle = styled.h2`
-  color: white;
-  font-weight: bold;
 `
 export default Contracts

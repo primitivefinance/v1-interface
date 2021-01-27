@@ -26,6 +26,7 @@ export const red = {
   200: '#FFA8C7',
   300: '#f86591',
   500: '#D1004B',
+  600: '#FF2400',
 }
 
 export const percentage = {

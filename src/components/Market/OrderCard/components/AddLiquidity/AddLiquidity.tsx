@@ -4,33 +4,36 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
-import Loader from '@/components/Loader'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
-import WarningLabel from '@/components/WarningLabel'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import numeral from 'numeral'
+import formatExpiry from '@/utils/formatExpiry'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import useGuardCap from '@/hooks/transactions/useGuardCap'
 
-import { Trade, Market } from '@/lib/entities/index'
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import {
+  Trade,
+  UniswapMarket,
+  SushiSwapMarket,
+  Venue,
+  SUSHISWAP_CONNECTOR,
+} from '@primitivefi/sdk'
 import { Fraction, Pair } from '@uniswap/sdk'
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import isZero from '@/utils/isZero'
+import Separator from '@/components/Separator'
 
 import {
   useItem,
@@ -89,7 +92,11 @@ const AddLiquidity: React.FC = () => {
   const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  const spender = UNISWAP_CONNECTOR[chainId]
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
+
+  const spender = isUniswap
+    ? UNISWAP_CONNECTOR[chainId]
+    : SUSHISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
   const onApprove = useApprove()
 
@@ -200,7 +207,8 @@ const AddLiquidity: React.FC = () => {
       typeof item.market === 'undefined' ||
       item.market === null ||
       typeof parsedAmount === 'undefined' ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
+      BigNumber.from(parsedAmount).isZero()
     ) {
       return parsedAmount || '0'
     }
@@ -218,7 +226,8 @@ const AddLiquidity: React.FC = () => {
   ])
 
   const calculatePoolShare = useCallback(() => {
-    const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
+    const none = { addedPoolShare: '0', newPoolShare: '0' }
+    const supply = parseEther(lpTotalSupply)
     const parsedAmount =
       tab === 1
         ? parsedOptionAmount
@@ -226,9 +235,9 @@ const AddLiquidity: React.FC = () => {
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      parsedAmount.toString() === '0'
+      supply.isZero()
     )
-      return 0
+      return none
     const tSupply = new TokenAmount(
       item.market.liquidityToken,
       parseEther(lpTotalSupply).toString()
@@ -241,10 +250,14 @@ const AddLiquidity: React.FC = () => {
     ).toString()
 
     if (isZero(amountADesired) || isZero(amountBDesired)) {
-      return '0'
+      return none
     }
     const tokenAmountA = new TokenAmount(entity.underlying, amountADesired)
     const tokenAmountB = new TokenAmount(entity.redeem, amountBDesired)
+    const lpHold = new TokenAmount(
+      item.market.liquidityToken,
+      parseEther(lp).toString()
+    )
     const lpMinted = item.market.getLiquidityMinted(
       tSupply,
       tokenAmountA,
@@ -255,9 +268,17 @@ const AddLiquidity: React.FC = () => {
         ? lpMinted.divide(tSupply.add(lpMinted))
         : new Fraction('0')
 
-    return poolShare.multiply('100').toSignificant(6)
+    const newPoolShare = poolShare
+      .add(
+        supply.gt(0) ? lpHold.divide(tSupply.add(lpMinted)) : new Fraction('0')
+      )
+      .multiply('100')
+      .toSignificant(6)
+    const addedPoolShare = poolShare.multiply('100').toSignificant(6)
+    return { addedPoolShare, newPoolShare }
   }, [
     item.market,
+    lp,
     lpTotalSupply,
     parsedOptionAmount,
     parsedUnderlyingAmount,
@@ -313,7 +334,11 @@ const AddLiquidity: React.FC = () => {
         entity.underlying,
         parsedUnderlyingAmount.toString()
       )
-      const tempMarket = new Market(entity, redeemAmount, underlyingAmount)
+      const tempMarket = new UniswapMarket(
+        entity,
+        redeemAmount,
+        underlyingAmount
+      )
       return formatEther(tempMarket.spotOpenPremium.raw.toString())
     }
     return formatEther(item.market.spotOpenPremium.raw.toString())
@@ -344,92 +369,47 @@ const AddLiquidity: React.FC = () => {
   }, [entity.underlying, tokenAllowance, onApprove])
 
   const title = {
-    text: 'Add Liquidity',
+    text: `${numeral(item.entity.strikePrice).format(
+      +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+    )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+      item.entity.expiryValue
+    ).utc.substr(4, 12)}`,
     tip:
       'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
   }
 
   const noLiquidityTitle = {
     text:
-      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio',
+      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio.',
     tip:
-      'Providing liquidity to this pair will set the ratio between the tokens',
+      'Providing liquidity to this pair will set the ratio between the tokens.',
   }
 
   return (
-    <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Spacer size="sm" />
-        <StyledTitle>
-          <Tooltip text={title.tip}>{title.text}</Tooltip>
-        </StyledTitle>
-      </Box>
+    <LiquidityContainer>
+      <Spacer size="sm" />
       {hasLiquidity ? (
-        <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-          <StyledTabList>
-            <StyledTab active={tab === 0}>
-              <Tooltip
-                text={
-                  'Add underlying to the liquidity pool at the current premium'
-                }
-              >
-                Pile-On
-              </Tooltip>
-            </StyledTab>
-            <StyledTab active={tab === 1}>
-              <Tooltip text={'Add both tokens from your balance to the pool'}>
-                Add Direct
-              </Tooltip>
-            </StyledTab>
-          </StyledTabList>
-          <StyledTabPanel>
-            <PriceInput
-              name="primary"
-              title={`Underlying Input`}
-              quantity={underlyingValue}
-              onChange={handleUnderInput}
-              onClick={handleSetMax}
-              balance={
-                new TokenAmount(
-                  entity.underlying,
-                  parseEther(underlyingTokenBalance).toString()
-                )
-              }
-              valid={parseEther(underlyingTokenBalance).gte(
-                parsedUnderlyingAmount
-              )}
-            />
-          </StyledTabPanel>
-          <StyledTabPanel>
-            <PriceInput
-              name="primary"
-              title={`SHORT Input`}
-              quantity={optionValue}
-              onChange={handleOptionInput}
-              onClick={() => console.log('Max unavailable.')} //
-              balance={shortAmount}
-            />
-            <Spacer size="sm" />
-            <PriceInput
-              name="secondary"
-              title={`Underlying Input`}
-              quantity={underlyingValue}
-              onChange={handleUnderInput}
-              onClick={handleSetMax}
-              balance={underlyingAmount}
-            />
-          </StyledTabPanel>
-        </StyledTabs>
+        <PriceInput
+          name="primary"
+          title={`Underlying`}
+          quantity={underlyingValue}
+          onChange={handleUnderInput}
+          onClick={handleSetMax}
+          balance={
+            new TokenAmount(
+              entity.underlying,
+              parseEther(underlyingTokenBalance).toString()
+            )
+          }
+          valid={parseEther(underlyingTokenBalance).gte(parsedUnderlyingAmount)}
+        />
       ) : (
         <>
-          <StyledSubtitle>{noLiquidityTitle.text}</StyledSubtitle>
+          <>
+            <StyledSubtitle>
+              {!loading ? noLiquidityTitle.text : null}
+            </StyledSubtitle>
+          </>
           <Spacer size="sm" />
           <PriceInput
             name="primary"
@@ -438,6 +418,7 @@ const AddLiquidity: React.FC = () => {
             onChange={handleOptionInput}
             onClick={() => console.log('Max unavailable.')} //
           />
+          <Spacer />
           <PriceInput
             name="secondary"
             title={`Underlying Input`}
@@ -448,8 +429,7 @@ const AddLiquidity: React.FC = () => {
           />
         </>
       )}
-
-      <Spacer size="sm" />
+      <Spacer />
       <LineItem
         label="LP for"
         data={formatEther(calculateOptionsAddedAsLiquidity())}
@@ -468,82 +448,24 @@ const AddLiquidity: React.FC = () => {
       ) : (
         <></>
       )}
+      <LineItem
+        label="Receive"
+        data={!hasLiquidity ? '0.00' : calculatePoolShare().addedPoolShare}
+        units={`% of Pool`}
+      />
 
-      {hasLiquidity ? (
-        <>
-          <LineItem
-            label="Receive"
-            data={calculatePoolShare()}
-            units={`% of the Pool`}
-          />
-          <Spacer size="sm" />
-          <IconButton
-            text="Advanced"
-            variant="transparent"
-            onClick={() => setAdvanced(!advanced)}
-          >
-            {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
-        </>
-      ) : null}
-
-      {advanced && hasLiquidity ? (
-        <>
-          <LineItem
-            label="Short per LP token"
-            data={`${calculateLiquidityValuePerShare().shortPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label="Underlying per LP Token"
-            data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
-            data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token0} per ${token1}`}
-            data={calculateToken0PerToken1()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token1} per ${token0}`}
-            data={calculateToken1PerToken0()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Your Share % of Pool`}
-            data={calculatePoolShare()}
-            units={`%`}
-          />
-        </>
-      ) : (
-        <> </>
-      )}
-      {(
-        item.entity.isCall
-          ? parseFloat(underlyingValue) >= 1000
-          : parseFloat(underlyingValue) >= 100000
-      ) ? (
-        <>
-          <div style={{ marginTop: '-.5em' }} />
-          <WarningLabel>
-            This amount of underlying tokens is above our guardrail cap of 1,000
-            for calls or 100,000 for puts
-          </WarningLabel>
-        </>
-      ) : (
-        <></>
-      )}
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
-              <Loader />
+              <Button
+                disabled={true}
+                full
+                size="sm"
+                onClick={() => {}}
+                text={`Confirm`}
+              />
             </Box>
           </div>
         ) : (
@@ -573,55 +495,19 @@ const AddLiquidity: React.FC = () => {
               full
               size="sm"
               onClick={handleSubmitClick}
-              text={'Confirm Transaction'}
+              text={'Confirm'}
             />
           </>
         )}
       </Box>
-    </>
+    </LiquidityContainer>
   )
 }
-interface TabProps {
-  active?: boolean
-}
-const StyledTabPanel = styled(TabPanel)``
-const StyledTab = styled(Tab)<TabProps>`
-  background-color: ${(props) =>
-    !props.active ? props.theme.color.grey[800] : props.theme.color.black};
-  color: ${(props) => props.theme.color.white};
-  font-weight: ${(props) => (props.active ? 600 : 500)};
-  padding: 0.5em 0.5em 0.5em 1em;
-  border-radius: 0.3em 0.3em 0 0;
-  border-width: 1px 1px 0 1px;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  width: 50%;
-  list-style: none;
-  cursor: pointer;
+
+const LiquidityContainer = styled.div`
+  width: 34em;
 `
-const StyledTabList = styled(TabList)`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: baseline;
-  margin-left: -2.5em;
-`
-const StyledTabs = styled(Tabs)`
-  width: 100%;
-`
-const StyledText = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
-const StyledTitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 18px;
-  font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
+
 const StyledSubtitle = styled.div`
   color: yellow;
   display: table;
@@ -630,8 +516,7 @@ const StyledSubtitle = styled.div`
   width: 100%;
   letter-spacing: 1px;
   text-transform: uppercase;
-  text-align: center;
-  vertical-align: middle;
+
   font-size: 13px;
   opacity: 1;
   margin: ${(props) => props.theme.spacing[2]}px;

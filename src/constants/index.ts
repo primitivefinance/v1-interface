@@ -88,7 +88,7 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
 export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
   yfi: true,
   weth: true,
-  sushi: false,
+  sushi: true,
   comp: false,
   uni: false,
   link: false,

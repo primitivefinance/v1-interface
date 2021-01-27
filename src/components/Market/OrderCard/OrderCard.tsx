@@ -82,16 +82,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           }
         })
       }
-      setTimeout(() => {
-        const market = options.calls[0].asset.toLowerCase()
-        router.push(
-          `/markets/[...id]`,
-          `/markets/${market}/${orderState[1] === 'puts' ? 'puts' : 'calls'}`,
-          {
-            shallow: true,
-          }
-        )
-      }, 1000)
     }
   }, [orderState, updateItem, options])
   if (!item.entity || !item.entity?.expiryValue) {
@@ -108,23 +98,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
   return (
     <>
       <Card border>
-        <Box row justifyContent="space-between" alignItems="center">
-          <Spacer size="sm" />
-          <Spacer size="sm" />
-          <StyledTitle>
-            {`${item.asset} ${item.entity.isCall ? 'Call' : 'Put'}`}
-            {` ${numeral(formatBalance(item.entity.strikePrice)).format(
-              '$0.00a'
-            )} ${month}/${date}/${year}`}
-          </StyledTitle>
-
-          <Spacer />
-          <CustomButton>
-            <Button variant="transparent" size="sm" onClick={() => clear()}>
-              <ClearIcon />
-            </Button>
-          </CustomButton>
-        </Box>
         <CardContent>
           {loading ? <LoadingOverlay></LoadingOverlay> : null}
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>

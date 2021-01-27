@@ -8,6 +8,7 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
+import WethWrapper from '@/components/WethWrapper'
 
 import {
   ADDRESS_FOR_MARKET,
@@ -31,7 +32,12 @@ import {
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
 import { useSetLoading } from '@/state/positions/hooks'
-import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import {
+  useOptions,
+  useUpdateOptions,
+  useClearOptions,
+} from '@/state/options/hooks'
+import { Venue } from '@primitivefi/sdk'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -54,6 +60,7 @@ const Market = ({ market, data }) => {
   const router = useRouter()
   const clear = useClearNotif()
   const options = useOptions()
+  const clearOptions = useClearOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
 
@@ -62,14 +69,18 @@ const Market = ({ market, data }) => {
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      router.push('/markets')
-      updateOptions('')
+      router.reload()
+      clearOptions()
     }
 
-    if (market === 'eth') {
-      router.push('/markets/weth/calls')
-    }
     if (ethereum) {
+      updateOptions(
+        market.toUpperCase(),
+        Venue.SUSHISWAP,
+        false,
+        ADDRESS_FOR_MARKET[market]
+      )
+
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
@@ -97,22 +108,26 @@ const Market = ({ market, data }) => {
       }
     }
   }, [id, chainId, storeId])
+
   useEffect(() => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
-  }, [setCallPutActive, data])
+  }, [data])
+
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
-    if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+    /*
+    if (!callPutActive) {
+      console.log('reached')
+      router.push(`/markets/${market}/puts`, `/markets/${market}/calls`, {
         shallow: true,
       })
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+      router.push(`/markets/${market}/calls`, `/markets/${market}/calls`, {
         shallow: true,
       })
-    }
+    } */
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
@@ -121,9 +136,16 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
+
   useEffect(() => {
-    updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
+    updateOptions(
+      market.toUpperCase(),
+      Venue.SUSHISWAP,
+      false,
+      ADDRESS_FOR_MARKET[market]
+    )
   }, [])
+
   if (!active || market === 'eth') {
     return (
       <>
@@ -133,24 +155,34 @@ const Market = ({ market, data }) => {
     )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
+    return <Text>Switch to Rinkeby or Mainnet Networks</Text>
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||
     !(window as any)?.ethereum ||
     !(window as any)?.web3
   ) {
-    return <StyledText>Please Install Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Install Metamask to View Markets</Text>
+      </>
+    )
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
-    return <StyledText>Please Connect to Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Connect to Metamask to View Markets</Text>
+      </>
+    )
   }
   return (
     <ErrorBoundary
       fallback={
         <>
           <Spacer />
-          <StyledText>Error Loading Market, Please Refresh</StyledText>
+          <Text>Error Loading Market, Please Refresh</Text>
         </>
       }
     >
@@ -165,28 +197,23 @@ const Market = ({ market, data }) => {
           <Disclaimer />
           <Notifs />
           <StyledMarket>
-            <Grid>
+            <Grid id={'market-grid'}>
               <Row>
-                <StyledContainer sm={12} md={8} lg={8}>
+                <StyledContainer sm={12} md={8} lg={8} id="table-column">
                   <StyledMain>
-                    <MarketHeader
-                      marketId={market}
-                      isCall={callPutActive ? 0 : 1}
-                    />
-                    <FilterBar
-                      active={callPutActive}
-                      setCallActive={handleFilterType}
-                      expiry={expiry}
-                      setExpiry={handleFilterExpiry}
-                    />
+                    <MarketHeader marketId={market}>
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={handleFilterType}
+                      />
+                    </MarketHeader>
 
+                    <Spacer />
                     <ErrorBoundary
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Options, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Options, Please Refresh</Text>
                         </>
                       }
                     >
@@ -199,15 +226,13 @@ const Market = ({ market, data }) => {
                     </ErrorBoundary>
                   </StyledMain>
                 </StyledContainer>
-                <StyledCol sm={12} md={4} lg={4}>
+                <StyledCol sm={12} md={4} lg={4} id="sidebar-column">
                   <StyledSideBar>
                     <ErrorBoundary
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Positions, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Positions Please Refresh</Text>
                         </>
                       }
                     >
@@ -217,6 +242,13 @@ const Market = ({ market, data }) => {
                       <BalanceCard />
                       <TransactionCard />
                       <Spacer />
+                      {market === 'eth' || market === 'weth' ? (
+                        <>
+                          <WethWrapper />
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </ErrorBoundary>
                   </StyledSideBar>
                 </StyledCol>
@@ -248,7 +280,22 @@ const StyledMarket = styled.div`
   height: 90%;
   position: absolute;
   overflow-x: hidden;
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
+  &::-webkit-scrollbar {
+    width: 1px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: ${(props) => props.theme.color.grey[600]};
+  }
+  scrollbar-color: transparent;
+  scrollbar-width: thin;
 `
 
 const StyledSideBar = styled.div`
@@ -266,11 +313,36 @@ const StyledSideBar = styled.div`
   overflow: auto;
   flex-grow: 1;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: scroll !important;
+  justify-content: center;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 15px;
+  }
+  &::-webkit-scrollbar {
+    width: 1px;
+    height: 15px;
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb:vertical {
+    height: 30px;
+    background-color: transparent;
+  }
+  scrollbar-color: transparent;
+  scrollbar-width: thin;
 `
-const StyledText = styled.h4`
+const Text = styled.span`
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 export default Market

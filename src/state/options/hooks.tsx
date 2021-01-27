@@ -7,10 +7,17 @@ import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 import { OptionsState } from './reducer'
 
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
+import * as SushiSwapSDK from '@sushiswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 
-import { Protocol } from '@/lib/protocol'
-import { Trade, Option, Market } from '@/lib/entities'
+import { Protocol } from '@primitivefi/sdk'
+import {
+  Trade,
+  Option,
+  UniswapMarket,
+  SushiSwapMarket,
+  Venue,
+} from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -25,7 +32,6 @@ export const useOptions = (): OptionsState => {
 
 export const useClearOptions = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
-
   return useCallback(() => {
     dispatch(clearOptions())
   }, [dispatch])
@@ -33,23 +39,27 @@ export const useClearOptions = (): (() => void) => {
 
 export const useUpdateOptions = (): ((
   assetName: string,
+  venue: Venue,
+  isLiquidity?: boolean,
   assetAddress?: string
 ) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  if (!active) {
-    return useCallback(() => {
-      router.push('/markets')
-    }, [router])
-  }
+
   return useCallback(
-    async (assetName: string, assetAddress?: string) => {
+    async (
+      assetName: string,
+      venue: Venue,
+      isLiquidity?: boolean,
+      assetAddress?: string
+    ) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
       if (!provider) return
+      const isUniswap = venue === Venue.UNISWAP ? true : false
 
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
@@ -61,13 +71,17 @@ export const useUpdateOptions = (): ((
               for (let i = 0; i < allKeys.length; i++) {
                 const key: string = allKeys[i]
                 const option: Option = optionEntitiesObject[key]
-                allPairAddresses.push(option.pairAddress)
+                allPairAddresses.push(
+                  isUniswap
+                    ? option.uniswapPairAddress
+                    : option.sushiswapPairAddress
+                )
                 allTokensArray.push([
                   option.redeem.address,
                   option.underlying.address,
                 ])
               }
-              Protocol.getPairsFromMultiCall(provider, allTokensArray)
+              Protocol.getPairsFromMultiCall(provider, allTokensArray, venue)
                 .then((allPairsData) => {
                   const actualPairs = []
                   for (const pair of allPairsData) {
@@ -147,13 +161,20 @@ export const useUpdateOptions = (): ((
                           )
                         }
 
-                        const pair: Pair = new Pair(
+                        const pairType = isUniswap ? Pair : SushiSwapSDK.Pair
+                        const pair: Pair | SushiSwapSDK.Pair = new pairType(
                           underlyingTokenAmount,
                           redeemTokenAmount
                         )
                         option.setPair(pair)
 
-                        const market: Market = new Market(
+                        const marketType = isUniswap
+                          ? UniswapMarket
+                          : SushiSwapMarket
+
+                        const market:
+                          | UniswapMarket
+                          | SushiSwapMarket = new marketType(
                           option,
                           underlyingTokenAmount,
                           redeemTokenAmount
@@ -164,44 +185,94 @@ export const useUpdateOptions = (): ((
                           .raw.toString()
 
                         if (option.isCall) {
-                          if (
-                            option.baseValue.token.symbol.toUpperCase() ===
-                            assetName.toUpperCase()
-                          ) {
-                            pairReserveTotal[0] = pairReserveTotal[0].add(
-                              BigNumber.from(underlyingReserve)
-                            )
-                            calls.push({
-                              entity: option,
-                              asset: assetName,
-                              market: market,
-                              id: option.name,
-                            })
+                          if (isLiquidity) {
+                            if (
+                              (option.baseValue.token.symbol.toUpperCase() ===
+                                'SUSHI' ||
+                                option.baseValue.token.symbol.toUpperCase() ===
+                                  'WETH') &&
+                              (option.strikePrice === '5000' ||
+                                option.strikePrice === '30')
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              calls.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
+                          } else {
+                            if (
+                              option.baseValue.token.symbol.toUpperCase() ===
+                                assetName.toUpperCase() &&
+                              (option.strikePrice === '5000' ||
+                                option.strikePrice === '30')
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              calls.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
                           }
-                        }
-                        if (option.isPut) {
-                          let asset = option.quoteValue.token.symbol.toUpperCase()
-                          if (asset === 'ETH') {
-                            asset = 'WETH'
-                          }
-                          if (
-                            (asset === assetName.toUpperCase() &&
-                              option.underlying.address ===
-                                STABLECOINS[chainId].address) ||
-                            option.quoteValue.token.address === assetAddress
-                          ) {
-                            pairReserveTotal[1] = pairReserveTotal[1].add(
-                              BigNumber.from(underlyingReserve)
-                            )
-                            puts.push({
-                              entity: option,
-                              asset: assetName,
-                              market: market,
-                              id: option.name,
-                            })
+                        } else {
+                          if (isLiquidity) {
+                            const asset = option.quoteValue.token.symbol.toUpperCase()
+                            if (
+                              (asset === 'WETH' || asset === 'SUSHI') &&
+                              (option.strikePrice === '2.5' ||
+                                option.strikePrice === '480') &&
+                              (option.underlying.address ===
+                                STABLECOINS[chainId].address ||
+                                option.quoteValue.token.address ===
+                                  assetAddress)
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              puts.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
+                          } else {
+                            const asset = option.quoteValue.token.symbol.toUpperCase()
+                            if (
+                              asset === assetName.toUpperCase() &&
+                              (option.strikePrice === '2.5' ||
+                                option.strikePrice === '480') &&
+                              (option.underlying.address ===
+                                STABLECOINS[chainId].address ||
+                                option.quoteValue.token.address ===
+                                  assetAddress)
+                            ) {
+                              pairReserveTotal[1] = pairReserveTotal[1].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              puts.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
                           }
                         }
                       }
+                      console.log(puts)
                       dispatch(
                         updateOptions({
                           loading: false,

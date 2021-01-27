@@ -2,7 +2,6 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 
-import { Option, Market } from '@/lib/entities'
 import { BigNumberish } from 'ethers'
 
 export interface OptionsState {
@@ -17,6 +16,7 @@ export const EmptyAttributes = {
   asset: '',
   market: null,
   id: '',
+  venue: 0,
 }
 
 export const initialState: OptionsState = {

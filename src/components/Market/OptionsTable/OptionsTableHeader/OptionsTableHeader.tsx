@@ -7,31 +7,26 @@ import Tooltip from '@/components/Tooltip'
 import TableRow from '@/components/TableRow'
 import LitContainer from '@/components/LitContainer'
 
-const OptionsTableHeader: React.FC = () => {
-  const headers = [
-    {
-      name: 'Strike',
-      tip: 'The purchase price for the underlying asset of this option',
-    },
-    {
-      name: 'Break-Even',
-      tip:
-        'The price the underlying asset must reach to reach a net cost of zero',
-    },
-    {
-      name: 'Price',
-      tip:
-        'The current spot price of an option token, not accounting for slippage',
-    },
-    {
-      name: 'Depth',
-      tip: 'Slippage incurred for purchasing 2% of the underlying reserves',
-    },
-    { name: 'Liquidity', tip: 'The quantity of tokens in the pool' },
-    { name: 'Contract', tip: 'The address of the Option token' },
-    { name: '', tip: null },
-  ]
+export const headers = [
+  {
+    name: 'Strike',
+    tip: 'The purchase price for the underlying asset of this option.',
+  },
+  {
+    name: 'Break-Even',
+    tip:
+      'The price the underlying asset must reach to reach a net cost of zero.',
+  },
+  {
+    name: 'Price',
+    tip: 'The current spot price of an option token.',
+  },
+  { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
+  { name: 'Expiry', tip: 'The maturity date of the option token.' },
+  { name: '', tip: null },
+]
 
+const OptionsTableHeader: React.FC = () => {
   return (
     <StyledTableHead>
       <LitContainer>

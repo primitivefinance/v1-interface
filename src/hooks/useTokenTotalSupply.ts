@@ -3,7 +3,7 @@ import { formatEther } from 'ethers/lib/utils'
 
 import { useWeb3React } from '@web3-react/core'
 
-import { getBalance, getTotalSupply } from '../lib/erc20'
+import { getBalance, getTotalSupply } from '@primitivefi/sdk'
 import { BigNumberish } from 'ethers'
 import { isAddress, getAddress } from '@ethersproject/address'
 

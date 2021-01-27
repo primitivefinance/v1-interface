@@ -1,28 +1,52 @@
 import React from 'react'
 import styled from 'styled-components'
 import EmptyTable from '../../EmptyTable'
+import { headers } from '@/components/Market/OptionsTable/OptionsTableHeader'
 
-const LoadingTable: React.FC = () => {
-  const headers = [
-    {
-      name: 'Strike Price',
-      tip: 'The purchase price for the underlying asset of this option.',
-    },
-    {
-      name: 'Break Even',
-      tip:
-        'The price the underlying asset must reach to reach a net cost of zero.',
-    },
-    {
-      name: 'Price',
-      tip:
-        'The current spot price of an option token, not accounting for slippage.',
-    },
-    { name: '2% Depth', tip: '# of options can be bought at <2% slippage' },
-    { name: 'Reserve', tip: 'The quantity of tokens in the pool.' },
-    { name: 'Contract', tip: 'The address of the Option token.' },
-    { name: '', tip: null },
-  ]
+const alt = [
+  {
+    name: 'Asset',
+    tip:
+      'The asset to deposit into the pool, represents the underlying asset of the option market.',
+  },
+  {
+    name: 'Pool Size',
+    tip: 'The amount of underlying tokens in the pool.',
+  },
+  {
+    name: 'Share',
+    tip: 'The proportion of ownership of the option pair.',
+  },
+
+  {
+    name: 'Pool Ratio',
+    tip: 'The ratio of underlying tokens to short option tokens.',
+  },
+  {
+    name: 'Price',
+    tip: 'The ask price of 1 option token.',
+  },
+  { name: 'Expiry', tip: 'The maturity date of the option token.' },
+  {
+    name: 'Strike',
+    tip: 'The purchase price for the underlying asset of this option.',
+  },
+
+  { name: '', tip: null },
+]
+interface LoadProp {
+  ext?: boolean
+}
+const LoadingTable: React.FC<LoadProp> = ({ ext }) => {
+  if (ext) {
+    return (
+      <>
+        <EmptyTable columns={alt} />
+        <EmptyTable columns={alt} />
+        <EmptyTable columns={alt} />
+      </>
+    )
+  }
   return (
     <>
       <EmptyTable columns={headers} />

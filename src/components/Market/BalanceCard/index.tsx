@@ -118,7 +118,7 @@ const CustomCard = styled.div`
   border: 1px solid ${(props) => props.theme.color.grey[500]};
   border-radius: 0 0 ${(props) => props.theme.borderRadius}px
     ${(props) => props.theme.borderRadius}px;
-  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.1);
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.05);
   z-index: 0;
 `
 

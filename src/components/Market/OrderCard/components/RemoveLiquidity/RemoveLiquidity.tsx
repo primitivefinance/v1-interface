@@ -11,8 +11,8 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
-import Toggle from '@/components/Toggle'
-import ToggleButton from '@/components/ToggleButton'
+
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
@@ -20,19 +20,18 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
-import useTokenAllowance, {
-  useGetTokenAllowance,
-} from '@/hooks/useTokenAllowance'
+
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
-import { Trade } from '@/lib/entities/trade'
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
+import {
+  UNI_ROUTER_ADDRESS,
+  SUSHISWAP_CONNECTOR,
+  SUSHI_ROUTER_ADDRESS,
+  Venue,
+} from '@primitivefi/sdk'
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import { usePositions } from '@/state/positions/hooks'
 import {
   useItem,
@@ -73,10 +72,16 @@ const RemoveLiquidity: React.FC = () => {
   const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender =
     orderType === Operation.REMOVE_LIQUIDITY
-      ? UNISWAP_ROUTER02_V2
-      : UNISWAP_CONNECTOR[chainId]
+      ? isUniswap
+        ? UNI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS
+      : isUniswap
+      ? UNISWAP_CONNECTOR[chainId]
+      : SUSHISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
@@ -308,38 +313,8 @@ const RemoveLiquidity: React.FC = () => {
   }
 
   return (
-    <>
-      <Box row justifyContent="flex-start">
-        <IconButton
-          variant="tertiary"
-          size="sm"
-          onClick={() => updateItem(item, Operation.NONE)}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Spacer size="sm" />
-        <StyledTitle>
-          <Tooltip text={title.tip}>{title.text}</Tooltip>
-        </StyledTitle>
-      </Box>
-      <Spacer size="sm" />
-      <Toggle>
-        <ToggleButton
-          active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
-          onClick={() =>
-            updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
-          }
-          text="Exit & Close"
-        />
-        <ToggleButton
-          active={orderType === Operation.REMOVE_LIQUIDITY}
-          onClick={() =>
-            updateItem(item, Operation.REMOVE_LIQUIDITY, item.market)
-          }
-          text="Exit"
-        />
-      </Toggle>
-      <Spacer size="sm" />
+    <LiquidityContainer>
+      <Spacer />
       <LineItem
         label={'Amount'}
         data={Math.round(10 * (ratio / 10)) / 10 + '%'}
@@ -353,42 +328,39 @@ const RemoveLiquidity: React.FC = () => {
         value={ratio}
         onChange={handleRatioChange}
       />
-
-      <Box row justifyContent="flex-start">
+      <Spacer size="sm" />
+      <Box row justifyContent="space-around">
         <Button
-          variant="secondary"
+          variant="transparent"
           text="25%"
           onClick={() => {
             handleRatio(250)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="50%"
           onClick={() => {
             handleRatio(500)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="75%"
           onClick={() => {
             handleRatio(750)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="100%"
           onClick={() => {
             handleRatio(1000)
           }}
         />
       </Box>
-
       <Spacer size="sm" />
+
       <LineItem
         label="This requires"
         data={`${numeral(calculateBurn()).format('0.00')}`}
@@ -453,60 +425,17 @@ const RemoveLiquidity: React.FC = () => {
         </>
       )}
 
-      <Spacer size="sm" />
-      <IconButton
-        text="Advanced"
-        variant="transparent"
-        onClick={() => setAdvanced(!advanced)}
-      >
-        {advanced ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
-
-      {advanced ? (
-        <>
-          <LineItem
-            label="Short per LP token"
-            data={`${calculateLiquidityValuePerShare().shortPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label="Underlying per LP Token"
-            data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Total ${entity.underlying.symbol.toUpperCase()} per LP Token`}
-            data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token0} per ${token1}`}
-            data={calculateToken0PerToken1()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`${token1} per ${token0}`}
-            data={calculateToken1PerToken0()}
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label={`Your Share % of Pool`}
-            data={caculatePoolShare()}
-            units={`%`}
-          />
-          <Spacer size="sm" />
-        </>
-      ) : (
-        <> </>
-      )}
-
+      <Spacer />
       <Box row justifyContent="flex-start">
         {loading ? (
-          <div style={{ width: '100%' }}>
-            <Box column alignItems="center" justifyContent="center">
-              <Loader />
-            </Box>
-          </div>
+          <Button
+            disabled={loading}
+            full
+            size="sm"
+            onClick={() => {}}
+            isLoading={false}
+            text="Confirm"
+          />
         ) : (
           <>
             {approved[1] ? (
@@ -547,16 +476,11 @@ const RemoveLiquidity: React.FC = () => {
           </>
         )}
       </Box>
-    </>
+    </LiquidityContainer>
   )
 }
-const StyledTitle = styled.h5`
-  color: ${(props) => props.theme.color.white};
-  font-size: 18px;
-  font-weight: 700;
-  margin: ${(props) => props.theme.spacing[2]}px;
-`
-const StyledRatio = styled.h4`
-  color: ${(props) => props.theme.color.white};
+
+const LiquidityContainer = styled.div`
+  width: 34em;
 `
 export default RemoveLiquidity

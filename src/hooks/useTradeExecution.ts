@@ -9,23 +9,23 @@ import {
   STABLECOINS,
   ADDRESS_ZERO,
 } from '@/constants/index'
-import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
-import { Option, EMPTY_ASSET } from '@/lib/entities/option'
+import { FACTORY_ADDRESS } from '@uniswap/sdk'
+import { Option, EMPTY_ASSET } from '@primitivefi/sdk'
 import { parseEther } from 'ethers/lib/utils'
-import { Trade } from '@/lib/entities'
-import { Uniswap, Trader, Protocol } from '@/lib/index'
-import { SinglePositionParameters, TradeSettings } from '@/lib/types'
+import { Trade, Venue } from '@primitivefi/sdk'
+import { Uniswap, Trader, Protocol } from '@primitivefi/sdk'
+import { SinglePositionParameters, TradeSettings } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
 import { Token, TokenAmount } from '@uniswap/sdk'
 
-import executeTransaction from '@/lib/utils/executeTransaction'
+import executeTransaction from '@/utils/executeTransaction'
 import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
 import { useWeb3React } from '@web3-react/core'
 import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { getTotalSupply } from '@/lib/erc20'
+import { getTotalSupply } from '@primitivefi/sdk'
 import { useItem } from '@/state/order/hooks'
 
 const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
@@ -80,10 +80,11 @@ const getTrade = async (
     inputAmount,
     outputAmount,
     operation,
+    Venue.UNISWAP,
     signer
   )
   const factory = new ethers.Contract(
-    UNISWAP_FACTORY_V2,
+    FACTORY_ADDRESS,
     UniswapV2Factory.abi,
     signer
   )

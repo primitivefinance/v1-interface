@@ -11,6 +11,7 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation, ADDRESS_FOR_MARKET } from '@/constants/index'
+import { Venue } from '@primitivefi/sdk'
 
 import numeral from 'numeral'
 
@@ -62,11 +63,19 @@ export default function Updater(): null {
     const timer = setInterval(
       () => {
         if (library && options.calls[0].asset) {
-          updateOptions(
-            options.calls[0].asset.toUpperCase(),
-            ADDRESS_FOR_MARKET[options.calls[0].asset]
-          )
-          updatePositions(options.calls.concat(options.puts))
+          console.log('updating -', router.pathname)
+          if (router.pathname === '/liquidity') {
+            updateOptions('', Venue.SUSHISWAP, true)
+            updatePositions(options.calls.concat(options.puts))
+          } else {
+            updateOptions(
+              options.calls[0].asset.toUpperCase(),
+              Venue.SUSHISWAP,
+              false,
+              ADDRESS_FOR_MARKET[options.calls[0].asset]
+            )
+            updatePositions(options.calls.concat(options.puts))
+          }
         }
       },
       10000 // 10sec
@@ -78,7 +87,7 @@ export default function Updater(): null {
     return () => {
       clearInterval(timer)
     }
-  }, [library, updatePositions, updateOptions, options])
+  }, [library, updatePositions, options])
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber || options.loading) return

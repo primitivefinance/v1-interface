@@ -9,7 +9,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
 
 import { OptionsAttributes } from '../options/actions'
-import { getBalance } from '@/lib/erc20'
+import { getBalance, Venue } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { TokenAmount } from '@uniswap/sdk'
 
@@ -48,6 +48,7 @@ export const useUpdatePositions = (): ((
     async (options: OptionsAttributes[]) => {
       let positionExists = false
       const positionsArr: OptionPosition[] = []
+      console.log('positions trig')
       if (options.length === 0) {
         dispatch(
           updatePositions({
@@ -67,7 +68,7 @@ export const useUpdatePositions = (): ((
 
       const balance = new TokenAmount(
         options[0].entity.underlying,
-        bal.toString()
+        bal ? bal.toString() : '0'
       )
       // underlying balance
 
@@ -84,9 +85,12 @@ export const useUpdatePositions = (): ((
           account
         )
 
+        const venue = options[i].venue
         const lp = await getBalance(
           library,
-          options[i].entity.pairAddress,
+          venue === Venue.UNISWAP
+            ? options[i].entity.uniswapPairAddress
+            : options[i].entity.sushiswapPairAddress,
           account
         )
         if (

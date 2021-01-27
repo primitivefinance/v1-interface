@@ -9,6 +9,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
 import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
+import * as SushiSwapSDK from '@sushiswap/sdk'
 import { OptionsAttributes } from '../options/actions'
 import {
   DEFAULT_DEADLINE,
@@ -18,24 +19,26 @@ import {
   ADDRESS_ZERO,
 } from '@/constants/index'
 
-import { UNISWAP_FACTORY_V2 } from '@/lib/constants'
-import { UNISWAP_ROUTER02_V2 } from '@/lib/constants'
-import { Option, createOptionEntityWithAddress } from '@/lib/entities/option'
+import { FACTORY_ADDRESS } from '@uniswap/sdk'
+import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
+import { Option, createOptionEntityWithAddress } from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import { Trade } from '@/lib/entities'
-import { Trader } from '@/lib/trader'
-import { Uniswap } from '@/lib/uniswap'
-import { TradeSettings, SinglePositionParameters } from '@/lib/types'
+import {
+  Trade,
+  Trader,
+  Uniswap,
+  Venue,
+  SUSHISWAP_CONNECTOR,
+  SUSHI_ROUTER_ADDRESS,
+} from '@primitivefi/sdk'
+import { TradeSettings, SinglePositionParameters } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
 import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
 import { useReserves } from '@/hooks/data'
-import executeTransaction, {
-  checkAllowance,
-  executeApprove,
-} from '@/lib/utils/executeTransaction'
+import executeTransaction from '@/utils/executeTransaction'
 
 import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
@@ -43,7 +46,7 @@ import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useClearSwap } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
-import { getTotalSupply } from '@/lib/erc20'
+import { getTotalSupply } from '@primitivefi/sdk'
 
 const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
@@ -61,7 +64,7 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  lpPair?: Pair
+  lpPair?: Pair | SushiSwapSDK.Pair
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -69,7 +72,11 @@ export const useUpdateItem = (): ((
   const clear = useClearSwap()
   const clearLP = useClearLP()
   return useCallback(
-    async (item: OptionsAttributes, orderType: Operation, lpPair?: Pair) => {
+    async (
+      item: OptionsAttributes,
+      orderType: Operation,
+      lpPair?: Pair | SushiSwapSDK.Pair
+    ) => {
       dispatch(
         updateItem({
           item,
@@ -112,7 +119,10 @@ export const useUpdateItem = (): ((
           orderType === Operation.ADD_LIQUIDITY ||
           orderType === Operation.REMOVE_LIQUIDITY_CLOSE
         ) {
-          const spender = UNISWAP_CONNECTOR[chainId]
+          const spender =
+            item.venue === Venue.UNISWAP
+              ? UNISWAP_CONNECTOR[chainId]
+              : SUSHISWAP_CONNECTOR[chainId]
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
               item.entity.underlying.address,
@@ -152,7 +162,10 @@ export const useUpdateItem = (): ((
             return
           }
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
-          const spender = UNISWAP_ROUTER02_V2
+          const spender =
+            item.venue === Venue.UNISWAP
+              ? UNI_ROUTER_ADDRESS
+              : SUSHI_ROUTER_ADDRESS
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -213,10 +226,15 @@ export const useUpdateItem = (): ((
           )
           return
         } else {
+          const isUniswap = item.venue === Venue.UNISWAP ? true : false
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-              ? UNISWAP_ROUTER02_V2
-              : UNISWAP_CONNECTOR[chainId]
+              ? isUniswap
+                ? UNI_ROUTER_ADDRESS
+                : SUSHI_ROUTER_ADDRESS
+              : isUniswap
+              ? UNISWAP_CONNECTOR[chainId]
+              : SUSHISWAP_CONNECTOR[chainId]
           let tokenAddress
           let secondaryAddress
           switch (orderType) {
@@ -342,10 +360,11 @@ export const useHandleSubmitOrder = (): ((
         inputAmount,
         outputAmount,
         operation,
+        item.venue,
         signer
       )
       const factory = new ethers.Contract(
-        UNISWAP_FACTORY_V2,
+        FACTORY_ADDRESS,
         UniswapV2Factory.abi,
         signer
       )

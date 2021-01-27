@@ -24,7 +24,7 @@ import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'
 import useSWR from 'swr'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { EmptyAttributes } from '@/state/options/reducer'
-import { BlackScholes } from '@/lib/math'
+import { BlackScholes } from '@primitivefi/sdk'
 import { Greeks } from './GreeksTableRow'
 import NewMarketRow from './NewMarketRow'
 import OptionsTableRow, { TableColumns } from './OptionsTableRow'
@@ -103,7 +103,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           : 0
         : 0
       blackScholes.setRiskFree(0)
-      blackScholes.setDeviation(0.1)
+      blackScholes.setDeviation(1)
       blackScholes.setPrice(price)
       const delta = blackScholes.delta()
       const theta = blackScholes.theta()
@@ -132,9 +132,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
     (option: any): TableColumns => {
       const tableKey: string = option.entity.address
       const tableAssset: string = asset.toUpperCase()
-      const tableStrike: string = formatBalance(
-        option.entity.strikePrice
-      ).toString()
+      const tableStrike: string = option.entity.strikePrice.toString()
       const tableBreakeven: string = formatEtherBalance(
         option.entity.getBreakeven(
           BigNumber.from(
@@ -148,29 +146,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           )
         )
       ).toString()
-      const tablePremium: string = formatBalance(
-        option.entity.isPut
-          ? formatEther(option.market.spotOpenPremium.raw.toString())
-          : calculatePremiumInDollars(
-              option.market.spotOpenPremium.raw.toString()
-            )
+      const tableBid: string = formatEtherBalance(
+        option.market.spotClosePremium.raw.toString()
       ).toString()
-      const tablePremiumUnderlying: string = formatEtherBalance(
+      const tableAsk: string = formatEtherBalance(
         option.market.spotOpenPremium.raw.toString()
       ).toString()
-      const quantityLong: BigNumber = BigNumber.from(
-        option.market.reserveOf(option.entity.underlying).raw.toString()
-      )
-        .mul(2)
-        .div(100)
-      const [, , slippage] = option.market.getExecutionPrice(
-        Operation.LONG,
-        quantityLong
-      )
-      const tableDepth: string[] =
-        slippage && slippage > 0
-          ? [formatEther(quantityLong), numeral(slippage).format('0.00')]
-          : [formatEther(quantityLong), '0']
 
       const tableReserve0: string = formatEtherBalance(
         option.market.reserveOf(option.entity.underlying).raw.toString()
@@ -181,18 +162,17 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
       // tableReserve1 should always be short option token
       const tableReserves: string[] = [tableReserve0, tableReserve1]
-      const tableAddress: string = formatAddress(option.entity.address)
+      const tableExpiry: number = option.entity.expiryValue
 
       const tableColumns: TableColumns = {
         key: tableKey,
         asset: tableAssset,
         strike: tableStrike,
         breakeven: tableBreakeven,
-        premium: tablePremium,
-        premiumUnderlying: tablePremiumUnderlying,
-        depth: tableDepth,
+        bid: tableBid,
+        ask: tableAsk,
         reserves: tableReserves,
-        address: tableAddress,
+        expiry: tableExpiry,
         isCall: option.entity.isCall,
       }
       return tableColumns
@@ -210,7 +190,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                if (optionExp != option.entity.expiryValue) return null
+                if (+new Date() / 1000 >= option.entity.expiryValue) return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
                 return (
@@ -218,7 +198,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     key={option.entity.address}
                     onClick={() => {
                       setGreeks(!greeks)
-                      updateItem(option, Operation.NONE)
+                      updateItem(option, Operation.LONG)
                     }}
                     href={`${baseUrl}/${option.entity.address}`}
                     columns={tableColumns}
@@ -226,16 +206,6 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   />
                 )
               })}
-              {/**<NewMarketRow
-                onClick={() => {
-                  addNotif(
-                    1,
-                    'Coming Soon',
-                    'Deploy an option, mint tokens, and bootstrap liquidity with the Primitive interface.',
-                    ''
-                  )
-                }}
-              /> */}
             </ScrollBody>
           )}
         </LitContainer>

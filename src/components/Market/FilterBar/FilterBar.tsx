@@ -12,8 +12,8 @@ import { ACTIVE_EXPIRIES } from '@/constants/index'
 export interface FilterBarProps {
   active: boolean
   setCallActive: any
-  expiry: number
-  setExpiry: any
+  expiry?: number
+  setExpiry?: any
 }
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
@@ -23,9 +23,6 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
     setCallActive(!active)
   }, [active, setCallActive])
 
-  const handleFilter = (event: any) => {
-    setExpiry(event.target.value)
-  }
   return (
     <StyledFilterBar>
       <LitContainer>
@@ -43,7 +40,7 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
             />
           </Toggle>
           <Spacer size="lg" />
-          <StyledSelectWrapper>
+          {/* <StyledSelectWrapper>
             <StyledSelect value={expiry} onChange={handleFilter}>
               {ACTIVE_EXPIRIES.map((expiryValue, i) => {
                 return (
@@ -54,24 +51,17 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
                 )
               })}
             </StyledSelect>
-          </StyledSelectWrapper>
+          </StyledSelectWrapper> */}
         </StyledFilterBarInner>
       </LitContainer>
     </StyledFilterBar>
   )
 }
 
-const SelectTitle = styled.div`
-  color: ${(props) => props.theme.color.grey[400]};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 1em;
-`
 const StyledFilterBar = styled.div`
   border-radius: 2em;
   margin-left: 1.5em;
+  width: 15em;
   padding: 1em 0 1em 0;
 `
 const StyledSymbol = styled.h4`

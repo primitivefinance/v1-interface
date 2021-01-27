@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import Spacer from '@/components/Spacer'
+import Contracts from '@/components/Contracts'
 
 import Link from 'next/link'
 
@@ -10,12 +11,11 @@ const Risks: React.FC = () => {
   const liquidityGuide =
     'https://www.notion.so/primitivefi/Liquidity-Providers-Guide-c06554542f0b4318a2013bbc555d2fc8'
   return (
-    <>
+    <StyledRisks>
       <StyledSpacer size={48} />
-      <StyledRisks>
+      <StyledContainer>
         <StyledTitle>Risks of Using Primitive Finance</StyledTitle>
         <StyledSpacer size={24} />
-
         <StyledText>
           There are smart contract and economic risks in every interaction with
           the protocol.
@@ -46,8 +46,10 @@ const Risks: React.FC = () => {
           <Link href={auditLink}>
             <StyledNavItem>Phase 1 Audit.</StyledNavItem>
           </Link>
-          <StyledSpacer size={24} />
-          Audits do not guarantee  security of the contracts. The contracts
+          <Spacer size="sm" />
+          <Contracts />
+          <Spacer />
+          Audits do not guarantee security of the contracts. The contracts
           should never be considered 100% secure.
         </StyledText>
         <StyledSpacer size={24} />
@@ -119,8 +121,8 @@ const Risks: React.FC = () => {
         </StyledText>
         <StyledSpacer size={24} />
         <StyledSpacer size={24} />
-      </StyledRisks>
-    </>
+      </StyledContainer>
+    </StyledRisks>
   )
 }
 
@@ -132,7 +134,9 @@ const StyledNavItem = styled.span`
     color: ${(props) => props.theme.color.white};
   }
 `
-
+const StyledContainer = styled.div`
+  width: 100%;
+`
 interface StyledSpacerProps {
   size: number
 }
@@ -166,7 +170,8 @@ const StyledRisks = styled.div`
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  width: calc(100vh - ${(props) => (props.theme.barHeight * 2) / 3}px);
+  max-width: 1000px;
+  margin: 0 2em 0 2em;
 `
 
 export default Risks

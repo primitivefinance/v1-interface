@@ -5,6 +5,8 @@ export interface TableRowProps {
   isHead?: boolean
   onClick?: any
   isActive?: boolean
+  height?: number
+  align?: string
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
@@ -13,6 +15,8 @@ const TableRow: React.FC<TableRowProps> = (props) => {
       onClick={props.onClick}
       isActive={props.isActive}
       isHead={props.isHead}
+      height={props.height}
+      align={props.align}
     >
       {props.children}
     </StyledTableRow>
@@ -22,18 +26,20 @@ const TableRow: React.FC<TableRowProps> = (props) => {
 interface StyleProps {
   isHead?: boolean
   isActive?: boolean
+  height?: number
+  align?: string
 }
 
 const StyledTableRow = styled.div<StyleProps>`
-  align-items: center;
+  align-items: ${(props) => (props.align === 'top' ? null : 'center')};
   background-color: ${(props) =>
     props.isActive ? 'transparent' : 'transparent'};
   border-bottom: 1px solid
     ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[800])};
-  color: ${(props) => (props.isHead ? props.theme.color.grey[400] : 'inherit')};
+  color: ${(props) => props.theme.color.white};
   cursor: ${(props) => (props.isHead ? null : 'pointer')};
   display: flex;
-  height: ${(props) => props.theme.rowHeight}px;
+  height: ${(props) => (props.height ? props.height : props.theme.rowHeight)}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
   padding-left: ${(props) => props.theme.spacing[4]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
@@ -41,8 +47,8 @@ const StyledTableRow = styled.div<StyleProps>`
     background-color: ${(props) =>
       props.isHead ? 'transparent' : props.theme.color.grey[800]};
     color: ${(props) =>
-      props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
-    font-weight: ${(props) => (props.isHead ? '400' : '600')};
+      props.isHead ? props.theme.color.white : props.theme.color.white};
+    //font-weight: ${(props) => (props.isHead ? '400' : '600')};
   }
 `
 

@@ -2,7 +2,8 @@ import { BigNumberish } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import numeral from 'numeral'
 const formatEtherBalance = (
-  tokenBalance: string | number | BigNumberish
+  tokenBalance: string | number | BigNumberish,
+  digits?: number
 ): BigNumberish => {
   if (typeof tokenBalance === 'number') {
     tokenBalance = tokenBalance.toString()
@@ -12,7 +13,7 @@ const formatEtherBalance = (
   }
   return parseFloat(formatEther(tokenBalance)).toLocaleString('en', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 4,
+    maximumFractionDigits: digits ? digits : 4,
   })
 }
 
