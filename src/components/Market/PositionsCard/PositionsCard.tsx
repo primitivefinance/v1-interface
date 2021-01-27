@@ -88,13 +88,11 @@ const PositionsCard: React.FC = () => {
       <Card border>
         <CardContent>
           <StyledEmptyContent>
-            <Spacer size="sm" />
+            <Spacer />
             <StyledEmptyIcon>
               <AddIcon />
             </StyledEmptyIcon>
-            <StyledEmptyMessage>
-              Add an option to open a position
-            </StyledEmptyMessage>
+            <StyledEmptyMessage>Add an option to trade</StyledEmptyMessage>
             <Spacer size="sm" />
           </StyledEmptyContent>
         </CardContent>
@@ -226,6 +224,9 @@ const StyledEmptyMessage = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   margin-top: ${(props) => props.theme.spacing[3]}px;
   text-align: center;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
 `
 
 export default PositionsCard
