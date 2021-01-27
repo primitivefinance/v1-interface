@@ -372,286 +372,128 @@ const AddLiquidity: React.FC = () => {
   }
 
   return (
-    <LiquidityContainer id="liquidity-component">
-      <Column>
-        <Spacer size="sm" />
-
-        {hasLiquidity ? (
-          <StyledTabs selectedIndex={tab} onSelect={(index) => setTab(index)}>
-            <StyledTabList>
-              <StyledTab active={tab === 0}>
-                <Tooltip
-                  text={
-                    'Add underlying to the liquidity pool at the current premium'
-                  }
-                >
-                  Pile-On
-                </Tooltip>
-              </StyledTab>
-              <StyledTab active={tab === 1}>
-                <Tooltip text={'Add both tokens from your balance to the pool'}>
-                  Add Direct
-                </Tooltip>
-              </StyledTab>
-            </StyledTabList>
-
-            <Spacer />
-
-            <StyledTabPanel>
-              <PriceInput
-                name="primary"
-                title={`Underlying`}
-                quantity={underlyingValue}
-                onChange={handleUnderInput}
-                onClick={handleSetMax}
-                balance={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(underlyingTokenBalance).toString()
-                  )
-                }
-                valid={parseEther(underlyingTokenBalance).gte(
-                  parsedUnderlyingAmount
-                )}
-              />
-            </StyledTabPanel>
-            <StyledTabPanel>
-              <PriceInput
-                name="primary"
-                title={`Short`}
-                quantity={optionValue}
-                onChange={handleOptionInput}
-                onClick={() => console.log('Max unavailable.')} //
-                balance={shortAmount}
-              />
-              <Spacer size="sm" />
-              <PriceInput
-                name="secondary"
-                title={`Underlying`}
-                quantity={underlyingValue}
-                onChange={handleUnderInput}
-                onClick={handleSetMax}
-                balance={underlyingAmount}
-              />
-            </StyledTabPanel>
-          </StyledTabs>
-        ) : (
-          <>
-            <Spacer size="sm" />
-            <PriceInput
-              name="primary"
-              title={`LONG Input`}
-              quantity={optionValue}
-              onChange={handleOptionInput}
-              onClick={() => console.log('Max unavailable.')} //
-            />
-            <PriceInput
-              name="secondary"
-              title={`Underlying Input`}
-              quantity={underlyingValue}
-              onChange={handleUnderInput}
-              onClick={() => console.log('Max unavailable.')} //
-              balance={underlyingAmount}
-            />
-          </>
-        )}
-      </Column>
-
-      <Spacer size="lg" />
-
-      <Column>
-        <Spacer size="sm" />
-        <StyledInnerTitle>Order Summary</StyledInnerTitle>
-        <Spacer size="sm" />
-        <LineItem
-          label="LP for"
-          data={formatEther(calculateOptionsAddedAsLiquidity())}
-          units={`LONG`}
+    <LiquidityContainer>
+      <Spacer size="sm" />
+      {hasLiquidity ? (
+        <PriceInput
+          name="primary"
+          title={`Underlying`}
+          quantity={underlyingValue}
+          onChange={handleUnderInput}
+          onClick={handleSetMax}
+          balance={
+            new TokenAmount(
+              entity.underlying,
+              parseEther(underlyingTokenBalance).toString()
+            )
+          }
+          valid={parseEther(underlyingTokenBalance).gte(parsedUnderlyingAmount)}
         />
-        <Spacer size="sm" />
-        {!hasLiquidity || tab === 1 ? (
+      ) : (
+        <>
           <>
-            <LineItem
-              label="Implied Option Price"
-              data={`${calculateImpliedPrice()}`}
-              units={`${entity.underlying.symbol.toUpperCase()}`}
-            />
-            <Spacer size="sm" />{' '}
+            <StyledSubtitle>
+              {!loading ? noLiquidityTitle.text : null}
+            </StyledSubtitle>
           </>
-        ) : (
-          <></>
-        )}
-        <LineItem
-          label="Receive"
-          data={!hasLiquidity ? '0.00' : calculatePoolShare().addedPoolShare}
-          units={`% of Pool`}
-        />
+          <Spacer size="sm" />
+          <PriceInput
+            name="primary"
+            title={`LONG Input`}
+            quantity={optionValue}
+            onChange={handleOptionInput}
+            onClick={() => console.log('Max unavailable.')} //
+          />
+          <Spacer />
+          <PriceInput
+            name="secondary"
+            title={`Underlying Input`}
+            quantity={underlyingValue}
+            onChange={handleUnderInput}
+            onClick={() => console.log('Max unavailable.')} //
+            balance={underlyingAmount}
+          />
+        </>
+      )}
+      <Spacer />
+      <LineItem
+        label="LP for"
+        data={formatEther(calculateOptionsAddedAsLiquidity())}
+        units={`LONG`}
+      />
+      <Spacer size="sm" />
+      {!hasLiquidity || tab === 1 ? (
+        <>
+          <LineItem
+            label="Implied Option Price"
+            data={`${calculateImpliedPrice()}`}
+            units={`${entity.underlying.symbol.toUpperCase()}`}
+          />
+          <Spacer size="sm" />{' '}
+        </>
+      ) : (
+        <></>
+      )}
+      <LineItem
+        label="Receive"
+        data={!hasLiquidity ? '0.00' : calculatePoolShare().addedPoolShare}
+        units={`% of Pool`}
+      />
 
-        <Spacer />
-        <Box row justifyContent="flex-start">
-          {loading ? (
-            <div style={{ width: '100%' }}>
-              <Box column alignItems="center" justifyContent="center">
-                <Button
-                  disabled={true}
-                  full
-                  size="sm"
-                  onClick={() => {}}
-                  text={`Confirm`}
-                />
-              </Box>
-            </div>
-          ) : (
-            <>
-              {approved[0] ? (
-                <> </>
-              ) : (
-                <>
-                  <Button
-                    full
-                    size="sm"
-                    onClick={handleApproval}
-                    text={`Approve ${entity.underlying.symbol.toUpperCase()}`}
-                  />
-                </>
-              )}
-
+      <Spacer size="sm" />
+      <Box row justifyContent="flex-start">
+        {loading ? (
+          <div style={{ width: '100%' }}>
+            <Box column alignItems="center" justifyContent="center">
               <Button
-                disabled={
-                  !approved[0] ||
-                  !parsedUnderlyingAmount?.gt(0) ||
-                  (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
-                  (item.entity.isCall
-                    ? parseFloat(underlyingValue) >= 1000
-                    : parseFloat(underlyingValue) >= 100000)
-                }
+                disabled={true}
                 full
                 size="sm"
-                onClick={handleSubmitClick}
-                text={'Confirm'}
+                onClick={() => {}}
+                text={`Confirm`}
               />
-            </>
-          )}
-        </Box>
-      </Column>
-
-      <Spacer size="lg" />
-
-      <Column>
-        <Internal>
-          <Reverse />
-          <Spacer size="sm" />
-
-          <StyledInnerTitle>Pool Breakdown</StyledInnerTitle>
-
+            </Box>
+          </div>
+        ) : (
           <>
-            {/* <Spacer size="sm" />
-            <LineItem
-              label="Short per LP"
-              data={`${calculateLiquidityValuePerShare().shortPerLp}`}
-            />
-            <Spacer size="sm" />
-            <LineItem
-              label="Underlying per LP"
-              data={`${calculateLiquidityValuePerShare().underlyingPerLp}`}
-            /> */}
-            <Spacer size="sm" />
-            <LineItem
-              label={`Total ${entity.underlying.symbol.toUpperCase()} per LP`}
-              data={`${calculateLiquidityValuePerShare().totalUnderlyingPerLp}`}
-            />
-            <Spacer size="sm" />
-            <LineItem
-              label={`${token0} per ${token1}`}
-              data={calculateToken0PerToken1()}
-            />
-            <Spacer size="sm" />
-            <LineItem
-              label={`${token1} per ${token0}`}
-              data={calculateToken1PerToken0()}
-            />
-            <Spacer size="sm" />
-            <LineItem
-              label={`Ownership`}
-              data={calculatePoolShare().newPoolShare}
-              units={`%`}
-            />
-            {!hasLiquidity ? (
+            {approved[0] ? (
+              <> </>
+            ) : (
               <>
-                <Spacer size="sm" />
-                <StyledSubtitle>
-                  {!loading ? noLiquidityTitle.text : null}
-                </StyledSubtitle>
+                <Button
+                  full
+                  size="sm"
+                  onClick={handleApproval}
+                  text={`Approve ${entity.underlying.symbol.toUpperCase()}`}
+                />
               </>
-            ) : null}
+            )}
+
+            <Button
+              disabled={
+                !approved[0] ||
+                !parsedUnderlyingAmount?.gt(0) ||
+                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
+                (item.entity.isCall
+                  ? parseFloat(underlyingValue) >= 1000
+                  : parseFloat(underlyingValue) >= 100000)
+              }
+              full
+              size="sm"
+              onClick={handleSubmitClick}
+              text={'Confirm'}
+            />
           </>
-        </Internal>
-      </Column>
+        )}
+      </Box>
     </LiquidityContainer>
   )
 }
 
-const StyledInnerTitle = styled.div`
-  color: ${(props) => props.theme.color.white};
-  font-size: 18px;
-  font-weight: 700;
-  display: flex;
-  flex: 1;
-  width: 100%;
-  letter-spacing: 0.5px;
-  height: 44px;
-  align-items: center;
-`
-
-const Column = styled(Box)`
-  flex-direction: column;
-  flex: 1;
-`
-const Internal = styled.div`
-  background: black;
-  margin: 0.5em;
-  padding: 0 1em 1em 1em;
-  border-radius: 0.5em;
-  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.1);
-`
-
 const LiquidityContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex: 1;
+  width: 34em;
 `
-const Reverse = styled.div`
-  margin-top: -5em;
-`
-interface TabProps {
-  active?: boolean
-}
-const StyledTabPanel = styled(TabPanel)``
-const StyledTab = styled(Tab)<TabProps>`
-  background-color: ${(props) =>
-    !props.active ? props.theme.color.grey[800] : props.theme.color.grey[700]};
-  color: ${(props) => props.theme.color.white};
-  font-weight: ${(props) => (props.active ? 600 : 500)};
-  padding: 0.5em 0.5em 0.5em 1em;
-  border-radius: 0.3em 0.3em 0 0;
-  border-width: 1px 1px 0 1px;
-  border-style: solid;
-  border-color: ${(props) => props.theme.color.grey[600]};
-  width: 50%;
-  list-style: none;
-  cursor: pointer;
-`
-const StyledTabList = styled(TabList)`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-content: baseline;
-  margin-left: -2.5em;
-`
-const StyledTabs = styled(Tabs)`
-  width: 100%;
-  min-height: 25%;
-`
+
 const StyledSubtitle = styled.div`
   color: yellow;
   display: table;

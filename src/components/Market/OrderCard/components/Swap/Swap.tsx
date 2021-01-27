@@ -164,16 +164,27 @@ const Swap: React.FC = () => {
     default:
       break
   }
-  const tokenBalance = useTokenBalance(tokenAddress)
+  const tokenBalance = useTokenBalance(entity.address)
+  const optionTokenAmount = new Token(
+    entity.chainId,
+    entity.address,
+    18,
+    'LONG'
+  )
   const tokenAmount: TokenAmount = new TokenAmount(
-    balance,
+    optionTokenAmount,
     parseEther(tokenBalance).toString()
   )
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? UNI_ROUTER_ADDRESS
       : UNISWAP_CONNECTOR[chainId]
+
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const underlyingAmount: TokenAmount = new TokenAmount(
+    entity.underlying,
+    parseEther(underlyingTokenBalance).toString()
+  )
   const onApprove = useApprove()
 
   const handleTypeInput = useCallback(
@@ -339,7 +350,9 @@ const Swap: React.FC = () => {
           onChange={handleTypeInput}
           quantity={typedValue}
           onClick={handleSetMax}
-          balance={tokenAmount}
+          balance={
+            orderType === Operation.LONG ? underlyingAmount : tokenAmount
+          }
         />
 
         <Spacer />
@@ -478,19 +491,10 @@ const Swap: React.FC = () => {
         ) : null}
 
         <Spacer />
-        <IconButton
-          text=""
-          full
-          variant="transparent"
-          onClick={() => {
-            setDescription(!description)
-          }}
-        >
-          <StyledInnerTitle>Description</StyledInnerTitle>
-          {description ? <ExpandLessIcon /> : <ExpandMoreIcon />}{' '}
-        </IconButton>
 
-        {parsedAmount.eq(0) && !error && description ? (
+        <StyledInnerTitle>Description</StyledInnerTitle>
+
+        {parsedAmount.eq(0) && !error ? (
           <Description>Enter an amount of options to trade.</Description>
         ) : (
           <> </>
@@ -526,10 +530,7 @@ const Swap: React.FC = () => {
               />
             </PurchaseInfo>
           </Description>
-        ) : !description ? (
-          <Description>The order size is too large.</Description>
         ) : null}
-        <Spacer size="sm" />
       </Box>
     </>
   )

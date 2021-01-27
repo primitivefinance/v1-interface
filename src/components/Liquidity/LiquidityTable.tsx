@@ -127,9 +127,7 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
                   return (
                     <LiquidityTableRow
                       key={option.entity.address}
-                      onClick={() => {
-                        updateItem(option, Operation.ADD_LIQUIDITY)
-                      }}
+                      onClick={() => updateItem(option, Operation.NONE)}
                       columns={tableColumns}
                     />
                   )
@@ -160,7 +158,7 @@ const ScrollBody = styled(TableBody)`
 `
 
 const OptionsContainer = styled.div`
-  margin-left: 2em;
+  margin-left: 0em;
   margin-top: -0.2em;
 `
 

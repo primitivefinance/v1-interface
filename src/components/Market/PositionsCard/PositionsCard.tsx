@@ -73,18 +73,14 @@ const PositionsCard: React.FC = () => {
   }
   if (positions.loading) {
     return (
-      <Card border>
-        <CardContent>
-          <StyledEmptyContent>
-            <Spacer size="sm" />
-            <StyledEmptyMessage>Loading Positions</StyledEmptyMessage>
-            <StyledEmptyMessage>
-              <Loader />
-            </StyledEmptyMessage>
-            <Spacer />
-          </StyledEmptyContent>
-        </CardContent>
-      </Card>
+      <StyledEmptyContent>
+        <Spacer size="sm" />
+        <StyledEmptyMessage>LOADING POSITIONS</StyledEmptyMessage>
+        <StyledEmptyMessage>
+          <Loader />
+        </StyledEmptyMessage>
+        <Spacer />
+      </StyledEmptyContent>
     )
   }
   if (!positions.exists) {
@@ -186,13 +182,13 @@ const StyledValue = styled.div`
 `
 
 const StyledExpiry = styled.span`
-  color: ${(props) => props.theme.color.grey[500]};
+  color: ${(props) => props.theme.color.grey[400]};
   font-size: 12px;
   letter-spacing: 0.5px;
 `
 
 const StyledPosition = styled.a`
-  background-color: 'transparent';
+  background-color: ${(props) => props.theme.color.black};
   border: 1.5px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white} !important;
   border-radius: 0.5em;
@@ -200,10 +196,11 @@ const StyledPosition = styled.a`
   cursor: pointer;
   margin-bottom: 1em;
   margin-top: -0.2em;
+  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
   &:hover {
     border: 1.5px solid ${(props) => props.theme.color.grey[600]};
-    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
-    background-color: ${(props) => props.theme.color.grey[700]};
+    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0);
+    background-color: ${(props) => props.theme.color.grey[600]};
   }
 `
 

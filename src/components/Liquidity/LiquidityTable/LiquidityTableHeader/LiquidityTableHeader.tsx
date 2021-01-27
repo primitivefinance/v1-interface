@@ -27,8 +27,8 @@ export const headers = [
     tip: 'The proportion of ownership of the option pair.',
   },
   {
-    name: 'Price',
-    tip: 'The ask price of 1 option token.',
+    name: 'Market',
+    tip: 'The option market the pool serves.',
   },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   {
@@ -66,6 +66,7 @@ const LiquidityTableHeader: React.FC = () => {
               }
               return <TableCell key={header.name}>{header.name}</TableCell>
             })}
+            <Spacer />
           </TableRow>
           <GreyBack />
         </LiquidityTableContent>
