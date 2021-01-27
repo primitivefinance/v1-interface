@@ -7,10 +7,17 @@ import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 import { OptionsState } from './reducer'
 
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
+import * as SushiSwapSDK from '@sushiswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 
 import { Protocol } from '@primitivefi/sdk'
-import { Trade, Option, Market } from '@primitivefi/sdk'
+import {
+  Trade,
+  Option,
+  UniswapMarket,
+  SushiSwapMarket,
+  Venue,
+} from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -32,7 +39,8 @@ export const useClearOptions = (): (() => void) => {
 
 export const useUpdateOptions = (): ((
   assetName: string,
-  isLiquidity: boolean,
+  venue: Venue,
+  isLiquidity?: boolean,
   assetAddress?: string
 ) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
@@ -41,14 +49,18 @@ export const useUpdateOptions = (): ((
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    async (assetName: string, isLiquidity: boolean, assetAddress?: string) => {
+    async (
+      assetName: string,
+      venue: Venue,
+      isLiquidity?: boolean,
+      assetAddress?: string
+    ) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
-      if (!provider || !active) {
-        router.push(router.pathname, router.pathname, { shallow: true })
-      }
-      console.log('triggering options update -> ', assetName)
+      if (!provider) return
+      const isUniswap = venue === Venue.UNISWAP ? true : false
+
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
@@ -59,13 +71,17 @@ export const useUpdateOptions = (): ((
               for (let i = 0; i < allKeys.length; i++) {
                 const key: string = allKeys[i]
                 const option: Option = optionEntitiesObject[key]
-                allPairAddresses.push(option.pairAddress)
+                allPairAddresses.push(
+                  isUniswap
+                    ? option.uniswapPairAddress
+                    : option.sushiswapPairAddress
+                )
                 allTokensArray.push([
                   option.redeem.address,
                   option.underlying.address,
                 ])
               }
-              Protocol.getPairsFromMultiCall(provider, allTokensArray)
+              Protocol.getPairsFromMultiCall(provider, allTokensArray, venue)
                 .then((allPairsData) => {
                   const actualPairs = []
                   for (const pair of allPairsData) {
@@ -145,13 +161,20 @@ export const useUpdateOptions = (): ((
                           )
                         }
 
-                        const pair: Pair = new Pair(
+                        const pairType = isUniswap ? Pair : SushiSwapSDK.Pair
+                        const pair: Pair | SushiSwapSDK.Pair = new pairType(
                           underlyingTokenAmount,
                           redeemTokenAmount
                         )
                         option.setPair(pair)
 
-                        const market: Market = new Market(
+                        const marketType = isUniswap
+                          ? UniswapMarket
+                          : SushiSwapMarket
+
+                        const market:
+                          | UniswapMarket
+                          | SushiSwapMarket = new marketType(
                           option,
                           underlyingTokenAmount,
                           redeemTokenAmount

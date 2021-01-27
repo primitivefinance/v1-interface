@@ -20,7 +20,13 @@ import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
-import { Trade, Market } from '@primitivefi/sdk'
+import {
+  Trade,
+  UniswapMarket,
+  SushiSwapMarket,
+  Venue,
+  SUSHISWAP_CONNECTOR,
+} from '@primitivefi/sdk'
 import { Fraction, Pair } from '@uniswap/sdk'
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -86,7 +92,11 @@ const AddLiquidity: React.FC = () => {
   const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  const spender = UNISWAP_CONNECTOR[chainId]
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
+
+  const spender = isUniswap
+    ? UNISWAP_CONNECTOR[chainId]
+    : SUSHISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
   const onApprove = useApprove()
 
@@ -324,7 +334,11 @@ const AddLiquidity: React.FC = () => {
         entity.underlying,
         parsedUnderlyingAmount.toString()
       )
-      const tempMarket = new Market(entity, redeemAmount, underlyingAmount)
+      const tempMarket = new UniswapMarket(
+        entity,
+        redeemAmount,
+        underlyingAmount
+      )
       return formatEther(tempMarket.spotOpenPremium.raw.toString())
     }
     return formatEther(item.market.spotOpenPremium.raw.toString())

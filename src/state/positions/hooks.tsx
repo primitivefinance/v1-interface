@@ -9,7 +9,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useOptions } from '@/state/options/hooks'
 
 import { OptionsAttributes } from '../options/actions'
-import { getBalance } from '@primitivefi/sdk'
+import { getBalance, Venue } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { TokenAmount } from '@uniswap/sdk'
 
@@ -85,9 +85,12 @@ export const useUpdatePositions = (): ((
           account
         )
 
+        const venue = options[i].venue
         const lp = await getBalance(
           library,
-          options[i].entity.pairAddress,
+          venue === Venue.UNISWAP
+            ? options[i].entity.uniswapPairAddress
+            : options[i].entity.sushiswapPairAddress,
           account
         )
         if (

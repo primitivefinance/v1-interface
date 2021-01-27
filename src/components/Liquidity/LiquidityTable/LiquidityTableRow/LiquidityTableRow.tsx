@@ -26,7 +26,13 @@ import { useClickAway } from '@/hooks/utils/useClickAway'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
-import { Option, Market, Operation } from '@primitivefi/sdk'
+import {
+  Option,
+  UniswapMarket,
+  SushiSwapMarket,
+  Operation,
+  Venue,
+} from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
 
 const AddLiqButton: React.FC<any> = () => {
@@ -81,7 +87,7 @@ export interface TableColumns {
   key: string
   asset: string
   entity: Option
-  market: Market
+  market: UniswapMarket | SushiSwapMarket
   strike: string
   ask: string
   share: string

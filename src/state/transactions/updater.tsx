@@ -11,6 +11,7 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
 import { Operation, ADDRESS_FOR_MARKET } from '@/constants/index'
+import { Venue } from '@primitivefi/sdk'
 
 import numeral from 'numeral'
 
@@ -64,11 +65,14 @@ export default function Updater(): null {
         if (library && options.calls[0].asset) {
           console.log('updating?', router.pathname)
           if (router.pathname === '/liquidity') {
-            updateOptions('', true)
+            updateOptions('', Venue.SUSHISWAP, true)
             updatePositions(options.calls.concat(options.puts))
           } else {
             updateOptions(
               options.calls[0].asset.toUpperCase(),
+              options.calls[0].asset.toUpperCase() === 'SUSHI' // FIX: Need to check each option in calls[]
+                ? Venue.SUSHISWAP
+                : Venue.UNISWAP,
               false,
               ADDRESS_FOR_MARKET[options.calls[0].asset]
             )

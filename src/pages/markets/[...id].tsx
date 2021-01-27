@@ -8,6 +8,7 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
+import WethWrapper from '@/components/WethWrapper'
 
 import {
   ADDRESS_FOR_MARKET,
@@ -31,7 +32,12 @@ import {
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
 import { useSetLoading } from '@/state/positions/hooks'
-import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import {
+  useOptions,
+  useUpdateOptions,
+  useClearOptions,
+} from '@/state/options/hooks'
+import { Venue } from '@primitivefi/sdk'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -54,6 +60,7 @@ const Market = ({ market, data }) => {
   const router = useRouter()
   const clear = useClearNotif()
   const options = useOptions()
+  const clearOptions = useClearOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
 
@@ -63,11 +70,16 @@ const Market = ({ market, data }) => {
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.reload()
-      updateOptions(market.toUpperCase(), false, ADDRESS_FOR_MARKET[market])
+      clearOptions()
     }
 
     if (ethereum) {
-      updateOptions(market.toUpperCase(), false, ADDRESS_FOR_MARKET[market])
+      updateOptions(
+        market.toUpperCase(),
+        Venue.SUSHISWAP,
+        false,
+        ADDRESS_FOR_MARKET[market]
+      )
 
       const handleChainChanged = () => {
         if (id !== chainId) {
@@ -124,6 +136,14 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
+
+  useEffect(() => {
+    updateOptions(
+      market.toUpperCase(),
+      market.toUpperCase() === 'SUSHI' ? Venue.SUSHISWAP : Venue.UNISWAP,
+      ADDRESS_FOR_MARKET[market]
+    )
+  }, [])
 
   if (!active || market === 'eth') {
     return (
@@ -221,6 +241,14 @@ const Market = ({ market, data }) => {
                       <BalanceCard />
                       <TransactionCard />
                       <Spacer />
+                      {market === 'eth' || market === 'weth' ? (
+                        <>
+                          <WethWrapper />
+                          <Spacer />{' '}
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </ErrorBoundary>
                   </StyledSideBar>
                 </StyledCol>

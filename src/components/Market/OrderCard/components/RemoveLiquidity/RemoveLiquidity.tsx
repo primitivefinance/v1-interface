@@ -25,7 +25,12 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
-import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
+import {
+  UNI_ROUTER_ADDRESS,
+  SUSHISWAP_CONNECTOR,
+  SUSHI_ROUTER_ADDRESS,
+  Venue,
+} from '@primitivefi/sdk'
 
 import { usePositions } from '@/state/positions/hooks'
 import {
@@ -67,10 +72,16 @@ const RemoveLiquidity: React.FC = () => {
   const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender =
     orderType === Operation.REMOVE_LIQUIDITY
-      ? UNI_ROUTER_ADDRESS
-      : UNISWAP_CONNECTOR[chainId]
+      ? isUniswap
+        ? UNI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS
+      : isUniswap
+      ? UNISWAP_CONNECTOR[chainId]
+      : SUSHISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 
   const handleApprove = useApprove()
