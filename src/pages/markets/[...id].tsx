@@ -241,7 +241,7 @@ const Market = ({ market, data }) => {
                       <OrderCard orderState={data} />
                       <BalanceCard />
                       <TransactionCard />
-                      <Spacer size="sm" />
+                      <Spacer />
                       {market === 'eth' || market === 'weth' ? (
                         <>
                           <WethWrapper />
