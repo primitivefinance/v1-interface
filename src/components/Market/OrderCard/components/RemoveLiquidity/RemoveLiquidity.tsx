@@ -318,107 +318,36 @@ const RemoveLiquidity: React.FC = () => {
         onChange={handleRatioChange}
       />
       <Spacer size="sm" />
-      <Box row justifyContent="flex-start">
+      <Box row justifyContent="space-around">
         <Button
-          variant="secondary"
+          variant="transparent"
           text="25%"
           onClick={() => {
             handleRatio(250)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="50%"
           onClick={() => {
             handleRatio(500)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="75%"
           onClick={() => {
             handleRatio(750)
           }}
         />
-        <div style={{ width: '5px' }} />
         <Button
-          variant="secondary"
+          variant="transparent"
           text="100%"
           onClick={() => {
             handleRatio(1000)
           }}
         />
       </Box>
-
-      {/* <Toggle>
-          <ToggleButton
-            active={orderType === Operation.REMOVE_LIQUIDITY_CLOSE}
-            onClick={() =>
-              updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, item.market)
-            }
-            text="Exit & Close"
-          />
-          <ToggleButton
-            active={orderType === Operation.REMOVE_LIQUIDITY}
-            onClick={() =>
-              updateItem(item, Operation.REMOVE_LIQUIDITY, item.market)
-            }
-            text="Exit"
-          />
-        </Toggle> */}
-      <Spacer />
-
-      {/* <LineItem
-          label={'Amount'}
-          data={Math.round(10 * (ratio / 10)) / 10 + '%'}
-          units={'%'}
-        ></LineItem>
-
-        <Spacer size="sm" />
-        <Slider
-          min={1}
-          max={1000}
-          step={1}
-          value={ratio}
-          onChange={handleRatioChange}
-        />
-        <Spacer size="sm" />
-        <Box row justifyContent="flex-start">
-          <Button
-            variant="secondary"
-            text="25%"
-            onClick={() => {
-              handleRatio(250)
-            }}
-          />
-          <div style={{ width: '5px' }} />
-          <Button
-            variant="secondary"
-            text="50%"
-            onClick={() => {
-              handleRatio(500)
-            }}
-          />
-          <div style={{ width: '5px' }} />
-          <Button
-            variant="secondary"
-            text="75%"
-            onClick={() => {
-              handleRatio(750)
-            }}
-          />
-          <div style={{ width: '5px' }} />
-          <Button
-            variant="secondary"
-            text="100%"
-            onClick={() => {
-              handleRatio(1000)
-            }}
-          />
-        </Box> */}
-
       <Spacer size="sm" />
 
       <LineItem

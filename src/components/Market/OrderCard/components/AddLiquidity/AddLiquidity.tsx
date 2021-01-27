@@ -366,9 +366,9 @@ const AddLiquidity: React.FC = () => {
 
   const noLiquidityTitle = {
     text:
-      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio',
+      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio.',
     tip:
-      'Providing liquidity to this pair will set the ratio between the tokens',
+      'Providing liquidity to this pair will set the ratio between the tokens.',
   }
 
   return (

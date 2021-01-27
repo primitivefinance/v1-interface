@@ -58,17 +58,19 @@ const RemoveLiqButton: React.FC<any> = () => {
     <>
       <Button
         variant={
-          orderType === Operation.REMOVE_LIQUIDITY ? 'transparent' : 'secondary'
+          orderType === Operation.REMOVE_LIQUIDITY_CLOSE
+            ? 'transparent'
+            : 'secondary'
         }
         onClick={() => {
-          if (orderType === Operation.REMOVE_LIQUIDITY) {
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
             updateItem(item, Operation.NONE)
           } else {
-            updateItem(item, Operation.REMOVE_LIQUIDITY)
+            updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE)
           }
         }}
       >
-        {orderType === Operation.REMOVE_LIQUIDITY
+        {orderType === Operation.REMOVE_LIQUIDITY_CLOSE
           ? 'Close'
           : 'Remove Liquidity'}
       </Button>
@@ -347,7 +349,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
                 LP Balance - {numeral(lp).format('0.00')}
                 <RemoveLiqButton />
               </StyledTitle>
-              {orderType === Operation.REMOVE_LIQUIDITY ? (
+              {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
                 <RemoveLiquidity />
               ) : null}
             </Choice>
