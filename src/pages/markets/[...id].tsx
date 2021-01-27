@@ -236,7 +236,7 @@ const Market = ({ market, data }) => {
                         </>
                       }
                     >
-                      <Spacer size="sm" />
+                      <Spacer />
                       <PositionsCard />
                       <OrderCard orderState={data} />
                       <BalanceCard />

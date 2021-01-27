@@ -63,9 +63,6 @@ const Swap: React.FC = () => {
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
-  const [active, setCallActive] = useState(
-    orderType === Operation.LONG ? true : false
-  )
 
   const [prem, setPrem] = useState(
     orderType === Operation.LONG
@@ -218,13 +215,6 @@ const Swap: React.FC = () => {
     }
   }, [tokenBalance, onUserInput, prem])
 
-  const handleToggleClick = useCallback(() => {
-    const prevTypedValue = typedValue
-    setCallActive(!active)
-    updateItem(item, !active ? Operation.LONG : Operation.CLOSE_LONG)
-    onUserInput(prevTypedValue ? prevTypedValue : '0')
-  }, [active, setCallActive, typedValue, onUserInput])
-
   const handleSubmitClick = useCallback(() => {
     submitOrder(
       library,
@@ -341,15 +331,20 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
-
-        <Separator />
-        <Spacer size="sm" />
-
-        <Switch active={active} onClick={handleToggleClick} />
+        <Switch
+          active={orderType !== Operation.CLOSE_LONG}
+          onClick={() => {
+            if (orderType === Operation.CLOSE_LONG) {
+              updateItem(item, Operation.LONG)
+            } else {
+              updateItem(item, Operation.CLOSE_LONG)
+            }
+          }}
+        />
 
         {hasLiquidity ? null : (
           <>
-            <Spacer />
+            <Spacer size="sm" />
             <WarningTooltip>
               There is no liquidity in this option market
             </WarningTooltip>
@@ -399,7 +394,7 @@ const Swap: React.FC = () => {
           />
         )}
 
-        <Spacer />
+        <Spacer size="sm" />
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>

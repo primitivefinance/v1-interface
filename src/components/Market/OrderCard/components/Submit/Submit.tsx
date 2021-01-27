@@ -33,16 +33,6 @@ const Submit: React.FC<SubmitProps> = () => {
       break
   }
 
-  useEffect(() => {
-    if (
-      orderType === Operation.ADD_LIQUIDITY ||
-      orderType === Operation.ADD_LIQUIDITY_CUSTOM ||
-      Operation.REMOVE_LIQUIDITY_CLOSE ||
-      orderType === Operation.REMOVE_LIQUIDITY
-    ) {
-      updateItem(item, Operation.LONG)
-    }
-  }, [orderType, updateItem, item])
   return (
     <StyledDiv>
       {orderType === Operation.ADD_LIQUIDITY ||
