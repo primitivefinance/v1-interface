@@ -270,7 +270,7 @@ const StyledARef = styled.a`
 
 const StyledOrder = styled.a`
   border: 1px solid ${(props) => props.theme.color.grey[800]};
-  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
+  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.05);
   background: ${(props) => props.theme.color.black};
   color: white;
   border-radius: 0.5em;

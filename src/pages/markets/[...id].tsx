@@ -140,7 +140,8 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     updateOptions(
       market.toUpperCase(),
-      market.toUpperCase() === 'SUSHI' ? Venue.SUSHISWAP : Venue.UNISWAP,
+      Venue.SUSHISWAP,
+      false,
       ADDRESS_FOR_MARKET[market]
     )
   }, [])
@@ -240,11 +241,10 @@ const Market = ({ market, data }) => {
                       <OrderCard orderState={data} />
                       <BalanceCard />
                       <TransactionCard />
-                      <Spacer />
+                      <Spacer size="sm" />
                       {market === 'eth' || market === 'weth' ? (
                         <>
                           <WethWrapper />
-                          <Spacer />{' '}
                         </>
                       ) : (
                         <></>

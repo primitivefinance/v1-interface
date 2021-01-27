@@ -13,7 +13,8 @@ import Separator from '@/components/Separator'
 import Switch from '@/components/Switch'
 
 import numeral from 'numeral'
-
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import { useWeb3React } from '@web3-react/core'
@@ -36,6 +37,7 @@ const WethWrapper: React.FC = () => {
   const [wrap, setWrap] = useState(true)
   const [weth, setWeth] = useState('')
   const [ethBal, setEthBal] = useState('0')
+  const [col, setCol] = useState(true)
   //const { typedValue, inputLoading } = useSwap()
   const [typedValue, setTypedValue] = useState('')
   //const { onUserInput } = useSwapActionHandlers()
@@ -167,37 +169,49 @@ const WethWrapper: React.FC = () => {
   return (
     <Card border>
       <StyledDiv>
-        <Title>Wrapped ETH</Title>
-        <Separator />
-        <Spacer size="sm" />
-        <Switch
-          active={wrap}
-          onClick={handleToggleClick}
-          primaryText="Wrap"
-          secondaryText="Unwrap"
-        />
-        <CardContent>
-          <PriceInput
-            title={wrap ? 'Wrap' : 'Unwrap'}
-            quantity={typedValue}
-            onChange={handleTypeInput}
-            onClick={wrap ? handleSetEthMax : handleSetMax}
-            balance={
-              wrap
-                ? new TokenAmount(ETH_TOKEN, ethBal)
-                : new TokenAmount(
-                    WETH[chainId],
-                    parseEther(wethBalance).toString()
-                  )
-            }
-          />
-          <Spacer size="sm" />
-          <Button
-            onClick={isApproved() || wrap ? handleSubmitClick : handleApproval}
-            text={isApproved() || wrap ? 'Confirm' : 'Approve'}
-          />
-          <Spacer />
-        </CardContent>
+        <div onClick={() => setCol(!col)}>
+          <StyledBox row alignItems="center">
+            <Title>Wrap ETH</Title>
+            <Spacer />
+            <Spacer />
+            <Spacer />
+            {!col ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+          </StyledBox>
+        </div>
+        {col ? null : (
+          <>
+            <Spacer size="sm" />
+            <Switch
+              active={wrap}
+              onClick={handleToggleClick}
+              primaryText="Wrap"
+              secondaryText="Unwrap"
+            />
+            <CardContent>
+              <PriceInput
+                title={wrap ? 'Wrap' : 'Unwrap'}
+                quantity={typedValue}
+                onChange={handleTypeInput}
+                onClick={wrap ? handleSetEthMax : handleSetMax}
+                balance={
+                  wrap
+                    ? new TokenAmount(ETH_TOKEN, ethBal)
+                    : new TokenAmount(
+                        WETH[chainId],
+                        parseEther(wethBalance).toString()
+                      )
+                }
+              />
+              <Spacer />
+              <Button
+                onClick={
+                  isApproved() || wrap ? handleSubmitClick : handleApproval
+                }
+                text={isApproved() || wrap ? 'Confirm' : 'Approve'}
+              />
+            </CardContent>
+          </>
+        )}
       </StyledDiv>
     </Card>
   )
@@ -209,5 +223,8 @@ const StyledDiv = styled.div`
   flex-direction: column;
   justify-content: center;
 `
-
+const StyledBox = styled(Box)`
+  cursor: pointer;
+  color: ${(props) => props.theme.color.white};
+`
 export default WethWrapper

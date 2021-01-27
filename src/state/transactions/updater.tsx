@@ -63,16 +63,14 @@ export default function Updater(): null {
     const timer = setInterval(
       () => {
         if (library && options.calls[0].asset) {
-          console.log('updating?', router.pathname)
+          console.log('updating -', router.pathname)
           if (router.pathname === '/liquidity') {
             updateOptions('', Venue.SUSHISWAP, true)
             updatePositions(options.calls.concat(options.puts))
           } else {
             updateOptions(
               options.calls[0].asset.toUpperCase(),
-              options.calls[0].asset.toUpperCase() === 'SUSHI' // FIX: Need to check each option in calls[]
-                ? Venue.SUSHISWAP
-                : Venue.UNISWAP,
+              Venue.SUSHISWAP,
               false,
               ADDRESS_FOR_MARKET[options.calls[0].asset]
             )

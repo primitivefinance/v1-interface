@@ -196,7 +196,7 @@ const StyledPosition = styled.a`
   cursor: pointer;
   margin-bottom: 1em;
   margin-top: -0.2em;
-  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
+  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.05);
   &:hover {
     border: 1.5px solid ${(props) => props.theme.color.grey[600]};
     box-shadow: 2px 2px 2px rgba(250, 250, 250, 0);
