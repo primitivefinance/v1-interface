@@ -175,7 +175,7 @@ const WethWrapper: React.FC = () => {
             <Spacer />
             <Spacer />
             <Spacer />
-            {!col ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            {col ? <ExpandMoreIcon /> : <ExpandLessIcon />}
           </StyledBox>
         </div>
         {col ? null : (
