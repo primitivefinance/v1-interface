@@ -6,6 +6,7 @@ import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
 
 import MetaMaskOnboarding from '@metamask/onboarding'
+import { Venue } from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -98,16 +99,17 @@ const Liquidity = ({ icons }) => {
   const options = useOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
+  const clearOptions = useClearOptions()
 
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      updateOptions('', true) //hardcoded
+      clearOptions()
     }
     if (ethereum) {
-      updateOptions('', true) //hardcoded
+      updateOptions('', Venue.SUSHISWAP, true)
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
