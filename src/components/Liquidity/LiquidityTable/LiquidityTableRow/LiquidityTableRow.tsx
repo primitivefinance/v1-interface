@@ -158,7 +158,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     )
     const poolShare = supply.gt(0) ? lpBal.divide(tSupply) : new Fraction('0')
 
-    return poolShare.multiply('100').toSignificant(6)
+    return poolShare.toSignificant(6)
   }, [market, lpTotalSupply, lp])
 
   const calculateLiquidityValuePerShare = useCallback(() => {
