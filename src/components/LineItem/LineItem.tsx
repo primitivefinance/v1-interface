@@ -103,6 +103,7 @@ const StyledLabel = styled.span<ColorProps>`
 
 const StyledLineItem = styled(Box)`
   width: 100%;
+  flex-direction: row;
 `
 
 export default LineItem

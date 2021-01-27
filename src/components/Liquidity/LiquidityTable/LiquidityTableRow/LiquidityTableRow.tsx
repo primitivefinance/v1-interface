@@ -318,7 +318,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 
             {item?.entity === null && toggle ? (
               <IconButton size="lg" variant="outlined">
-                <Loader />
+                <ExpandMoreIcon />
               </IconButton>
             ) : item?.entity?.address === key && toggle ? (
               <IconButton size="lg">
