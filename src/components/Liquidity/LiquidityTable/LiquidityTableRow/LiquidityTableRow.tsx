@@ -21,14 +21,20 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useClickAway } from '@/hooks/utils/useClickAway'
 
-import { Option, Market, Operation } from '@primitivefi/sdk'
+import {
+  Option,
+  UniswapMarket,
+  SushiSwapMarket,
+  Operation,
+  Venue,
+} from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
 
 export interface TableColumns {
   key: string
   asset: string
   entity: Option
-  market: Market
+  market: UniswapMarket | SushiSwapMarket
   strike: string
   ask: string
   share: string
