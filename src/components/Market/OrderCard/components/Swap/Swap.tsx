@@ -346,7 +346,7 @@ const Swap: React.FC = () => {
           <>
             <Spacer size="sm" />
             <WarningTooltip>
-              There is no liquidity in this option market
+              There is no liquidity in this option!
             </WarningTooltip>
           </>
         )}
