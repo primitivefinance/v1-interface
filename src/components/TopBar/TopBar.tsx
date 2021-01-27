@@ -1,10 +1,9 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import NotificationsIcon from '@material-ui/icons/Notifications'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 import Container from '@/components/Container'
 import IconButton from '@/components/IconButton'
@@ -13,8 +12,11 @@ import Logo from '@/components/Logo'
 import Settings from '@/components/Settings'
 import { Wallet } from '@/components/Wallet'
 import { useWeb3React } from '@web3-react/core'
-
-const TopBar: React.FC = () => {
+interface BarProps {
+  children?: any
+  loading?: boolean
+}
+const TopBar: React.FC<BarProps> = ({ children, loading }) => {
   const location = useRouter()
   const { chainId, account } = useWeb3React()
   return (
@@ -48,20 +50,21 @@ const TopBar: React.FC = () => {
               Markets
             </StyledNavItem>
           </Link>
-          <Link href={`/liquidity/${encodeURIComponent(account)}`}>
+          <Link href={`/liquidity`}>
             <StyledNavItem active={location.pathname.startsWith('/liquidity')}>
               Liquidity
             </StyledNavItem>
           </Link>
-          <Link href="/contracts">
-            <StyledNavItem
-              active={
-                location.pathname.indexOf('/contracts') !== -1 ? true : false
-              }
-            >
-              Contracts
+          <a
+            style={{ textDecoration: 'none' }}
+            href="https://snapshot.page/#/primitive.eth"
+            target="__blank"
+          >
+            <StyledNavItem active={false}>
+              Governance{' '}
+              <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
             </StyledNavItem>
-          </Link>
+          </a>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ
@@ -84,9 +87,63 @@ const TopBar: React.FC = () => {
           <Settings />
         </StyledFlex>
       </Container>
+
+      {loading ? (
+        <StyledLoading>
+          <StyledBar />
+        </StyledLoading>
+      ) : (
+        <div style={{ minHeight: '3px' }} />
+      )}
     </StyledTopBar>
   )
 }
+
+const changeColorWhileLoading = (color) => keyframes`
+  0%   {background-color: ${color.grey[800]};}
+  50%  {background-color: ${color.grey[600]};}
+  100%  {background-color: ${color.grey[800]};}
+`
+
+const StyledLoading = styled.div`
+  background: ${(props) => props.theme.color.grey[800]};
+  min-height: 3px;
+  animation: start 0.3s ease-in;
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  @keyframes start {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+`
+
+const StyledBar = styled.div`
+  z-index: 400;
+  height: 3px;
+  width: 15%;
+
+  animation: growBar1 1s linear infinite alternate;
+  @keyframes growBar1 {
+    0% {
+      background: ${(props) => props.theme.color.grey[800]};
+      margin: 0 0 0 0;
+    }
+    50% {
+      background: ${(props) => props.theme.color.grey[600]};
+      margin: 0 50em 0 50em;
+    }
+    100% {
+      background: ${(props) => props.theme.color.grey[800]};
+      margin: 0 0 0 100em;
+    }
+  }
+`
 
 interface NavProps {
   isMain: boolean
@@ -133,6 +190,9 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
     props.active ? props.theme.color.white : props.theme.color.grey[400]};
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   text-transform: uppercase;
   text-decoration: none;
   font-size: 16px;
@@ -145,7 +205,6 @@ const StyledNavItem = styled.a<StyledNavItemProps>`
 `
 
 const StyledLogo = styled.img`
-  padding-top: 0.3em;
   width: ${(props) => props.theme.spacing[5]}px;
   height: ${(props) => props.theme.spacing[5]}px;
 `

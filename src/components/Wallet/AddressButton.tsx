@@ -1,8 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import CallMadeIcon from '@material-ui/icons/CallMade'
-import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import LaunchIcon from '@material-ui/icons/Launch'
 
 import { WALLETS } from '../../constants'
@@ -53,7 +51,7 @@ export const AddressButton: React.FC<AddressButtonProps> = ({
 const StyledAddress = styled.h4``
 
 const StyledAddressButton = styled.div`
-  background-color: ${(props) => props.theme.color.black};
+  background-color: transparent;
   color: ${(props) => props.theme.color.grey[400]};
   cursor: pointer;
   min-width: 6em;

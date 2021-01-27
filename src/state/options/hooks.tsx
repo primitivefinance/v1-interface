@@ -32,7 +32,6 @@ export const useOptions = (): OptionsState => {
 
 export const useClearOptions = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
-
   return useCallback(() => {
     dispatch(clearOptions())
   }, [dispatch])
@@ -41,19 +40,21 @@ export const useClearOptions = (): (() => void) => {
 export const useUpdateOptions = (): ((
   assetName: string,
   venue: Venue,
+  isLiquidity?: boolean,
   assetAddress?: string
 ) => void) => {
   const { library, chainId, active } = useActiveWeb3React()
   const addNotif = useAddNotif()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  if (!active) {
-    return useCallback(() => {
-      router.push('/markets')
-    }, [router])
-  }
+
   return useCallback(
-    async (assetName: string, venue: Venue, assetAddress?: string) => {
+    async (
+      assetName: string,
+      venue: Venue,
+      isLiquidity?: boolean,
+      assetAddress?: string
+    ) => {
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
@@ -184,46 +185,94 @@ export const useUpdateOptions = (): ((
                           .raw.toString()
 
                         if (option.isCall) {
-                          if (
-                            option.baseValue.token.symbol.toUpperCase() ===
-                            assetName.toUpperCase()
-                          ) {
-                            pairReserveTotal[0] = pairReserveTotal[0].add(
-                              BigNumber.from(underlyingReserve)
-                            )
-                            calls.push({
-                              entity: option,
-                              asset: assetName,
-                              market: market,
-                              id: option.name,
-                              venue: venue,
-                            })
+                          if (isLiquidity) {
+                            if (
+                              (option.baseValue.token.symbol.toUpperCase() ===
+                                'SUSHI' ||
+                                option.baseValue.token.symbol.toUpperCase() ===
+                                  'WETH') &&
+                              (option.strikePrice === '5000' ||
+                                option.strikePrice === '30')
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              calls.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
+                          } else {
+                            if (
+                              option.baseValue.token.symbol.toUpperCase() ===
+                                assetName.toUpperCase() &&
+                              (option.strikePrice === '5000' ||
+                                option.strikePrice === '30')
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              calls.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
                           }
-                        }
-                        if (option.isPut) {
-                          let asset = option.quoteValue.token.symbol.toUpperCase()
-                          if (asset === 'ETH') {
-                            asset = 'WETH'
-                          }
-                          if (
-                            (asset === assetName.toUpperCase() &&
-                              option.underlying.address ===
-                                STABLECOINS[chainId].address) ||
-                            option.quoteValue.token.address === assetAddress
-                          ) {
-                            pairReserveTotal[1] = pairReserveTotal[1].add(
-                              BigNumber.from(underlyingReserve)
-                            )
-                            puts.push({
-                              entity: option,
-                              asset: assetName,
-                              market: market,
-                              id: option.name,
-                              venue: venue,
-                            })
+                        } else {
+                          if (isLiquidity) {
+                            const asset = option.quoteValue.token.symbol.toUpperCase()
+                            if (
+                              (asset === 'WETH' || asset === 'SUSHI') &&
+                              (option.strikePrice === '2.5' ||
+                                option.strikePrice === '480') &&
+                              (option.underlying.address ===
+                                STABLECOINS[chainId].address ||
+                                option.quoteValue.token.address ===
+                                  assetAddress)
+                            ) {
+                              pairReserveTotal[0] = pairReserveTotal[0].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              puts.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
+                          } else {
+                            const asset = option.quoteValue.token.symbol.toUpperCase()
+                            if (
+                              asset === assetName.toUpperCase() &&
+                              (option.strikePrice === '2.5' ||
+                                option.strikePrice === '480') &&
+                              (option.underlying.address ===
+                                STABLECOINS[chainId].address ||
+                                option.quoteValue.token.address ===
+                                  assetAddress)
+                            ) {
+                              pairReserveTotal[1] = pairReserveTotal[1].add(
+                                BigNumber.from(underlyingReserve)
+                              )
+                              puts.push({
+                                entity: option,
+                                asset: assetName,
+                                market: market,
+                                id: option.name,
+                                venue: Venue.SUSHISWAP,
+                              })
+                            }
                           }
                         }
                       }
+                      console.log(puts)
                       dispatch(
                         updateOptions({
                           loading: false,

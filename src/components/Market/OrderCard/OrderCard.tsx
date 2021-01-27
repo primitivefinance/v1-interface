@@ -82,16 +82,6 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           }
         })
       }
-      setTimeout(() => {
-        const market = options.calls[0].asset.toLowerCase()
-        router.push(
-          `/markets/[...id]`,
-          `/markets/${market}/${orderState[1] === 'puts' ? 'puts' : 'calls'}`,
-          {
-            shallow: true,
-          }
-        )
-      }, 1000)
     }
   }, [orderState, updateItem, options])
   if (!item.entity || !item.entity?.expiryValue) {

@@ -69,14 +69,18 @@ const Market = ({ market, data }) => {
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      router.push('/markets')
+      router.reload()
       clearOptions()
     }
 
-    if (market === 'eth') {
-      router.push('/markets/weth/calls')
-    }
     if (ethereum) {
+      updateOptions(
+        market.toUpperCase(),
+        Venue.SUSHISWAP,
+        false,
+        ADDRESS_FOR_MARKET[market]
+      )
+
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
@@ -109,19 +113,21 @@ const Market = ({ market, data }) => {
     if (data[1]) {
       setCallPutActive(data[1] === 'calls')
     }
-  }, [setCallPutActive, data])
+  }, [data])
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
-    if (callPutActive) {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+    /*
+    if (!callPutActive) {
+      console.log('reached')
+      router.push(`/markets/${market}/puts`, `/markets/${market}/calls`, {
         shallow: true,
       })
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+      router.push(`/markets/${market}/calls`, `/markets/${market}/calls`, {
         shallow: true,
       })
-    }
+    } */
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
@@ -134,7 +140,8 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     updateOptions(
       market.toUpperCase(),
-      market.toUpperCase() === 'SUSHI' ? Venue.SUSHISWAP : Venue.UNISWAP,
+      Venue.SUSHISWAP,
+      false,
       ADDRESS_FOR_MARKET[market]
     )
   }, [])
@@ -148,24 +155,34 @@ const Market = ({ market, data }) => {
     )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <StyledText>Please switch to Rinkeby or Mainnet Networks</StyledText>
+    return <Text>Switch to Rinkeby or Mainnet Networks</Text>
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||
     !(window as any)?.ethereum ||
     !(window as any)?.web3
   ) {
-    return <StyledText>Please Install Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Install Metamask to View Markets</Text>
+      </>
+    )
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
-    return <StyledText>Please Connect to Metamask to View Markets</StyledText>
+    return (
+      <>
+        <Spacer />
+        <Text>Connect to Metamask to View Markets</Text>
+      </>
+    )
   }
   return (
     <ErrorBoundary
       fallback={
         <>
           <Spacer />
-          <StyledText>Error Loading Market, Please Refresh</StyledText>
+          <Text>Error Loading Market, Please Refresh</Text>
         </>
       }
     >
@@ -184,25 +201,19 @@ const Market = ({ market, data }) => {
               <Row>
                 <StyledContainer sm={12} md={8} lg={8} id="table-column">
                   <StyledMain>
-                    <MarketHeader
-                      marketId={market}
-                      isCall={callPutActive ? 0 : 1}
-                    />
-                    <Spacer size="sm" />
-                    <FilterBar
-                      active={callPutActive}
-                      setCallActive={handleFilterType}
-                      expiry={expiry}
-                      setExpiry={handleFilterExpiry}
-                    />
-                    <Spacer size="sm" />
+                    <MarketHeader marketId={market}>
+                      <FilterBar
+                        active={callPutActive}
+                        setCallActive={handleFilterType}
+                      />
+                    </MarketHeader>
+
+                    <Spacer />
                     <ErrorBoundary
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Options, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Options, Please Refresh</Text>
                         </>
                       }
                     >
@@ -221,9 +232,7 @@ const Market = ({ market, data }) => {
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Positions, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Positions Please Refresh</Text>
                         </>
                       }
                     >
@@ -236,7 +245,6 @@ const Market = ({ market, data }) => {
                       {market === 'eth' || market === 'weth' ? (
                         <>
                           <WethWrapper />
-                          <Spacer />{' '}
                         </>
                       ) : (
                         <></>
@@ -274,20 +282,19 @@ const StyledMarket = styled.div`
   overflow-x: hidden;
   overflow-y: auto !important;
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 1px;
     height: 15px;
   }
 
   &::-webkit-scrollbar-track-piece {
-    background-color: ${(props) => props.theme.color.grey[800]};
+    background-color: transparent;
   }
 
   &::-webkit-scrollbar-thumb:vertical {
     height: 30px;
-    background-color: ${(props) => props.theme.color.grey[700]};
+    background-color: ${(props) => props.theme.color.grey[600]};
   }
-  scrollbar-color: ${(props) => props.theme.color.grey[700]}
-    ${(props) => props.theme.color.grey[800]};
+  scrollbar-color: transparent;
   scrollbar-width: thin;
 `
 
@@ -312,22 +319,30 @@ const StyledSideBar = styled.div`
     width: 5px;
     height: 15px;
   }
+  &::-webkit-scrollbar {
+    width: 1px;
+    height: 15px;
+  }
 
   &::-webkit-scrollbar-track-piece {
-    background-color: ${(props) => props.theme.color.grey[800]};
+    background-color: transparent;
   }
 
   &::-webkit-scrollbar-thumb:vertical {
     height: 30px;
-    background-color: ${(props) => props.theme.color.grey[700]};
+    background-color: transparent;
   }
-  scrollbar-color: ${(props) => props.theme.color.grey[700]}
-    ${(props) => props.theme.color.grey[800]};
+  scrollbar-color: transparent;
   scrollbar-width: thin;
 `
-const StyledText = styled.h4`
+const Text = styled.span`
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
 `
 
 export default Market

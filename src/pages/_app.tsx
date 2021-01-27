@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Provider } from 'react-redux'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { Web3Provider } from '@ethersproject/providers'
@@ -12,7 +13,6 @@ import TransactionUpdater from '@/state/transactions/updater'
 const GlobalStyle = createGlobalStyle`
   html,
   body {
-
     line-height: 1.5;
     margin: 0;
   }
@@ -27,26 +27,13 @@ const GlobalStyle = createGlobalStyle`
   #app {
     background-color: #040404;
     min-height: 100%;
+    overflow-x: hidden;
     min-width: 100%;
   }
   span {
     color: white;
   }
 `
-const StyledText = styled.div`
-  font-size: 18px;
-  color: ${(props) => props.theme.color.white};
-`
-const WaitingRoom = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  font-size: 36px;
-  justify-content: center;
-  min-height: calc(100vh - ${(props) => props.theme.barHeight * 2}px);
-  width: 100%;
-`
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -62,7 +49,31 @@ const Updater = () => {
   )
 }
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }): any {
+  const router = useRouter()
+  const [load, setLoad] = useState(false)
+
+  useEffect(() => {
+    const handleRouteChange = (url, { shallow }) => {
+      if (!shallow) {
+        setLoad(true)
+      }
+    }
+
+    const handleRouteComplete = () => {
+      setLoad(false)
+    }
+    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on('routeChangeComplete', handleRouteComplete)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method:
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.off('routeChangeComplete', handleRouteComplete)
+    }
+  }, [])
+
   return (
     <>
       <GlobalStyle />
@@ -71,7 +82,7 @@ export default function App({ Component, pageProps }) {
           <>
             <Provider store={store}>
               <Updater />
-              <Layout>
+              <Layout loading={load}>
                 <Component {...pageProps} />
               </Layout>
             </Provider>

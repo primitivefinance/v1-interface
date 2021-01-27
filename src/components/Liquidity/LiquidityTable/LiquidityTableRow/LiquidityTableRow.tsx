@@ -8,9 +8,12 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
 import formatExpiry from '@/utils/formatExpiry'
-import Button from '@/components/Button'
+import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Switch from '@/components/Switch'
+import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
+import Loader from '@/components/Loader'
 
 import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
 import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
@@ -20,6 +23,8 @@ import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useClickAway } from '@/hooks/utils/useClickAway'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import {
   Option,
@@ -30,6 +35,54 @@ import {
 } from '@primitivefi/sdk'
 import { Fraction, TokenAmount } from '@uniswap/sdk'
 
+const AddLiqButton: React.FC<any> = () => {
+  const { item, orderType } = useItem()
+  const updateItem = useUpdateItem()
+  return (
+    <>
+      <Button
+        variant={
+          orderType === Operation.ADD_LIQUIDITY ? 'transparent' : 'secondary'
+        }
+        onClick={() => {
+          if (orderType === Operation.ADD_LIQUIDITY) {
+            updateItem(item, Operation.NONE)
+          } else {
+            updateItem(item, Operation.ADD_LIQUIDITY)
+          }
+        }}
+      >
+        {orderType === Operation.ADD_LIQUIDITY ? 'Close' : 'Add Liquidity'}
+      </Button>
+    </>
+  )
+}
+const RemoveLiqButton: React.FC<any> = () => {
+  const { item, orderType } = useItem()
+  const updateItem = useUpdateItem()
+  return (
+    <>
+      <Button
+        variant={
+          orderType === Operation.REMOVE_LIQUIDITY_CLOSE
+            ? 'transparent'
+            : 'secondary'
+        }
+        onClick={() => {
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
+            updateItem(item, Operation.NONE)
+          } else {
+            updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE)
+          }
+        }}
+      >
+        {orderType === Operation.REMOVE_LIQUIDITY_CLOSE
+          ? 'Close'
+          : 'Remove Liquidity'}
+      </Button>
+    </>
+  )
+}
 export interface TableColumns {
   key: string
   asset: string
@@ -49,7 +102,7 @@ export interface TableColumns {
 export interface LiquidityTableRowProps {
   onClick: () => void
   columns: TableColumns
-  href: string
+  href?: string
 }
 
 const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
@@ -74,10 +127,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   } = columns
   const [provide, setProvide] = useState(true)
   const [toggle, setToggle] = useState(false)
-  const { item } = useItem()
-  const updateItem = useUpdateItem()
-  const removeItem = useRemoveItem()
-  const { account, active, library } = useWeb3React()
+  const { item, orderType } = useItem()
   const lpToken = market ? market.liquidityToken.address : ''
   const token0 = market ? market.token0.symbol : ''
   const token1 = market ? market.token1.symbol : ''
@@ -147,16 +197,19 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 
   const handleOnClick = useCallback(() => {
     //setProvide(true)
-    onClick()
     setToggle(!toggle)
-  }, [toggle, setToggle, item])
+    console.log(toggle)
+    onClick()
+  }, [toggle, item])
+
   const handleOnAdd = (e) => {
     e.stopPropagation()
     onClick()
   }
   const nodeRef = useClickAway(() => {
-    setToggle(false)
-    removeItem()
+    console.log(toggle)
+    setToggle(!toggle)
+    onClick()
   })
 
   const units = isCall ? asset.toUpperCase() : 'DAI'
@@ -176,10 +229,10 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   }, [asset1, asset2, units])
 
   return (
-    <StyledDiv ref={nodeRef}>
+    <StyledDiv>
       <TableRow
         isActive={
-          item.entity === null
+          item.entity === null || !toggle
             ? false
             : item?.entity.address === key
             ? true
@@ -188,37 +241,42 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         key={key}
         onClick={handleOnClick}
       >
-        <TableCell>
-          <span>
-            {numeral(strike).format(+strike >= 1 ? '0' : '0.00')}{' '}
-            <Units>DAI</Units>
-          </span>
-        </TableCell>
-        {!isZero(parseEther(ask)) ? (
-          <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(formatEther(ask)).format('(0.000a)')}{' '}
-                <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(formatEther(ask)).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        <TableCell>
-          {!isZero(parseEther(lp)) ? (
-            <span>
-              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
-            </span>
+        <Asset>
+          {asset === 'SUSHI' ? (
+            <>
+              <img
+                height="24"
+                src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B3595068778DD592e39A122f4f5a5cF09C90fE2/logo.png"
+                style={{ borderRadius: '50%' }}
+                alt={'icon'}
+              />
+              <Spacer size="sm" />
+              SUSHI
+            </>
+          ) : isCall ? (
+            <>
+              <img
+                height="24"
+                src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"
+                style={{ borderRadius: '50%' }}
+                alt={'icon'}
+              />
+              <Spacer size="sm" />
+              WETH
+            </>
           ) : (
-            <>{`-`}</>
+            <>
+              <img
+                height="24"
+                src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png"
+                style={{ borderRadius: '50%' }}
+                alt={'icon'}
+              />
+              <Spacer size="sm" />
+              DAI
+            </>
           )}
-        </TableCell>
+        </Asset>
         {parseFloat(liquidity[0]) > 0 ? (
           <TableCell>
             <span>
@@ -228,21 +286,17 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
-        {!isZero(parseEther(asset1)) ? (
-          <TableCell>
+        <TableCell>
+          {!isZero(parseEther(lp)) ? (
             <span>
-              {numeral(
-                formatEther(
-                  entity.proportionalShort(
-                    market.spotUnderlyingToShort.raw.toString()
-                  )
-                )
-              ).format('(0.00)')}{' '}
+              {numeral(calculatePoolShare()).format('0.00%')} <Units>%</Units>
             </span>
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
+          ) : (
+            <>{`-`}</>
+          )}
+        </TableCell>
+
+        <TableCell>{isCall ? asset : entity.strike.symbol}</TableCell>
 
         {expiry ? (
           <TableCell>
@@ -251,31 +305,60 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         ) : (
           <TableCell>-</TableCell>
         )}
+        <TableCell>
+          <span>
+            {numeral(strike).format(+strike >= 10 ? '0' : '0.00')}{' '}
+            <Units>DAI</Units>
+          </span>
+        </TableCell>
         <TableCell key={'Open'}>
-          <Button
-            onClick={handleOnClick}
-            variant={
-              item.entity === null
-                ? 'outlined'
-                : item.entity.address === key
-                ? 'selected-outlined'
-                : 'outlined'
-            }
-            size="sm"
-            text="Add Liquidity"
-          />
+          <Box row justifyContent="center" alignItems="center">
+            <span></span>
+            <Spacer />
+
+            {item?.entity === null && toggle ? (
+              <IconButton size="lg" variant="outlined">
+                <Loader />
+              </IconButton>
+            ) : item?.entity?.address === key && toggle ? (
+              <IconButton size="lg">
+                <ExpandLessIcon />
+              </IconButton>
+            ) : (
+              <IconButton size="lg" variant="outlined">
+                <ExpandMoreIcon />
+              </IconButton>
+            )}
+          </Box>
         </TableCell>
       </TableRow>
-      {toggle && item.entity ? (
-        <OrderTableRow onClick={() => {}} id="order-row">
-          <OrderContainer>
-            <Switch
-              active={provide}
-              onClick={() => setProvide(!provide)}
-              primaryText="Add"
-              secondaryText="Remove"
-            />
-            {provide ? <AddLiquidity /> : <RemoveLiquidity />}
+
+      {toggle && item.entity?.address === key ? (
+        <OrderTableRow>
+          <OrderContainer
+            row
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Choice>
+              <StyledTitle>
+                {asset} Balance -{' '}
+                {numeral(underlyingTokenBalance).format('0.00')}{' '}
+                <AddLiqButton />
+              </StyledTitle>
+              {orderType === Operation.ADD_LIQUIDITY ? <AddLiquidity /> : null}
+            </Choice>
+
+            <Spacer />
+            <Choice>
+              <StyledTitle>
+                LP Balance - {numeral(lp).format('0.00')}
+                <RemoveLiqButton />
+              </StyledTitle>
+              {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
+                <RemoveLiquidity />
+              ) : null}
+            </Choice>
           </OrderContainer>
         </OrderTableRow>
       ) : (
@@ -285,38 +368,46 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   )
 }
 
-const OrderContainer = styled(Box)`
-  flex-direction: column;
+const StyledInnerTitle = styled.div`
+  color: ${(props) => props.theme.color.white};
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
   flex: 1;
+  width: 100%;
+  letter-spacing: 0.5px;
+  height: 44px;
+  align-items: center;
 `
 
-const CustomButton = styled.div`
-  margin-top: -0.1em;
-  background: none;
+const Choice = styled.div`
+  min-width: 33em;
+  background-color: ${(props) => props.theme.color.black};
+  padding: 1em;
+  border-radius: 0.5em;
+  box-shadow: 3px 3px 3px rgba(250, 250, 250, 0.05);
 `
-const Separator = styled.div`
-  border: 1px solid ${(props) => props.theme.color.grey[600]};
-  width: 100%;
+
+const Asset = styled.div`
+  display: flex;
+  min-width: 150px;
+  align-items: center;
 `
+
+const OrderContainer = styled(Box)``
 
 const StyledTitle = styled.div`
   align-items: center;
+  flex-direction: row;
   color: ${(props) => props.theme.color.white};
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   display: flex;
-  width: 100%;
   letter-spacing: 0.5px;
+  width: 30em;
   justify-content: space-between;
 `
-const StyledDiv = styled.div`
-  color: black;
-`
-
-const StyledButtonCell = styled.div`
-  font-weight: inherit;
-  justify-content: flex-start;
-`
+const StyledDiv = styled.div``
 
 const Units = styled.span`
   opacity: 0.66;

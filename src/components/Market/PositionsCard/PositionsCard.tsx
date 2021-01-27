@@ -74,16 +74,14 @@ const PositionsCard: React.FC = () => {
   if (positions.loading) {
     return (
       <Card border>
-        <CardContent>
-          <StyledEmptyContent>
-            <Spacer size="sm" />
-            <StyledEmptyMessage>Loading Positions...</StyledEmptyMessage>
-            <StyledEmptyMessage>
-              <Loader size="lg" />
-            </StyledEmptyMessage>
-            <Spacer size="sm" />
-          </StyledEmptyContent>
-        </CardContent>
+        <StyledEmptyContent>
+          <Spacer size="sm" />
+          <StyledEmptyMessage>LOADING POSITIONS</StyledEmptyMessage>
+          <StyledEmptyMessage>
+            <Loader />
+          </StyledEmptyMessage>
+          <Spacer />
+        </StyledEmptyContent>
       </Card>
     )
   }
@@ -92,13 +90,11 @@ const PositionsCard: React.FC = () => {
       <Card border>
         <CardContent>
           <StyledEmptyContent>
-            <Spacer size="sm" />
+            <Spacer />
             <StyledEmptyIcon>
               <AddIcon />
             </StyledEmptyIcon>
-            <StyledEmptyMessage>
-              Add an option to open a position
-            </StyledEmptyMessage>
+            <StyledEmptyMessage>Add an option to trade</StyledEmptyMessage>
             <Spacer size="sm" />
           </StyledEmptyContent>
         </CardContent>
@@ -186,13 +182,13 @@ const StyledValue = styled.div`
 `
 
 const StyledExpiry = styled.span`
-  color: ${(props) => props.theme.color.grey[500]};
+  color: ${(props) => props.theme.color.grey[400]};
   font-size: 12px;
   letter-spacing: 0.5px;
 `
 
 const StyledPosition = styled.a`
-  background-color: 'transparent';
+  background-color: ${(props) => props.theme.color.black};
   border: 1.5px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white} !important;
   border-radius: 0.5em;
@@ -200,10 +196,11 @@ const StyledPosition = styled.a`
   cursor: pointer;
   margin-bottom: 1em;
   margin-top: -0.2em;
+  box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.05);
   &:hover {
     border: 1.5px solid ${(props) => props.theme.color.grey[600]};
-    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0.1);
-    background-color: ${(props) => props.theme.color.grey[700]};
+    box-shadow: 2px 2px 2px rgba(250, 250, 250, 0);
+    background-color: ${(props) => props.theme.color.grey[600]};
   }
 `
 
@@ -229,6 +226,9 @@ const StyledEmptyMessage = styled.div`
   color: ${(props) => props.theme.color.grey[400]};
   margin-top: ${(props) => props.theme.spacing[3]}px;
   text-align: center;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
 `
 
 export default PositionsCard

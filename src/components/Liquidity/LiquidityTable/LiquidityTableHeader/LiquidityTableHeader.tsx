@@ -14,26 +14,28 @@ import {
 
 export const headers = [
   {
-    name: 'Strike',
-    tip: 'The purchase price for the underlying asset of this option.',
-  },
-  {
-    name: 'Price',
-    tip: 'The ask price of 1 option token.',
-  },
-  {
-    name: 'Share',
-    tip: 'The proportion of ownership of the option pair.',
+    name: 'Asset',
+    tip:
+      'The asset to deposit into the pool, represents the underlying asset of the option market.',
   },
   {
     name: 'Pool Size',
     tip: 'The amount of underlying tokens in the pool.',
   },
   {
-    name: 'Pool Ratio',
-    tip: 'The ratio of underlying tokens to short option tokens.',
+    name: 'Your Share',
+    tip: 'The proportion of ownership of the option pair.',
+  },
+  {
+    name: 'Market',
+    tip: 'The option market the pool serves.',
   },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
+  {
+    name: 'Strike',
+    tip: 'The purchase price for the underlying asset of this option.',
+  },
+
   { name: '', tip: null },
 ]
 
@@ -64,6 +66,7 @@ const LiquidityTableHeader: React.FC = () => {
               }
               return <TableCell key={header.name}>{header.name}</TableCell>
             })}
+            <Spacer />
           </TableRow>
           <GreyBack />
         </LiquidityTableContent>

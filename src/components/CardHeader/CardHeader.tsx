@@ -18,7 +18,7 @@ interface CardHeaderProps {
 const CardHeader: React.FC<CardHeaderProps> = ({ title, onClick }) => {
   return (
     <Title full>
-      <Tooltip text={title.tip}>{title.text}</Tooltip>
+      {title.text}
       {onClick ? (
         <CustomButton>
           <Button variant="transparent" size="sm" onClick={onClick}>

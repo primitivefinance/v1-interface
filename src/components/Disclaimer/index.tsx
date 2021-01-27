@@ -16,7 +16,7 @@ const Disclaimer: React.FC = () => {
   return (
     <Backdrop>
       <StyledCard>
-        <StyledDis>Primitive Disclosure</StyledDis>
+        <StyledDis>Security Disclosure</StyledDis>
         <Body>
           The Primitive Interface is an open source and free web application.
           Please use the Primitive Interface and Primitive Protocol at your own
@@ -31,17 +31,8 @@ const Disclaimer: React.FC = () => {
           </StyledLink>{' '}
           page for more information.
         </Body>
-        <Body>
-          Visit the{' '}
-          <StyledLink href={'/faq'}>
-            <LinkInt>
-              FAQ <LaunchIcon style={{ fontSize: '12px' }} />{' '}
-            </LinkInt>
-          </StyledLink>{' '}
-          page for contract specification information.
-        </Body>
         <Button full onClick={handleConfirm}>
-          I Accept
+          Accept Disclosure
         </Button>
       </StyledCard>
     </Backdrop>

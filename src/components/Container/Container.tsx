@@ -30,7 +30,6 @@ const StyledContainer = styled.div<StyleProps>`
   height: ${(props) => (props.height ? props.height + 'px' : undefined)};
   justify-content: ${(props) => props.justifyContent};
   margin: 0 auto;
-  max-width: 1800px;
   width: 100%;
 `
 

@@ -63,9 +63,6 @@ const Swap: React.FC = () => {
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
-  const [active, setCallActive] = useState(
-    orderType === Operation.LONG ? true : false
-  )
 
   const [prem, setPrem] = useState(
     orderType === Operation.LONG
@@ -170,9 +167,15 @@ const Swap: React.FC = () => {
     default:
       break
   }
-  const tokenBalance = useTokenBalance(tokenAddress)
+  const tokenBalance = useTokenBalance(entity.address)
+  const optionTokenAmount = new Token(
+    entity.chainId,
+    entity.address,
+    18,
+    'LONG'
+  )
   const tokenAmount: TokenAmount = new TokenAmount(
-    balance,
+    optionTokenAmount,
     parseEther(tokenBalance).toString()
   )
 
@@ -188,6 +191,10 @@ const Swap: React.FC = () => {
       : SUSHISWAP_CONNECTOR[chainId]
 
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const underlyingAmount: TokenAmount = new TokenAmount(
+    entity.underlying,
+    parseEther(underlyingTokenBalance).toString()
+  )
   const onApprove = useApprove()
 
   const handleTypeInput = useCallback(
@@ -207,13 +214,6 @@ const Swap: React.FC = () => {
       tokenBalance && onUserInput(tokenBalance)
     }
   }, [tokenBalance, onUserInput, prem])
-
-  const handleToggleClick = useCallback(() => {
-    const prevTypedValue = typedValue
-    setCallActive(!active)
-    updateItem(item, !active ? Operation.LONG : Operation.CLOSE_LONG)
-    onUserInput(prevTypedValue ? prevTypedValue : '0')
-  }, [active, setCallActive, typedValue, onUserInput])
 
   const handleSubmitClick = useCallback(() => {
     submitOrder(
@@ -331,17 +331,24 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
-
         <Separator />
-        <Spacer size="sm" />
 
-        <Switch active={active} onClick={handleToggleClick} />
+        <Switch
+          active={orderType !== Operation.CLOSE_LONG}
+          onClick={() => {
+            if (orderType === Operation.CLOSE_LONG) {
+              updateItem(item, Operation.LONG)
+            } else {
+              updateItem(item, Operation.CLOSE_LONG)
+            }
+          }}
+        />
 
         {hasLiquidity ? null : (
           <>
-            <Spacer />
+            <Spacer size="sm" />
             <WarningTooltip>
-              There is no liquidity in this option market
+              There is no liquidity in this option!
             </WarningTooltip>
           </>
         )}
@@ -353,10 +360,54 @@ const Swap: React.FC = () => {
           onChange={handleTypeInput}
           quantity={typedValue}
           onClick={handleSetMax}
-          balance={tokenAmount}
+          balance={
+            orderType === Operation.LONG ? underlyingAmount : tokenAmount
+          }
         />
 
-        <Spacer />
+        {parsedAmount.eq(0) && !error ? <Description></Description> : <></>}
+
+        {parsedAmount.gt(0) && !error ? (
+          <>
+            <Spacer />
+            <StyledInnerTitle>Description</StyledInnerTitle>
+            <Spacer size="sm" />
+            <Description>
+              <PurchaseInfo>
+                <OptionTextInfo
+                  orderType={orderType}
+                  parsedAmount={parsedAmount}
+                  isPut={entity.isPut}
+                  strike={entity.quoteValue}
+                  underlying={entity.baseValue}
+                  debit={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.debit).toString()
+                    )
+                  }
+                  credit={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.credit).toString()
+                    )
+                  }
+                  short={
+                    new TokenAmount(
+                      entity.underlying,
+                      parseEther(cost.short).toString()
+                    )
+                  }
+                />
+              </PurchaseInfo>
+            </Description>
+            <Spacer />
+            <Spacer size="sm" />
+            <Separator />
+          </>
+        ) : null}
+
+        <Spacer size="sm" />
         <Title full>Order Summary</Title>
         {!inputLoading ? (
           <>
@@ -387,7 +438,14 @@ const Swap: React.FC = () => {
           />
         )}
 
-        <Spacer />
+        <Spacer size="sm" />
+
+        {error ? (
+          <Description>
+            <Spacer />
+            <WarningLabel>Order quantity too large!</WarningLabel>
+          </Description>
+        ) : null}
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>
@@ -483,67 +541,6 @@ const Swap: React.FC = () => {
             </>
           )}
         </StyledEnd>
-
-        {error ? (
-          <Description>
-            <Spacer />
-            <WarningLabel>Order quantity too large!</WarningLabel>
-          </Description>
-        ) : null}
-
-        <Spacer />
-        <IconButton
-          text=""
-          full
-          variant="transparent"
-          onClick={() => {
-            setDescription(!description)
-          }}
-        >
-          <StyledInnerTitle>Description</StyledInnerTitle>
-          {description ? <ExpandLessIcon /> : <ExpandMoreIcon />}{' '}
-        </IconButton>
-
-        {parsedAmount.eq(0) && !error && description ? (
-          <Description>Enter an amount of options to trade.</Description>
-        ) : (
-          <> </>
-        )}
-
-        {parsedAmount.gt(0) && !error ? (
-          <Description>
-            <PurchaseInfo>
-              <OptionTextInfo
-                orderType={orderType}
-                parsedAmount={parsedAmount}
-                isPut={entity.isPut}
-                strike={entity.quoteValue}
-                underlying={entity.baseValue}
-                debit={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.debit).toString()
-                  )
-                }
-                credit={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.credit).toString()
-                  )
-                }
-                short={
-                  new TokenAmount(
-                    entity.underlying,
-                    parseEther(cost.short).toString()
-                  )
-                }
-              />
-            </PurchaseInfo>
-          </Description>
-        ) : !description ? (
-          <Description>The order size is too large.</Description>
-        ) : null}
-        <Spacer size="sm" />
       </Box>
     </>
   )

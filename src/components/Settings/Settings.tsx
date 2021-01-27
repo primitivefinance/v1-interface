@@ -144,10 +144,10 @@ const StyledModal = styled.div`
   border-radius: ${(props) => props.theme.borderRadius}px;
   color: ${(props) => props.theme.color.white};
   padding: ${(props) => props.theme.spacing[3]}px;
-  margin: 0 2em 1em 1em;
+  margin: -0.5em 2em 1em 1em;
   position: fixed;
   z-index: 900 !important;
-  right: 0%;
+  right: 5px;
   top: ${(props) => props.theme.barHeight}px;
-  box-shadow: -3px 3px 3px rgba(250, 250, 250, 0.1);
+  box-shadow: 3px -3px 3px rgba(250, 250, 250, 0.1);
 `

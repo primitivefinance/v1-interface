@@ -35,10 +35,10 @@ const formatName = (name: any) => {
 
 export interface MarketHeaderProps {
   marketId: string
-  isCall: number
+  children?: any
 }
 
-const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
+const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
   const prevPrice = useRef<number | null>(null)
   const [blink, setBlink] = useState(false)
   const options = useOptions()
@@ -88,22 +88,24 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
       <LitContainer>
         <StyledTitle>
           <StyledLogo src={getIconForMarket(symbol)} alt={formatName(name)} />
-          <Spacer />
+          <div style={{ margin: '.5em' }} />
           <StyledContent>
             <div style={{ marginTop: '.3em' }} />
             <StyledSymbol>{symbol.toUpperCase()}</StyledSymbol>
-            <div style={{ marginTop: '.1em' }} />
+            <div style={{ marginTop: '.5em' }} />
             <StyledLink
               href={`${baseUrl}/${address}`}
               target="_blank"
               rel="noreferrer"
             >
-              <StyledName>{formatName(name)}</StyledName>
-              <StyledIcon />
+              <StyledName>
+                {name === 'Wrapped ETH' ? 'WETH' : formatName(name)}{' '}
+                <StyledIcon />
+              </StyledName>
             </StyledLink>
+            <div style={{ marginTop: '.3em' }} />
           </StyledContent>
 
-          <Spacer size="md" />
           <StyledContent>
             <StyledSymbol>Price</StyledSymbol>
             <Spacer size="sm" />
@@ -115,8 +117,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
               )}
             </StyledPrice>
           </StyledContent>
-
-          <Spacer size="lg" />
           <StyledContent>
             <StyledSymbol>24hr Change</StyledSymbol>
             <Spacer size="sm" />
@@ -128,49 +128,26 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, isCall }) => {
               )}
             </StyledPrice>
           </StyledContent>
-
-          <Spacer size="lg" />
+          <Spacer />
           <StyledContent>
-            <StyledSymbol>Total Liquidity</StyledSymbol>
-            <StyledPrice size="sm">
-              {!options.loading ? (
-                formatEtherBalance(options.reservesTotal[isCall]) !== '0.00' ? (
-                  <>
-                    <div style={{ minHeight: '.20em' }} />
-
-                    {`${numeral(
-                      formatEtherBalance(options.reservesTotal[isCall])
-                    ).format('0.00a')} ${' '} ${
-                      isCall === 0 ? symbol.toUpperCase() : 'DAI'
-                    }`}
-                    <div style={{ minHeight: '.25em' }} />
-                  </>
-                ) : (
-                  <>
-                    <div style={{ minHeight: '.38em' }} />
-                    <StyledL
-                      row
-                      justifyContent="flex-start"
-                      alignItems="center"
-                    >
-                      <div style={{ minWidth: '.2em' }} />
-                      <h4>
-                        <Tooltip text={`Choose an option and add liquidity!`}>
-                          None
-                        </Tooltip>
-                      </h4>
-                    </StyledL>
-                  </>
-                )
-              ) : (
-                <>
-                  <div style={{ minHeight: '.4em' }} />
-                  <Loader size="sm" />
-                  <div style={{ minHeight: '.55em' }} />
-                </>
-              )}
-            </StyledPrice>
+            <StyledSymbol>Venue</StyledSymbol>
+            <Spacer size="sm" />
+            <div style={{ marginTop: '-0.1em' }} />
+            <Asset>
+              <img
+                height="24"
+                src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B3595068778DD592e39A122f4f5a5cF09C90fE2/logo.png"
+                style={{ borderRadius: '50%' }}
+                alt={'icon'}
+              />
+              <Spacer size="sm" />
+              SushiSwap
+            </Asset>
+            <div style={{ marginTop: '.3em' }} />
           </StyledContent>
+
+          <Spacer size="sm" />
+          {children}
         </StyledTitle>
       </LitContainer>
       <Reverse />
@@ -181,23 +158,18 @@ const Reverse = styled.div`
   margin-bottom: -1em;
 `
 
-const StyledL = styled(Box)`
-  margin-top: -1.5em;
-  margin-bottom: -1.1em;
+const Asset = styled.div`
+  display: flex;
+  min-width: 150px;
+  align-items: center;
 `
 
-const GreyBack = styled.div`
-  background: ${(props) => props.theme.color.grey[800]};
-  position: absolute;
-  z-index: -100;
-  min-height: 310px;
-  min-width: 4500px;
-  left: 0;
-`
 const StyledContent = styled(Box)`
   align-items: baseline;
   flex-direction: row;
   justify-content: flex-start;
+  min-width: 8em;
+  margin-right: 0em;
 `
 const StyledIcon = styled(LaunchIcon)`
   color: ${(props) => props.theme.color.grey[400]};
@@ -228,15 +200,19 @@ const StyledTitle = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
-  justify-content: space-between;
+  justify-content: flex-start;
 `
 
-const StyledName = styled.span`
-  font-size: 24px;
+const StyledName = styled.div`
+  font-size: 18px;
   font-weight: 700;
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 12em;
   &:hover {
     color: ${(props) => props.theme.color.grey[400]};
   }
@@ -246,6 +222,7 @@ const StyledSymbol = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
   letter-spacing: 1px;
   text-transform: uppercase;
+  font-size: 14px;
 `
 const StyledLogo = styled.img`
   border-radius: 50%;

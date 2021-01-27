@@ -58,17 +58,10 @@ const FilterBar: React.FC<FilterBarProps> = (props) => {
   )
 }
 
-const SelectTitle = styled.div`
-  color: ${(props) => props.theme.color.grey[400]};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 1em;
-`
 const StyledFilterBar = styled.div`
   border-radius: 2em;
   margin-left: 1.5em;
+  width: 15em;
   padding: 1em 0 1em 0;
 `
 const StyledSymbol = styled.h4`
