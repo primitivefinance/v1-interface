@@ -14,17 +14,17 @@ import {
 
 export const headers = [
   {
+    name: 'Asset',
+    tip:
+      'The asset to deposit into the pool, represents the underlying asset of the option market.',
+  },
+  {
     name: 'Pool Size',
     tip: 'The amount of underlying tokens in the pool.',
   },
   {
-    name: 'Share',
+    name: 'Your Share',
     tip: 'The proportion of ownership of the option pair.',
-  },
-
-  {
-    name: 'Pool Ratio',
-    tip: 'The ratio of underlying tokens to short option tokens.',
   },
   {
     name: 'Price',

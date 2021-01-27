@@ -10,9 +10,17 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useOptions, useUpdateOptions } from '@/state/options/hooks'
+import {
+  useOptions,
+  useUpdateOptions,
+  useClearOptions,
+} from '@/state/options/hooks'
 import { useClearNotif } from '@/state/notifs/hooks'
-import { useSetLoading } from '@/state/positions/hooks'
+import {
+  useSetLoading,
+  useClearPositions,
+  useUpdatePositions,
+} from '@/state/positions/hooks'
 
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 
@@ -90,21 +98,16 @@ const Liquidity = ({ icons }) => {
   const options = useOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
-  const removeItem = useRemoveItem()
-
-  useEffect(() => {
-    updateOptions('weth') //hardcoded
-  }, [])
 
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      router.push(`/liquidity`)
-      updateOptions('')
+      updateOptions('', true) //hardcoded
     }
     if (ethereum) {
+      updateOptions('', true) //hardcoded
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
@@ -142,17 +145,28 @@ const Liquidity = ({ icons }) => {
     )
   }
   if (!(chainId === 4 || chainId === 1) && active) {
-    return <Text>Please switch to Rinkeby or Mainnet Networks</Text>
+    return <Text>Switch to Rinkeby or Mainnet Networks</Text>
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||
     !(window as any)?.ethereum ||
     !(window as any)?.web3
   ) {
-    return <Text>Please Install Metamask to View Markets</Text>
+    return (
+      <>
+        <Spacer />
+
+        <Text>Install Metamask to View Liquidity</Text>
+      </>
+    )
   }
   if (MetaMaskOnboarding.isMetaMaskInstalled() && !account) {
-    return <Text>Please Connect to Metamask to View Markets</Text>
+    return (
+      <>
+        <Spacer />
+        <Text>Connect to Metamask to View Liquidity</Text>
+      </>
+    )
   }
 
   return (
@@ -160,7 +174,7 @@ const Liquidity = ({ icons }) => {
       fallback={
         <>
           <Spacer />
-          <Text>Error Loading Liquidity, Please Refresh</Text>
+          <Text>Error Loading Liquidity Please Refresh</Text>
         </>
       }
     >
@@ -232,7 +246,6 @@ export const StyledLitContainer = styled(Col)`
 `
 
 const StyledHeaderContainer = styled.div`
-  //background-color: ${(props) => props.theme.color.grey[700]};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

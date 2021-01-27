@@ -35,7 +35,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
             <Link
               href={`/markets/${encodeURIComponent(
                 token.symbol.toLowerCase()
-              )}/calls`}
+              )}`}
               key={index}
             >
               <TableRow>
@@ -51,6 +51,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                     ) : (
                       <></>
                     )}
+                    <Spacer size="sm" />
                     <Spacer size="sm" />
                     {token.name}
                   </Asset>
@@ -71,7 +72,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
             <Link
               href={`/markets/${encodeURIComponent(
                 token.symbol.toLowerCase()
-              )}/calls`}
+              )}`}
               key={index}
             >
               <TableRow>
@@ -88,23 +89,11 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
                       <></>
                     )}
                     <Spacer size="sm" />
+                    <Spacer size="sm" />
                     {token.name}
                   </Asset>
                 </TableCell>
                 <TableCell>DeFi Token</TableCell>
-                {/**
-                 * 
-                 * <TableCell>
-                  <Asset>
-                    <img
-                      height="32"
-                      src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png"
-                      style={{ borderRadius: '50%' }}
-                      alt={'icon'}
-                    />
-                  </Asset>
-                </TableCell>
-                 */}
               </TableRow>
             </Link>
           )

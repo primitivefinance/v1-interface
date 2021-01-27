@@ -89,7 +89,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
       >
         <TableCell>
           <span>
-            {numeral(strike).format(+strike >= 1 ? '0' : '0.00')}{' '}
+            {numeral(strike).format(+strike >= 10 ? '0' : '0.00')}{' '}
             <Units>DAI</Units>
           </span>
         </TableCell>
@@ -111,21 +111,6 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
             ) : (
               <span>
                 {numeral(bid).format('(0.000a)')} <Units>$</Units>
-              </span>
-            )}
-          </TableCell>
-        ) : (
-          <TableCell>-</TableCell>
-        )}
-        {!isZero(parseEther(ask)) ? (
-          <TableCell>
-            {isCall ? (
-              <span>
-                {numeral(ask).format('(0.000a)')} <Units>{units}</Units>
-              </span>
-            ) : (
-              <span>
-                {numeral(ask).format('(0.000a)')} <Units>$</Units>
               </span>
             )}
           </TableCell>

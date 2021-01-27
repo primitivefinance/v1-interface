@@ -1,31 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import Box from '@/components/Box'
-import GoBack from '@/components/GoBack'
 import LitContainer from '@/components/LitContainer'
 import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
-import Loader from '@/components/Loader'
-import LaunchIcon from '@material-ui/icons/Launch'
-
-import useSWR from 'swr'
-import { useOptions } from '@/state/options/hooks'
-import { useUpdatePrice } from '@/state/price/hooks'
-import { useWeb3React } from '@web3-react/core'
-
-import formatBalance from '@/utils/formatBalance'
-import formatEtherBalance from '@/utils/formatEtherBalance'
-import numeral from 'numeral'
-
-import {
-  COINGECKO_ID_FOR_MARKET,
-  NAME_FOR_MARKET,
-  ADDRESS_FOR_MARKET,
-  ETHERSCAN_MAINNET,
-  ETHERSCAN_RINKEBY,
-  getIconForMarket,
-} from '@/constants/index'
 
 export interface MarketHeaderProps {
   icons: any
@@ -38,9 +16,6 @@ const LiquidityHeader: React.FC<MarketHeaderProps> = ({
   isCall,
   children,
 }) => {
-  const { library, chainId } = useWeb3React()
-  const baseUrl = chainId === 1 ? ETHERSCAN_MAINNET : ETHERSCAN_RINKEBY
-
   return (
     <StyledHeader>
       <Spacer />

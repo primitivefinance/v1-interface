@@ -18,4 +18,4 @@ export type OptionsAttributes = {
 }
 
 export const updateOptions = createAction<OptionsData>('options/updateOptions')
-export const clearOptions = createAction<OptionsData>('options/clearOptions')
+export const clearOptions = createAction('options/clearOptions')

@@ -1,4 +1,5 @@
 import Footer from '@/components/Footer'
+import { useRouter } from 'next/router'
 import TopBar from '@/components/TopBar'
 import { useClearOptions } from '@/state/options/hooks'
 import { useRemoveItem } from '@/state/order/hooks'
@@ -16,6 +17,7 @@ const Layout: React.FC<PageProps> = (props) => {
   const removeItem = useRemoveItem()
   const clearOptions = useClearOptions()
   const clearPositions = useClearPositions()
+  const router = useRouter()
   const { active, account } = useWeb3React()
   useEffect(() => {
     if (props.loading) {

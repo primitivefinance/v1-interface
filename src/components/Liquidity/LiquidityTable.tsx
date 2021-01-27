@@ -12,7 +12,7 @@ import LiquidityTableRow from './LiquidityTable/LiquidityTableRow'
 import LoadingTable from '@/components/Market/OptionsTable/LoadingTable'
 
 import { usePositions } from '@/state/positions/hooks'
-import { useItem, useUpdateItem } from '@/state/order/hooks'
+import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
 import { useOptions, useUpdateOptions } from '@/state/options/hooks'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
@@ -103,7 +103,7 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
         <LiquidityTableContainer>
           <LiquidityTableContent>
             {options.loading ? (
-              <LoadingTable />
+              <LoadingTable ext />
             ) : (
               <ScrollBody>
                 {options[type].map((option) => {
@@ -130,7 +130,6 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
                       onClick={() => {
                         updateItem(option, Operation.ADD_LIQUIDITY)
                       }}
-                      href={`/liquidity`}
                       columns={tableColumns}
                     />
                   )

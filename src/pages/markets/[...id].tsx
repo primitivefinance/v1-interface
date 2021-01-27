@@ -62,11 +62,13 @@ const Market = ({ market, data }) => {
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      router.push('/markets')
-      updateOptions('')
+      router.reload()
+      updateOptions(market.toUpperCase(), false, ADDRESS_FOR_MARKET[market])
     }
 
     if (ethereum) {
+      updateOptions(market.toUpperCase(), false, ADDRESS_FOR_MARKET[market])
+
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
@@ -103,17 +105,17 @@ const Market = ({ market, data }) => {
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
-
+    /*
     if (!callPutActive) {
       console.log('reached')
-      router.push(`/markets/[...id]`, `/markets/${market}/calls`, {
+      router.push(`/markets/${market}/puts`, `/markets/${market}/calls`, {
         shallow: true,
       })
     } else {
-      router.push(`/markets/[...id]`, `/markets/${market}/puts`, {
+      router.push(`/markets/${market}/calls`, `/markets/${market}/calls`, {
         shallow: true,
       })
-    }
+    } */
   }
   const handleFilterExpiry = (exp: number) => {
     setExpiry(exp)
@@ -122,10 +124,6 @@ const Market = ({ market, data }) => {
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
-
-  useEffect(() => {
-    updateOptions(market.toUpperCase(), ADDRESS_FOR_MARKET[market])
-  }, [])
 
   if (!active || market === 'eth') {
     return (
@@ -213,13 +211,11 @@ const Market = ({ market, data }) => {
                       fallback={
                         <>
                           <Spacer />
-                          <StyledText>
-                            Error Loading Positions, Please Refresh
-                          </StyledText>
+                          <Text>Error Loading Positions Please Refresh</Text>
                         </>
                       }
                     >
-                      <Spacer />
+                      <Spacer size="sm" />
                       <PositionsCard />
                       <OrderCard orderState={data} />
                       <BalanceCard />

@@ -18,13 +18,8 @@ export const headers = [
       'The price the underlying asset must reach to reach a net cost of zero.',
   },
   {
-    name: 'Bid',
-    tip:
-      'The current spot price of an option token willing to be purchased at.',
-  },
-  {
-    name: 'Ask',
-    tip: 'The current spot price of an option token willing to be sold at.',
+    name: 'Price',
+    tip: 'The current spot price of an option token.',
   },
   { name: 'Liquidity', tip: 'The quantity of tokens in the pool.' },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },

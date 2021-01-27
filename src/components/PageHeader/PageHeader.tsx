@@ -11,10 +11,8 @@ interface PageHeaderProps {
 const PageHeader: React.FC<PageHeaderProps> = ({ icon, subtitle, title }) => {
   return (
     <StyledPageHeader>
-      <Box justifyContent="flex-start">
-        <StyledIcon>{icon}</StyledIcon>
-        <StyledTitle>{title}</StyledTitle>
-      </Box>
+      <StyledIcon>{icon}</StyledIcon>
+      <StyledTitle>{title}</StyledTitle>
       <StyledSubtitle>{subtitle}</StyledSubtitle>
     </StyledPageHeader>
   )
@@ -22,9 +20,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ icon, subtitle, title }) => {
 
 const StyledPageHeader = styled.div`
   align-items: flex-start;
+  justify-content: space-between;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  margin-top: 2em;
   padding-bottom: ${(props) => props.theme.spacing[6]}px;
 `
 
@@ -45,7 +45,7 @@ const StyledSubtitle = styled.h3`
   color: ${(props) => props.theme.color.grey[400]};
   font-size: 18px;
   font-weight: 400;
-  margin: 0;
+  margin: -1em 0 -1em 0;
   padding: 0;
   text-align: center;
 `
