@@ -196,24 +196,18 @@ const Liquidity = ({ icons }) => {
         <>
           <Disclaimer />
           <StyledMarket>
-            <Grid id={'market-grid'}>
-              <Row>
-                <StyledLitContainer>
-                  <div>
-                    <StyledHeaderContainer>
-                      <LiquidityHeader icons={icons} isCall={callPutActive}>
-                        <FilterBar
-                          active={callPutActive}
-                          setCallActive={() => setCallPutActive(!callPutActive)}
-                        />
-                      </LiquidityHeader>
-                    </StyledHeaderContainer>
+            <StyledLitContainer>
+              <StyledHeaderContainer>
+                <LiquidityHeader icons={icons} isCall={callPutActive}>
+                  <FilterBar
+                    active={callPutActive}
+                    setCallActive={() => setCallPutActive(!callPutActive)}
+                  />
+                </LiquidityHeader>
+              </StyledHeaderContainer>
 
-                    <LiquidityTable callActive={callPutActive} />
-                  </div>
-                </StyledLitContainer>
-              </Row>
-            </Grid>
+              <LiquidityTable callActive={callPutActive} />
+            </StyledLitContainer>
           </StyledMarket>
         </>
       )}
@@ -247,7 +241,7 @@ const StyledMarket = styled.div`
 
 export const StyledLitContainer = styled(Col)`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
 `
 
