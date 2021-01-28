@@ -106,8 +106,8 @@ const Liquidity = ({ icons }) => {
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      console.log('ISNT GOOD')
       router.reload()
+      clearOptions()
     }
     if (ethereum) {
       updateOptions('', Venue.SUSHISWAP, true)
@@ -139,6 +139,9 @@ const Liquidity = ({ icons }) => {
     }
   }, [id, chainId, storeId])
 
+  useEffect(() => {
+    updateOptions('', Venue.SUSHISWAP, true)
+  }, [])
   if (!active) {
     return (
       <>
