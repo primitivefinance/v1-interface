@@ -41,7 +41,7 @@ const GlobalStyle = createGlobalStyle`
     overflow: visible;
   } 
   button {
-    
+    pointer-events: inherit;
   }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
