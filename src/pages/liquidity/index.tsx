@@ -231,7 +231,7 @@ const StyledMarket = styled.div`
     width: 0px;
     height: 15px;
   }
-
+  position: absolute;
   &::-webkit-scrollbar-track-piece {
     background-color: ${(props) => props.theme.color.grey[800]};
   }
