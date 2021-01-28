@@ -226,7 +226,7 @@ const StyledMarket = styled.div`
   min-height: 90vh;
   overflow-x: hidden;
   overfloy-y: allowed !important;
-  position: relative:
+  position: relative;
   &::-webkit-scrollbar {
     width: 0px;
     height: 15px;
