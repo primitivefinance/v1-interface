@@ -37,6 +37,9 @@ const GlobalStyle = createGlobalStyle`
   div {
     display: block;
   }
+  svg:not(:root) {
+    overflow: visible;
+  }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {
