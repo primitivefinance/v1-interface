@@ -94,6 +94,8 @@ const Market = ({ market, data }) => {
         if (!options.loading) {
           clear(0)
           setLoading()
+        } else {
+          router.reload()
         }
       }
       if (ethereum?.on) {
