@@ -58,9 +58,11 @@ export const useUpdateOptions = (): ((
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
-      if (!provider) return
       const isUniswap = venue === Venue.UNISWAP ? true : false
-
+      console.log('loading options')
+      setTimeout(() => {
+        if (!provider) return
+      }, 200)
       Protocol.getAllOptionClones(provider)
         .then(async (optionAddresses) => {
           Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
