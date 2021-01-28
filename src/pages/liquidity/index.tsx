@@ -54,40 +54,6 @@ export async function getStaticProps() {
     }, // will be passed to the page component as props
   }
 }
-interface CardProps {
-  title?: string
-  description?: string
-  multiplier?: number
-}
-
-export const DataCard: React.FC<CardProps> = ({
-  children,
-  title,
-  description,
-  multiplier,
-}) => {
-  return (
-    <StyledCardContainer multiplier={multiplier ? multiplier : 2}>
-      <CardContent>
-        <CardTitle>{title ? title : 'No title'}</CardTitle>
-      </CardContent>
-      <CardContent>
-        <Text>
-          {description ? description : children ? children : 'No description'}
-        </Text>
-      </CardContent>
-    </StyledCardContainer>
-  )
-}
-
-const StyledL = styled(Box)`
-  margin-top: -1.5em;
-  margin-bottom: -1.1em;
-`
-
-export const Graph: React.FC = () => {
-  return <Box>Graph</Box>
-}
 
 const Liquidity = ({ icons }) => {
   const [callPutActive, setCallPutActive] = useState(true)
@@ -287,13 +253,6 @@ const Text = styled.span`
   text-transform: uppercase;
   display: flex;
   justify-content: center;
-`
-
-const CardContent = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: ${(props) => props.theme.spacing[2]}px;
 `
 const StyledContainer = styled(Col)`
   height: 100%;

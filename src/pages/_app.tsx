@@ -34,6 +34,9 @@ const GlobalStyle = createGlobalStyle`
   span {
     color: white;
   }
+  div {
+    display: inherit;
+  }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {
