@@ -209,9 +209,7 @@ const Liquidity = ({ icons }) => {
                       </LiquidityHeader>
                     </StyledHeaderContainer>
 
-                    <StyledHeaderContainer>
-                      <LiquidityTable callActive={callPutActive} />
-                    </StyledHeaderContainer>
+                    <LiquidityTable callActive={callPutActive} />
                   </div>
                 </StyledLitContainer>
               </Row>
@@ -225,8 +223,10 @@ const Liquidity = ({ icons }) => {
 
 const StyledMarket = styled.div`
   width: 100%;
-  height: 90vh;
+  min-height: 90vh;
   overflow-x: hidden;
+  overfloy-y: allowed !important;
+  position: relative:
   &::-webkit-scrollbar {
     width: 0px;
     height: 15px;
@@ -252,6 +252,7 @@ export const StyledLitContainer = styled(Col)`
 `
 
 const StyledHeaderContainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
