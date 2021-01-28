@@ -103,13 +103,12 @@ const Liquidity = ({ icons }) => {
 
   useEffect(() => {
     const { ethereum, web3 } = window as any
+    updateOptions('', Venue.SUSHISWAP, true)
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
-      clearOptions()
     }
     if (ethereum) {
-      updateOptions('', Venue.SUSHISWAP, true)
       const handleChainChanged = () => {
         if (id !== chainId) {
           setChanging(true)
