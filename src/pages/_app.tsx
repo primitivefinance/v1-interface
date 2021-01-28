@@ -39,6 +39,9 @@ const GlobalStyle = createGlobalStyle`
   }
   svg:not(:root) {
     overflow: visible;
+  } 
+  button {
+    
   }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
