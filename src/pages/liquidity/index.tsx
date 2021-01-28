@@ -208,11 +208,12 @@ const StyledMarket = styled.div`
 export const StyledLitContainer = styled(Col)`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: center;
 `
 
 const StyledHeaderContainer = styled.div`
   position: relative;
+  margin-left: -20em;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

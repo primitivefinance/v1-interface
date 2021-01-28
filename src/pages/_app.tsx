@@ -35,7 +35,7 @@ const GlobalStyle = createGlobalStyle`
     color: white;
   }
   div {
-    display: inherit;
+    display: block;
   }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
