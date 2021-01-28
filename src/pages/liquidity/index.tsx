@@ -225,10 +225,8 @@ const Liquidity = ({ icons }) => {
 
 const StyledMarket = styled.div`
   width: 100%;
-  height: 90%;
-  position: absolute;
+  height: 80vh;
   overflow-x: hidden;
-  overflow-y: auto !important;
   &::-webkit-scrollbar {
     width: 0px;
     height: 15px;
