@@ -137,17 +137,15 @@ const AddLiquidity: React.FC = () => {
   const handleUnderInput = useCallback(
     (value: string) => {
       onUnderInput(value)
-      if (tab === 1) {
-        onOptionInput(
-          formatEther(
-            Trade.getQuote(
-              parseEther(value),
-              item.market.reserveOf(entity.underlying).raw.toString(),
-              item.market.reserveOf(entity.redeem).raw.toString()
-            ).toString()
-          )
+      onOptionInput(
+        formatEther(
+          Trade.getQuote(
+            parseEther(value),
+            item.market.reserveOf(entity.underlying).raw.toString(),
+            item.market.reserveOf(entity.redeem).raw.toString()
+          ).toString()
         )
-      }
+      )
     },
     [onUnderInput, onOptionInput, tab]
   )
@@ -532,7 +530,6 @@ const AddLiquidity: React.FC = () => {
 const LiquidityContainer = styled.div`
   width: 34em;
 `
-
 const StyledSubtitle = styled.div`
   color: yellow;
   display: table;

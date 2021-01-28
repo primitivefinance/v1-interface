@@ -215,8 +215,6 @@ const Swap: React.FC = () => {
       !parseEther(prem).isZero()
     ) {
       onUserInput(tokenBalance)
-    } else {
-      tokenBalance && onUserInput(tokenBalance)
     }
   }, [tokenBalance, onUserInput, prem])
 
