@@ -66,11 +66,11 @@ const Market = ({ market, data }) => {
 
   useEffect(() => {
     const { ethereum, web3 } = window as any
+    clearOptions()
 
     if (MetaMaskOnboarding.isMetaMaskInstalled() && (!ethereum || !web3)) {
       clear(0)
       router.reload()
-      clearOptions()
     }
 
     if (ethereum) {
