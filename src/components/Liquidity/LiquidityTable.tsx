@@ -159,7 +159,7 @@ const ScrollBody = styled(TableBody)`
 `
 
 const OptionsContainer = styled.div`
-  margin-left: 2em;
+  margin-left: 3em;
   margin-top: 0em;
   min-height: 80vh;
 `

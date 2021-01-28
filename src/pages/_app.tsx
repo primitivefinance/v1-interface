@@ -34,6 +34,15 @@ const GlobalStyle = createGlobalStyle`
   span {
     color: white;
   }
+  div {
+    display: block;
+  }
+  svg:not(:root) {
+    overflow: visible;
+  } 
+  button {
+    pointer-events: inherit;
+  }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {

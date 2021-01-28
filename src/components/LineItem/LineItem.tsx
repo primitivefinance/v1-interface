@@ -42,7 +42,7 @@ const LineItem: React.FC<LineItemProps> = ({
     : null
   return (
     <Container>
-      <StyledLineItem row justifyContent="space-between" alignItems="center">
+      <Box row justifyContent="space-between" alignItems="center">
         {tip ? (
           <Tooltip text={tip}>
             <StyledLabel>{label}</StyledLabel>
@@ -71,7 +71,7 @@ const LineItem: React.FC<LineItemProps> = ({
             </>
           </span>
         )}
-      </StyledLineItem>
+      </Box>
     </Container>
   )
 }
@@ -103,8 +103,8 @@ const StyledLabel = styled.span<ColorProps>`
   font-weight: 550;
 `
 
-const StyledLineItem = styled(Box)``
 const Container = styled.div`
   width: 100%;
+  display: block;
 `
 export default LineItem
