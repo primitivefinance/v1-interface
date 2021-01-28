@@ -61,6 +61,7 @@ export const useUpdateOptions = (): ((
       const isUniswap = venue === Venue.UNISWAP ? true : false
       console.log('loading options')
       setTimeout(() => {
+        console.log('system fail')
         if (!provider) return
       }, 200)
       Protocol.getAllOptionClones(provider)
