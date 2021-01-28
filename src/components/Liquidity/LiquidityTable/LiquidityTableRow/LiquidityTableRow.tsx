@@ -12,8 +12,9 @@ import IconButton from '@/components/IconButton'
 import Box from '@/components/Box'
 import Switch from '@/components/Switch'
 import Button from '@/components/Button'
+import Separator from '@/components/Separator'
 import Spacer from '@/components/Spacer'
-import Loader from '@/components/Loader'
+import LineItem from '@/components/LineItem'
 
 import { AddLiquidity } from '@/components/Market/OrderCard/components/AddLiquidity'
 import { RemoveLiquidity } from '@/components/Market/OrderCard/components/RemoveLiquidity'
@@ -42,7 +43,7 @@ const AddLiqButton: React.FC<any> = () => {
     <>
       <Button
         variant={
-          orderType === Operation.ADD_LIQUIDITY ? 'transparent' : 'secondary'
+          orderType === Operation.ADD_LIQUIDITY ? 'secondary' : 'default'
         }
         onClick={() => {
           if (orderType === Operation.ADD_LIQUIDITY) {
@@ -65,8 +66,8 @@ const RemoveLiqButton: React.FC<any> = () => {
       <Button
         variant={
           orderType === Operation.REMOVE_LIQUIDITY_CLOSE
-            ? 'transparent'
-            : 'secondary'
+            ? 'secondary'
+            : 'default'
         }
         onClick={() => {
           if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
@@ -342,21 +343,40 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
           >
             <Choice>
               <StyledTitle>
-                {asset} Balance -{' '}
-                {numeral(underlyingTokenBalance).format('0.00')}{' '}
+                <LineItem
+                  label={'Asset Balance'}
+                  data={numeral(underlyingTokenBalance).format('0.00')}
+                  units={asset}
+                />
+                <Spacer />
                 <AddLiqButton />
               </StyledTitle>
-              {orderType === Operation.ADD_LIQUIDITY ? <AddLiquidity /> : null}
+              {orderType === Operation.ADD_LIQUIDITY ? (
+                <>
+                  <Spacer size="sm" />
+                  <Separator />
+                  <AddLiquidity />
+                </>
+              ) : null}
             </Choice>
 
             <Spacer />
             <Choice>
               <StyledTitle>
-                LP Balance - {numeral(lp).format('0.00')}
+                <LineItem
+                  label={'Liquidity Balance'}
+                  data={numeral(lp).format('0.00')}
+                  units={'LP'}
+                />
+                <Spacer />
                 <RemoveLiqButton />
               </StyledTitle>
               {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
-                <RemoveLiquidity />
+                <>
+                  <Spacer size="sm" />
+                  <Separator />
+                  <RemoveLiquidity />
+                </>
               ) : null}
             </Choice>
           </OrderContainer>

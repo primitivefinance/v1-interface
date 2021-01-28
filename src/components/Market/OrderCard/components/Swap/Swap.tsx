@@ -210,8 +210,11 @@ const Swap: React.FC = () => {
         .mul(parseEther('1'))
         .div(parseEther(prem))
       onUserInput(formatEther(maxOptions))
-    } else {
-      tokenBalance && onUserInput(tokenBalance)
+    } else if (
+      orderType === Operation.CLOSE_LONG &&
+      !parseEther(prem).isZero()
+    ) {
+      onUserInput(tokenBalance)
     }
   }, [tokenBalance, onUserInput, prem])
 
@@ -442,8 +445,9 @@ const Swap: React.FC = () => {
 
         {error ? (
           <Description>
-            <Spacer />
+            <Spacer size="sm" />
             <WarningLabel>Order quantity too large!</WarningLabel>
+            <Spacer size="sm" />
           </Description>
         ) : null}
         <StyledEnd row justifyContent="flex-start">

@@ -41,36 +41,38 @@ const LineItem: React.FC<LineItemProps> = ({
       : null
     : null
   return (
-    <StyledLineItem row justifyContent="space-between" alignItems="center">
-      {tip ? (
-        <Tooltip text={tip}>
+    <Container>
+      <StyledLineItem row justifyContent="space-between" alignItems="center">
+        {tip ? (
+          <Tooltip text={tip}>
+            <StyledLabel>{label}</StyledLabel>
+          </Tooltip>
+        ) : (
           <StyledLabel>{label}</StyledLabel>
-        </Tooltip>
-      ) : (
-        <StyledLabel>{label}</StyledLabel>
-      )}
-      {loading ? (
-        <span>
-          <Loader size="sm" />
-        </span>
-      ) : (
-        <span>
-          <>
-            {sign}
-            <Color color={color}>
-              {currency === '$' ? currency : null} {formatBalance(data)}{' '}
-            </Color>
-            <StyledSym>
-              {currency !== '$'
-                ? currency === 'DAI STABLECOIN'
-                  ? 'DAI'
-                  : currency
-                : null}
-            </StyledSym>
-          </>
-        </span>
-      )}
-    </StyledLineItem>
+        )}
+        {loading ? (
+          <span>
+            <Loader size="sm" />
+          </span>
+        ) : (
+          <span>
+            <>
+              {sign}
+              <Color color={color}>
+                {currency === '$' ? currency : null} {formatBalance(data)}{' '}
+              </Color>
+              <StyledSym>
+                {currency !== '$'
+                  ? currency === 'DAI STABLECOIN'
+                    ? 'DAI'
+                    : currency
+                  : null}
+              </StyledSym>
+            </>
+          </span>
+        )}
+      </StyledLineItem>
+    </Container>
   )
 }
 
@@ -101,9 +103,8 @@ const StyledLabel = styled.span<ColorProps>`
   font-weight: 550;
 `
 
-const StyledLineItem = styled(Box)`
+const StyledLineItem = styled(Box)``
+const Container = styled.div`
   width: 100%;
-  flex-direction: row;
 `
-
 export default LineItem

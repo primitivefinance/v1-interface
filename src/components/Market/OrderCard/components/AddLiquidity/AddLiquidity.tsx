@@ -85,6 +85,11 @@ const AddLiquidity: React.FC = () => {
     }
   }, [setHasL, item])
 
+  const underlyingAssetSymbol = useCallback(() => {
+    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    return symbol === '' ? entity.underlying.symbol.toUpperCase() : symbol
+  }, [item])
+
   const lpToken = item.market ? item.market.liquidityToken.address : ''
   const token0 = item.market ? item.market.token0.symbol : ''
   const token1 = item.market ? item.market.token1.symbol : ''
@@ -132,17 +137,15 @@ const AddLiquidity: React.FC = () => {
   const handleUnderInput = useCallback(
     (value: string) => {
       onUnderInput(value)
-      if (tab === 1) {
-        onOptionInput(
-          formatEther(
-            Trade.getQuote(
-              parseEther(value),
-              item.market.reserveOf(entity.underlying).raw.toString(),
-              item.market.reserveOf(entity.redeem).raw.toString()
-            ).toString()
-          )
+      onOptionInput(
+        formatEther(
+          Trade.getQuote(
+            parseEther(value),
+            item.market.reserveOf(entity.underlying).raw.toString(),
+            item.market.reserveOf(entity.redeem).raw.toString()
+          ).toString()
         )
-      }
+      )
     },
     [onUnderInput, onOptionInput, tab]
   )
@@ -150,6 +153,11 @@ const AddLiquidity: React.FC = () => {
 
   const handleSetMax = useCallback(() => {
     onUnderInput(underlyingTokenBalance)
+  }, [underlyingTokenBalance, onUnderInput])
+
+  const handleSetDoubleInputMax = useCallback(() => {
+    onUnderInput(formatEther(parseEther(underlyingTokenBalance).div(3)))
+    onOptionInput(formatEther(parseEther(underlyingTokenBalance).mul(2).div(3)))
   }, [underlyingTokenBalance, onUnderInput])
 
   const handleSubmitClick = useCallback(() => {
@@ -265,16 +273,30 @@ const AddLiquidity: React.FC = () => {
     )
     const poolShare =
       supply.gt(0) && parsedAmount.gt(0)
-        ? lpMinted.divide(tSupply.add(lpMinted))
-        : new Fraction('0')
+        ? BigNumber.from(lpMinted.raw.toString())
+            .mul(parseEther('1'))
+            .div(
+              BigNumber.from(tSupply.raw.toString()).add(
+                lpMinted.raw.toString()
+              )
+            )
+        : parseEther('0')
 
-    const newPoolShare = poolShare
-      .add(
-        supply.gt(0) ? lpHold.divide(tSupply.add(lpMinted)) : new Fraction('0')
+    const newPoolShare = formatEther(
+      BigNumber.from(poolShare).add(
+        supply.gt(0)
+          ? BigNumber.from(lpHold.raw.toString())
+              .mul(parseEther('1'))
+              .div(
+                BigNumber.from(tSupply.raw.toString()).add(
+                  lpMinted.raw.toString()
+                )
+              )
+          : parseEther('0')
       )
-      .multiply('100')
-      .toSignificant(6)
-    const addedPoolShare = poolShare.multiply('100').toSignificant(6)
+    )
+
+    const addedPoolShare = formatEther(poolShare.mul('100'))
     return { addedPoolShare, newPoolShare }
   }, [
     item.market,
@@ -380,9 +402,9 @@ const AddLiquidity: React.FC = () => {
 
   const noLiquidityTitle = {
     text:
-      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio.',
+      'This pair has no liquidity, adding liquidity will initialize this market and set an initial token ratio. The Long input should be greater than the underlying input.',
     tip:
-      'Providing liquidity to this pair will set the ratio between the tokens.',
+      'Providing liquidity to this pair will set the ratio between the tokens. Total deposit of underlying tokens is the sum of the inputs.',
   }
 
   return (
@@ -391,7 +413,7 @@ const AddLiquidity: React.FC = () => {
       {hasLiquidity ? (
         <PriceInput
           name="primary"
-          title={`Underlying`}
+          title={underlyingAssetSymbol()}
           quantity={underlyingValue}
           onChange={handleUnderInput}
           onClick={handleSetMax}
@@ -413,27 +435,31 @@ const AddLiquidity: React.FC = () => {
           <Spacer size="sm" />
           <PriceInput
             name="primary"
-            title={`LONG Input`}
+            title={entity.isCall ? 'Call Options' : 'Put Options'}
             quantity={optionValue}
             onChange={handleOptionInput}
-            onClick={() => console.log('Max unavailable.')} //
+            onClick={handleSetDoubleInputMax}
           />
           <Spacer />
           <PriceInput
             name="secondary"
-            title={`Underlying Input`}
+            title={underlyingAssetSymbol()}
             quantity={underlyingValue}
             onChange={handleUnderInput}
-            onClick={() => console.log('Max unavailable.')} //
+            onClick={handleSetDoubleInputMax}
             balance={underlyingAmount}
           />
         </>
       )}
       <Spacer />
       <LineItem
-        label="LP for"
-        data={formatEther(calculateOptionsAddedAsLiquidity())}
-        units={`LONG`}
+        label="Total Deposit"
+        data={formatEther(
+          hasLiquidity
+            ? parsedUnderlyingAmount
+            : parsedUnderlyingAmount.add(parsedOptionAmount)
+        )}
+        units={underlyingAssetSymbol()}
       />
       <Spacer size="sm" />
       {!hasLiquidity || tab === 1 ? (
@@ -450,7 +476,7 @@ const AddLiquidity: React.FC = () => {
       )}
       <LineItem
         label="Receive"
-        data={!hasLiquidity ? '0.00' : calculatePoolShare().addedPoolShare}
+        data={!hasLiquidity ? '100' : calculatePoolShare().addedPoolShare}
         units={`% of Pool`}
       />
 
@@ -487,10 +513,7 @@ const AddLiquidity: React.FC = () => {
               disabled={
                 !approved[0] ||
                 !parsedUnderlyingAmount?.gt(0) ||
-                (hasLiquidity ? null : !parsedOptionAmount?.gt(0)) ||
-                (item.entity.isCall
-                  ? parseFloat(underlyingValue) >= 1000
-                  : parseFloat(underlyingValue) >= 100000)
+                (hasLiquidity ? null : !parsedOptionAmount?.gt(0))
               }
               full
               size="sm"
@@ -507,7 +530,6 @@ const AddLiquidity: React.FC = () => {
 const LiquidityContainer = styled.div`
   width: 34em;
 `
-
 const StyledSubtitle = styled.div`
   color: yellow;
   display: table;
