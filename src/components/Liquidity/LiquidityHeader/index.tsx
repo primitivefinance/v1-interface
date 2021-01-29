@@ -56,7 +56,6 @@ const StyledName = styled.div`
   font-size: 32px !important;
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
