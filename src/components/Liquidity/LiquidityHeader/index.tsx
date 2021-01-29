@@ -40,7 +40,7 @@ const StyledHeader = styled.div`
   margin-left: -15em;
   margin-right: 1em;
   margin-top: -1em;
-  width: 100%;
+  width: 50em;
 `
 
 const StyledTitle = styled.div`
