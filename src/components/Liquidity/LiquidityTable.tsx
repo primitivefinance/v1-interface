@@ -135,19 +135,13 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
           )}
         </LiquidityTableContent>
       </Table>
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
     </OptionsContainer>
   )
 }
 
 export const LiquidityTableContent = styled.div`
-  position: relative;
   display: block;
-  overflow-x: show;
-  width: 1200px;
+  min-width: 1200px;
 `
 
 const ScrollBody = styled(TableBody)``
@@ -157,7 +151,6 @@ const OptionsContainer = styled.div`
   flex-direction: column;
   margin-left: 3em;
   margin-top: 0em;
-  min-height: 80vh;
 `
 
 export default LiquidityTable
