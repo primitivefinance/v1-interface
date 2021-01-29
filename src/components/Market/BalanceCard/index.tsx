@@ -113,7 +113,7 @@ const BalanceCard: React.FC = () => {
 }
 const CustomCard = styled.div`
   padding: 1em;
-  margin: -0.1em 0em 0.5em 0em;
+  margin: -0.1em 0em 0em 0em;
   background-color: ${(props) => props.theme.color.grey[800]};
   border: 1px solid ${(props) => props.theme.color.grey[500]};
   border-radius: 0 0 ${(props) => props.theme.borderRadius}px

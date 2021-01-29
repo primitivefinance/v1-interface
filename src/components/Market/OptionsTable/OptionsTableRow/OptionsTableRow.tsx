@@ -186,6 +186,8 @@ const StyledARef = styled.a`
 
 const StyledDiv = styled.div`
   color: black;
+  display: flex;
+  flex-direction: column;
 `
 
 const StyledButtonCell = styled.div`
