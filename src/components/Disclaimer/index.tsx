@@ -58,13 +58,13 @@ const Backdrop = styled.div`
   z-index: 400;
   background-color: rgba(0, 0, 0, 0.7);
   position: absolute;
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
 `
 
 const StyledCard = styled.div`
   left: 40%;
-  top: 30%;
+  top: 20%;
   padding: 0 2em 2em 2em;
   border-radius: 0.3em;
   position: absolute;
