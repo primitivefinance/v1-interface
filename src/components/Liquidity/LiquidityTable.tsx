@@ -147,6 +147,8 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
 
 export const LiquidityTableContainer = styled.div`
   position: relative;
+  display: flex;
+  flex-direction: column;
   overflow-x: show;
 `
 
