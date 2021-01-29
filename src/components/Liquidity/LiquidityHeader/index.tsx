@@ -53,8 +53,7 @@ const StyledTitle = styled.div`
 `
 
 const StyledName = styled.div`
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 32px !important;
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
   cursor: pointer;
