@@ -7,10 +7,7 @@ import Tooltip from '@/components/Tooltip'
 import TableRow from '@/components/TableRow'
 import Button from '@/components/Button'
 
-import {
-  LiquidityTableContainer,
-  LiquidityTableContent,
-} from '../../LiquidityTable'
+import { LiquidityTableContent } from '../../LiquidityTable'
 
 export const headers = [
   {
@@ -42,35 +39,33 @@ export const headers = [
 const LiquidityTableHeader: React.FC = () => {
   return (
     <StyledTableHead>
-      <LiquidityTableContainer>
-        <LiquidityTableContent>
-          <TableRow isHead>
-            {headers.map((header, index) => {
-              if (index === headers.length - 1) {
-                return (
-                  <>
-                    <TableCell>
-                      <StyledButtonCell key={'Open'}>
-                        <Spacer />
-                      </StyledButtonCell>
-                    </TableCell>
-                  </>
-                )
-              }
-              if (header.tip) {
-                return (
-                  <TableCell key={header.name}>
-                    <Tooltip text={header.tip}>{header.name}</Tooltip>
+      <LiquidityTableContent>
+        <TableRow isHead>
+          {headers.map((header, index) => {
+            if (index === headers.length - 1) {
+              return (
+                <>
+                  <TableCell>
+                    <StyledButtonCell key={'Open'}>
+                      <Spacer />
+                    </StyledButtonCell>
                   </TableCell>
-                )
-              }
-              return <TableCell key={header.name}>{header.name}</TableCell>
-            })}
-            <Spacer />
-          </TableRow>
-          <GreyBack />
-        </LiquidityTableContent>
-      </LiquidityTableContainer>
+                </>
+              )
+            }
+            if (header.tip) {
+              return (
+                <TableCell key={header.name}>
+                  <Tooltip text={header.tip}>{header.name}</Tooltip>
+                </TableCell>
+              )
+            }
+            return <TableCell key={header.name}>{header.name}</TableCell>
+          })}
+          <Spacer />
+        </TableRow>
+        <GreyBack />
+      </LiquidityTableContent>
     </StyledTableHead>
   )
 }
