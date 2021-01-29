@@ -183,7 +183,7 @@ const Liquidity = ({ icons }) => {
 
 const StyledMarket = styled.div`
   width: 100%;
-  min-height: 90vh;
+  min-height: 85vh;
   overflow-x: hidden;
   overfloy-y: allowed !important;
   position: relative;
