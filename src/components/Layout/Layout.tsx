@@ -58,6 +58,7 @@ const StyledMain = styled.div<StyledMainProps>`
   align-items: center;
   display: flex;
   flex-direction: column;
+  min-height: 70vh;
 `
 
 export default Layout
