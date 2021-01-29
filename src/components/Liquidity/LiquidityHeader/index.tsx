@@ -40,6 +40,7 @@ const StyledHeader = styled.div`
   margin-left: -15em;
   margin-right: 1em;
   margin-top: -1em;
+  width: 50em;
 `
 
 const StyledTitle = styled.div`
@@ -52,11 +53,9 @@ const StyledTitle = styled.div`
 `
 
 const StyledName = styled.div`
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 32px !important;
   color: ${(props) => props.theme.color.white};
   text-decoration: none;
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;

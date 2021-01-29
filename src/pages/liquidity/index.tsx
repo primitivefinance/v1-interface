@@ -213,37 +213,11 @@ export const StyledLitContainer = styled(Col)`
 
 const StyledHeaderContainer = styled.div`
   position: relative;
-  margin-left: -20em;
+  width: 50%;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   padding: ${(props) => props.theme.spacing[3]}px;
-`
-
-interface CardContainerProps {
-  multiplier: number
-}
-
-const StyledCardContainer = styled.span<CardContainerProps>`
-  background: ${(props) => props.theme.color.grey[800]};
-  //border: 1px solid grey;
-  border-radius: ${(props) => props.theme.borderRadius}px;
-  margin: ${(props) => props.theme.spacing[3]}px;
-  padding: ${(props) => props.theme.spacing[2]}px;
-  width: ${(props) => props.theme.contentWidth * (1 / props.multiplier)}px;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-`
-
-const CardTitle = styled.span`
-  font-size: 18px;
-  color: ${(props) => props.theme.color.white};
-  opacity: 0.5;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
 `
 
 const Text = styled.span`

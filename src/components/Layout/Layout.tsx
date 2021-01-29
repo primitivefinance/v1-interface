@@ -59,7 +59,6 @@ const StyledMain = styled.div<StyledMainProps>`
   display: flex;
   flex-direction: column;
   min-height: 70vh;
-  width: 100%;
 `
 
 export default Layout
