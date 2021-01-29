@@ -164,7 +164,6 @@ const StyledTopBar = styled.div`
 const StyledFlex = styled.div`
   align-items: center;
   display: flex;
-  flex: 0.2;
   margin: 0 1em 0 1em;
 `
 

@@ -2103,10 +2103,10 @@
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
-"@primitivefi/sdk@0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-0.3.1.tgz#b96fcdb6e8879c715ecc69e2142a641dc7c7c210"
-  integrity sha512-6lq3HhI/LrR6NZqwhFwnlvnJwKHZfxaSnn7NwEvjXcnDXc8t3Vy+6laEugthreua2BAQXx33knyUY8SldrLUGQ==
+"@primitivefi/sdk@0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-0.3.2.tgz#b5a2fd1ef75487311b553374ba235ce36fa07017"
+  integrity sha512-ZgvCYGZALfey1pOqORKUOn2bH1kdoDR3+OGxZZJwRI9zbaLewQsne13zRhClWYjgh8fPLCNTLgqmaSSY7ssnpw==
   dependencies:
     "@ethersproject/providers" "^5.0.5"
     "@primitivefi/contracts" "0.4.4"
