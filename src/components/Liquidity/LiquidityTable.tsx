@@ -150,12 +150,11 @@ export const LiquidityTableContent = styled.div`
   width: 1200px;
 `
 
-const ScrollBody = styled(TableBody)`
-  height: 10em;
-`
+const ScrollBody = styled(TableBody)``
 
 const OptionsContainer = styled.div`
-  display: block;
+  display: flex;
+  flex-direction: column;
   margin-left: 3em;
   margin-top: 0em;
   min-height: 80vh;

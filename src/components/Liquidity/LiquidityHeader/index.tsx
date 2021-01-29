@@ -19,15 +19,13 @@ const LiquidityHeader: React.FC<MarketHeaderProps> = ({
   return (
     <StyledHeader>
       <Spacer />
-      <LitContainer>
-        <StyledTitle>
-          <StyledName>Liquidity Pools</StyledName>
-          <Spacer />
-          {children}
-          <Spacer />
-          <Spacer />
-        </StyledTitle>
-      </LitContainer>
+      <StyledTitle>
+        <StyledName>Liquidity Pools</StyledName>
+        <Spacer />
+        {children}
+        <Spacer />
+        <Spacer />
+      </StyledTitle>
       <Reverse />
     </StyledHeader>
   )
@@ -38,16 +36,17 @@ const Reverse = styled.div`
 
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
-  margin-left: 2em;
+  display: block;
+  margin-left: -15em;
   margin-right: 1em;
   margin-top: -1em;
 `
 
 const StyledTitle = styled.div`
   align-items: center;
+  display: flex;
   flex-direction: row;
   color: ${(props) => props.theme.color.white};
-  display: flex;
   margin-top: ${(props) => props.theme.spacing[2]}px;
   justify-content: flex-start;
 `
