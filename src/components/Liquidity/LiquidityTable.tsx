@@ -100,42 +100,40 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
     <OptionsContainer>
       <Table>
         <LiquidityTableHeader />
-        <LiquidityTableContainer>
-          <LiquidityTableContent>
-            {options.loading ? (
-              <LoadingTable ext />
-            ) : (
-              <ScrollBody>
-                {options[type].map((option) => {
-                  const tableColumns: TableColumns = formatTableColumns(option)
-                  const hasPosition =
-                    positions.options
-                      .map((pos) => {
-                        return pos.attributes.entity
-                          ? pos.attributes.entity.address ===
-                              option.entity.address &&
-                              BigNumber.from(pos.lp.toString()).gt(0)
-                          : false
-                      })
-                      .indexOf(true) !== -1
+        <LiquidityTableContent>
+          {options.loading ? (
+            <LoadingTable ext />
+          ) : (
+            <ScrollBody>
+              {options[type].map((option) => {
+                const tableColumns: TableColumns = formatTableColumns(option)
+                const hasPosition =
+                  positions.options
+                    .map((pos) => {
+                      return pos.attributes.entity
+                        ? pos.attributes.entity.address ===
+                            option.entity.address &&
+                            BigNumber.from(pos.lp.toString()).gt(0)
+                        : false
+                    })
+                    .indexOf(true) !== -1
 
-                  if (
-                    +new Date() / 1000 >= option.entity.expiryValue &&
-                    !hasPosition
-                  )
-                    return null
-                  return (
-                    <LiquidityTableRow
-                      key={option.entity.address}
-                      onClick={() => updateItem(option, Operation.NONE)}
-                      columns={tableColumns}
-                    />
-                  )
-                })}
-              </ScrollBody>
-            )}
-          </LiquidityTableContent>
-        </LiquidityTableContainer>
+                if (
+                  +new Date() / 1000 >= option.entity.expiryValue &&
+                  !hasPosition
+                )
+                  return null
+                return (
+                  <LiquidityTableRow
+                    key={option.entity.address}
+                    onClick={() => updateItem(option, Operation.NONE)}
+                    columns={tableColumns}
+                  />
+                )
+              })}
+            </ScrollBody>
+          )}
+        </LiquidityTableContent>
       </Table>
       <Spacer />
       <Spacer />
@@ -145,15 +143,12 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
   )
 }
 
-export const LiquidityTableContainer = styled.div`
+export const LiquidityTableContent = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   overflow-x: show;
-`
-
-export const LiquidityTableContent = styled.div`
-  width: ${(props) => props.theme.flexboxgrid.container.md}rem;
+  width: 1200px;
 `
 
 const ScrollBody = styled(TableBody)`
@@ -161,6 +156,7 @@ const ScrollBody = styled(TableBody)`
 `
 
 const OptionsContainer = styled.div`
+  display: block;
   margin-left: 3em;
   margin-top: 0em;
   min-height: 80vh;
