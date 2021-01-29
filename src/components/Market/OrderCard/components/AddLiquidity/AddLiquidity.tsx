@@ -487,6 +487,8 @@ const AddLiquidity: React.FC = () => {
             <Box column alignItems="center" justifyContent="center">
               <Button
                 disabled={true}
+                isLoading={true}
+                variant="secondary"
                 full
                 size="sm"
                 onClick={() => {}}

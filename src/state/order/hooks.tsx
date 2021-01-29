@@ -141,8 +141,11 @@ export const useUpdateItem = (): ((
             )
             return
           }
-          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE && lpPair) {
-            const lpToken = lpPair.liquidityToken.address
+          if (
+            orderType === Operation.REMOVE_LIQUIDITY_CLOSE &&
+            item.market.liquidityToken
+          ) {
+            const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
               item.entity.address,
               spender

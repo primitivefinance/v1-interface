@@ -430,10 +430,11 @@ const RemoveLiquidity: React.FC = () => {
         {loading ? (
           <Button
             disabled={loading}
+            variant="secondary"
             full
             size="sm"
             onClick={() => {}}
-            isLoading={false}
+            isLoading={true}
             text="Confirm"
           />
         ) : (
