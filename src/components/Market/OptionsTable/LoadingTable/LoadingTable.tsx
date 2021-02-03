@@ -11,20 +11,19 @@ const alt = [
   },
   {
     name: 'Pool Size',
-    tip: 'The amount of underlying tokens in the pool.',
+    tip: 'The total amount of tokens in the pool.',
   },
   {
-    name: 'Share',
+    name: 'Your Share',
     tip: 'The proportion of ownership of the option pair.',
   },
-
   {
-    name: 'Pool Ratio',
-    tip: 'The ratio of underlying tokens to short option tokens.',
+    name: 'Your Liquidity',
+    tip: 'Your quantity of tokens in the pool.',
   },
   {
-    name: 'Price',
-    tip: 'The ask price of 1 option token.',
+    name: 'Market',
+    tip: 'The option market the pool serves.',
   },
   { name: 'Expiry', tip: 'The maturity date of the option token.' },
   {

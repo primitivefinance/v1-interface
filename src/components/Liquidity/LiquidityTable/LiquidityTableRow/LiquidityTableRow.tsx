@@ -157,7 +157,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       market.liquidityToken,
       parseEther(lp).toString()
     )
-    const poolShare = supply.gt(0) ? lpBal.divide(tSupply) : new Fraction('0')
+    const poolShare = supply.gt(0)
+      ? lpBal.divide(tSupply).multiply(100)
+      : new Fraction('0')
 
     return poolShare.toSignificant(6)
   }, [market, lpTotalSupply, lp])
@@ -328,7 +330,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         <TableCell>
           {!isZero(parseEther(lp)) ? (
             <span>
-              {numeral(calculatePoolShare()).format('0.00%')} <Units>%</Units>
+              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
             </span>
           ) : (
             <>{`-`}</>
