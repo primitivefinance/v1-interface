@@ -425,7 +425,7 @@ const RemoveLiquidity: React.FC = () => {
         </>
       )}
 
-      <Spacer />
+      <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         {loading ? (
           <Button

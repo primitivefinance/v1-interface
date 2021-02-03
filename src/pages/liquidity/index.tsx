@@ -174,6 +174,7 @@ const Liquidity = ({ icons }) => {
             </StyledHeaderContainer>
 
             <LiquidityTable callActive={callPutActive} />
+            <Spacer />
           </StyledLitContainer>
         </StyledMarket>
       )}

@@ -435,7 +435,6 @@ const Swap: React.FC = () => {
               </>
             ) : (
               <>
-                {' '}
                 <LineItem
                   label={'Spot Price'}
                   data={formatBalance(prem)}
@@ -443,6 +442,7 @@ const Swap: React.FC = () => {
                   color={null}
                   tip="The current spot price of the option."
                 />
+                <Spacer size="sm" />
               </>
             )}
           </>

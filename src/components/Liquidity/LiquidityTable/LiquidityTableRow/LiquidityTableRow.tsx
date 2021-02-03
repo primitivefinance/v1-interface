@@ -421,8 +421,12 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
               <StyledTitle>
                 <LineItem
                   label={'Liquidity Balance'}
-                  data={numeral(lp).format('0.00')}
-                  units={'SLP'}
+                  data={numeral(
+                    formatEther(
+                      calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                    )
+                  ).format('0.00a')}
+                  units={asset}
                 />
                 <Spacer />
                 <RemoveLiqButton />
