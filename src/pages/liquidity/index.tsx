@@ -160,31 +160,29 @@ const Liquidity = ({ icons }) => {
           <Loader size="lg" />
         </>
       ) : (
-        <StyledDiv>
+        <StyledMarket>
           <Disclaimer />
           <Notifs />
-          <StyledMarket>
-            <StyledLitContainer>
-              <StyledHeaderContainer>
-                <LiquidityHeader icons={icons} isCall={callPutActive}>
-                  <FilterBar
-                    active={callPutActive}
-                    setCallActive={() => setCallPutActive(!callPutActive)}
-                  />
-                </LiquidityHeader>
-              </StyledHeaderContainer>
+          <StyledLitContainer>
+            <StyledHeaderContainer>
+              <LiquidityHeader icons={icons} isCall={callPutActive}>
+                <FilterBar
+                  active={callPutActive}
+                  setCallActive={() => setCallPutActive(!callPutActive)}
+                />
+              </LiquidityHeader>
+            </StyledHeaderContainer>
 
-              <LiquidityTable callActive={callPutActive} />
-            </StyledLitContainer>
-          </StyledMarket>
-        </StyledDiv>
+            <LiquidityTable callActive={callPutActive} />
+          </StyledLitContainer>
+        </StyledMarket>
       )}
     </ErrorBoundary>
   )
 }
 
 const StyledDiv = styled.div`
-  display: block;
+  display: inherit;
 `
 
 const StyledMarket = styled.div`
