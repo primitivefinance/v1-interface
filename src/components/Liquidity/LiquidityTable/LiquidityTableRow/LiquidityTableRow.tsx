@@ -196,6 +196,41 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [market, lp, lpTotalSupply])
 
+  const calculateTotalLiquidity = useCallback(() => {
+    if (
+      typeof market === 'undefined' ||
+      market === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = market.getLiquidityValuePerShare(
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
+    const shortPerLp = parseEther(lpTotalSupply)
+      .mul(shortValue.raw.toString())
+      .div(parseEther('1'))
+    const underlyingPerLp = parseEther(lpTotalSupply)
+      .mul(underlyingValue.raw.toString())
+      .div(parseEther('1'))
+    const totalUnderlyingPerLp = parseEther(lpTotalSupply)
+      .mul(totalUnderlyingValue.raw.toString())
+      .div(parseEther('1'))
+
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [market, lpTotalSupply, lpTotalSupply])
+
   const handleOnClick = useCallback(() => {
     //setProvide(true)
     setToggle(!toggle)
@@ -278,10 +313,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             </>
           )}
         </Asset>
-        {parseFloat(liquidity[0]) > 0 ? (
+        {!isZero(parseEther(lpTotalSupply)) ? (
           <TableCell>
             <span>
-              {numeral(liquidity[0]).format('0.00a')} <Units>{units}</Units>
+              {numeral(
+                formatEther(calculateTotalLiquidity().totalUnderlyingPerLp)
+              ).format('0.00a')}{' '}
+              <Units>{units}</Units>
             </span>
           </TableCell>
         ) : (
@@ -296,6 +334,21 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             <>{`-`}</>
           )}
         </TableCell>
+
+        {parseFloat(liquidity[0]) > 0 ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(
+                  calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                )
+              ).format('0.00a')}{' '}
+              <Units>{units}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
 
         <TableCell>{isCall ? asset : entity.strike.symbol}</TableCell>
 
