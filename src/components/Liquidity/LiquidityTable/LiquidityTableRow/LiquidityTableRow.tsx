@@ -363,7 +363,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         )}
         <TableCell>
           <span>
-            {numeral(strike).format(+strike >= 10 ? '0' : '0.00')}{' '}
+            {numeral(strike).format(+strike >= 10 ? '0a' : '0.00')}{' '}
             <Units>DAI</Units>
           </span>
         </TableCell>
@@ -421,7 +421,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
                 <LineItem
                   label={'Liquidity Balance'}
                   data={numeral(lp).format('0.00')}
-                  units={'LP'}
+                  units={'SLP'}
                 />
                 <Spacer />
                 <RemoveLiqButton />

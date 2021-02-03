@@ -342,12 +342,21 @@ const Swap: React.FC = () => {
         <Separator />
 
         <Switch
-          active={orderType !== Operation.CLOSE_LONG}
+          active={
+            orderType !== Operation.CLOSE_LONG && orderType !== Operation.WRITE
+          }
           onClick={() => {
-            if (orderType === Operation.CLOSE_LONG) {
+            if (
+              orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.WRITE
+            ) {
               updateItem(item, Operation.LONG)
             } else {
-              updateItem(item, Operation.CLOSE_LONG)
+              if (tokenAmount.greaterThan('0')) {
+                updateItem(item, Operation.CLOSE_LONG)
+              } else {
+                updateItem(item, Operation.WRITE)
+              }
             }
           }}
         />

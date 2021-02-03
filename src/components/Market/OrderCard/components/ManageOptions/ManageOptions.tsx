@@ -37,7 +37,7 @@ const LPOptions: React.FC<{ balance?: any }> = ({ balance }) => {
       <LineItem
         label={'LP Balance'}
         data={balance ? formatEther(balance) : '0'}
-        units={'UNI-V2'}
+        units={'SLP'}
       />
       <Spacer />
       <Box row justifyContent="center" alignItems="center">
