@@ -54,6 +54,12 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
+const formatParsedAmount = (amount: BigNumberish) => {
+  const bigAmt = BigNumber.from(amount)
+  return numeral(formatEther(bigAmt)).format(
+    bigAmt.lt(parseEther('0.01')) ? '0.0000' : '0.00'
+  )
+}
 
 const Swap: React.FC = () => {
   //state
@@ -73,6 +79,7 @@ const Swap: React.FC = () => {
       ? formatEther(item.market.spotUnderlyingToShort.raw.toString())
       : formatEther(item.market.spotUnderlyingToShort.raw.toString())
   )
+
   const [impact, setImpact] = useState('0.00')
   const [error, setError] = useState(false)
   // set null lp
@@ -302,9 +309,7 @@ const Swap: React.FC = () => {
   }, [item, parsedAmount])
 
   const isBelowSlippage = useCallback(() => {
-    return impact !== 'NaN'
-      ? Math.abs(parseFloat(impact)) < parseFloat(slippage) * 100
-      : true
+    return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
   }, [impact, slippage])
 
   const handleApproval = useCallback(() => {
@@ -356,7 +361,7 @@ const Swap: React.FC = () => {
           </>
         )}
 
-        <Spacer />
+        <Spacer size="sm" />
         <PriceInput
           title="Quantity"
           name="primary"
@@ -367,13 +372,76 @@ const Swap: React.FC = () => {
             orderType === Operation.LONG ? underlyingAmount : tokenAmount
           }
         />
+        <Spacer size="sm" />
+        <Spacer size="sm" />
+        <Title full>Order Summary</Title>
 
-        {parsedAmount.eq(0) && !error ? <Description></Description> : <></>}
-
+        {inputLoading && hasLiquidity ? (
+          <>
+            <Loader />
+            <Spacer />
+          </>
+        ) : (
+          <>
+            {parsedAmount.gt(0) && !error ? (
+              <>
+                <LineItem
+                  label={'Execution Price'}
+                  data={
+                    orderType === Operation.LONG
+                      ? `${
+                          parseFloat(
+                            formatParsedAmount(
+                              parseEther(cost.debit).toString()
+                            ).toString()
+                          ) /
+                          parseFloat(
+                            formatParsedAmount(
+                              parsedAmount.toString()
+                            ).toString()
+                          )
+                        }`
+                      : `${
+                          parseFloat(
+                            formatParsedAmount(
+                              parseEther(cost.credit).toString()
+                            )
+                          ) /
+                          parseFloat(
+                            formatParsedAmount(parsedAmount.toString())
+                          )
+                        }`
+                  }
+                  units={underlyingAssetSymbol()}
+                  color={isBelowSlippage() ? null : 'red'}
+                  tip="The estimated price of the option after slippage."
+                />
+                <LineItem
+                  label={'Price Impact'}
+                  data={`${Math.abs(parseFloat(impact)).toString()}`}
+                  units="%"
+                  color={isBelowSlippage() ? null : 'red'}
+                  tip="The % change in the price paid."
+                />
+              </>
+            ) : (
+              <>
+                {' '}
+                <LineItem
+                  label={'Spot Price'}
+                  data={formatBalance(prem)}
+                  units={underlyingAssetSymbol()}
+                  color={null}
+                  tip="The current spot price of the option."
+                />
+              </>
+            )}
+          </>
+        )}
         {parsedAmount.gt(0) && !error ? (
           <>
-            <Spacer />
-            <StyledInnerTitle>Description</StyledInnerTitle>
+            <Spacer size="sm" />
+            <Separator />
             <Spacer size="sm" />
             <Description>
               <PurchaseInfo>
@@ -405,47 +473,11 @@ const Swap: React.FC = () => {
               </PurchaseInfo>
             </Description>
             <Spacer />
-            <Spacer size="sm" />
-            <Separator />
           </>
         ) : null}
-
         <Spacer size="sm" />
-        <Title full>Order Summary</Title>
-        {!inputLoading ? (
-          <>
-            <LineItem
-              label="Price"
-              data={formatBalance(prem)}
-              units={underlyingAssetSymbol()}
-              tip="The price per 1 option token."
-            />
-          </>
-        ) : (
-          <>{hasLiquidity ? <Loader /> : null}</>
-        )}
-
-        <Spacer size="sm" />
-        {inputLoading && hasLiquidity ? (
-          <>
-            <Loader />
-            <Spacer />
-          </>
-        ) : (
-          <LineItem
-            label={isBelowSlippage() ? 'Slippage' : 'Slippage too high'}
-            data={`${Math.abs(parseFloat(impact)).toString()}`}
-            units="%"
-            color={isBelowSlippage() ? null : 'red'}
-            tip="The % change in the price paid."
-          />
-        )}
-
-        <Spacer size="sm" />
-
         {error ? (
           <Description>
-            <Spacer size="sm" />
             <WarningLabel>Order quantity too large!</WarningLabel>
             <Spacer size="sm" />
           </Description>
@@ -496,17 +528,12 @@ const Swap: React.FC = () => {
                   )}
                   {approved[0] && approved[1] ? (
                     <Button
-                      disabled={
-                        !parsedAmount?.gt(0) ||
-                        error ||
-                        !hasLiquidity ||
-                        !isBelowSlippage()
-                      }
+                      disabled={!parsedAmount?.gt(0) || error || !hasLiquidity}
                       full
                       size="sm"
                       onClick={handleSubmitClick}
                       isLoading={loading}
-                      text="Confirm"
+                      text="Confirm Trade"
                     />
                   ) : null}
                 </>
@@ -538,7 +565,7 @@ const Swap: React.FC = () => {
                     size="sm"
                     onClick={handleSubmitClick}
                     isLoading={loading}
-                    text={'Confirm'}
+                    text={'Confirm Trade'}
                   />
                 </>
               )}
@@ -570,7 +597,7 @@ const WarningTooltip = styled.div`
 
 const StyledInnerTitle = styled.div`
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
   display: flex;
   flex: 1;

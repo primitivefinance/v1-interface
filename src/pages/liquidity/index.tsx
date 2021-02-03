@@ -4,6 +4,7 @@ import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
+import Notifs from '@/components/Notifs'
 
 import MetaMaskOnboarding from '@metamask/onboarding'
 import { Venue } from '@primitivefi/sdk'
@@ -159,8 +160,9 @@ const Liquidity = ({ icons }) => {
           <Loader size="lg" />
         </>
       ) : (
-        <>
+        <StyledDiv>
           <Disclaimer />
+          <Notifs />
           <StyledMarket>
             <StyledLitContainer>
               <StyledHeaderContainer>
@@ -175,11 +177,15 @@ const Liquidity = ({ icons }) => {
               <LiquidityTable callActive={callPutActive} />
             </StyledLitContainer>
           </StyledMarket>
-        </>
+        </StyledDiv>
       )}
     </ErrorBoundary>
   )
 }
+
+const StyledDiv = styled.div`
+  display: block;
+`
 
 const StyledMarket = styled.div`
   width: 100%;
@@ -213,7 +219,7 @@ export const StyledLitContainer = styled(Col)`
 
 const StyledHeaderContainer = styled.div`
   position: relative;
-  width: 50%;
+  width: 40%;
   display: flex;
   flex-direction: row;
   justify-content: center;

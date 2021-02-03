@@ -84,7 +84,6 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
           <Wallet />
           <Spacer size="sm" />
           <Spacer size="sm" />
-          <Settings />
         </StyledFlex>
       </Container>
 

@@ -195,7 +195,7 @@ const Market = ({ market, data }) => {
           <Loader size="lg" />
         </>
       ) : (
-        <>
+        <StyledDiv>
           <Disclaimer />
           <Notifs />
           <StyledMarket>
@@ -258,12 +258,14 @@ const Market = ({ market, data }) => {
               </Row>
             </Grid>
           </StyledMarket>
-        </>
+        </StyledDiv>
       )}
     </ErrorBoundary>
   )
 }
-
+const StyledDiv = styled.div`
+  display: block;
+`
 const StyledCol = styled(Col)`
   overflow-x: hidden;
 `
