@@ -143,7 +143,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, market)
     }
   }, [provide, item, updateItem]) */
-
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
     if (typeof market === 'undefined' || market === null || supply.isZero())
@@ -158,7 +157,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       parseEther(lp).toString()
     )
     const poolShare = supply.gt(0)
-      ? lpBal.divide(tSupply).multiply(100)
+      ? lpBal.divide(tSupply).multiply('100')
       : new Fraction('0')
 
     return poolShare.toSignificant(6)
@@ -337,7 +336,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
           )}
         </TableCell>
 
-        {parseFloat(liquidity[0]) > 0 ? (
+        {parseFloat(
+          formatEther(calculateLiquidityValuePerShare().totalUnderlyingPerLp)
+        ) > 0 ? (
           <TableCell>
             <span>
               {numeral(
