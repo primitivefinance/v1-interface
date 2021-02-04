@@ -30,7 +30,7 @@ export interface BoxProps {
   paddingRight?: number
   paddingTop?: number
   paddingVertical?: number
-  position?: 'static' | 'relative' | 'absolute'
+  position?: 'relative' | 'absolute'
   reverse?: boolean
   row?: boolean
 }
@@ -55,7 +55,7 @@ const Box: React.FC<BoxProps> = ({
   paddingRight = 0,
   paddingTop = 0,
   paddingVertical = 0,
-  position = 'static',
+  position,
   reverse,
   row,
   ...props
