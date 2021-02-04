@@ -99,9 +99,9 @@ const OpacitySpan = styled.span`
 `
 
 const StyledContainer = styled.div`
-  width: 100%;
-  display: flex;
+  width: 100% !important;
+  display: flex !important;
   flex-direction: column;
-  position: inherit;
+  position: relative;
 `
 export default PriceInput
