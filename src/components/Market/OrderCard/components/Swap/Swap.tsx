@@ -497,6 +497,7 @@ const Swap: React.FC = () => {
               <Button
                 disabled={loading}
                 full
+                variant="secondary"
                 size="sm"
                 onClick={handleApproval}
                 isLoading={loading}
