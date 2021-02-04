@@ -99,7 +99,7 @@ const OpacitySpan = styled.span`
 `
 
 const StyledContainer = styled.div`
-  width: 100% !important;
+  min-width: 100% !important;
   display: flex !important;
   flex-direction: column;
   position: static !important;
