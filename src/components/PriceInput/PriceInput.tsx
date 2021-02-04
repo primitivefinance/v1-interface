@@ -102,6 +102,6 @@ const StyledContainer = styled.div`
   width: 100% !important;
   display: flex !important;
   flex-direction: column;
-  position: relative;
+  position: static !important;
 `
 export default PriceInput
