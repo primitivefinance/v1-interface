@@ -230,7 +230,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       .div(parseEther('1'))
 
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [market, lpTotalSupply, lpTotalSupply])
+  }, [market, lpTotalSupply])
 
   const handleOnClick = useCallback(() => {
     //setProvide(true)
