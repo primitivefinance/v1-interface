@@ -420,7 +420,11 @@ const Swap: React.FC = () => {
           quantity={typedValue}
           onClick={handleSetMax}
           balance={
-            orderType === Operation.LONG ? underlyingAmount : tokenAmount
+            orderType === Operation.LONG
+              ? underlyingAmount
+              : entity.isPut
+              ? underlyingAmount
+              : tokenAmount
           }
         />
         <Spacer size="sm" />

@@ -102,6 +102,9 @@ const LeftSpan = styled.span`
 
 const RightSpan = styled.span`
   align-self: flex-end;
+  &:hover {
+    opacity: 0.55;
+  }
 `
 
 const OpacitySpan = styled.span`
