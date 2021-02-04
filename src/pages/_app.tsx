@@ -38,6 +38,7 @@ const GlobalStyle = createGlobalStyle`
   }
   div {
     display: block;
+    position: static;
   }
   svg:not(:root) {
     overflow: visible;
