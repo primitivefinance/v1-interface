@@ -53,7 +53,7 @@ const Notifs: React.FC = () => {
 }
 
 const StyledBox = styled.div`
-  max-width: 30em !important;
+  width: 30em !important;
   position: fixed;
   bottom: 3em;
   left: 20px;
