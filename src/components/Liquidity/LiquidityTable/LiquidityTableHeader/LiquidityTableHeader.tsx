@@ -17,11 +17,15 @@ export const headers = [
   },
   {
     name: 'Pool Size',
-    tip: 'The amount of underlying tokens in the pool.',
+    tip: 'The total amount of tokens in the pool.',
   },
   {
     name: 'Your Share',
     tip: 'The proportion of ownership of the option pair.',
+  },
+  {
+    name: 'Your Liquidity',
+    tip: 'Your quantity of tokens in the pool.',
   },
   {
     name: 'Market',

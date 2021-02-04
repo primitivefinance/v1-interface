@@ -5,6 +5,8 @@ const TableBody: React.FC = (props) => {
   return <StyledTableBody>{props.children}</StyledTableBody>
 }
 
-const StyledTableBody = styled.div``
+const StyledTableBody = styled.div`
+  display: block;
+`
 
 export default TableBody

@@ -8,6 +8,8 @@ const TableCell: React.FC = (props) => {
 const StyledTableCell = styled.div`
   color: inherit;
   flex: 1;
+  display: block;
+  position: inherit;
 `
 
 export default TableCell

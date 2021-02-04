@@ -143,7 +143,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, market)
     }
   }, [provide, item, updateItem]) */
-
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
     if (typeof market === 'undefined' || market === null || supply.isZero())
@@ -157,7 +156,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       market.liquidityToken,
       parseEther(lp).toString()
     )
-    const poolShare = supply.gt(0) ? lpBal.divide(tSupply) : new Fraction('0')
+    const poolShare = supply.gt(0)
+      ? lpBal.divide(tSupply).multiply('100')
+      : new Fraction('0')
 
     return poolShare.toSignificant(6)
   }, [market, lpTotalSupply, lp])
@@ -195,6 +196,41 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
       .div(parseEther('1'))
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [market, lp, lpTotalSupply])
+
+  const calculateTotalLiquidity = useCallback(() => {
+    if (
+      typeof market === 'undefined' ||
+      market === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = market.getLiquidityValuePerShare(
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
+    const shortPerLp = parseEther(lpTotalSupply)
+      .mul(shortValue.raw.toString())
+      .div(parseEther('1'))
+    const underlyingPerLp = parseEther(lpTotalSupply)
+      .mul(underlyingValue.raw.toString())
+      .div(parseEther('1'))
+    const totalUnderlyingPerLp = parseEther(lpTotalSupply)
+      .mul(totalUnderlyingValue.raw.toString())
+      .div(parseEther('1'))
+
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [market, lpTotalSupply])
 
   const handleOnClick = useCallback(() => {
     //setProvide(true)
@@ -278,10 +314,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
             </>
           )}
         </Asset>
-        {parseFloat(liquidity[0]) > 0 ? (
+        {!isZero(parseEther(lpTotalSupply)) ? (
           <TableCell>
             <span>
-              {numeral(liquidity[0]).format('0.00a')} <Units>{units}</Units>
+              {numeral(
+                formatEther(calculateTotalLiquidity().totalUnderlyingPerLp)
+              ).format('0.00a')}{' '}
+              <Units>{units}</Units>
             </span>
           </TableCell>
         ) : (
@@ -290,12 +329,29 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         <TableCell>
           {!isZero(parseEther(lp)) ? (
             <span>
-              {numeral(calculatePoolShare()).format('0.00%')} <Units>%</Units>
+              {numeral(calculatePoolShare()).format('0.00')} <Units>%</Units>
             </span>
           ) : (
             <>{`-`}</>
           )}
         </TableCell>
+
+        {parseFloat(
+          formatEther(calculateLiquidityValuePerShare().totalUnderlyingPerLp)
+        ) > 0 ? (
+          <TableCell>
+            <span>
+              {numeral(
+                formatEther(
+                  calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                )
+              ).format('0.00a')}{' '}
+              <Units>{units}</Units>
+            </span>
+          </TableCell>
+        ) : (
+          <TableCell>-</TableCell>
+        )}
 
         <TableCell>{isCall ? asset : entity.strike.symbol}</TableCell>
 
@@ -308,7 +364,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         )}
         <TableCell>
           <span>
-            {numeral(strike).format(+strike >= 10 ? '0' : '0.00')}{' '}
+            {numeral(strike).format(+strike >= 10 ? '0a' : '0.00')}{' '}
             <Units>DAI</Units>
           </span>
         </TableCell>
@@ -365,8 +421,12 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
               <StyledTitle>
                 <LineItem
                   label={'Liquidity Balance'}
-                  data={numeral(lp).format('0.00')}
-                  units={'LP'}
+                  data={numeral(
+                    formatEther(
+                      calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                    )
+                  ).format('0.00a')}
+                  units={asset}
                 />
                 <Spacer />
                 <RemoveLiqButton />

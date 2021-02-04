@@ -4,6 +4,7 @@ import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
+import Notifs from '@/components/Notifs'
 
 import MetaMaskOnboarding from '@metamask/onboarding'
 import { Venue } from '@primitivefi/sdk'
@@ -159,27 +160,31 @@ const Liquidity = ({ icons }) => {
           <Loader size="lg" />
         </>
       ) : (
-        <>
+        <StyledMarket>
           <Disclaimer />
-          <StyledMarket>
-            <StyledLitContainer>
-              <StyledHeaderContainer>
-                <LiquidityHeader icons={icons} isCall={callPutActive}>
-                  <FilterBar
-                    active={callPutActive}
-                    setCallActive={() => setCallPutActive(!callPutActive)}
-                  />
-                </LiquidityHeader>
-              </StyledHeaderContainer>
+          <Notifs />
+          <StyledLitContainer>
+            <StyledHeaderContainer>
+              <LiquidityHeader icons={icons} isCall={callPutActive}>
+                <FilterBar
+                  active={callPutActive}
+                  setCallActive={() => setCallPutActive(!callPutActive)}
+                />
+              </LiquidityHeader>
+            </StyledHeaderContainer>
 
-              <LiquidityTable callActive={callPutActive} />
-            </StyledLitContainer>
-          </StyledMarket>
-        </>
+            <LiquidityTable callActive={callPutActive} />
+            <Spacer />
+          </StyledLitContainer>
+        </StyledMarket>
       )}
     </ErrorBoundary>
   )
 }
+
+const StyledDiv = styled.div`
+  display: inherit;
+`
 
 const StyledMarket = styled.div`
   width: 100%;
@@ -213,7 +218,7 @@ export const StyledLitContainer = styled(Col)`
 
 const StyledHeaderContainer = styled.div`
   position: relative;
-  width: 50%;
+  width: 40%;
   display: flex;
   flex-direction: row;
   justify-content: center;

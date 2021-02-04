@@ -364,7 +364,7 @@ const RemoveLiquidity: React.FC = () => {
       <LineItem
         label="This requires"
         data={`${numeral(calculateBurn()).format('0.00')}`}
-        units={`UNI-V2 LP`}
+        units={`SLP`}
       />
 
       {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
@@ -372,7 +372,7 @@ const RemoveLiquidity: React.FC = () => {
           <Spacer size="sm" />
           <LineItem
             label="And requires"
-            data={`${numeral(calculateRequiredLong()).format('0.00')}`}
+            data={`${numeral(calculateRequiredLong()).format('0.00a')}`}
             units={`LONG`}
           />
           {!formatEther(
@@ -388,7 +388,7 @@ const RemoveLiquidity: React.FC = () => {
                       parseEther(optionBalance)
                     )
                   )
-                ).format('0.00')}`}
+                ).format('0.00a')}`}
                 units={`LONG`}
               />{' '}
             </>
@@ -398,7 +398,7 @@ const RemoveLiquidity: React.FC = () => {
           <Spacer size="sm" />
           <LineItem
             label="To receive"
-            data={numeral(calculateUnderlyingOutput()).format('0.00')}
+            data={numeral(calculateUnderlyingOutput()).format('0.00a')}
             units={`${entity.underlying.symbol.toUpperCase()}`}
           />
         </>
@@ -411,7 +411,7 @@ const RemoveLiquidity: React.FC = () => {
               formatEther(
                 calculateRemoveOutputs().underlyingValue.raw.toString()
               )
-            ).format('0.00')}
+            ).format('0.00a')}
             units={`${entity.underlying.symbol.toUpperCase()}`}
           />
           <Spacer size="sm" />
@@ -419,13 +419,13 @@ const RemoveLiquidity: React.FC = () => {
             label="To Receive"
             data={numeral(
               formatEther(calculateRemoveOutputs().shortValue.raw.toString())
-            ).format('0.00')}
+            ).format('0.00a')}
             units={`SHORT`}
           />{' '}
         </>
       )}
 
-      <Spacer />
+      <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         {loading ? (
           <Button

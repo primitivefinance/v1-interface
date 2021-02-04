@@ -54,6 +54,12 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
+const formatParsedAmount = (amount: BigNumberish) => {
+  const bigAmt = BigNumber.from(amount)
+  return numeral(formatEther(bigAmt)).format(
+    bigAmt.lt(parseEther('0.01')) ? '0.0000' : '0.00'
+  )
+}
 
 const Swap: React.FC = () => {
   //state
@@ -73,6 +79,7 @@ const Swap: React.FC = () => {
       ? formatEther(item.market.spotUnderlyingToShort.raw.toString())
       : formatEther(item.market.spotUnderlyingToShort.raw.toString())
   )
+
   const [impact, setImpact] = useState('0.00')
   const [error, setError] = useState(false)
   // set null lp
@@ -168,15 +175,23 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
-  const optionTokenAmount = new Token(
-    entity.chainId,
-    entity.address,
-    18,
-    'LONG'
-  )
+  const redeemBalance = useTokenBalance(entity.redeem.address)
+
+  const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
   const tokenAmount: TokenAmount = new TokenAmount(
-    optionTokenAmount,
+    optionToken,
     parseEther(tokenBalance).toString()
+  )
+
+  const shortToken = new Token(
+    entity.chainId,
+    entity.redeem.address,
+    18,
+    'SHORT'
+  )
+  const shortTokenAmount: TokenAmount = new TokenAmount(
+    shortToken,
+    parseEther(redeemBalance).toString()
   )
 
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
@@ -228,6 +243,9 @@ const Swap: React.FC = () => {
   }, [submitOrder, item, library, parsedAmount, orderType])
 
   useEffect(() => {
+    if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
+      updateItem(item, Operation.CLOSE_SHORT)
+    }
     const calculateTotalCost = async () => {
       let debit = '0'
       let credit = '0'
@@ -296,15 +314,24 @@ const Swap: React.FC = () => {
     }
   }, [item, parsedAmount, inputLoading, item.market, typedValue, orderType])
 
+  const getExecutionPrice = useCallback(() => {
+    const long = formatEther(
+      parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
+    )
+    const short = formatEther(
+      parseEther(cost.credit).mul(parseEther('1')).div(parsedAmount)
+    )
+
+    return orderType === Operation.LONG ? long : short
+  }, [item, parsedAmount, cost, orderType])
+
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
     return formatEtherBalance(entity.proportionalShort(sizeWei))
   }, [item, parsedAmount])
 
   const isBelowSlippage = useCallback(() => {
-    return impact !== 'NaN'
-      ? Math.abs(parseFloat(impact)) < parseFloat(slippage) * 100
-      : true
+    return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
   }, [impact, slippage])
 
   const handleApproval = useCallback(() => {
@@ -337,12 +364,25 @@ const Swap: React.FC = () => {
         <Separator />
 
         <Switch
-          active={orderType !== Operation.CLOSE_LONG}
+          active={
+            orderType !== Operation.CLOSE_LONG && orderType !== Operation.WRITE
+          }
           onClick={() => {
-            if (orderType === Operation.CLOSE_LONG) {
-              updateItem(item, Operation.LONG)
+            if (
+              orderType === Operation.CLOSE_LONG ||
+              orderType === Operation.WRITE
+            ) {
+              if (shortTokenAmount.greaterThan('0')) {
+                updateItem(item, Operation.CLOSE_SHORT)
+              } else {
+                updateItem(item, Operation.LONG)
+              }
             } else {
-              updateItem(item, Operation.CLOSE_LONG)
+              if (tokenAmount.greaterThan('0')) {
+                updateItem(item, Operation.CLOSE_LONG)
+              } else {
+                updateItem(item, Operation.WRITE)
+              }
             }
           }}
         />
@@ -356,7 +396,7 @@ const Swap: React.FC = () => {
           </>
         )}
 
-        <Spacer />
+        <Spacer size="sm" />
         <PriceInput
           title="Quantity"
           name="primary"
@@ -367,13 +407,52 @@ const Swap: React.FC = () => {
             orderType === Operation.LONG ? underlyingAmount : tokenAmount
           }
         />
+        <Spacer size="sm" />
+        <Spacer size="sm" />
+        <Title full>Order Summary</Title>
 
-        {parsedAmount.eq(0) && !error ? <Description></Description> : <></>}
-
+        {inputLoading && hasLiquidity ? (
+          <>
+            <Loader />
+            <Spacer />
+          </>
+        ) : (
+          <>
+            {parsedAmount.gt(0) && !error ? (
+              <>
+                <LineItem
+                  label={'Execution Price'}
+                  data={getExecutionPrice()}
+                  units={underlyingAssetSymbol()}
+                  color={isBelowSlippage() ? null : 'red'}
+                  tip="The estimated price of the option after slippage."
+                />
+                <LineItem
+                  label={'Price Impact'}
+                  data={`${Math.abs(parseFloat(impact)).toString()}`}
+                  units="%"
+                  color={isBelowSlippage() ? null : 'red'}
+                  tip="The % change in the price paid."
+                />
+              </>
+            ) : (
+              <>
+                <LineItem
+                  label={'Spot Price'}
+                  data={formatBalance(prem)}
+                  units={underlyingAssetSymbol()}
+                  color={null}
+                  tip="The current spot price of the option."
+                />
+                <Spacer size="sm" />
+              </>
+            )}
+          </>
+        )}
         {parsedAmount.gt(0) && !error ? (
           <>
-            <Spacer />
-            <StyledInnerTitle>Description</StyledInnerTitle>
+            <Spacer size="sm" />
+            <Separator />
             <Spacer size="sm" />
             <Description>
               <PurchaseInfo>
@@ -405,47 +484,11 @@ const Swap: React.FC = () => {
               </PurchaseInfo>
             </Description>
             <Spacer />
-            <Spacer size="sm" />
-            <Separator />
           </>
         ) : null}
-
         <Spacer size="sm" />
-        <Title full>Order Summary</Title>
-        {!inputLoading ? (
-          <>
-            <LineItem
-              label="Price"
-              data={formatBalance(prem)}
-              units={underlyingAssetSymbol()}
-              tip="The price per 1 option token."
-            />
-          </>
-        ) : (
-          <>{hasLiquidity ? <Loader /> : null}</>
-        )}
-
-        <Spacer size="sm" />
-        {inputLoading && hasLiquidity ? (
-          <>
-            <Loader />
-            <Spacer />
-          </>
-        ) : (
-          <LineItem
-            label={isBelowSlippage() ? 'Slippage' : 'Slippage too high'}
-            data={`${Math.abs(parseFloat(impact)).toString()}`}
-            units="%"
-            color={isBelowSlippage() ? null : 'red'}
-            tip="The % change in the price paid."
-          />
-        )}
-
-        <Spacer size="sm" />
-
         {error ? (
           <Description>
-            <Spacer size="sm" />
             <WarningLabel>Order quantity too large!</WarningLabel>
             <Spacer size="sm" />
           </Description>
@@ -456,6 +499,7 @@ const Swap: React.FC = () => {
               <Button
                 disabled={loading}
                 full
+                variant="secondary"
                 size="sm"
                 onClick={handleApproval}
                 isLoading={loading}
@@ -496,17 +540,12 @@ const Swap: React.FC = () => {
                   )}
                   {approved[0] && approved[1] ? (
                     <Button
-                      disabled={
-                        !parsedAmount?.gt(0) ||
-                        error ||
-                        !hasLiquidity ||
-                        !isBelowSlippage()
-                      }
+                      disabled={!parsedAmount?.gt(0) || error || !hasLiquidity}
                       full
                       size="sm"
                       onClick={handleSubmitClick}
                       isLoading={loading}
-                      text="Confirm"
+                      text="Confirm Trade"
                     />
                   ) : null}
                 </>
@@ -538,7 +577,7 @@ const Swap: React.FC = () => {
                     size="sm"
                     onClick={handleSubmitClick}
                     isLoading={loading}
-                    text={'Confirm'}
+                    text={'Confirm Trade'}
                   />
                 </>
               )}
@@ -570,7 +609,7 @@ const WarningTooltip = styled.div`
 
 const StyledInnerTitle = styled.div`
   color: ${(props) => props.theme.color.white};
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
   display: flex;
   flex: 1;

@@ -195,70 +195,68 @@ const Market = ({ market, data }) => {
           <Loader size="lg" />
         </>
       ) : (
-        <>
+        <StyledMarket>
           <Disclaimer />
           <Notifs />
-          <StyledMarket>
-            <Grid id={'market-grid'}>
-              <Row>
-                <StyledContainer sm={12} md={8} lg={8} id="table-column">
-                  <StyledMain>
-                    <MarketHeader marketId={market}>
-                      <FilterBar
-                        active={callPutActive}
-                        setCallActive={handleFilterType}
-                      />
-                    </MarketHeader>
+          <Grid id={'market-grid'}>
+            <Row>
+              <StyledContainer sm={12} md={8} lg={8} id="table-column">
+                <StyledMain>
+                  <MarketHeader marketId={market}>
+                    <FilterBar
+                      active={callPutActive}
+                      setCallActive={handleFilterType}
+                    />
+                  </MarketHeader>
 
+                  <Spacer />
+                  <ErrorBoundary
+                    fallback={
+                      <>
+                        <Spacer />
+                        <Text>Error Loading Options, Please Refresh</Text>
+                      </>
+                    }
+                  >
+                    <OptionsTable
+                      asset={market}
+                      assetAddress={ADDRESS_FOR_MARKET[market]}
+                      optionExp={expiry}
+                      callActive={callPutActive}
+                    />
+                  </ErrorBoundary>
+                </StyledMain>
+              </StyledContainer>
+              <StyledCol sm={12} md={4} lg={4} id="sidebar-column">
+                <StyledSideBar>
+                  <ErrorBoundary
+                    fallback={
+                      <>
+                        <Spacer />
+                        <Text>Error Loading Positions Please Refresh</Text>
+                      </>
+                    }
+                  >
                     <Spacer />
-                    <ErrorBoundary
-                      fallback={
-                        <>
-                          <Spacer />
-                          <Text>Error Loading Options, Please Refresh</Text>
-                        </>
-                      }
-                    >
-                      <OptionsTable
-                        asset={market}
-                        assetAddress={ADDRESS_FOR_MARKET[market]}
-                        optionExp={expiry}
-                        callActive={callPutActive}
-                      />
-                    </ErrorBoundary>
-                  </StyledMain>
-                </StyledContainer>
-                <StyledCol sm={12} md={4} lg={4} id="sidebar-column">
-                  <StyledSideBar>
-                    <ErrorBoundary
-                      fallback={
-                        <>
-                          <Spacer />
-                          <Text>Error Loading Positions Please Refresh</Text>
-                        </>
-                      }
-                    >
-                      <Spacer />
-                      <PositionsCard />
-                      <OrderCard orderState={data} />
-                      <BalanceCard />
-                      <Spacer size="sm" />
-                      <TransactionCard />
-                      <Spacer size="sm" />
-                      {market === 'eth' || market === 'weth' ? (
-                        <>
-                          <WethWrapper />
-                        </>
-                      ) : (
-                        <></>
-                      )}
-                    </ErrorBoundary>
-                  </StyledSideBar>
-                </StyledCol>
-              </Row>
-            </Grid>
-          </StyledMarket>
-        </>
+                    <PositionsCard />
+                    <OrderCard orderState={data} />
+                    <BalanceCard />
+                    <Spacer size="sm" />
+                    <TransactionCard />
+                    <Spacer size="sm" />
+                    {market === 'eth' || market === 'weth' ? (
+                      <>
+                        <WethWrapper />
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </ErrorBoundary>
+                </StyledSideBar>
+              </StyledCol>
+            </Row>
+          </Grid>
+        </StyledMarket>
       )}
     </ErrorBoundary>
   )

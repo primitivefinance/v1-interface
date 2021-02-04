@@ -82,7 +82,11 @@ interface ColorProps {
 
 const Color = styled.span<ColorProps>`
   color: ${(props) =>
-    props.color == 'red' ? props.theme.color.red[500] : 'inherit'};
+    props.color == 'red'
+      ? props.theme.color.red[500]
+      : props.color == 'green'
+      ? props.theme.color.green[500]
+      : 'inherit'};
 `
 
 const StyledSym = styled.a`

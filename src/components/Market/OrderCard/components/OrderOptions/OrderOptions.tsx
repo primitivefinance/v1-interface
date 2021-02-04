@@ -53,7 +53,7 @@ const LPOptions: React.FC<{ balance?: any; open?: boolean }> = ({
         <LineItem
           label={'Liquidity'}
           data={balance ? formatEther(balance) : '0'}
-          units={'UNI-V2'}
+          units={'SLP'}
         />
         <Spacer size="sm" />
         <StyledARef

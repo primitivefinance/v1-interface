@@ -7,6 +7,7 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
+import Separator from '@/components/Separator'
 import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
@@ -36,26 +37,30 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     <StyledPosition onClick={handleClick}>
       <StyledPrice>
         <StyledExpiryContainer>
-          <StyledExpiry>{utc.substr(4, 12)}</StyledExpiry>
-          <StyledExpiry>Total Value</StyledExpiry>
-        </StyledExpiryContainer>
-        <StyledValuesContainer>
-          <StyledValue>
+          <StyledExpiry>
             {numeral(option.attributes.entity.strikePrice).format(
               option.attributes.entity.strikePrice >= 1 ? '$0' : '$0.00'
             )}{' '}
-            {option.attributes.entity.isCall ? 'Call' : 'Put'}
-          </StyledValue>
-          <Spacer size="sm" />
+            {option.attributes.entity.isCall ? 'Call' : 'Put'}{' '}
+            {utc.substr(4, 12)}
+          </StyledExpiry>
+        </StyledExpiryContainer>
+        <StyledValuesContainer>
           <StyledValue>
-            {numeral(
-              formatEther(
-                BigNumber.from(option.long ? option.long : 0)
-                  .mul(option.attributes.market.spotClosePremium.raw.toString())
-                  .div(parseEther('1'))
-              )
-            ).format('0.00')}{' '}
-            {option.attributes.asset.toUpperCase()}
+            {BigNumber.from(option.long).gt(0)
+              ? numeral(
+                  formatEther(BigNumber.from(option.long ? option.long : 0))
+                ).format('0.00a')
+              : '-'}{' '}
+            <Units>{'LONG'}</Units>
+          </StyledValue>
+          <StyledValue>
+            {BigNumber.from(option.redeem).gt(0)
+              ? numeral(
+                  formatEther(BigNumber.from(option.redeem ? option.redeem : 0))
+                ).format('0.00a')
+              : '0'}{' '}
+            <Units>{'SHORT '}</Units>{' '}
           </StyledValue>
         </StyledValuesContainer>
       </StyledPrice>
@@ -130,9 +135,14 @@ const PositionsCard: React.FC = () => {
     </div>
   )
 }
+const Units = styled.span`
+  opacity: 0.66;
+  font-size: 14px;
+`
 
 const Scroll = styled.div`
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   max-height: 20em;
   border-radius: ${(props) => props.theme.borderRadius}px;
 `
@@ -156,7 +166,7 @@ const StyledExpiryContainer = styled.div`
   flex-direction: row;
   flex: 1;
   justify-content: space-between;
-  padding-left: ${(props) => props.theme.spacing[4]}px;
+  padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
 `
 
@@ -165,7 +175,8 @@ const StyledValuesContainer = styled.div`
   flex: 1;
   flex-direction: row;
   justify-content: space-between;
-  padding-left: ${(props) => props.theme.spacing[4]}px;
+  top: -0.2em;
+  padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
 `
 
@@ -180,10 +191,21 @@ const StyledValue = styled.div`
   font-size: 18px;
   letter-spacing: 0.5px;
 `
+const StyledValues = styled.div`
+  color: ${(props) => props.theme.color.white};
+  font-size: 14px;
+  letter-spacing: 0.5px;
+`
 
 const StyledExpiry = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
-  font-size: 12px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+`
+
+const StyledExpiryAlt = styled.span`
+  color: ${(props) => props.theme.color.grey[400]};
+  font-size: 14px;
   letter-spacing: 0.5px;
 `
 

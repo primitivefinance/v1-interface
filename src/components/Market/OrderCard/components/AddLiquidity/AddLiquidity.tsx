@@ -528,7 +528,6 @@ const AddLiquidity: React.FC = () => {
     </LiquidityContainer>
   )
 }
-
 const LiquidityContainer = styled.div`
   width: 34em;
 `

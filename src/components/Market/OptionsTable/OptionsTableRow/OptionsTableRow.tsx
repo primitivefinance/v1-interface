@@ -17,8 +17,19 @@ import GreeksTableRow, { Greeks } from '../GreeksTableRow'
 
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
-import { parseEther } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
 import formatExpiry from '@/utils/formatExpiry'
+import { TokenAmount } from '@sushiswap/sdk'
+
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import {
+  Option,
+  UniswapMarket,
+  SushiSwapMarket,
+  Operation,
+  Venue,
+} from '@primitivefi/sdk'
 
 export interface TableColumns {
   key: string
@@ -30,6 +41,7 @@ export interface TableColumns {
   reserves: string[]
   expiry: number
   isCall: boolean
+  market: UniswapMarket | SushiSwapMarket
 }
 
 export interface OptionsTableRowProps {
@@ -58,6 +70,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     reserves,
     expiry,
     isCall,
+    market,
   } = columns
   const handleOnClick = useCallback(() => {
     if (reserves[0] !== '0.00') {
@@ -73,6 +86,42 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
   })
 
   const units = isCall ? asset.toUpperCase() : 'DAI'
+  const lpTotalSupply = useTokenTotalSupply(market.liquidityToken.address)
+
+  const calculateTotalLiquidity = useCallback(() => {
+    if (
+      typeof market === 'undefined' ||
+      market === null ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero()
+    )
+      return {
+        shortPerLp: '0',
+        underlyingPerLp: '0',
+        totalUnderlyingPerLp: '0',
+      }
+
+    const [
+      shortValue,
+      underlyingValue,
+      totalUnderlyingValue,
+    ] = market.getLiquidityValuePerShare(
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
+    const shortPerLp = parseEther(lpTotalSupply)
+      .mul(shortValue.raw.toString())
+      .div(parseEther('1'))
+    const underlyingPerLp = parseEther(lpTotalSupply)
+      .mul(underlyingValue.raw.toString())
+      .div(parseEther('1'))
+    const totalUnderlyingPerLp = parseEther(lpTotalSupply)
+      .mul(totalUnderlyingValue.raw.toString())
+      .div(parseEther('1'))
+
+    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
+  }, [market, lpTotalSupply])
 
   return (
     <StyledDiv ref={nodeRef}>
@@ -96,7 +145,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         <TableCell>
           {!isZero(parseEther(bid)) ? (
             <span>
-              {numeral(breakeven).format('0.00')} <Units>$</Units>
+              {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
             </span>
           ) : (
             <>{`-`}</>
@@ -110,17 +159,22 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
               </span>
             ) : (
               <span>
-                {numeral(bid).format('(0.000a)')} <Units>$</Units>
+                {numeral(bid).format('(0.000a)')} <Units>DAI</Units>
               </span>
             )}
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
         )}
-        {parseFloat(reserves[0]) > 0 ? (
+        {parseFloat(
+          formatEther(calculateTotalLiquidity().totalUnderlyingPerLp)
+        ) > 0 ? (
           <TableCell>
             <span>
-              {numeral(reserves[0]).format('0.00a')} <Units>{units}</Units>
+              {numeral(
+                formatEther(calculateTotalLiquidity().totalUnderlyingPerLp)
+              ).format('0.00a')}{' '}
+              <Units>{units}</Units>
             </span>
           </TableCell>
         ) : (

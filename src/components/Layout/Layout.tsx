@@ -7,6 +7,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useWeb3React } from '@web3-react/core'
 import { useClearPositions } from '@/state/positions/hooks'
+import { useClearSwap } from '@/state/swap/hooks'
 interface PageProps {
   children: any
   full?: boolean
@@ -17,6 +18,7 @@ const Layout: React.FC<PageProps> = (props) => {
   const removeItem = useRemoveItem()
   const clearOptions = useClearOptions()
   const clearPositions = useClearPositions()
+  const clearSwap = useClearSwap()
   const router = useRouter()
   const { active, account } = useWeb3React()
   useEffect(() => {
@@ -25,6 +27,8 @@ const Layout: React.FC<PageProps> = (props) => {
       removeItem()
       clearPositions()
       clearOptions()
+    } else {
+      clearSwap()
     }
   }, [props.loading])
 

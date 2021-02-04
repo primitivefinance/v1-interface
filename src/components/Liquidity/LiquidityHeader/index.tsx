@@ -31,13 +31,13 @@ const LiquidityHeader: React.FC<MarketHeaderProps> = ({
   )
 }
 const Reverse = styled.div`
-  margin-bottom: -1em;
+  margin-bottom: -2em;
 `
 
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   display: block;
-  margin-left: -15em;
+  margin-left: -21em;
   margin-right: 1em;
   margin-top: -1em;
   width: 50em;
