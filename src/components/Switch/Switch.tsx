@@ -8,6 +8,7 @@ interface SwitchProps {
   onClick: () => void
   primaryText?: string
   secondaryText?: string
+  disabled?: boolean
   variant?: 'primary' | 'secondary' | 'transparent' | 'outlined'
 }
 
@@ -16,8 +17,31 @@ const Switch: React.FC<SwitchProps> = ({
   onClick,
   primaryText,
   secondaryText,
+  disabled = false,
   variant,
 }) => {
+  if (disabled) {
+    return (
+      <StyledToggleContainer>
+        <StyledFilterBarInner>
+          <Toggle full>
+            <ToggleButton
+              disabled
+              active={active}
+              onClick={onClick}
+              text={primaryText ? primaryText : 'Buy'}
+            />
+            <ToggleButton
+              disabled
+              active={!active}
+              onClick={onClick}
+              text={secondaryText ? secondaryText : 'Sell'}
+            />
+          </Toggle>
+        </StyledFilterBarInner>
+      </StyledToggleContainer>
+    )
+  }
   return (
     <StyledToggleContainer>
       <StyledFilterBarInner>

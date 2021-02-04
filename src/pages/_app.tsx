@@ -22,6 +22,8 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Nunito Sans', sans-serif;
     position: static;
     display: block;
+    opacity: 1;
+    font-size: inital;
   }
   body.fontLoaded {
     font-family: 'Nunito Sans', sans-serif;
