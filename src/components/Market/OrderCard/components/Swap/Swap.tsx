@@ -175,6 +175,7 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
+  const underlyingBalance = useTokenBalance(entity.underlying.address)
   const redeemBalance = useTokenBalance(entity.redeem.address)
 
   const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
@@ -221,26 +222,29 @@ const Swap: React.FC = () => {
 
   const handleSetMax = useCallback(() => {
     if (orderType === Operation.LONG && !parseEther(prem).isZero()) {
-      const maxOptions = parseEther(tokenBalance)
+      const maxOptions = parseEther(underlyingBalance)
         .mul(parseEther('1'))
         .div(parseEther(prem))
+        .mul(parseEther('1'))
+        .div(getPutMultiplier())
+      console.log(prem)
       onUserInput(formatEther(maxOptions))
     } else if (
       orderType === Operation.CLOSE_LONG &&
       !parseEther(prem).isZero()
     ) {
       onUserInput(tokenBalance)
+    } else if (orderType === Operation.WRITE && !parseEther(prem).isZero()) {
+      onUserInput(underlyingBalance)
     }
-  }, [tokenBalance, onUserInput, prem])
+  }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
   const handleSubmitClick = useCallback(() => {
-    submitOrder(
-      library,
-      BigInt(parsedAmount.toString()),
-      orderType,
-      BigInt('0')
-    )
-  }, [submitOrder, item, library, parsedAmount, orderType])
+    const orderSize = entity.isPut
+      ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+      : parsedAmount
+    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
+  }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
 
   useEffect(() => {
     if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
@@ -250,7 +254,9 @@ const Swap: React.FC = () => {
       let debit = '0'
       let credit = '0'
       let short = '0'
-      const size = parsedAmount
+      const size = entity.isPut
+        ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+        : parsedAmount
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slip
@@ -312,7 +318,15 @@ const Swap: React.FC = () => {
     if (item.market && inputLoading) {
       calculateTotalCost()
     }
-  }, [item, parsedAmount, inputLoading, item.market, typedValue, orderType])
+  }, [
+    item,
+    parsedAmount,
+    inputLoading,
+    item.market,
+    typedValue,
+    orderType,
+    entity.isPut,
+  ])
 
   const getExecutionPrice = useCallback(() => {
     const long = formatEther(
@@ -323,12 +337,7 @@ const Swap: React.FC = () => {
     )
 
     return orderType === Operation.LONG ? long : short
-  }, [item, parsedAmount, cost, orderType])
-
-  const calculateProportionalShort = useCallback(() => {
-    const sizeWei = parsedAmount
-    return formatEtherBalance(entity.proportionalShort(sizeWei))
-  }, [item, parsedAmount])
+  }, [item, parsedAmount, cost, orderType, entity.isPut])
 
   const isBelowSlippage = useCallback(() => {
     return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
@@ -351,6 +360,13 @@ const Swap: React.FC = () => {
   }, [item, onApprove])
 
   const removeItem = useRemoveItem()
+
+  const getPutMultiplier = useCallback(() => {
+    const multiplier = entity.isPut
+      ? BigNumber.from(entity.baseValue.raw.toString())
+      : parseEther('1')
+    return multiplier
+  }, [item, entity.isPut, parsedAmount])
 
   const underlyingAssetSymbol = useCallback(() => {
     const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
@@ -404,7 +420,11 @@ const Swap: React.FC = () => {
           quantity={typedValue}
           onClick={handleSetMax}
           balance={
-            orderType === Operation.LONG ? underlyingAmount : tokenAmount
+            orderType === Operation.LONG
+              ? underlyingAmount
+              : entity.isPut
+              ? underlyingAmount
+              : tokenAmount
           }
         />
         <Spacer size="sm" />
@@ -420,6 +440,16 @@ const Swap: React.FC = () => {
           <>
             {parsedAmount.gt(0) && !error ? (
               <>
+                {entity.isPut ? (
+                  <LineItem
+                    label={'Put Multiplier'}
+                    data={formatEther(entity.baseValue.raw.toString())}
+                    units={'x'}
+                    tip="Each put token gives you the right to buy 1 dai. There is a multiplier to get the full strike price of put power."
+                  />
+                ) : (
+                  <> </>
+                )}
                 <LineItem
                   label={'Execution Price'}
                   data={getExecutionPrice()}
@@ -458,7 +488,9 @@ const Swap: React.FC = () => {
               <PurchaseInfo>
                 <OptionTextInfo
                   orderType={orderType}
-                  parsedAmount={parsedAmount}
+                  parsedAmount={parsedAmount
+                    .mul(getPutMultiplier())
+                    .div(parseEther('1'))}
                   isPut={entity.isPut}
                   strike={entity.quoteValue}
                   underlying={entity.baseValue}
