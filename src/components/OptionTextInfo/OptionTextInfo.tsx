@@ -66,13 +66,21 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           : ''}{' '}
         {isPut ? 'PUT' : 'CALL'}{' '}
       </StyledData>
-      {orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE ? (
+      {orderType === Operation.WRITE ? (
         <>
           by depositing{' '}
           <StyledData>
             {formatParsedAmount(parsedAmount)} {credit.token.symbol}
           </StyledData>{' '}
           as collateral for{' '}
+          <StyledData>
+            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+          </StyledData>{' '}
+          in premium.{' '}
+        </>
+      ) : orderType === Operation.CLOSE_LONG ? (
+        <>
+          for{' '}
           <StyledData>
             {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
           </StyledData>{' '}
