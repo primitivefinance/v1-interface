@@ -100,6 +100,6 @@ const OpacitySpan = styled.span`
 
 const StyledContainer = styled.div`
   width: 100%;
-  display: block;
+  display: inherit;
 `
 export default PriceInput
