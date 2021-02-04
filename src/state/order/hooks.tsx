@@ -102,9 +102,9 @@ export const useUpdateItem = (): ((
         default:
           break
       }
+      clear()
+      clearLP()
       if (orderType === Operation.NONE) {
-        clear()
-        clearLP()
         dispatch(
           updateItem({
             item,
