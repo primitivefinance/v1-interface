@@ -40,13 +40,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
     <StyledContainer>
       {balance ? (
         <Box row justifyContent="space-between">
-          {tip ? (
-            <Tooltip text={tip}>
-              <Label text={title} />
-            </Tooltip>
-          ) : (
-            <Label text={title} />
-          )}
+          <Label text={title} />
 
           <ContainerSpan>
             <LeftSpan>
