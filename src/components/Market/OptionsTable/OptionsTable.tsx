@@ -131,6 +131,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
 
   const formatTableColumns = useCallback(
     (option: any): TableColumns => {
+      const multiplier: BigNumber = option.entity.isPut
+        ? BigNumber.from(option.entity.baseValue.raw.toString())
+        : parseEther('1')
       const tableKey: string = option.entity.address
       const tableAssset: string = asset.toUpperCase()
       const tableStrike: string = option.entity.strikePrice.toString()
@@ -138,7 +141,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         option.entity.getBreakeven(
           BigNumber.from(
             option.entity.isPut
-              ? option.market.spotOpenPremium.raw.toString()
+              ? multiplier
+                  .mul(option.market.spotOpenPremium.raw.toString())
+                  .div(parseEther('1'))
               : parseEther(
                   calculatePremiumInDollars(
                     option.market.spotOpenPremium.raw.toString()
@@ -148,7 +153,11 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         )
       ).toString()
       const tableBid: string = formatEtherBalance(
-        option.market.spotClosePremium.raw.toString()
+        option.entity.isPut
+          ? multiplier
+              .mul(option.market.spotClosePremium.raw.toString())
+              .div(parseEther('1'))
+          : option.market.spotClosePremium.raw.toString()
       ).toString()
       const tableAsk: string = formatEtherBalance(
         option.market.spotOpenPremium.raw.toString()

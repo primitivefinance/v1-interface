@@ -117,9 +117,6 @@ const AddLiquidity: React.FC = () => {
   const handleOptionInput = useCallback(
     (value: string) => {
       onOptionInput(value)
-      if (value === '0.') {
-        value = '0'
-      }
       if (tab === 1) {
         onUnderInput(
           formatEther(
@@ -136,16 +133,21 @@ const AddLiquidity: React.FC = () => {
   )
   const handleUnderInput = useCallback(
     (value: string) => {
+      if (value === '') {
+        value = '0'
+      }
       onUnderInput(value)
-      onOptionInput(
-        formatEther(
-          Trade.getQuote(
-            parseEther(value),
-            item.market.reserveOf(entity.underlying).raw.toString(),
-            item.market.reserveOf(entity.redeem).raw.toString()
-          ).toString()
+      if (hasLiquidity) {
+        onOptionInput(
+          formatEther(
+            Trade.getQuote(
+              parseEther(value),
+              item.market.reserveOf(entity.underlying).raw.toString(),
+              item.market.reserveOf(entity.redeem).raw.toString()
+            ).toString()
+          )
         )
-      )
+      }
     },
     [onUnderInput, onOptionInput, tab]
   )
@@ -337,6 +339,13 @@ const AddLiquidity: React.FC = () => {
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [item.market, lp, lpTotalSupply])
 
+  const getPutMultiplier = useCallback(() => {
+    const multiplier = entity.isPut
+      ? BigNumber.from(entity.baseValue.raw.toString())
+      : parseEther('1')
+    return multiplier
+  }, [item, entity.isPut, parsedOptionAmount])
+
   const calculateImpliedPrice = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
@@ -361,9 +370,17 @@ const AddLiquidity: React.FC = () => {
         redeemAmount,
         underlyingAmount
       )
-      return formatEther(tempMarket.spotOpenPremium.raw.toString())
+      return formatEther(
+        getPutMultiplier()
+          .mul(tempMarket.spotOpenPremium.raw.toString())
+          .div(parseEther('1'))
+      )
     }
-    return formatEther(item.market.spotOpenPremium.raw.toString())
+    return formatEther(
+      getPutMultiplier()
+        .mul(item.market.spotOpenPremium.raw.toString())
+        .div(parseEther('1'))
+    )
   }, [
     item.market,
     lp,
@@ -371,11 +388,6 @@ const AddLiquidity: React.FC = () => {
     parsedOptionAmount,
     parsedUnderlyingAmount,
   ])
-
-  /* const isAboveGuardCap = useCallback(() => {
-    const inputValue = parsedUnderlyingAmount
-    return inputValue ? inputValue.gt(guardCap) && chainId === 1 : false
-  }, [parsedUnderlyingAmount, guardCap]) */
 
   const handleApproval = useCallback(() => {
     onApprove(entity.underlying.address, spender)
@@ -439,6 +451,9 @@ const AddLiquidity: React.FC = () => {
             quantity={optionValue}
             onChange={handleOptionInput}
             onClick={handleSetDoubleInputMax}
+            tip={
+              'The quantity of options that will be minted. Long and short option tokens are minted, and the short option tokens get provided as liquidity'
+            }
           />
           <Spacer />
           <PriceInput
@@ -447,7 +462,7 @@ const AddLiquidity: React.FC = () => {
             quantity={underlyingValue}
             onChange={handleUnderInput}
             onClick={handleSetDoubleInputMax}
-            balance={underlyingAmount}
+            tip={`The quantity of ${underlyingAssetSymbol()} that will be added to the pool as liquidity.`}
           />
         </>
       )}
@@ -464,6 +479,19 @@ const AddLiquidity: React.FC = () => {
       <Spacer size="sm" />
       {!hasLiquidity || tab === 1 ? (
         <>
+          {item.entity.isPut ? (
+            <>
+              <LineItem
+                label="Put multiplier"
+                data={'2'}
+                units={'x'}
+                tip="Each put option token gives the owner the right to purchase 1 Dai. The price of a full option is the price per put multiplied by the strike price."
+              />
+              <Spacer size="sm" />
+            </>
+          ) : (
+            <> </>
+          )}
           <LineItem
             label="Implied Option Price"
             data={`${calculateImpliedPrice()}`}
