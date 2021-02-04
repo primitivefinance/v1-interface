@@ -469,8 +469,9 @@ const Choice = styled.div`
 `
 
 const Asset = styled.div`
-  display: flex;
-  min-width: 150px;
+  display: flex !important;
+  flex-direction: row;
+  min-width: 140px !important;
   align-items: center;
 `
 
@@ -487,7 +488,9 @@ const StyledTitle = styled.div`
   width: 30em;
   justify-content: space-between;
 `
-const StyledDiv = styled.div``
+const StyledDiv = styled.div`
+  width: 100%;
+`
 
 const Units = styled.span`
   opacity: 0.66;

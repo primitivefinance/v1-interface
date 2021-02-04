@@ -38,6 +38,9 @@ const GlobalStyle = createGlobalStyle`
   }
   div {
     display: block;
+    position: static;
+    bottom: auto;
+    top: auto;
   }
   svg:not(:root) {
     overflow: visible;
@@ -45,6 +48,7 @@ const GlobalStyle = createGlobalStyle`
   input {
     display: block;
     position: static;
+    width: 100%;
   }
   button {
     pointer-events: inherit;

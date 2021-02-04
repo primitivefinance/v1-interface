@@ -7,6 +7,7 @@ const TableBody: React.FC = (props) => {
 
 const StyledTableBody = styled.div`
   display: block;
+  width: inherit;
 `
 
 export default TableBody

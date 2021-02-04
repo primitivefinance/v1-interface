@@ -210,7 +210,7 @@ const StyledMarket = styled.div`
   scrollbar-width: thin;
 `
 
-export const StyledLitContainer = styled(Col)`
+export const StyledLitContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
