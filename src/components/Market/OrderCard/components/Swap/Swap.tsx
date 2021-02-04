@@ -234,13 +234,11 @@ const Swap: React.FC = () => {
   }, [tokenBalance, onUserInput, prem])
 
   const handleSubmitClick = useCallback(() => {
-    submitOrder(
-      library,
-      BigInt(parsedAmount.toString()),
-      orderType,
-      BigInt('0')
-    )
-  }, [submitOrder, item, library, parsedAmount, orderType])
+    const orderSize = entity.isPut
+      ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+      : parsedAmount
+    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
+  }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
 
   useEffect(() => {
     if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
@@ -250,7 +248,9 @@ const Swap: React.FC = () => {
       let debit = '0'
       let credit = '0'
       let short = '0'
-      const size = parsedAmount
+      const size = entity.isPut
+        ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+        : parsedAmount
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slip
@@ -312,9 +312,20 @@ const Swap: React.FC = () => {
     if (item.market && inputLoading) {
       calculateTotalCost()
     }
-  }, [item, parsedAmount, inputLoading, item.market, typedValue, orderType])
+  }, [
+    item,
+    parsedAmount,
+    inputLoading,
+    item.market,
+    typedValue,
+    orderType,
+    entity.isPut,
+  ])
 
   const getExecutionPrice = useCallback(() => {
+    const size = entity.isPut
+      ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+      : parsedAmount
     const long = formatEther(
       parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
     )
@@ -323,7 +334,7 @@ const Swap: React.FC = () => {
     )
 
     return orderType === Operation.LONG ? long : short
-  }, [item, parsedAmount, cost, orderType])
+  }, [item, parsedAmount, cost, orderType, entity.isPut])
 
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
@@ -351,6 +362,13 @@ const Swap: React.FC = () => {
   }, [item, onApprove])
 
   const removeItem = useRemoveItem()
+
+  const getPutMultiplier = useCallback(() => {
+    const multiplier = entity.isPut
+      ? BigNumber.from(entity.baseValue.raw.toString())
+      : parseEther('1')
+    return multiplier
+  }, [item, entity.isPut, parsedAmount])
 
   const underlyingAssetSymbol = useCallback(() => {
     const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
@@ -420,6 +438,16 @@ const Swap: React.FC = () => {
           <>
             {parsedAmount.gt(0) && !error ? (
               <>
+                {entity.isPut ? (
+                  <LineItem
+                    label={'Put Multiplier'}
+                    data={formatEther(entity.baseValue.raw.toString())}
+                    units={'x'}
+                    tip="Each put token gives you the right to buy 1 dai. There is a multiplier to get the full strike price of put power."
+                  />
+                ) : (
+                  <> </>
+                )}
                 <LineItem
                   label={'Execution Price'}
                   data={getExecutionPrice()}
@@ -458,7 +486,9 @@ const Swap: React.FC = () => {
               <PurchaseInfo>
                 <OptionTextInfo
                   orderType={orderType}
-                  parsedAmount={parsedAmount}
+                  parsedAmount={parsedAmount
+                    .mul(getPutMultiplier())
+                    .div(parseEther('1'))}
                   isPut={entity.isPut}
                   strike={entity.quoteValue}
                   underlying={entity.baseValue}

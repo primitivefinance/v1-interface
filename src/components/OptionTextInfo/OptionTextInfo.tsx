@@ -65,11 +65,15 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       </StyledData>
       {orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE ? (
         <>
-          for{' '}
+          using{' '}
+          <StyledData>
+            {formatParsedAmount(parsedAmount)} {credit.token.symbol}
+          </StyledData>{' '}
+          as collateral for{' '}
           <StyledData>
             {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
-          </StyledData>
-          .{' '}
+          </StyledData>{' '}
+          in premium.{' '}
         </>
       ) : orderType === Operation.CLOSE_SHORT ? (
         <>
@@ -77,7 +81,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <StyledData>
             {formatParsedAmount(short.raw.toString())} {short.token.symbol}
           </StyledData>
-          .{' '}
+          in premium.{' '}
         </>
       ) : orderType === Operation.SHORT ? (
         <>
