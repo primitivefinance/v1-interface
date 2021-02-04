@@ -488,7 +488,9 @@ const StyledTitle = styled.div`
   width: 30em;
   justify-content: space-between;
 `
-const StyledDiv = styled.div``
+const StyledDiv = styled.div`
+  width: 100%;
+`
 
 const Units = styled.span`
   opacity: 0.66;
