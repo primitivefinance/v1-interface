@@ -48,6 +48,7 @@ const GlobalStyle = createGlobalStyle`
   input {
     display: block;
     position: static;
+    width: 100%;
   }
   button {
     pointer-events: inherit;
