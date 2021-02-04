@@ -49,8 +49,11 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
   }, [orderType])
 
   const calculateProportionalShort = useCallback(() => {
+    if (isPut) {
+      return parsedAmount.mul(parseEther('1')).div(underlying.raw.toString())
+    }
     return parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-  }, [parsedAmount, orderType, strike])
+  }, [parsedAmount, orderType, strike, isPut])
 
   return (
     <StyledSpan>
@@ -65,7 +68,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       </StyledData>
       {orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE ? (
         <>
-          using{' '}
+          by depositing{' '}
           <StyledData>
             {formatParsedAmount(parsedAmount)} {credit.token.symbol}
           </StyledData>{' '}
@@ -105,22 +108,41 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           if they are exercised.{' '}
         </>
       ) : orderType === Operation.LONG ? (
-        <>
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
-          </StyledData>{' '}
-          which gives you the right to purchase{' '}
-          <StyledData>
-            {formatParsedAmount(parsedAmount)} {underlying.token.symbol}
-          </StyledData>{' '}
-          for{' '}
-          <StyledData>
-            {formatParsedAmount(calculateProportionalShort())}{' '}
-            {strike.token.symbol}
-          </StyledData>
-          .{' '}
-        </>
+        isPut ? (
+          <>
+            for{' '}
+            <StyledData>
+              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+            </StyledData>{' '}
+            which gives you the right to sell{' '}
+            <StyledData>
+              {formatParsedAmount(calculateProportionalShort())}{' '}
+              {strike.token.symbol}
+            </StyledData>{' '}
+            for{' '}
+            <StyledData>
+              {formatParsedAmount(parsedAmount)} {underlying.token.symbol}
+            </StyledData>
+            .{' '}
+          </>
+        ) : (
+          <>
+            for{' '}
+            <StyledData>
+              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+            </StyledData>{' '}
+            which gives you the right to purchase{' '}
+            <StyledData>
+              {formatParsedAmount(parsedAmount)} {underlying.token.symbol}
+            </StyledData>{' '}
+            for{' '}
+            <StyledData>
+              {formatParsedAmount(calculateProportionalShort())}{' '}
+              {strike.token.symbol}
+            </StyledData>
+            .{' '}
+          </>
+        )
       ) : (
         <>
           which gives you the right to purchase{' '}
@@ -129,7 +151,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           </StyledData>{' '}
           for{' '}
           <StyledData>
-            {isPut ? +strike.raw.toString() : +strike.raw.toString()}{' '}
+            {formatParsedAmount(parseEther('1').div(strike.raw.toString()))}{' '}
             {strike.token.symbol}
           </StyledData>
           .{' '}

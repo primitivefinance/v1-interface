@@ -175,6 +175,7 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
+  const underlyingBalance = useTokenBalance(entity.underlying.address)
   const redeemBalance = useTokenBalance(entity.redeem.address)
 
   const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
@@ -221,17 +222,22 @@ const Swap: React.FC = () => {
 
   const handleSetMax = useCallback(() => {
     if (orderType === Operation.LONG && !parseEther(prem).isZero()) {
-      const maxOptions = parseEther(tokenBalance)
+      const maxOptions = parseEther(underlyingBalance)
         .mul(parseEther('1'))
         .div(parseEther(prem))
+        .mul(parseEther('1'))
+        .div(getPutMultiplier())
+      console.log(prem)
       onUserInput(formatEther(maxOptions))
     } else if (
       orderType === Operation.CLOSE_LONG &&
       !parseEther(prem).isZero()
     ) {
       onUserInput(tokenBalance)
+    } else if (orderType === Operation.WRITE && !parseEther(prem).isZero()) {
+      onUserInput(underlyingBalance)
     }
-  }, [tokenBalance, onUserInput, prem])
+  }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
   const handleSubmitClick = useCallback(() => {
     const orderSize = entity.isPut
@@ -323,9 +329,6 @@ const Swap: React.FC = () => {
   ])
 
   const getExecutionPrice = useCallback(() => {
-    const size = entity.isPut
-      ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
-      : parsedAmount
     const long = formatEther(
       parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
     )
@@ -335,11 +338,6 @@ const Swap: React.FC = () => {
 
     return orderType === Operation.LONG ? long : short
   }, [item, parsedAmount, cost, orderType, entity.isPut])
-
-  const calculateProportionalShort = useCallback(() => {
-    const sizeWei = parsedAmount
-    return formatEtherBalance(entity.proportionalShort(sizeWei))
-  }, [item, parsedAmount])
 
   const isBelowSlippage = useCallback(() => {
     return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
