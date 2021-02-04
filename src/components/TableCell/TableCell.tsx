@@ -6,10 +6,11 @@ const TableCell: React.FC = (props) => {
 }
 
 const StyledTableCell = styled.div`
+  width: 100% !important;
   color: inherit;
   flex: 1;
-  display: block;
-  position: inherit;
+  display: block !important;
+  position: static !important;
 `
 
 export default TableCell
