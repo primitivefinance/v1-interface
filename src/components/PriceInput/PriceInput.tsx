@@ -7,6 +7,7 @@ import Label from '@/components/Label'
 import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import { BigNumberish } from 'ethers'
+import Tooltip from '@/components/Tooltip'
 
 import { TokenAmount, JSBI } from '@uniswap/sdk'
 
@@ -21,6 +22,7 @@ export interface PriceInputProps {
   startAdornment?: React.ReactNode
   balance?: TokenAmount
   valid?: boolean
+  tip?: string
 }
 
 const PriceInput: React.FC<PriceInputProps> = ({
@@ -32,12 +34,14 @@ const PriceInput: React.FC<PriceInputProps> = ({
   startAdornment,
   balance,
   valid,
+  tip,
 }) => {
   return (
     <StyledContainer>
       {balance ? (
         <Box row justifyContent="space-between">
           <Label text={title} />
+
           <ContainerSpan>
             <LeftSpan>
               <OpacitySpan>Max</OpacitySpan>
@@ -92,6 +96,9 @@ const LeftSpan = styled.span`
 
 const RightSpan = styled.span`
   align-self: flex-end;
+  &:hover {
+    opacity: 0.55;
+  }
 `
 
 const OpacitySpan = styled.span`

@@ -20,7 +20,8 @@ const GlobalStyle = createGlobalStyle`
     background-color: #040404;
     cursor: default;
     font-family: 'Nunito Sans', sans-serif;
-    position: relative;
+    position: static;
+    display: block;
   }
   body.fontLoaded {
     font-family: 'Nunito Sans', sans-serif;
@@ -33,15 +34,30 @@ const GlobalStyle = createGlobalStyle`
   }
   span {
     color: white;
+    position: static;
   }
   div {
     display: block;
   }
   svg:not(:root) {
     overflow: visible;
-  } 
+  }
+  input {
+    display: block;
+    position: static;
+  }
   button {
     pointer-events: inherit;
+    display: block;
+    position: static;
+  }
+  img {
+    display: block;
+    position: static;
+  }
+  p, h1, h2, h3 {
+    display: block;
+    position: static;
   }
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
