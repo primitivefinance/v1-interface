@@ -175,15 +175,23 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
-  const optionTokenAmount = new Token(
-    entity.chainId,
-    entity.address,
-    18,
-    'LONG'
-  )
+  const redeemBalance = useTokenBalance(entity.redeem.address)
+
+  const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
   const tokenAmount: TokenAmount = new TokenAmount(
-    optionTokenAmount,
+    optionToken,
     parseEther(tokenBalance).toString()
+  )
+
+  const shortToken = new Token(
+    entity.chainId,
+    entity.redeem.address,
+    18,
+    'SHORT'
+  )
+  const shortTokenAmount: TokenAmount = new TokenAmount(
+    shortToken,
+    parseEther(redeemBalance).toString()
   )
 
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
@@ -235,6 +243,9 @@ const Swap: React.FC = () => {
   }, [submitOrder, item, library, parsedAmount, orderType])
 
   useEffect(() => {
+    if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
+      updateItem(item, Operation.CLOSE_SHORT)
+    }
     const calculateTotalCost = async () => {
       let debit = '0'
       let credit = '0'
@@ -361,7 +372,11 @@ const Swap: React.FC = () => {
               orderType === Operation.CLOSE_LONG ||
               orderType === Operation.WRITE
             ) {
-              updateItem(item, Operation.LONG)
+              if (shortTokenAmount.greaterThan('0')) {
+                updateItem(item, Operation.CLOSE_SHORT)
+              } else {
+                updateItem(item, Operation.LONG)
+              }
             } else {
               if (tokenAmount.greaterThan('0')) {
                 updateItem(item, Operation.CLOSE_LONG)
