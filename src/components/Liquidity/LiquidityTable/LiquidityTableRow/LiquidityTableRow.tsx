@@ -469,8 +469,9 @@ const Choice = styled.div`
 `
 
 const Asset = styled.div`
-  display: flex;
-  min-width: 150px;
+  display: flex !important;
+  flex-direction: row;
+  min-width: 140px !important;
   align-items: center;
 `
 

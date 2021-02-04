@@ -39,6 +39,8 @@ const GlobalStyle = createGlobalStyle`
   div {
     display: block;
     position: static;
+    bottom: auto;
+    top: auto;
   }
   svg:not(:root) {
     overflow: visible;
