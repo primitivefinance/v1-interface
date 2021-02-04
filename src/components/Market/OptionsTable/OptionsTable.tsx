@@ -31,6 +31,7 @@ import OptionsTableRow, { TableColumns } from './OptionsTableRow'
 import OptionsTableHeader from './OptionsTableHeader'
 import LoadingTable from './LoadingTable'
 import { useAddNotif } from '@/state/notifs/hooks'
+import { TokenAmount } from '@sushiswap/sdk'
 
 export type FormattedOption = {
   breakEven: number
@@ -174,6 +175,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         reserves: tableReserves,
         expiry: tableExpiry,
         isCall: option.entity.isCall,
+        market: option.market,
       }
       return tableColumns
     },

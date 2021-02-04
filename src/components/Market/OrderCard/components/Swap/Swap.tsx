@@ -303,6 +303,17 @@ const Swap: React.FC = () => {
     }
   }, [item, parsedAmount, inputLoading, item.market, typedValue, orderType])
 
+  const getExecutionPrice = useCallback(() => {
+    const long = formatEther(
+      parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
+    )
+    const short = formatEther(
+      parseEther(cost.credit).mul(parseEther('1')).div(parsedAmount)
+    )
+
+    return orderType === Operation.LONG ? long : short
+  }, [item, parsedAmount, cost, orderType])
+
   const calculateProportionalShort = useCallback(() => {
     const sizeWei = parsedAmount
     return formatEtherBalance(entity.proportionalShort(sizeWei))
@@ -396,31 +407,7 @@ const Swap: React.FC = () => {
               <>
                 <LineItem
                   label={'Execution Price'}
-                  data={
-                    orderType === Operation.LONG
-                      ? `${
-                          parseFloat(
-                            formatParsedAmount(
-                              parseEther(cost.debit).toString()
-                            ).toString()
-                          ) /
-                          parseFloat(
-                            formatParsedAmount(
-                              parsedAmount.toString()
-                            ).toString()
-                          )
-                        }`
-                      : `${
-                          parseFloat(
-                            formatParsedAmount(
-                              parseEther(cost.credit).toString()
-                            )
-                          ) /
-                          parseFloat(
-                            formatParsedAmount(parsedAmount.toString())
-                          )
-                        }`
-                  }
+                  data={getExecutionPrice()}
                   units={underlyingAssetSymbol()}
                   color={isBelowSlippage() ? null : 'red'}
                   tip="The estimated price of the option after slippage."
