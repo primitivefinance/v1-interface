@@ -59,6 +59,7 @@ const StyledAddressButton = styled.div`
   text-decoration: none;
   background: black;
   color: grey;
+  margin-bottom: 0.2em;
   &:hover {
     color: ${(props) => props.theme.color.white};
   }

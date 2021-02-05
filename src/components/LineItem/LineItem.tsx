@@ -91,6 +91,8 @@ const Color = styled.span<ColorProps>`
 
 const StyledSym = styled.a`
   opacity: 0.66;
+  color: ${(props) => props.theme.color.grey[400]};
+  font-size: 14px;
 `
 const StyledLabel = styled.span<ColorProps>`
   align-items: center;
@@ -110,5 +112,9 @@ const StyledLabel = styled.span<ColorProps>`
 const Container = styled.div`
   width: 100%;
   display: block;
+  color: ${(props) =>
+    props.color == 'red'
+      ? props.theme.color.red[500]
+      : props.theme.color.white};
 `
 export default LineItem

@@ -171,6 +171,10 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
 
 const StyledSpan = styled.span`
   color: ${(props) => props.theme.color.grey[400]};
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
 `
 
 const StyledData = styled.span`
@@ -178,6 +182,7 @@ const StyledData = styled.span`
   font-size: 16px;
   font-weight: 500;
   text-transform: uppercase;
+  letter-spacing: 0px;
 `
 
 export default OptionTextInfo
