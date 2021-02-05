@@ -23,7 +23,7 @@ const Disclaimer: React.FC = () => {
           Please use the Primitive Interface and Primitive Protocol at your own
           risk.
         </Body>
-        <Spacer size="sm" />
+        <Spacer />
         <Body>
           Visit the{' '}
           <StyledLink href={'/risks'}>
@@ -44,6 +44,7 @@ const Disclaimer: React.FC = () => {
 
 const LinkInt = styled.span`
   text-decoration: none;
+  color: ${(props) => props.theme.color.white};
   &:hover {
     color: ${(props) => props.theme.color.grey[400]};
     cursor: pointer;
