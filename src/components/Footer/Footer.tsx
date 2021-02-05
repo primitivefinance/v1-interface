@@ -29,7 +29,7 @@ const breathe = keyframes`
 
 const StyledContainer = styled.div`
   position: fixed;
-  bottom: -1.5em;
+  bottom: -0.7em;
   width: 100%;
   pointer-events: none;
   z-index: 200;
@@ -50,7 +50,7 @@ const StyledBlockNumber = styled.h5`
   opacity: 90%;
   border-radius: 10px;
   color: ${(props) => props.theme.color.white};
-  background-color: ${(props) => props.theme.color.black};
+  background-color: #040404;
   display: flex;
   max-height: 0.1em;
   padding: ${(props) => props.theme.spacing[4]}px;

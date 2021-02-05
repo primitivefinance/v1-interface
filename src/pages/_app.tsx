@@ -55,12 +55,6 @@ const GlobalStyle = createGlobalStyle`
   span {
     position: static;
   }
-  div {
-    display: block;
-    position: static;
-    bottom: auto;
-    top: auto;
-  }
   layer {
     display: block;
   }
@@ -100,6 +94,7 @@ const GlobalStyle = createGlobalStyle`
     font-size: 100%;
     font: inherit;
     vertical-align: baseline;
+    line-height: 1.3;
   }
   /* HTML5 display-role reset for older browsers */
   article, aside, details, figcaption, figure, 

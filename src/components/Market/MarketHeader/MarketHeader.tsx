@@ -130,10 +130,8 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
           </StyledContent>
           <Spacer />
           <StyledContent>
-            <div style={{ marginTop: '.1em' }} />
             <StyledSymbol>Venue</StyledSymbol>
             <Spacer size="sm" />
-            <div style={{ marginTop: '.1em' }} />
             <Asset>
               <img
                 height="24"
@@ -144,7 +142,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
               <Spacer size="sm" />
               SushiSwap
             </Asset>
-            <div style={{ marginTop: '.25em' }} />
           </StyledContent>
 
           <Spacer size="sm" />

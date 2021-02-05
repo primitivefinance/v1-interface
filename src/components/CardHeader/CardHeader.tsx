@@ -17,21 +17,29 @@ interface CardHeaderProps {
 
 const CardHeader: React.FC<CardHeaderProps> = ({ title, onClick }) => {
   return (
-    <Title full>
-      {title.text}
-      {onClick ? (
-        <CustomButton>
-          <Button variant="transparent" size="sm" onClick={onClick}>
-            <ClearIcon />
-          </Button>
-        </CustomButton>
-      ) : null}
-    </Title>
+    <>
+      <Title full>
+        {title.text}
+        {onClick ? (
+          <CustomButton>
+            <Button variant="transparent" size="sm" onClick={onClick}>
+              <ClearIcon />
+            </Button>
+          </CustomButton>
+        ) : null}
+      </Title>
+      <Reverse />
+    </>
   )
 }
 
+const Reverse = styled.div`
+  margin-bottom: -0.5em;
+`
+
 const CustomButton = styled.div`
   margin-top: -0.1em;
+  margin-right: -1.1em;
   background: none;
 `
 

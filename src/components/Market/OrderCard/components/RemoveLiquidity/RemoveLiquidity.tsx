@@ -435,7 +435,7 @@ const RemoveLiquidity: React.FC = () => {
             size="sm"
             onClick={() => {}}
             isLoading={true}
-            text="Confirm"
+            text="Remove Liquidity"
           />
         ) : (
           <>
@@ -471,7 +471,7 @@ const RemoveLiquidity: React.FC = () => {
                 size="sm"
                 onClick={handleSubmitClick}
                 isLoading={submitting}
-                text="Confirm Transaction"
+                text="Remove Liquidity"
               />
             )}
           </>

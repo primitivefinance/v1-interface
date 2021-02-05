@@ -110,7 +110,7 @@ const Risks: React.FC = () => {
         <StyledText>
           ERC-20 tokens which have fees taken out on transfer (deflationary) can
           alter balances, which could break the internal accounting methods of
-          the Primitive V1 Opti0n.
+          the Primitive V1 Option.
         </StyledText>
         <StyledSpacer size={24} />
         <StyledText>

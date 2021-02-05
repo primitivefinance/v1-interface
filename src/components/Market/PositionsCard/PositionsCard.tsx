@@ -109,7 +109,7 @@ const PositionsCard: React.FC = () => {
   return (
     <div>
       <Card border>
-        <Reverse />
+        <Spacer size="sm" />
         <CardTitle>
           <div onClick={() => setOpen(!open)}>
             <StyledBox row justifyContent="space-between" alignItems="center">
@@ -119,7 +119,8 @@ const PositionsCard: React.FC = () => {
             </StyledBox>
           </div>
         </CardTitle>
-        <Reverse />
+        <Spacer size="sm" />
+
         {!open ? (
           <Spacer size="sm" />
         ) : (
