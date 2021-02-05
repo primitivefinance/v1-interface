@@ -23,6 +23,7 @@ const Disclaimer: React.FC = () => {
           Please use the Primitive Interface and Primitive Protocol at your own
           risk.
         </Body>
+        <Spacer size="sm" />
         <Body>
           Visit the{' '}
           <StyledLink href={'/risks'}>
@@ -32,7 +33,7 @@ const Disclaimer: React.FC = () => {
           </StyledLink>{' '}
           page for more information.
         </Body>
-        <Spacer size="sm" />
+        <Spacer />
         <Button full onClick={handleConfirm}>
           Accept
         </Button>
@@ -55,8 +56,8 @@ const Body = styled.h4`
 `
 const StyledDis = styled.h3`
   color: white;
-  font-size: 18px;
-  margin-bottom: 1em;
+  font-size: 20px;
+  margin-bottom: 0.8em;
 `
 const Backdrop = styled.div`
   z-index: 400;
