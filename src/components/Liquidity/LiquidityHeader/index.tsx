@@ -37,7 +37,7 @@ const Reverse = styled.div`
 const StyledHeader = styled.div`
   padding-bottom: ${(props) => props.theme.spacing[4]}px;
   display: block;
-  margin-left: -21em;
+  margin-left: 7em;
   margin-right: 1em;
   margin-top: -1em;
   width: 50em;

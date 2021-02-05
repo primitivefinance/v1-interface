@@ -119,6 +119,7 @@ const OptionsContainer = styled.div`
   flex-direction: column;
   margin-left: 3em;
   margin-top: 0em;
+  width: 40%;
 `
 
 export default LiquidityTable

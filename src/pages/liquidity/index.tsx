@@ -188,6 +188,7 @@ const StyledDiv = styled.div`
 
 const StyledMarket = styled.div`
   width: 100%;
+  margin-left: 4em;
   min-height: 85vh;
   overflow-x: hidden;
   overfloy-y: allowed !important;
@@ -213,7 +214,7 @@ const StyledMarket = styled.div`
 export const StyledLitContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 `
 
 const StyledHeaderContainer = styled.div`
