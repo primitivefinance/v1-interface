@@ -45,7 +45,7 @@ const StyledSubtitle = styled.h3`
   color: ${(props) => props.theme.color.grey[400]};
   font-size: 18px;
   font-weight: 400;
-  margin: -1em 0 -1em 0;
+  margin: 1.3em 0 -1.3em 0;
   padding: 0;
   text-align: center;
 `
