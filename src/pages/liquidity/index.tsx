@@ -163,19 +163,17 @@ const Liquidity = ({ icons }) => {
         <StyledMarket>
           <Disclaimer />
           <Notifs />
-          <StyledLitContainer>
-            <StyledHeaderContainer>
-              <LiquidityHeader icons={icons} isCall={callPutActive}>
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={() => setCallPutActive(!callPutActive)}
-                />
-              </LiquidityHeader>
-            </StyledHeaderContainer>
+          <StyledHeaderContainer>
+            <LiquidityHeader icons={icons} isCall={callPutActive}>
+              <FilterBar
+                active={callPutActive}
+                setCallActive={() => setCallPutActive(!callPutActive)}
+              />
+            </LiquidityHeader>
+          </StyledHeaderContainer>
 
-            <LiquidityTable callActive={callPutActive} />
-            <Spacer />
-          </StyledLitContainer>
+          <LiquidityTable callActive={callPutActive} />
+          <Spacer />
         </StyledMarket>
       )}
     </ErrorBoundary>
@@ -187,12 +185,15 @@ const StyledDiv = styled.div`
 `
 
 const StyledMarket = styled.div`
-  width: 100%;
-  margin-left: 4em;
+  width: 150%;
+  margin-left: -350px;
   min-height: 85vh;
   overflow-x: hidden;
   overfloy-y: allowed !important;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   &::-webkit-scrollbar {
     width: 0px;
     height: 15px;
@@ -211,18 +212,13 @@ const StyledMarket = styled.div`
   scrollbar-width: thin;
 `
 
-export const StyledLitContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`
+export const StyledLitContainer = styled.div``
 
 const StyledHeaderContainer = styled.div`
-  position: relative;
-  width: 40%;
+  width: 80%;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   padding: ${(props) => props.theme.spacing[3]}px;
 `
 
