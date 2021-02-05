@@ -377,7 +377,6 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
-        <Separator />
         <Switch
           disabled={loading}
           active={

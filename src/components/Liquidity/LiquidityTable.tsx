@@ -117,8 +117,9 @@ const ScrollBody = styled(TableBody)``
 const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 3em;
+  margin-left: 5em;
   margin-top: 0em;
+  width: 90%;
 `
 
 export default LiquidityTable

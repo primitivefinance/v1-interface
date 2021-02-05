@@ -163,19 +163,22 @@ const Liquidity = ({ icons }) => {
         <StyledMarket>
           <Disclaimer />
           <Notifs />
-          <StyledLitContainer>
-            <StyledHeaderContainer>
-              <LiquidityHeader icons={icons} isCall={callPutActive}>
-                <FilterBar
-                  active={callPutActive}
-                  setCallActive={() => setCallPutActive(!callPutActive)}
-                />
-              </LiquidityHeader>
-            </StyledHeaderContainer>
+          <Grid id={'market-grid'}>
+            <Col>
+              <StyledHeaderContainer>
+                <LiquidityHeader icons={icons} isCall={callPutActive}>
+                  <FilterBar
+                    active={callPutActive}
+                    setCallActive={() => setCallPutActive(!callPutActive)}
+                  />
+                </LiquidityHeader>
+              </StyledHeaderContainer>
+              <Spacer />
 
-            <LiquidityTable callActive={callPutActive} />
-            <Spacer />
-          </StyledLitContainer>
+              <LiquidityTable callActive={callPutActive} />
+              <Spacer />
+            </Col>
+          </Grid>
         </StyledMarket>
       )}
     </ErrorBoundary>
@@ -191,7 +194,7 @@ const StyledMarket = styled.div`
   min-height: 85vh;
   overflow-x: hidden;
   overfloy-y: allowed !important;
-  position: relative;
+  position: absolute;
   &::-webkit-scrollbar {
     width: 0px;
     height: 15px;
@@ -210,19 +213,15 @@ const StyledMarket = styled.div`
   scrollbar-width: thin;
 `
 
-export const StyledLitContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
+export const StyledLitContainer = styled.div``
 
 const StyledHeaderContainer = styled.div`
-  position: relative;
-  width: 40%;
+  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  padding: ${(props) => props.theme.spacing[3]}px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-grow: 1;
 `
 
 const Text = styled.span`

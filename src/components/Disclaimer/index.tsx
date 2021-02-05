@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import Link from 'next/link'
 import Button from '@/components/Button'
 import LaunchIcon from '@material-ui/icons/Launch'
+import Spacer from '@/components/Spacer'
 
 import { useDisclaimer } from '@/hooks/user/index'
 
@@ -22,6 +23,7 @@ const Disclaimer: React.FC = () => {
           Please use the Primitive Interface and Primitive Protocol at your own
           risk.
         </Body>
+        <Spacer />
         <Body>
           Visit the{' '}
           <StyledLink href={'/risks'}>
@@ -31,8 +33,9 @@ const Disclaimer: React.FC = () => {
           </StyledLink>{' '}
           page for more information.
         </Body>
+        <Spacer />
         <Button full onClick={handleConfirm}>
-          Accept Disclosure
+          Accept
         </Button>
       </StyledCard>
     </Backdrop>
@@ -41,6 +44,7 @@ const Disclaimer: React.FC = () => {
 
 const LinkInt = styled.span`
   text-decoration: none;
+  color: ${(props) => props.theme.color.white};
   &:hover {
     color: ${(props) => props.theme.color.grey[400]};
     cursor: pointer;
@@ -53,6 +57,8 @@ const Body = styled.h4`
 `
 const StyledDis = styled.h3`
   color: white;
+  font-size: 20px;
+  margin-bottom: 0.8em;
 `
 const Backdrop = styled.div`
   z-index: 400;
@@ -65,7 +71,7 @@ const Backdrop = styled.div`
 const StyledCard = styled.div`
   left: 40%;
   top: 20%;
-  padding: 0 2em 2em 2em;
+  padding: 1em 1em 1em 1em;
   border-radius: 0.3em;
   position: absolute;
   width: 22em;

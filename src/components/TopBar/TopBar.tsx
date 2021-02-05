@@ -79,10 +79,7 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
           </Link>
         </StyledNav>
         <StyledFlex>
-          <Spacer size="lg" /> <Spacer size="lg" />
-          <Spacer size="lg" /> <Spacer size="lg" />
           <Wallet />
-          <Spacer size="sm" />
           <Spacer size="sm" />
         </StyledFlex>
       </Container>

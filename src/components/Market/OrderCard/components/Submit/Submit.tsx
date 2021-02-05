@@ -50,7 +50,7 @@ const Submit: React.FC<SubmitProps> = () => {
 }
 
 const StyledDiv = styled.div`
-  padding: 1em;
+  padding: 0.4em;
   //background: black;
   display: flex;
   flex-direction: column;

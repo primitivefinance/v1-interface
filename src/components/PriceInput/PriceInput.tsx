@@ -84,8 +84,11 @@ const PriceInput: React.FC<PriceInputProps> = ({
 
 const ContainerSpan = styled.span`
   display: flex;
+  color: ${(props) => props.theme.color.white};
+  font-size: 14px;
   &:hover {
     cursor: pointer;
+    color: ${(props) => props.theme.color.grey[400]}};
   }
 `
 
@@ -96,9 +99,6 @@ const LeftSpan = styled.span`
 
 const RightSpan = styled.span`
   align-self: flex-end;
-  &:hover {
-    opacity: 0.55;
-  }
 `
 
 const OpacitySpan = styled.span`

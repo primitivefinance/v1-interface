@@ -15,13 +15,31 @@ const GlobalStyle = createGlobalStyle`
   body {
     line-height: 1.5;
     margin: 0;
+    display: block;
+  }
+  head {
+    display: none;
+  }
+  meta {
+    display: none;
+  }
+  title {
+    display: none;
+  }
+  link {
+    display: none;
+  }
+  style {
+    display: none;
+  }
+  script {
+    display: none;
   }
   body {
     background-color: #040404;
     cursor: default;
     font-family: 'Nunito Sans', sans-serif;
     position: static;
-    display: block;
     opacity: 1;
     font-size: inital;
   }
@@ -35,14 +53,10 @@ const GlobalStyle = createGlobalStyle`
     min-width: 100%;
   }
   span {
-    color: white;
     position: static;
   }
-  div {
+  layer {
     display: block;
-    position: static;
-    bottom: auto;
-    top: auto;
   }
   svg:not(:root) {
     overflow: visible;
@@ -61,10 +75,51 @@ const GlobalStyle = createGlobalStyle`
     display: block;
     position: static;
   }
-  p, h1, h2, h3 {
-    display: block;
-    position: static;
+  html, div, span, applet, object, iframe,
+  h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+  a, abbr, acronym, address, big, cite, code,
+  del, dfn, em, img, ins, kbd, q, s, samp,
+  small, strike, strong, sub, sup, tt, var,
+  b, u, i, center,
+  dl, dt, dd, ol, ul, li,
+  fieldset, form, label, legend,
+  table, caption, tbody, tfoot, thead, tr, th, td,
+  article, aside, canvas, details, embed, 
+  figure, figcaption, footer, header, hgroup, 
+  menu, nav, output, ruby, section, summary,
+  time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    line-height: 1.3;
   }
+  /* HTML5 display-role reset for older browsers */
+  article, aside, details, figcaption, figure, 
+  footer, header, hgroup, menu, nav, section {
+    display: block;
+  }
+  body {
+    line-height: 1;
+  }
+  ol, ul {
+    list-style: none;
+  }
+  blockquote, q {
+    quotes: none;
+  }
+  blockquote:before, blockquote:after,
+  q:before, q:after {
+    content: '';
+    content: none;
+  }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
 `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getLibrary = (provider: any): Web3Provider => {

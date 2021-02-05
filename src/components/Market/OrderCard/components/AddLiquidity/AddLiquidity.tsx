@@ -520,7 +520,7 @@ const AddLiquidity: React.FC = () => {
                 full
                 size="sm"
                 onClick={() => {}}
-                text={`Confirm Transaction`}
+                text={`Add Liquidity`}
               />
             </Box>
           </div>
@@ -548,7 +548,7 @@ const AddLiquidity: React.FC = () => {
               full
               size="sm"
               onClick={handleSubmitClick}
-              text={'Confirm Transaction'}
+              text={`Add Liquidity`}
             />
           </>
         )}
