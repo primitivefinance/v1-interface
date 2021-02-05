@@ -6,6 +6,7 @@ const TableBody: React.FC = (props) => {
 }
 
 const StyledTableBody = styled.div`
+  positoin: inital;
   display: block;
   width: inherit;
 `

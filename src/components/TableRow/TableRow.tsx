@@ -31,6 +31,7 @@ interface StyleProps {
 }
 
 const StyledTableRow = styled.div<StyleProps>`
+  position: inital;
   align-items: ${(props) => (props.align === 'top' ? null : 'center')};
   background-color: ${(props) =>
     props.isActive ? 'transparent' : 'transparent'};
