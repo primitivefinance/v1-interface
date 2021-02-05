@@ -7,8 +7,9 @@ const TableBody: React.FC = (props) => {
 
 const StyledTableBody = styled.div`
   positoin: inital;
-  display: block;
-  width: inherit;
+  display: block !important;
+  -webkit-box-align: center;
+  align-items: center;
 `
 
 export default TableBody
