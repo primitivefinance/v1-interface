@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import Link from 'next/link'
 import Button from '@/components/Button'
 import LaunchIcon from '@material-ui/icons/Launch'
+import Spacer from '@/components/Spacer'
 
 import { useDisclaimer } from '@/hooks/user/index'
 
@@ -31,8 +32,9 @@ const Disclaimer: React.FC = () => {
           </StyledLink>{' '}
           page for more information.
         </Body>
+        <Spacer size="sm" />
         <Button full onClick={handleConfirm}>
-          Accept Disclosure
+          Accept
         </Button>
       </StyledCard>
     </Backdrop>
@@ -53,6 +55,8 @@ const Body = styled.h4`
 `
 const StyledDis = styled.h3`
   color: white;
+  font-size: 18px;
+  margin-bottom: 1em;
 `
 const Backdrop = styled.div`
   z-index: 400;
@@ -65,7 +69,7 @@ const Backdrop = styled.div`
 const StyledCard = styled.div`
   left: 40%;
   top: 20%;
-  padding: 0 2em 2em 2em;
+  padding: 1em 1em 1em 1em;
   border-radius: 0.3em;
   position: absolute;
   width: 22em;
