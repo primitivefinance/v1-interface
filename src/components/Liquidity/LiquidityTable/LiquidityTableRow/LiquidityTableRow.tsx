@@ -490,6 +490,7 @@ const StyledTitle = styled.div`
 `
 const StyledDiv = styled.div`
   width: 100%;
+  position: relative;
 `
 
 const Units = styled.span`

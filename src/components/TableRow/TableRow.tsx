@@ -31,7 +31,7 @@ interface StyleProps {
 }
 
 const StyledTableRow = styled.div<StyleProps>`
-  position: inital;
+  position: relative;
   align-items: ${(props) => (props.align === 'top' ? null : 'center')};
   background-color: ${(props) =>
     props.isActive ? 'transparent' : 'transparent'};
@@ -44,6 +44,7 @@ const StyledTableRow = styled.div<StyleProps>`
   margin-left: -${(props) => props.theme.spacing[4]}px;
   padding-left: ${(props) => props.theme.spacing[4]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
+  pointer-events: all;
   &:hover {
     background-color: ${(props) =>
       props.isHead ? 'transparent' : props.theme.color.grey[800]};
