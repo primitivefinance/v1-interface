@@ -167,7 +167,6 @@ const AddLiquidity: React.FC = () => {
       submitOrder(
         library,
         BigInt(parsedUnderlyingAmount.toString()),
-
         orderType,
         BigInt(parsedUnderlyingAmount.toString())
       )
@@ -188,18 +187,6 @@ const AddLiquidity: React.FC = () => {
     parsedUnderlyingAmount,
     orderType,
   ])
-
-  const calculateToken0PerToken1 = useCallback(() => {
-    if (typeof item.market === 'undefined' || item.market === null) return '0'
-    const ratio = item.market.token1Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
-
-  const calculateToken1PerToken0 = useCallback(() => {
-    if (typeof item.market === 'undefined' || item.market === null) return '0'
-    const ratio = item.market.token0Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
 
   // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
@@ -299,6 +286,18 @@ const AddLiquidity: React.FC = () => {
     )
 
     const addedPoolShare = formatEther(poolShare.mul('100'))
+    console.log(
+      `
+      totalSupply: ${lpTotalSupply.toString()}
+      tSupply: ${formatEther(tSupply.raw.toString())}
+      amountA: ${formatEther(amountADesired)}
+      amountB: ${formatEther(amountBDesired)}
+      lpMinted: ${formatEther(lpMinted.raw.toString())}
+      poolShare: ${formatEther(poolShare)}
+      newPoolShare: ${newPoolShare}
+      addedPoolShare: ${addedPoolShare}
+      `
+    )
     return { addedPoolShare, newPoolShare }
   }, [
     item.market,
@@ -308,36 +307,6 @@ const AddLiquidity: React.FC = () => {
     parsedUnderlyingAmount,
     calculateOptionsAddedAsLiquidity,
   ])
-
-  const calculateLiquidityValuePerShare = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
-      return {
-        shortPerLp: '0',
-        underlyingPerLp: '0',
-        totalUnderlyingPerLp: '0',
-      }
-
-    const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = item.market.getLiquidityValuePerShare(
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      )
-    )
-    const shortPerLp = formatEther(shortValue.raw.toString())
-    const underlyingPerLp = formatEther(underlyingValue.raw.toString())
-    const totalUnderlyingPerLp = formatEther(
-      totalUnderlyingValue.raw.toString()
-    )
-    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [item.market, lp, lpTotalSupply])
 
   const getPutMultiplier = useCallback(() => {
     const multiplier = entity.isPut
