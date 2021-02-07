@@ -4,7 +4,7 @@ import TableRow from '@/components/TableRow'
 import TableCell from '@/components/TableCell'
 
 import { BigNumber } from 'ethers'
-import { parseEther, formatEther } from 'ethers/lib/utils'
+import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import numeral from 'numeral'
 import isZero from '@/utils/isZero'
 import formatExpiry from '@/utils/formatExpiry'
@@ -419,7 +419,13 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
               <StyledTitle>
                 <LineItem
                   label={'Asset Balance'}
-                  data={numeral(underlyingTokenBalance).format('0.00')}
+                  data={numeral(
+                    parseEther(underlyingTokenBalance).gt(
+                      parseUnits('1', 'gwei')
+                    )
+                      ? underlyingTokenBalance
+                      : '0'
+                  ).format('0.00')}
                   units={asset}
                 />
                 <Spacer />

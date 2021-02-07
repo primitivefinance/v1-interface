@@ -227,7 +227,6 @@ const Swap: React.FC = () => {
         .div(parseEther(prem))
         .mul(parseEther('1'))
         .div(getPutMultiplier())
-      console.log(prem)
       onUserInput(formatEther(maxOptions))
     } else if (
       orderType === Operation.CLOSE_LONG &&
@@ -241,7 +240,9 @@ const Swap: React.FC = () => {
 
   const handleSubmitClick = useCallback(() => {
     const orderSize = entity.isPut
-      ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+      ? parsedAmount
+          .mul(entity.baseValue.raw.toString())
+          .div(entity.quoteValue.raw.toString())
       : parsedAmount
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
   }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
@@ -255,7 +256,9 @@ const Swap: React.FC = () => {
       let credit = '0'
       let short = '0'
       const size = entity.isPut
-        ? parsedAmount.mul(entity.baseValue.raw.toString()).div(parseEther('1'))
+        ? parsedAmount
+            .mul(entity.baseValue.raw.toString())
+            .div(entity.quoteValue.raw.toString())
         : parsedAmount
       let actualPremium: TokenAmount
       let spot: TokenAmount
@@ -266,12 +269,20 @@ const Swap: React.FC = () => {
             orderType,
             size
           )
+          console.log(
+            `
+            spot: ${spot.raw.toString()}
+            actual: ${actualPremium.raw.toString()}
+            slip: ${slip.toString()}
+            `
+          )
           setImpact(slip)
           setPrem(formatEther(spot.raw.toString()))
         }
         if (orderType === Operation.LONG) {
           if (parsedAmount.gt(BigNumber.from(0))) {
             debit = formatEther(actualPremium.raw.toString())
+            console.log(debit, formatEther(size))
           } else {
             setImpact('0.00')
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
@@ -349,7 +360,7 @@ const Swap: React.FC = () => {
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [item, onApprove])
+  }, [item, onApprove, tokenAddress, spender])
 
   const handleSecondaryApproval = useCallback(() => {
     onApprove(secondaryAddress, spender)
@@ -357,7 +368,7 @@ const Swap: React.FC = () => {
       .catch((error) => {
         addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
       })
-  }, [item, onApprove])
+  }, [item, onApprove, secondaryAddress, spender])
 
   const removeItem = useRemoveItem()
 

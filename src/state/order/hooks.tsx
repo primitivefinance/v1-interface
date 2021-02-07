@@ -238,6 +238,7 @@ export const useUpdateItem = (): ((
               : isUniswap
               ? UNISWAP_CONNECTOR[chainId]
               : SUSHISWAP_CONNECTOR[chainId]
+
           let tokenAddress
           let secondaryAddress
           switch (orderType) {
@@ -328,7 +329,7 @@ export const useHandleSubmitOrder = (): ((
       const optionEntity: Option = item.entity
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
-        slippage: slippage,
+        slippage: '0.00',
         timeLimit: DEFAULT_TIMELIMIT,
         receiver: account,
         deadline: DEFAULT_DEADLINE,

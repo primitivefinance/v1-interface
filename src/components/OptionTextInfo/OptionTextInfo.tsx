@@ -43,6 +43,10 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         return 'BUY'
       case Operation.WRITE:
         return 'SELL TO OPEN'
+      case Operation.CLOSE_LONG:
+        return 'SELL TO CLOSE'
+      case Operation.CLOSE_SHORT:
+        return 'BUY TO CLOSE'
       default:
         return 'SELL'
     }
@@ -60,7 +64,13 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       You will <StyledData>{getOrderTitle()}</StyledData>{' '}
       <StyledData>
         {' '}
-        {formatParsedAmount(parsedAmount)}{' '}
+        {isPut
+          ? formatParsedAmount(
+              parsedAmount
+                .mul(strike.raw.toString())
+                .div(underlying.raw.toString())
+            )
+          : formatParsedAmount(parsedAmount)}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
           : ''}{' '}
