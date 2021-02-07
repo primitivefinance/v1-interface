@@ -44,7 +44,7 @@ const AddLiquidity: React.FC = () => {
   // notifs
   const addNotif = useAddNotif()
   // option entity in order
-  const { item, orderType, approved, loading } = useItem()
+  const { item, orderType, loading, approved } = useItem()
   // inputs for user quantity
   const { optionValue, underlyingValue } = useLP()
   const { onOptionInput, onUnderInput } = useLiquidityActionHandlers()
@@ -94,9 +94,9 @@ const AddLiquidity: React.FC = () => {
   )
   const handleUnderInput = useCallback(
     (value: string) => {
-      if (value === '') {
+      /* if (value === '') {
         value = '0'
-      }
+      } */
       onUnderInput(value)
       if (hasLiquidity) {
         onOptionInput(
@@ -114,7 +114,7 @@ const AddLiquidity: React.FC = () => {
   )
 
   const handleSetMax = useCallback(() => {
-    onUnderInput(underlyingTokenBalance)
+    onUnderInput(parseFloat(underlyingTokenBalance).toPrecision(15))
   }, [underlyingTokenBalance, onUnderInput])
 
   // ==== Transaction Handling ====
@@ -195,6 +195,7 @@ const AddLiquidity: React.FC = () => {
     const optionsInput = BigNumber.from(inputAmount.raw.toString()) // IN UNITS OF BASE VALUE
       .mul(parseEther('1'))
       .div(denominator)
+
     return optionsInput.toString()
   }, [item.market, lpTotalSupply, parsedOptionAmount, parsedUnderlyingAmount])
 
@@ -229,6 +230,12 @@ const AddLiquidity: React.FC = () => {
         item.market.reserveOf(entity.underlying).raw.toString()
       ).toString()
     )
+
+    console.log(`
+      optionsInput: ${formatEther(optionsInput)}
+      amountADesired: ${formatEther(amountADesired.raw.toString())}
+      amountBDesired: ${formatEther(amountBDesired.raw.toString())}
+    `)
 
     if (
       isZero(amountADesired.raw.toString()) ||

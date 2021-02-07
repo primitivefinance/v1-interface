@@ -125,43 +125,6 @@ const RemoveLiquidity: React.FC = () => {
     handleRatioChange,
   ])
 
-  const calculateToken0PerToken1 = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      !item.market.hasLiquidity ||
-      item.market === null
-    )
-      return '0'
-    const ratio = item.market.token1Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
-
-  const calculateToken1PerToken0 = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      !item.market.hasLiquidity ||
-      item.market === null
-    )
-      return '0'
-    const ratio = item.market.token0Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
-
-  const caculatePoolShare = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity
-    )
-      return '0'
-    const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
-      ? BigNumber.from(parseEther(lp))
-          .mul(parseEther('1'))
-          .div(parseEther(lpTotalSupply))
-      : '0'
-    return (Number(formatEther(poolShare)) * 100).toFixed(2)
-  }, [item.market, lp, lpTotalSupply])
-
   const calculateUnderlyingOutput = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
@@ -273,12 +236,6 @@ const RemoveLiquidity: React.FC = () => {
       .div(parseEther('1000'))
     return formatEther(liquidity)
   }, [item.market, lp, ratio])
-
-  const title = {
-    text: 'Withdraw Liquidity',
-    tip:
-      'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
-  }
 
   return (
     <LiquidityContainer>
