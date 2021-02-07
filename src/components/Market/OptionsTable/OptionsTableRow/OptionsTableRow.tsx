@@ -100,26 +100,41 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         totalUnderlyingPerLp: '0',
       }
 
-    const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = market.getLiquidityValuePerShare(
+    const shortValue = market.getLiquidityValue(
+      market.option.redeem,
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
       new TokenAmount(
         market.liquidityToken,
         parseEther(lpTotalSupply).toString()
       )
     )
-    const shortPerLp = parseEther(lpTotalSupply)
-      .mul(shortValue.raw.toString())
-      .div(parseEther('1'))
-    const underlyingPerLp = parseEther(lpTotalSupply)
-      .mul(underlyingValue.raw.toString())
-      .div(parseEther('1'))
-    const totalUnderlyingPerLp = parseEther(lpTotalSupply)
-      .mul(totalUnderlyingValue.raw.toString())
-      .div(parseEther('1'))
+    const underlyingValue = market.getLiquidityValue(
+      market.option.underlying,
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(
+        market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      )
+    )
 
+    const totalUnderlyingValue = new TokenAmount(
+      market.option.underlying,
+      BigNumber.from(shortValue.raw.toString())
+        .mul(market.option.baseValue.raw.toString())
+        .div(market.option.quoteValue.raw.toString())
+        .add(underlyingValue.raw.toString())
+        .toString()
+    )
+
+    const shortPerLp = shortValue.raw.toString()
+    const underlyingPerLp = underlyingValue.raw.toString()
+    const totalUnderlyingPerLp = totalUnderlyingValue.raw.toString()
     return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
   }, [market, lpTotalSupply])
 
