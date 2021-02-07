@@ -162,38 +162,6 @@ const RemoveLiquidity: React.FC = () => {
     return (Number(formatEther(poolShare)) * 100).toFixed(2)
   }, [item.market, lp, lpTotalSupply])
 
-  const calculateLiquidityValuePerShare = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
-      return {
-        shortPerLp: '0',
-        underlyingPerLp: '0',
-        totalUnderlyingPerLp: '0',
-      }
-
-    const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = item.market.getLiquidityValuePerShare(
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      )
-    )
-    const shortPerLp = formatEther(shortValue.raw.toString())
-    const underlyingPerLp = formatEther(underlyingValue.raw.toString())
-    const totalUnderlyingPerLp = formatEther(
-      totalUnderlyingValue.raw.toString()
-    )
-
-    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [item.market, lp, lpTotalSupply])
-
   const calculateUnderlyingOutput = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||

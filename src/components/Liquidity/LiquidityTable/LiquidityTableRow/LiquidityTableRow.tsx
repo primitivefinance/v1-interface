@@ -136,13 +136,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  /* useEffect(() => {
-    if (provide && item) {
-      updateItem(item, Operation.ADD_LIQUIDITY, market)
-    } else if (item) {
-      updateItem(item, Operation.REMOVE_LIQUIDITY_CLOSE, market)
-    }
-  }, [provide, item, updateItem]) */
+
   const calculatePoolShare = useCallback(() => {
     const supply = BigNumber.from(parseEther(lpTotalSupply).toString())
     if (typeof market === 'undefined' || market === null || supply.isZero())
@@ -175,17 +169,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         totalUnderlyingPerLp: '0',
       }
 
-    /*  const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = market.getLiquidityValuePerShare(
-      new TokenAmount(
-        market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      )
-    ) */
-
     const shortValue = market.getLiquidityValue(
       entity.redeem,
       new TokenAmount(
@@ -211,15 +194,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         .add(underlyingValue.raw.toString())
         .toString()
     )
-    /* const shortPerLp = parseEther(lp)
-      .mul(shortValue.raw.toString())
-      .div(parseEther('1'))
-    const underlyingPerLp = parseEther(lp)
-      .mul(underlyingValue.raw.toString())
-      .div(parseEther('1'))
-    const totalUnderlyingPerLp = parseEther(lp)
-      .mul(totalUnderlyingValue.raw.toString())
-      .div(parseEther('1')) */
+
     const shortPerLp = shortValue.raw.toString()
     const underlyingPerLp = underlyingValue.raw.toString()
     const totalUnderlyingPerLp = totalUnderlyingValue.raw.toString()
@@ -237,28 +212,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         underlyingPerLp: '0',
         totalUnderlyingPerLp: '0',
       }
-
-    /* const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = market.getLiquidityValuePerShare(
-      new TokenAmount(
-        market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      )
-    )
-    const shortPerLp = parseEther(lpTotalSupply)
-      .mul(shortValue.raw.toString())
-      .div(parseEther('1'))
-    const underlyingPerLp = parseEther(lpTotalSupply)
-      .mul(underlyingValue.raw.toString())
-      .div(parseEther('1'))
-    const totalUnderlyingPerLp = parseEther(lpTotalSupply)
-      .mul(totalUnderlyingValue.raw.toString())
-      .div(parseEther('1'))
-
-    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp } */
     const shortValue = market.getLiquidityValue(
       entity.redeem,
       new TokenAmount(
@@ -290,15 +243,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         .add(underlyingValue.raw.toString())
         .toString()
     )
-    /* const shortPerLp = parseEther(lp)
-      .mul(shortValue.raw.toString())
-      .div(parseEther('1'))
-    const underlyingPerLp = parseEther(lp)
-      .mul(underlyingValue.raw.toString())
-      .div(parseEther('1'))
-    const totalUnderlyingPerLp = parseEther(lp)
-      .mul(totalUnderlyingValue.raw.toString())
-      .div(parseEther('1')) */
+
     const shortPerLp = shortValue.raw.toString()
     const underlyingPerLp = underlyingValue.raw.toString()
     const totalUnderlyingPerLp = totalUnderlyingValue.raw.toString()

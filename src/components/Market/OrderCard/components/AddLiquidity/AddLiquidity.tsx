@@ -1,58 +1,48 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
+// Components
 import Box from '@/components/Box'
 import Button from '@/components/Button'
-import IconButton from '@/components/IconButton'
 import LineItem from '@/components/LineItem'
 import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
-import Tooltip from '@/components/Tooltip'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
-import numeral from 'numeral'
-import formatExpiry from '@/utils/formatExpiry'
 
+// Utilities
+import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
+import isZero from '@/utils/isZero'
 
+// Hooks
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-
-import {
-  Trade,
-  UniswapMarket,
-  SushiSwapMarket,
-  Venue,
-  SUSHISWAP_CONNECTOR,
-} from '@primitivefi/sdk'
-import { Fraction, Pair } from '@uniswap/sdk'
-
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
-import isZero from '@/utils/isZero'
-import Separator from '@/components/Separator'
-
-import {
-  useItem,
-  useUpdateItem,
-  useHandleSubmitOrder,
-} from '@/state/order/hooks'
-
+import { useItem, useHandleSubmitOrder } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { tryParseAmount } from '@/utils/index'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
 
+// SDK Utils
+import {
+  Trade,
+  SushiSwapMarket,
+  Venue,
+  SUSHISWAP_CONNECTOR,
+} from '@primitivefi/sdk'
+
 const AddLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
-  const updateItem = useUpdateItem()
-  // toggle for advanced info
-  const [advanced, setAdvanced] = useState(false)
+  // web3
+  const { library, chainId } = useWeb3React()
+  // approval
+  const onApprove = useApprove()
+  // notifs
+  const addNotif = useAddNotif()
   // option entity in order
   const { item, orderType, approved, loading } = useItem()
   // inputs for user quantity
@@ -62,20 +52,7 @@ const AddLiquidity: React.FC = () => {
   const parsedUnderlyingAmount = tryParseAmount(underlyingValue)
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
-  const [tab, setTab] = useState(0)
-  useEffect(() => {
-    if (tab === 1) {
-      updateItem(item, Operation.ADD_LIQUIDITY_CUSTOM)
-    } else {
-      updateItem(item, Operation.ADD_LIQUIDITY)
-    }
-  }, [tab])
-  // web3
-  const { library, chainId } = useWeb3React()
-  // approval
-  const addNotif = useAddNotif()
-  // guard cap
-  // const guardCap = useGuardCap(item.asset, orderType)
+
   // pair and option entities
   const entity = item.entity
   // has liquidity?
@@ -85,39 +62,23 @@ const AddLiquidity: React.FC = () => {
     }
   }, [setHasL, item])
 
-  const underlyingAssetSymbol = useCallback(() => {
-    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
-    return symbol === '' ? entity.underlying.symbol.toUpperCase() : symbol
-  }, [item])
-
   const lpToken = item.market ? item.market.liquidityToken.address : ''
-  const token0 = item.market ? item.market.token0.symbol : ''
-  const token1 = item.market ? item.market.token1.symbol : ''
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
-  const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
-  const isUniswap = item.venue === Venue.UNISWAP ? true : false
 
+  // allowance
+  const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender = isUniswap
     ? UNISWAP_CONNECTOR[chainId]
     : SUSHISWAP_CONNECTOR[chainId]
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
-  const onApprove = useApprove()
 
-  const underlyingAmount: TokenAmount = new TokenAmount(
-    entity.underlying,
-    parseEther(underlyingTokenBalance).toString()
-  )
-  const shortAmount: TokenAmount = new TokenAmount(
-    entity.redeem,
-    parseEther(shortTokenBalance).toString()
-  )
-
+  // ==== Input Handling ====
   const handleOptionInput = useCallback(
     (value: string) => {
       onOptionInput(value)
-      if (tab === 1) {
+      if (hasLiquidity) {
         onUnderInput(
           formatEther(
             Trade.getQuote(
@@ -129,7 +90,7 @@ const AddLiquidity: React.FC = () => {
         )
       }
     },
-    [onOptionInput, onUnderInput, tab]
+    [onOptionInput, onUnderInput]
   )
   const handleUnderInput = useCallback(
     (value: string) => {
@@ -149,21 +110,29 @@ const AddLiquidity: React.FC = () => {
         )
       }
     },
-    [onUnderInput, onOptionInput, tab]
+    [onUnderInput, onOptionInput]
   )
-  // FIX
 
   const handleSetMax = useCallback(() => {
     onUnderInput(underlyingTokenBalance)
   }, [underlyingTokenBalance, onUnderInput])
 
-  const handleSetDoubleInputMax = useCallback(() => {
-    onUnderInput(formatEther(parseEther(underlyingTokenBalance).div(3)))
-    onOptionInput(formatEther(parseEther(underlyingTokenBalance).mul(2).div(3)))
-  }, [underlyingTokenBalance, onUnderInput])
+  // ==== Transaction Handling ====
+  const handleApproval = useCallback(() => {
+    onApprove(entity.underlying.address, spender)
+      .then()
+      .catch((error) => {
+        addNotif(
+          0,
+          `Approving ${entity.underlying.symbol.toUpperCase()}`,
+          error.message,
+          ''
+        )
+      })
+  }, [entity.underlying, tokenAllowance, onApprove])
 
   const handleSubmitClick = useCallback(() => {
-    if (tab !== 1 && hasLiquidity) {
+    if (hasLiquidity) {
       submitOrder(
         library,
         BigInt(parsedUnderlyingAmount.toString()),
@@ -181,124 +150,110 @@ const AddLiquidity: React.FC = () => {
   }, [
     submitOrder,
     item,
-    tab,
     library,
     parsedOptionAmount,
     parsedUnderlyingAmount,
     orderType,
   ])
 
+  // ==== Information Calculation Handling ====
+
   // the quantity of options supplied as liquidity for the 'pile-on' order type is not equal to the parsed amount input.
   // optionsAdded = totalUnderlyingTokensAdded (parsed amount sum) / (strikeRatio * reserveB / reserveA + 1)
   const calculateOptionsAddedAsLiquidity = useCallback(() => {
-    const parsedAmount =
-      tab !== 1 && hasLiquidity
-        ? Trade.getQuote(
-            parsedUnderlyingAmount,
-            item.market.reserveOf(entity.underlying).raw.toString(),
-            item.market.reserveOf(entity.redeem).raw.toString()
-          )
-        : parsedOptionAmount
+    // The total deposit amount
+    const parsedTotalUnderlying = hasLiquidity
+      ? parsedUnderlyingAmount // primary input if has liquidity
+      : parsedOptionAmount // secondary input if initializing liquidity
 
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      typeof parsedAmount === 'undefined' ||
+      typeof parsedTotalUnderlying === 'undefined' ||
       BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
-      BigNumber.from(parsedAmount).isZero()
+      BigNumber.from(parsedTotalUnderlying).isZero()
     ) {
-      return parsedAmount || '0'
+      return parsedTotalUnderlying || '0'
     }
+
+    // The total underlying deposit token amount.
     const inputAmount = new TokenAmount(
       entity.underlying,
-      parsedAmount.toString()
+      parsedTotalUnderlying.toString()
     )
-    return item.market.getOptionsAddedAsLiquidity(inputAmount).raw.toString()
-  }, [
-    item.market,
-    lp,
-    lpTotalSupply,
-    parsedOptionAmount,
-    parsedUnderlyingAmount,
-  ])
+
+    // quote / base * uBase / rQuote = u / r + 1 -> priceOf(u)
+    const denominator = BigNumber.from(entity.quoteValue.raw.toString())
+      .mul(parseEther('1'))
+      .div(entity.baseValue.raw.toString())
+      .mul(item.market.reserveOf(entity.underlying).raw.toString())
+      .div(item.market.reserveOf(entity.redeem).raw.toString())
+      .add(parseEther('1'))
+    // the quantity of options that will be added to the pool (which will be used to calculate the short options),
+    // which will be minted from the total underlying deposit.
+    // the remainder underlying deposit will be added to the pool as liquidity.
+    const optionsInput = BigNumber.from(inputAmount.raw.toString()) // IN UNITS OF BASE VALUE
+      .mul(parseEther('1'))
+      .div(denominator)
+    return optionsInput.toString()
+  }, [item.market, lpTotalSupply, parsedOptionAmount, parsedUnderlyingAmount])
 
   const calculatePoolShare = useCallback(() => {
-    const none = { addedPoolShare: '0', newPoolShare: '0' }
-    const supply = parseEther(lpTotalSupply)
-    const parsedAmount =
-      tab === 1
-        ? parsedOptionAmount
-        : BigNumber.from(calculateOptionsAddedAsLiquidity())
+    const none = '0'
+    const parsedSupply = parseEther(lpTotalSupply)
     if (
       typeof item.market === 'undefined' ||
       item.market === null ||
-      supply.isZero()
+      parsedSupply.isZero()
     )
       return none
-    const tSupply = new TokenAmount(
-      item.market.liquidityToken,
-      parseEther(lpTotalSupply).toString()
-    )
-    const amountADesired = calculateOptionsAddedAsLiquidity().toString()
-    const amountBDesired = Trade.getQuote(
-      entity.proportionalShort(amountADesired),
-      item.market.reserveOf(entity.redeem).raw.toString(),
-      item.market.reserveOf(entity.underlying).raw.toString()
-    ).toString()
 
-    if (isZero(amountADesired) || isZero(amountBDesired)) {
+    const tokenSupplyAmount = new TokenAmount(
+      item.market.liquidityToken,
+      parsedSupply.toString()
+    )
+    // quantity of long option tokens that are minted. UNITS OF BASE VALUE
+    const optionsInput = calculateOptionsAddedAsLiquidity().toString()
+
+    // Quantity of short option tokens added to pool. IN UNITS OF QUOTE VALUE
+    const amountADesired = new TokenAmount(
+      entity.redeem,
+      entity.proportionalShort(optionsInput).toString()
+    )
+    // Quantity of underlying added based on the prortional amount of short options added
+    const amountBDesired = new TokenAmount(
+      entity.underlying,
+      Trade.getQuote(
+        amountADesired.raw.toString(),
+        item.market.reserveOf(amountADesired.token).raw.toString(),
+        item.market.reserveOf(entity.underlying).raw.toString()
+      ).toString()
+    )
+
+    if (
+      isZero(amountADesired.raw.toString()) ||
+      isZero(amountBDesired.raw.toString())
+    ) {
       return none
     }
-    const tokenAmountA = new TokenAmount(entity.underlying, amountADesired)
-    const tokenAmountB = new TokenAmount(entity.redeem, amountBDesired)
-    const lpHold = new TokenAmount(
-      item.market.liquidityToken,
-      parseEther(lp).toString()
-    )
-    const lpMinted = item.market.getLiquidityMinted(
-      tSupply,
-      tokenAmountA,
-      tokenAmountB
-    )
-    const poolShare =
-      supply.gt(0) && parsedAmount.gt(0)
-        ? BigNumber.from(lpMinted.raw.toString())
-            .mul(parseEther('1'))
-            .div(
-              BigNumber.from(tSupply.raw.toString()).add(
-                lpMinted.raw.toString()
-              )
-            )
-        : parseEther('0')
 
-    const newPoolShare = formatEther(
-      BigNumber.from(poolShare).add(
-        supply.gt(0)
-          ? BigNumber.from(lpHold.raw.toString())
-              .mul(parseEther('1'))
-              .div(
-                BigNumber.from(tSupply.raw.toString()).add(
-                  lpMinted.raw.toString()
-                )
-              )
-          : parseEther('0')
-      )
+    const lpMinted = item.market.getLiquidityMinted(
+      tokenSupplyAmount,
+      amountADesired, // short option tokens added
+      amountBDesired // underlying tokens added
     )
+    const poolShare = parsedSupply.gt(0)
+      ? BigNumber.from(lpMinted.raw.toString())
+          .mul(parseEther('1'))
+          .div(
+            BigNumber.from(tokenSupplyAmount.raw.toString()).add(
+              lpMinted.raw.toString()
+            )
+          )
+      : parseEther('0')
 
     const addedPoolShare = formatEther(poolShare.mul('100'))
-    console.log(
-      `
-      totalSupply: ${lpTotalSupply.toString()}
-      tSupply: ${formatEther(tSupply.raw.toString())}
-      amountA: ${formatEther(amountADesired)}
-      amountB: ${formatEther(amountBDesired)}
-      lpMinted: ${formatEther(lpMinted.raw.toString())}
-      poolShare: ${formatEther(poolShare)}
-      newPoolShare: ${newPoolShare}
-      addedPoolShare: ${addedPoolShare}
-      `
-    )
-    return { addedPoolShare, newPoolShare }
+    return addedPoolShare
   }, [
     item.market,
     lp,
@@ -334,7 +289,7 @@ const AddLiquidity: React.FC = () => {
         entity.underlying,
         parsedUnderlyingAmount.toString()
       )
-      const tempMarket = new UniswapMarket(
+      const tempMarket = new SushiSwapMarket(
         entity,
         redeemAmount,
         underlyingAmount
@@ -358,28 +313,12 @@ const AddLiquidity: React.FC = () => {
     parsedUnderlyingAmount,
   ])
 
-  const handleApproval = useCallback(() => {
-    onApprove(entity.underlying.address, spender)
-      .then()
-      .catch((error) => {
-        addNotif(
-          0,
-          `Approving ${entity.underlying.symbol.toUpperCase()}`,
-          error.message,
-          ''
-        )
-      })
-  }, [entity.underlying, tokenAllowance, onApprove])
+  const underlyingAssetSymbol = useCallback(() => {
+    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    return symbol === '' ? entity.underlying.symbol.toUpperCase() : symbol
+  }, [item])
 
-  const title = {
-    text: `${numeral(item.entity.strikePrice).format(
-      +item.entity.strikePrice > 1 ? '$0' : '$0.00'
-    )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
-      item.entity.expiryValue
-    ).utc.substr(4, 12)}`,
-    tip:
-      'Underlying tokens are used to mint short tokens, which are provided as liquidity to the pair, along with additional underlying tokens',
-  }
+  // ==== Title for no liquidity ====
 
   const noLiquidityTitle = {
     text:
@@ -419,7 +358,7 @@ const AddLiquidity: React.FC = () => {
             title={entity.isCall ? 'Call Options' : 'Put Options'}
             quantity={optionValue}
             onChange={handleOptionInput}
-            onClick={handleSetDoubleInputMax}
+            onClick={() => {}}
             tip={
               'The quantity of options that will be minted. Long and short option tokens are minted, and the short option tokens get provided as liquidity'
             }
@@ -430,7 +369,7 @@ const AddLiquidity: React.FC = () => {
             title={underlyingAssetSymbol()}
             quantity={underlyingValue}
             onChange={handleUnderInput}
-            onClick={handleSetDoubleInputMax}
+            onClick={() => {}}
             tip={`The quantity of ${underlyingAssetSymbol()} that will be added to the pool as liquidity.`}
           />
         </>
@@ -446,7 +385,7 @@ const AddLiquidity: React.FC = () => {
         units={underlyingAssetSymbol()}
       />
       <Spacer size="sm" />
-      {!hasLiquidity || tab === 1 ? (
+      {!hasLiquidity ? (
         <>
           {item.entity.isPut ? (
             <>
@@ -473,7 +412,7 @@ const AddLiquidity: React.FC = () => {
       )}
       <LineItem
         label="Receive"
-        data={!hasLiquidity ? '100' : calculatePoolShare().addedPoolShare}
+        data={!hasLiquidity ? '100' : calculatePoolShare()}
         units={`% of Pool`}
       />
 
