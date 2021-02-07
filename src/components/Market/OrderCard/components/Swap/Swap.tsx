@@ -184,6 +184,14 @@ const Swap: React.FC = () => {
     parseEther(tokenBalance).toString()
   )
 
+  const scaledOptionAmount: TokenAmount = new TokenAmount(
+    tokenAmount.token,
+    BigNumber.from(tokenAmount.raw.toString())
+      .mul(entity.quoteValue.raw.toString())
+      .div(entity.baseValue.raw.toString())
+      .toString()
+  )
+
   const shortToken = new Token(
     entity.chainId,
     entity.redeem.address,
@@ -232,7 +240,7 @@ const Swap: React.FC = () => {
       orderType === Operation.CLOSE_LONG &&
       !parseEther(prem).isZero()
     ) {
-      onUserInput(tokenBalance)
+      onUserInput(formatEther(scaledOptionAmount.raw.toString()))
     } else if (orderType === Operation.WRITE && !parseEther(prem).isZero()) {
       onUserInput(underlyingBalance)
     }
@@ -384,6 +392,25 @@ const Swap: React.FC = () => {
     return symbol
   }, [item])
 
+  const getHasEnoughForTrade = useCallback(() => {
+    if (parsedAmount && underlyingBalance) {
+      const orderSize = entity.isPut
+        ? parsedAmount
+            .mul(entity.baseValue.raw.toString())
+            .div(entity.quoteValue.raw.toString())
+        : parsedAmount
+
+      if (orderType === Operation.LONG) {
+        return !orderSize.gt(parseEther(underlyingBalance))
+      } else if (orderType === Operation.CLOSE_LONG) {
+        return !orderSize.gt(parseEther(tokenBalance))
+      } else if (orderType === Operation.CLOSE_SHORT) {
+      }
+    } else {
+      return false
+    }
+  }, [entity, parsedAmount, underlyingBalance, tokenBalance, orderType])
+
   return (
     <>
       <Box column alignItems="center">
@@ -432,9 +459,9 @@ const Swap: React.FC = () => {
           balance={
             orderType === Operation.LONG
               ? underlyingAmount
-              : entity.isPut
+              : entity.isPut && orderType !== Operation.CLOSE_LONG
               ? underlyingAmount
-              : tokenAmount
+              : scaledOptionAmount
           }
         />
         <Spacer size="sm" />
@@ -613,13 +640,18 @@ const Swap: React.FC = () => {
                       !parsedAmount?.gt(0) ||
                       error ||
                       !hasLiquidity ||
-                      !isBelowSlippage()
+                      !isBelowSlippage() ||
+                      !getHasEnoughForTrade()
                     }
                     full
                     size="sm"
                     onClick={handleSubmitClick}
                     isLoading={loading}
-                    text={'Confirm Trade'}
+                    text={
+                      getHasEnoughForTrade()
+                        ? 'Confirm Trade'
+                        : 'Insufficient Balance'
+                    }
                   />
                 </>
               )}
