@@ -160,7 +160,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         <TableCell>
           {!isZero(parseEther(bid)) ? (
             <span>
-              {numeral(breakeven).format('0.00a')} <Units>DAI</Units>
+              {numeral(breakeven).format('(0.00)')} <Units>DAI</Units>
             </span>
           ) : (
             <>{`-`}</>
