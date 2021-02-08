@@ -11,7 +11,7 @@ import Spacer from '@/components/Spacer'
 // Utilities
 import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 import { BigNumber } from 'ethers'
-import { parseEther, formatEther } from 'ethers/lib/utils'
+import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
 
 // Hooks
@@ -114,6 +114,9 @@ const AddLiquidity: React.FC = () => {
   )
 
   const handleSetMax = useCallback(() => {
+    if (parseEther(underlyingTokenBalance).lt(parseUnits('1', 'gwei'))) {
+      return null
+    }
     onUnderInput(parseFloat(underlyingTokenBalance).toPrecision(15))
   }, [underlyingTokenBalance, onUnderInput])
 
