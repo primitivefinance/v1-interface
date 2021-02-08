@@ -237,6 +237,13 @@ const RemoveLiquidity: React.FC = () => {
     return formatEther(liquidity)
   }, [item.market, lp, ratio])
 
+  const requiresAdditionalLong = useCallback(() => {
+    const additional = parseEther(calculateRequiredLong()).sub(
+      parseEther(optionBalance)
+    )
+    return additional
+  }, [calculateRequiredLong, optionBalance])
+
   return (
     <LiquidityContainer>
       <Spacer />
@@ -300,20 +307,14 @@ const RemoveLiquidity: React.FC = () => {
             data={`${numeral(calculateRequiredLong()).format('0.00a')}`}
             units={`LONG`}
           />
-          {!formatEther(
-            parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
-          ) ? (
+          {requiresAdditionalLong().gt(0) ? (
             <>
               <Spacer size="sm" />
               <LineItem
                 label="You need"
-                data={`${numeral(
-                  formatEther(
-                    parseEther(calculateRequiredLong()).sub(
-                      parseEther(optionBalance)
-                    )
-                  )
-                ).format('0.00a')}`}
+                data={`${numeral(formatEther(requiresAdditionalLong())).format(
+                  '0.00a'
+                )}`}
                 units={`LONG`}
               />{' '}
             </>
@@ -389,14 +390,36 @@ const RemoveLiquidity: React.FC = () => {
                 text="Approve Options"
               />
             )}
+            {requiresAdditionalLong().gt(0) ? (
+              <>
+                <Button
+                  full
+                  size="sm"
+                  href={`/markets/${encodeURIComponent(
+                    entity.underlying.symbol.toUpperCase() === 'DAI'
+                      ? entity.strike.symbol.toLowerCase()
+                      : entity.underlying.symbol.toLowerCase()
+                  )}`}
+                  text="Step 1. Buy Long"
+                />{' '}
+              </>
+            ) : (
+              <> </>
+            )}
             {!approved[0] || !approved[1] ? null : (
               <Button
-                disabled={submitting || ratio === 0}
+                disabled={
+                  submitting || ratio === 0 || requiresAdditionalLong().gt(0)
+                }
                 full
                 size="sm"
                 onClick={handleSubmitClick}
                 isLoading={submitting}
-                text="Remove Liquidity"
+                text={
+                  requiresAdditionalLong().gt(0)
+                    ? 'Step 2. Remove Liquidity'
+                    : 'Remove Liquidity'
+                }
               />
             )}
           </>

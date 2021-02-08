@@ -298,13 +298,7 @@ const Swap: React.FC = () => {
             orderType,
             size
           )
-          console.log(
-            `
-            spot: ${spot.raw.toString()}
-            actual: ${actualPremium.raw.toString()}
-            slip: ${slip.toString()}
-            `
-          )
+
           setImpact(slip)
           setPrem(formatEther(spot.raw.toString()))
         }
