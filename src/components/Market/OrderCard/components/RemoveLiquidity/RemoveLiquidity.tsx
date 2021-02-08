@@ -400,7 +400,7 @@ const RemoveLiquidity: React.FC = () => {
                       ? entity.strike.symbol.toLowerCase()
                       : entity.underlying.symbol.toLowerCase()
                   )}`}
-                  text={`Step 1. Buy ${numeral(
+                  text={`1) Buy ${numeral(
                     formatEther(requiresAdditionalLong())
                   ).format('0.00')} Options`}
                 />{' '}
@@ -419,7 +419,7 @@ const RemoveLiquidity: React.FC = () => {
                 isLoading={submitting}
                 text={
                   requiresAdditionalLong().gt(0)
-                    ? 'Step 2. Remove Liquidity'
+                    ? '2) Remove Liquidity'
                     : 'Remove Liquidity'
                 }
               />
