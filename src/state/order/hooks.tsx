@@ -329,7 +329,7 @@ export const useHandleSubmitOrder = (): ((
       const optionEntity: Option = item.entity
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
-        slippage: '0.00',
+        slippage: '0.0',
         timeLimit: DEFAULT_TIMELIMIT,
         receiver: account,
         deadline: DEFAULT_DEADLINE,
@@ -439,6 +439,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.ADD_LIQUIDITY:
+          tradeSettings.slippage = '0.01'
           // primary input is the options deposit (underlying tokens)
           trade.inputAmount = new TokenAmount(
             optionEntity,
@@ -456,6 +457,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.ADD_LIQUIDITY_CUSTOM:
+          tradeSettings.slippage = '0.01'
           // primary input is the options deposit (underlying tokens)
           trade.inputAmount = new TokenAmount(
             optionEntity.redeem,
@@ -472,6 +474,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.REMOVE_LIQUIDITY:
+          tradeSettings.slippage = '0.01'
           trade.inputAmount = new TokenAmount(
             optionEntity.redeem,
             parsedAmountA.toString()
@@ -486,6 +489,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         case Operation.REMOVE_LIQUIDITY_CLOSE:
+          tradeSettings.slippage = '0.01'
           trade.inputAmount = new TokenAmount(
             optionEntity.redeem,
             parsedAmountA.toString()
