@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 
 import AddIcon from '@material-ui/icons/Add'
@@ -28,10 +28,45 @@ export interface TokenProps {
 const Position: React.FC<TokenProps> = ({ option }) => {
   const updateItem = useUpdateItem()
   const { utc } = formatExpiry(option.attributes.entity.expiryValue)
+  const isPut = option.attributes.entity.isPut
+  const entity = option.attributes.entity
 
   const handleClick = () => {
     updateItem(option.attributes, Operation.LONG)
   }
+
+  const getScaledBalances = useCallback(() => {
+    let long = '0'
+    let short = '0'
+    let balances = { long: long, redeem: short }
+    const hasLong = BigNumber.from(option.long ? option.long : 0).gt(0)
+    const hasShort = BigNumber.from(option.redeem ? option.redeem : 0).gt(0)
+    if (hasLong) {
+      long = formatEther(
+        BigNumber.from(option.long ? option.long : 0)
+          .mul(
+            isPut
+              ? entity.quoteValue.raw.toString()
+              : entity.baseValue.raw.toString()
+          )
+          .div(entity.baseValue.raw.toString())
+      )
+    }
+    if (hasShort) {
+      short = formatEther(
+        BigNumber.from(option.redeem ? option.redeem : 0)
+          .mul(
+            isPut
+              ? entity.quoteValue.raw.toString()
+              : entity.baseValue.raw.toString()
+          )
+          .div(entity.quoteValue.raw.toString())
+      )
+    }
+
+    balances = { long: long, redeem: short }
+    return balances
+  }, [isPut, entity, option, option.long, option.redeem])
 
   return (
     <StyledPosition onClick={handleClick}>
@@ -39,28 +74,19 @@ const Position: React.FC<TokenProps> = ({ option }) => {
         <StyledExpiryContainer>
           <StyledExpiry>
             {numeral(option.attributes.entity.strikePrice).format(
-              option.attributes.entity.strikePrice >= 1 ? '$0' : '$0.00'
+              option.attributes.entity.strikePrice >= 10 ? '$0' : '$0.00'
             )}{' '}
-            {option.attributes.entity.isCall ? 'Call' : 'Put'}{' '}
-            {utc.substr(4, 12)}
+            {isPut ? 'Put' : 'Call'} {utc.substr(4, 12)}
           </StyledExpiry>
         </StyledExpiryContainer>
         <StyledValuesContainer>
           <StyledValue>
-            {BigNumber.from(option.long).gt(0)
-              ? numeral(
-                  formatEther(BigNumber.from(option.long ? option.long : 0))
-                ).format('0.00a')
-              : '-'}{' '}
-            <Units>{'LONG'}</Units>
+            {numeral(getScaledBalances().long).format('0.00a')}{' '}
+            <Units>{isPut ? 'Put' : 'Call'}</Units>
           </StyledValue>
           <StyledValue>
-            {BigNumber.from(option.redeem).gt(0)
-              ? numeral(
-                  formatEther(BigNumber.from(option.redeem ? option.redeem : 0))
-                ).format('0.00a')
-              : '0'}{' '}
-            <Units>{'SHORT '}</Units>{' '}
+            {numeral(getScaledBalances().redeem).format('0.00a')}{' '}
+            <Units>{`Short ${isPut ? 'Put' : 'Call'}`}</Units>{' '}
           </StyledValue>
         </StyledValuesContainer>
       </StyledPrice>

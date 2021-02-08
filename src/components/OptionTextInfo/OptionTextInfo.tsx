@@ -101,7 +101,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           for{' '}
           <StyledData>
             {formatParsedAmount(short.raw.toString())} {short.token.symbol}
-          </StyledData>
+          </StyledData>{' '}
           in premium.{' '}
         </>
       ) : orderType === Operation.SHORT ? (

@@ -187,7 +187,11 @@ const Swap: React.FC = () => {
   const scaledOptionAmount: TokenAmount = new TokenAmount(
     tokenAmount.token,
     BigNumber.from(tokenAmount.raw.toString())
-      .mul(entity.quoteValue.raw.toString())
+      .mul(
+        entity.isPut
+          ? entity.quoteValue.raw.toString()
+          : entity.baseValue.raw.toString()
+      )
       .div(entity.baseValue.raw.toString())
       .toString()
   )
@@ -201,6 +205,18 @@ const Swap: React.FC = () => {
   const shortTokenAmount: TokenAmount = new TokenAmount(
     shortToken,
     parseEther(redeemBalance).toString()
+  )
+
+  const scaledShortToken: TokenAmount = new TokenAmount(
+    shortTokenAmount.token,
+    BigNumber.from(shortTokenAmount.raw.toString())
+      .mul(
+        entity.isPut
+          ? entity.baseValue.raw.toString()
+          : entity.quoteValue.raw.toString()
+      )
+      .div(entity.baseValue.raw.toString())
+      .toString()
   )
 
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
@@ -232,10 +248,10 @@ const Swap: React.FC = () => {
     if (orderType === Operation.LONG && !parseEther(prem).isZero()) {
       const maxOptions = parseEther(underlyingBalance)
         .mul(parseEther('1'))
-        .div(parseEther(prem))
+        .div(parseEther((+prem * 1.5).toString()))
         .mul(parseEther('1'))
         .div(getPutMultiplier())
-      onUserInput(formatEther(maxOptions))
+      onUserInput(parseFloat(formatEther(maxOptions)).toPrecision(15))
     } else if (
       orderType === Operation.CLOSE_LONG &&
       !parseEther(prem).isZero()
@@ -243,6 +259,11 @@ const Swap: React.FC = () => {
       onUserInput(formatEther(scaledOptionAmount.raw.toString()))
     } else if (orderType === Operation.WRITE && !parseEther(prem).isZero()) {
       onUserInput(underlyingBalance)
+    } else if (
+      orderType === Operation.CLOSE_SHORT &&
+      !parseEther(prem).isZero()
+    ) {
+      onUserInput(formatEther(scaledShortToken.raw.toString()))
     }
   }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
@@ -320,6 +341,7 @@ const Swap: React.FC = () => {
         } else if (orderType === Operation.CLOSE_SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
             short = formatEther(actualPremium.raw.toString())
+            console.log(short)
           } else {
             setImpact('0.00')
             setPrem(
@@ -351,11 +373,17 @@ const Swap: React.FC = () => {
     const long = formatEther(
       parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
     )
-    const short = formatEther(
+    const credit = formatEther(
       parseEther(cost.credit).mul(parseEther('1')).div(parsedAmount)
     )
 
-    return orderType === Operation.LONG ? long : short
+    const short = cost.short
+
+    return orderType === Operation.LONG
+      ? long
+      : orderType === Operation.CLOSE_SHORT
+      ? short
+      : credit
   }, [item, parsedAmount, cost, orderType, entity.isPut])
 
   const isBelowSlippage = useCallback(() => {
@@ -394,20 +422,17 @@ const Swap: React.FC = () => {
 
   const getHasEnoughForTrade = useCallback(() => {
     if (parsedAmount && underlyingBalance) {
-      const orderSize = entity.isPut
-        ? parsedAmount
-            .mul(entity.baseValue.raw.toString())
-            .div(entity.quoteValue.raw.toString())
-        : parsedAmount
+      const orderSize = parseEther(cost.debit)
 
       if (orderType === Operation.LONG) {
         return !orderSize.gt(parseEther(underlyingBalance))
       } else if (orderType === Operation.CLOSE_LONG) {
         return !orderSize.gt(parseEther(tokenBalance))
       } else if (orderType === Operation.CLOSE_SHORT) {
+        return !orderSize.gt(parseEther(shortTokenAmount.raw.toString()))
       }
     } else {
-      return false
+      return true
     }
   }, [entity, parsedAmount, underlyingBalance, tokenBalance, orderType])
 
@@ -458,9 +483,9 @@ const Swap: React.FC = () => {
           onClick={handleSetMax}
           balance={
             orderType === Operation.LONG
-              ? underlyingAmount
+              ? null
               : entity.isPut && orderType !== Operation.CLOSE_LONG
-              ? underlyingAmount
+              ? scaledShortToken
               : scaledOptionAmount
           }
         />
@@ -648,7 +673,9 @@ const Swap: React.FC = () => {
                     onClick={handleSubmitClick}
                     isLoading={loading}
                     text={
-                      getHasEnoughForTrade()
+                      !isBelowSlippage()
+                        ? 'Price Impact Too High'
+                        : getHasEnoughForTrade()
                         ? 'Confirm Trade'
                         : 'Insufficient Balance'
                     }
