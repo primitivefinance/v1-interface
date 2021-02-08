@@ -21,7 +21,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useItem, useHandleSubmitOrder } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount, Fraction } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { tryParseAmount } from '@/utils/index'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
@@ -117,7 +117,10 @@ const AddLiquidity: React.FC = () => {
     if (parseEther(underlyingTokenBalance).lt(parseUnits('1', 'gwei'))) {
       return null
     }
-    onUnderInput(parseFloat(underlyingTokenBalance).toPrecision(12))
+    const underlyingFraction = new Fraction(
+      parseEther(underlyingTokenBalance).toString()
+    )
+    onUnderInput(formatEther(underlyingFraction.toSignificant(12)))
   }, [underlyingTokenBalance, onUnderInput])
 
   // ==== Transaction Handling ====
