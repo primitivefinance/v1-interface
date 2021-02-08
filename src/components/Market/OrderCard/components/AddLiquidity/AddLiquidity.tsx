@@ -120,7 +120,10 @@ const AddLiquidity: React.FC = () => {
     const underlyingFraction = new Fraction(
       parseEther(underlyingTokenBalance).toString()
     )
-    onUnderInput(formatEther(underlyingFraction.toSignificant(12)))
+    const smallAmount = new Fraction(parseUnits('1', 6).toString())
+    onUnderInput(
+      formatEther(underlyingFraction.subtract(smallAmount).toSignificant(12))
+    )
   }, [underlyingTokenBalance, onUnderInput])
 
   // ==== Transaction Handling ====
