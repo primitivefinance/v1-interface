@@ -125,75 +125,6 @@ const RemoveLiquidity: React.FC = () => {
     handleRatioChange,
   ])
 
-  const calculateToken0PerToken1 = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      !item.market.hasLiquidity ||
-      item.market === null
-    )
-      return '0'
-    const ratio = item.market.token1Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
-
-  const calculateToken1PerToken0 = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      !item.market.hasLiquidity ||
-      item.market === null
-    )
-      return '0'
-    const ratio = item.market.token0Price.raw.toSignificant(2)
-    return ratio
-  }, [item.market])
-
-  const caculatePoolShare = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity
-    )
-      return '0'
-    const poolShare = BigNumber.from(parseEther(lpTotalSupply)).gt(0)
-      ? BigNumber.from(parseEther(lp))
-          .mul(parseEther('1'))
-          .div(parseEther(lpTotalSupply))
-      : '0'
-    return (Number(formatEther(poolShare)) * 100).toFixed(2)
-  }, [item.market, lp, lpTotalSupply])
-
-  const calculateLiquidityValuePerShare = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
-      return {
-        shortPerLp: '0',
-        underlyingPerLp: '0',
-        totalUnderlyingPerLp: '0',
-      }
-
-    const [
-      shortValue,
-      underlyingValue,
-      totalUnderlyingValue,
-    ] = item.market.getLiquidityValuePerShare(
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      )
-    )
-    const shortPerLp = formatEther(shortValue.raw.toString())
-    const underlyingPerLp = formatEther(underlyingValue.raw.toString())
-    const totalUnderlyingPerLp = formatEther(
-      totalUnderlyingValue.raw.toString()
-    )
-
-    return { shortPerLp, underlyingPerLp, totalUnderlyingPerLp }
-  }, [item.market, lp, lpTotalSupply])
-
   const calculateUnderlyingOutput = useCallback(() => {
     if (
       typeof item.market === 'undefined' ||
@@ -306,11 +237,12 @@ const RemoveLiquidity: React.FC = () => {
     return formatEther(liquidity)
   }, [item.market, lp, ratio])
 
-  const title = {
-    text: 'Withdraw Liquidity',
-    tip:
-      'Withdraw the assets from the pair proportional to your share of the pool. Fees are included, and options are closed.',
-  }
+  const requiresAdditionalLong = useCallback(() => {
+    const additional = parseEther(calculateRequiredLong()).sub(
+      parseEther(optionBalance)
+    )
+    return additional
+  }, [calculateRequiredLong, optionBalance])
 
   return (
     <LiquidityContainer>
@@ -375,20 +307,14 @@ const RemoveLiquidity: React.FC = () => {
             data={`${numeral(calculateRequiredLong()).format('0.00a')}`}
             units={`LONG`}
           />
-          {!formatEther(
-            parseEther(calculateRequiredLong()).sub(parseEther(optionBalance))
-          ) ? (
+          {requiresAdditionalLong().gt(0) ? (
             <>
               <Spacer size="sm" />
               <LineItem
                 label="You need"
-                data={`${numeral(
-                  formatEther(
-                    parseEther(calculateRequiredLong()).sub(
-                      parseEther(optionBalance)
-                    )
-                  )
-                ).format('0.00a')}`}
+                data={`${numeral(formatEther(requiresAdditionalLong())).format(
+                  '0.00a'
+                )}`}
                 units={`LONG`}
               />{' '}
             </>
@@ -464,14 +390,38 @@ const RemoveLiquidity: React.FC = () => {
                 text="Approve Options"
               />
             )}
+            {requiresAdditionalLong().gt(0) ? (
+              <>
+                <Button
+                  full
+                  size="sm"
+                  href={`/markets/${encodeURIComponent(
+                    entity.underlying.symbol.toUpperCase() === 'DAI'
+                      ? entity.strike.symbol.toLowerCase()
+                      : entity.underlying.symbol.toLowerCase()
+                  )}`}
+                  text={`1) Buy ${numeral(
+                    formatEther(requiresAdditionalLong())
+                  ).format('0.00')} Options`}
+                />{' '}
+              </>
+            ) : (
+              <> </>
+            )}
             {!approved[0] || !approved[1] ? null : (
               <Button
-                disabled={submitting || ratio === 0}
+                disabled={
+                  submitting || ratio === 0 || requiresAdditionalLong().gt(0)
+                }
                 full
                 size="sm"
                 onClick={handleSubmitClick}
                 isLoading={submitting}
-                text="Remove Liquidity"
+                text={
+                  requiresAdditionalLong().gt(0)
+                    ? '2) Remove Liquidity'
+                    : 'Remove Liquidity'
+                }
               />
             )}
           </>
