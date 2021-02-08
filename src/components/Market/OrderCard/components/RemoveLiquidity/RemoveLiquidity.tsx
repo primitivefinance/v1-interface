@@ -400,7 +400,9 @@ const RemoveLiquidity: React.FC = () => {
                       ? entity.strike.symbol.toLowerCase()
                       : entity.underlying.symbol.toLowerCase()
                   )}`}
-                  text="Step 1. Buy Long"
+                  text={`Step 1. Buy ${numeral(
+                    formatEther(requiresAdditionalLong())
+                  ).format('0.00')} Options`}
                 />{' '}
               </>
             ) : (
