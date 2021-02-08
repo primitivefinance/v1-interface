@@ -251,7 +251,7 @@ const Swap: React.FC = () => {
         .div(parseEther((+prem * 1.5).toString()))
         .mul(parseEther('1'))
         .div(getPutMultiplier())
-      onUserInput(parseFloat(formatEther(maxOptions)).toPrecision(15))
+      onUserInput(parseFloat(formatEther(maxOptions)).toPrecision(12))
     } else if (
       orderType === Operation.CLOSE_LONG &&
       !parseEther(prem).isZero()

@@ -117,7 +117,7 @@ const AddLiquidity: React.FC = () => {
     if (parseEther(underlyingTokenBalance).lt(parseUnits('1', 'gwei'))) {
       return null
     }
-    onUnderInput(parseFloat(underlyingTokenBalance).toPrecision(15))
+    onUnderInput(parseFloat(underlyingTokenBalance).toPrecision(12))
   }, [underlyingTokenBalance, onUnderInput])
 
   // ==== Transaction Handling ====
