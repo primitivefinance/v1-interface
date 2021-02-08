@@ -21,7 +21,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useItem, useHandleSubmitOrder } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { TokenAmount, Fraction } from '@uniswap/sdk'
+import { TokenAmount, Fraction, Rounding } from '@uniswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { tryParseAmount } from '@/utils/index'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
@@ -123,9 +123,20 @@ const AddLiquidity: React.FC = () => {
     const smallAmount = new Fraction(parseUnits('1', 6).toString())
     onUnderInput(
       formatEther(
-        new Fraction(underlyingFraction.toSignificant(12))
+        underlyingFraction.toSignificant(
+          12,
+          { groupSeparator: '' },
+          Rounding.ROUND_DOWN
+        )
+        /* new Fraction(
+          underlyingFraction.toSignificant(
+            12,
+            { groupSeparator: '' },
+            Rounding.ROUND_DOWN
+          )
+        )
           .subtract(smallAmount)
-          .toSignificant(12)
+          .toSignificant(12, { groupSeparator: '' }, Rounding.ROUND_DOWN) */
       )
     )
   }, [underlyingTokenBalance, onUnderInput])
