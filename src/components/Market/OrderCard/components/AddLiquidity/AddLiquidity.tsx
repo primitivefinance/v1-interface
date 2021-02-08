@@ -122,7 +122,11 @@ const AddLiquidity: React.FC = () => {
     )
     const smallAmount = new Fraction(parseUnits('1', 6).toString())
     onUnderInput(
-      formatEther(underlyingFraction.subtract(smallAmount).toSignificant(12))
+      formatEther(
+        new Fraction(underlyingFraction.toSignificant(12))
+          .subtract(smallAmount)
+          .toSignificant(12)
+      )
     )
   }, [underlyingTokenBalance, onUnderInput])
 
