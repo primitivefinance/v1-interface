@@ -68,7 +68,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
   )
 
   const calculatePremiumInDollars = useCallback(
-    (premiumWei) => {
+    (premiumWei, strike) => {
       const price = data
         ? data[key]
           ? data[key].usd
@@ -78,8 +78,9 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         : '0'
       const spotPrice = price.toString()
       const spotPriceWei = parseEther(spotPrice)
+      console.log(strike)
       const premium = BigNumber.from(premiumWei.toString())
-        .mul(spotPriceWei)
+        .mul(parseEther(spotPriceWei)
         .div(parseEther('1'))
       return formatEther(premium)
     },
@@ -113,7 +114,10 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
       const rho = blackScholes.rho()
       const ivEstimate = 1
       const actualCost = Number(
-        calculatePremiumInDollars(option.market.spotOpenPremium.raw.toString())
+        calculatePremiumInDollars(
+          option.market.spotOpenPremium.raw.toString(),
+          option.entity.strikePrice.toString()
+        )
       )
       const iv = blackScholes.getImpliedVolatility(actualCost, ivEstimate)
       const greeks: Greeks = {
@@ -146,7 +150,8 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                   .div(parseEther('1'))
               : parseEther(
                   calculatePremiumInDollars(
-                    option.market.spotOpenPremium.raw.toString()
+                    option.market.spotOpenPremium.raw.toString(),
+                    option.entity.strikePrice.toString()
                   )
                 )
           )
