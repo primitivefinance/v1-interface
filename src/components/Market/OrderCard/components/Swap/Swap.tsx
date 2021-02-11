@@ -221,6 +221,8 @@ const Swap: React.FC = () => {
 
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
 
+  // if a short or close short order is submitted, use the router to swap between short<>underlying
+  // else, use the connector contract to buy, write, and sell long option tokens.
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
@@ -268,10 +270,14 @@ const Swap: React.FC = () => {
   }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
   const handleSubmitClick = useCallback(() => {
+    // If the order type is close short, the short tokens will be scaled.
+    // If the option is a put, scale the inputs up.
     const orderSize = entity.isPut
-      ? parsedAmount
-          .mul(entity.baseValue.raw.toString())
-          .div(entity.quoteValue.raw.toString())
+      ? orderType === Operation.CLOSE_SHORT
+        ? parsedAmount
+        : parsedAmount
+            .mul(entity.baseValue.raw.toString())
+            .div(entity.quoteValue.raw.toString())
       : parsedAmount
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
   }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
@@ -305,7 +311,6 @@ const Swap: React.FC = () => {
         if (orderType === Operation.LONG) {
           if (parsedAmount.gt(BigNumber.from(0))) {
             debit = formatEther(actualPremium.raw.toString())
-            console.log(debit, formatEther(size))
           } else {
             setImpact('0.00')
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
@@ -334,8 +339,13 @@ const Swap: React.FC = () => {
           // sell short, RDM -> UNDER
         } else if (orderType === Operation.CLOSE_SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
+              orderType,
+              parsedAmount
+            )
             short = formatEther(actualPremium.raw.toString())
-            console.log(short)
+            setImpact(slip)
+            setPrem(formatEther(spot.raw.toString()))
           } else {
             setImpact('0.00')
             setPrem(
@@ -364,15 +374,21 @@ const Swap: React.FC = () => {
   ])
 
   const getExecutionPrice = useCallback(() => {
+    // the parsed total premium cost in underlying tokens divided by order quantity
     const long = formatEther(
       parseEther(cost.debit).mul(parseEther('1')).div(parsedAmount)
     )
+    // the parsed total premium paid in underlying tokens divided by order quantity
     const credit = formatEther(
       parseEther(cost.credit).mul(parseEther('1')).div(parsedAmount)
     )
 
+    // the total cost to swap short tokens to underlying tokens
     const short = cost.short
 
+    // if options are being bought, display the price per long
+    // if short options are being closed, display the underlying received per short
+    // else, options are being written, so show the premium paid per option written
     return orderType === Operation.LONG
       ? long
       : orderType === Operation.CLOSE_SHORT
@@ -380,10 +396,12 @@ const Swap: React.FC = () => {
       : credit
   }, [item, parsedAmount, cost, orderType, entity.isPut])
 
+  // return a bool after comparing the impact with 30% slippage.
   const isBelowSlippage = useCallback(() => {
     return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
   }, [impact, slippage])
 
+  // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
   const handleApproval = useCallback(() => {
     onApprove(tokenAddress, spender)
       .then()
@@ -402,6 +420,7 @@ const Swap: React.FC = () => {
 
   const removeItem = useRemoveItem()
 
+  // gets a value to multiply `put` underlying tokens by to get a scaled amount
   const getPutMultiplier = useCallback(() => {
     const multiplier = entity.isPut
       ? BigNumber.from(entity.baseValue.raw.toString())
@@ -409,21 +428,48 @@ const Swap: React.FC = () => {
     return multiplier
   }, [item, entity.isPut, parsedAmount])
 
+  // either the underlying asset for calls, or DAI for puts
   const underlyingAssetSymbol = useCallback(() => {
     const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
     return symbol
   }, [item])
 
+  // Check the token outflows against the token balances and return true or false
   const getHasEnoughForTrade = useCallback(() => {
     if (parsedAmount && underlyingBalance) {
-      const orderSize = parseEther(cost.debit)
+      // The total cost of the order
+      const totalCost = parseEther(cost.debit)
 
       if (orderType === Operation.LONG) {
-        return !orderSize.gt(parseEther(underlyingBalance))
+        // if the total cost of the order is greater than the underlying token balance, premium cant be paid.
+        return !totalCost.gt(parseEther(underlyingBalance))
+      } else if (orderType === Operation.WRITE) {
+        // the amount of options requesting to be written
+        const totalCollateral = entity.isPut
+          ? parsedAmount
+              .mul(entity.baseValue.raw.toString())
+              .div(entity.quoteValue.raw.toString())
+          : parsedAmount
+        // if the write size exceeds the underlying balance, theres not enough tokens to mint options
+        return !totalCollateral.gt(parseEther(underlyingBalance))
       } else if (orderType === Operation.CLOSE_LONG) {
-        return !orderSize.gt(parseEther(tokenBalance))
+        // the order size when closing long options
+        const totalLongSold = entity.isPut
+          ? parsedAmount
+              .mul(entity.baseValue.raw.toString())
+              .div(entity.quoteValue.raw.toString())
+          : parsedAmount
+        // if the close size is greater than the amount of long options held in the wallet
+        return !totalLongSold.gt(parseEther(tokenBalance))
       } else if (orderType === Operation.CLOSE_SHORT) {
-        return !orderSize.gt(parseEther(shortTokenAmount.raw.toString()))
+        // the close size of closing short tokens
+        const totalShortSold = entity.isPut
+          ? parsedAmount
+          : parsedAmount
+              .mul(entity.baseValue.raw.toString())
+              .div(entity.quoteValue.raw.toString())
+        // if the close size exceeds the wallet balance of short option tokens
+        return !totalShortSold.gt(parseEther(redeemBalance))
       }
     } else {
       return true
