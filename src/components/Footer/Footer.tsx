@@ -7,7 +7,7 @@ import Nav from './components/Nav'
 const Footer: React.FC = () => {
   const { data } = useBlockNumber()
   return (
-    <StyledContainer>
+    <StyledFoot>
       <StyledFooter>
         <StyledFooterInner>
           <Nav />
@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
           <Loader />
         </StyledBlockNumber>
       </StyledFooter>
-    </StyledContainer>
+    </StyledFoot>
   )
 }
 
@@ -27,7 +27,7 @@ const breathe = keyframes`
   100% { opacity: .5;}
 ;`
 
-const StyledContainer = styled.div`
+const StyledFoot = styled.div`
   position: fixed;
   bottom: -0.7em;
   width: 100%;
