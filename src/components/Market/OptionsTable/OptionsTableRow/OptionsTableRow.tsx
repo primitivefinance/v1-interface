@@ -37,7 +37,7 @@ export interface TableColumns {
   strike: string
   breakeven: string
   bid: string
-  ask: string
+  bidDAI: string
   reserves: string[]
   expiry: number
   isCall: boolean
@@ -66,7 +66,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     strike,
     breakeven,
     bid,
-    ask,
+    bidDAI,
     reserves,
     expiry,
     isCall,
@@ -169,12 +169,19 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         {!isZero(parseEther(bid)) ? (
           <TableCell>
             {isCall ? (
-              <span>
-                {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
-              </span>
+              <StyledR>
+                <StyledT>
+                  <span>
+                    {numeral(bidDAI).format('(0.000a)')} <Units>DAI</Units>
+                  </span>
+                </StyledT>
+                <span>
+                  {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
+                </span>
+              </StyledR>
             ) : (
               <span>
-                {numeral(bid).format('(0.000a)')} <Units>DAI</Units>
+                {numeral(bidDAI).format('(0.000a)')} <Units>DAI</Units>
               </span>
             )}
           </TableCell>
@@ -237,13 +244,15 @@ const StyledT = styled.span`
   border-width: 0 0 1px 0;
   border-style: solid;
   border-color: ${(props) => props.theme.color.grey[600]};
-  padding-bottom: 3px;
+  padding-bottom: 5px;
+  padding-top: 3px;
+  margin-bottom: 3px;
 `
 const StyledR = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 90%;
+  width: 80%;
 `
 const StyledARef = styled.a`
   color: ${(props) => props.theme.color.grey[400]};

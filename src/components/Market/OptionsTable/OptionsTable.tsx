@@ -159,8 +159,12 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
               .div(parseEther('1'))
           : option.market.spotClosePremium.raw.toString()
       ).toString()
-      const tableAsk: string = formatEtherBalance(
-        option.market.spotOpenPremium.raw.toString()
+      const tableBidDAI: string = formatBalance(
+        option.entity.isPut
+          ? formatEther(option.market.spotOpenPremium.raw.toString())
+          : calculatePremiumInDollars(
+              option.market.spotOpenPremium.raw.toString()
+            )
       ).toString()
 
       const tableReserve0: string = formatEtherBalance(
@@ -180,7 +184,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
         strike: tableStrike,
         breakeven: tableBreakeven,
         bid: tableBid,
-        ask: tableAsk,
+        bidDAI: tableBidDAI,
         reserves: tableReserves,
         expiry: tableExpiry,
         isCall: option.entity.isCall,
