@@ -524,8 +524,8 @@ const Swap: React.FC = () => {
           balance={
             orderType === Operation.LONG
               ? null
-              : entity.isPut && orderType !== Operation.CLOSE_LONG
-              ? scaledShortToken
+              : orderType === Operation.WRITE
+              ? null
               : scaledOptionAmount
           }
         />
@@ -713,7 +713,7 @@ const Swap: React.FC = () => {
                     onClick={handleSubmitClick}
                     isLoading={loading}
                     text={
-                      !isBelowSlippage()
+                      !isBelowSlippage() && typedValue !== ''
                         ? 'Price Impact Too High'
                         : getHasEnoughForTrade()
                         ? 'Confirm Trade'
