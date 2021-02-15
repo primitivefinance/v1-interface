@@ -181,7 +181,7 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
               </StyledR>
             ) : (
               <span>
-                {numeral(bidDAI).format('(0.000a)')} <Units>DAI</Units>
+                {numeral(bid).format('(0.000a)')} <Units>DAI</Units>
               </span>
             )}
           </TableCell>
