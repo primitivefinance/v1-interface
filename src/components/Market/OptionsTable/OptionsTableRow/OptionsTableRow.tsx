@@ -157,28 +157,13 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
             <Units>DAI</Units>
           </span>
         </TableCell>
-        <TableCell>
-          {!isZero(parseEther(bid)) ? (
-            <span>
-              {numeral(breakeven).format('(0.00)')} <Units>DAI</Units>
-            </span>
-          ) : (
-            <>{`-`}</>
-          )}
-        </TableCell>
+
         {!isZero(parseEther(bid)) ? (
           <TableCell>
             {isCall ? (
-              <StyledR>
-                <StyledT>
-                  <span>
-                    {numeral(bidDAI).format('(0.000a)')} <Units>DAI</Units>
-                  </span>
-                </StyledT>
-                <span>
-                  {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
-                </span>
-              </StyledR>
+              <span>
+                {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
+              </span>
             ) : (
               <span>
                 {numeral(bid).format('(0.000a)')} <Units>DAI</Units>
