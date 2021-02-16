@@ -120,7 +120,7 @@ const Swap: React.FC = () => {
     case Operation.LONG:
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
-          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
         )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
           item.entity.expiryValue
         ).utc.substr(4, 12)}`,
@@ -140,7 +140,7 @@ const Swap: React.FC = () => {
     case Operation.WRITE:
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
-          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
         )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
           item.entity.expiryValue
         ).utc.substr(4, 12)}`,
@@ -154,7 +154,7 @@ const Swap: React.FC = () => {
     case Operation.CLOSE_LONG:
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
-          +item.entity.strikePrice > 1 ? '$0' : '$0.00'
+          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
         )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
           item.entity.expiryValue
         ).utc.substr(4, 12)}`,
