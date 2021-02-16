@@ -13,11 +13,6 @@ export const headers = [
     tip: 'The purchase price for the underlying asset of this option.',
   },
   {
-    name: 'Break-Even',
-    tip:
-      'The price the underlying asset must reach to reach a net cost of zero.',
-  },
-  {
     name: 'Price',
     tip: 'The current spot price of an option token.',
   },
