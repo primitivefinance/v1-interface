@@ -358,6 +358,7 @@ const Swap: React.FC = () => {
               orderType,
               entity.isPut ? parsedAmount : scaleUp(parsedAmount)
             )
+            setImpact(slip)
             short = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
