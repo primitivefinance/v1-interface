@@ -109,7 +109,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           for{' '}
           <StyledData>
             {' '}
-            {formatParsedAmount(debit.raw.toString())} {short.token.symbol}
+            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
           </StyledData>{' '}
           which gives you the right to withdraw{' '}
           <StyledData>
