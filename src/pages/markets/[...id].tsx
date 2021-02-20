@@ -119,21 +119,6 @@ const Market = ({ market, data }) => {
 
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
-    /*
-    if (!callPutActive) {
-      console.log('reached')
-      router.push(`/markets/${market}/puts`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
-    } else {
-      router.push(`/markets/${market}/calls`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
-    } */
-  }
-  const handleFilterExpiry = (exp: number) => {
-    setExpiry(exp)
-  }
 
   useEffect(() => {
     setExpiry(initExpiry)
