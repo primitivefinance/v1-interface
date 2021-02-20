@@ -70,15 +70,49 @@ const Swap: React.FC = () => {
   // approval state
   const { item, orderType, loading, approved } = useItem()
 
-  const [prem, setPrem] = useState(
-    orderType === Operation.LONG
-      ? formatEther(item.market.spotOpenPremium.raw.toString())
-      : orderType === Operation.CLOSE_LONG || orderType === Operation.WRITE
-      ? formatEther(item.market.spotClosePremium.raw.toString())
-      : orderType === Operation.SHORT
-      ? formatEther(item.market.spotUnderlyingToShort.raw.toString())
-      : formatEther(item.market.spotUnderlyingToShort.raw.toString())
-  )
+  // slippage
+  const slippage = useSlippage()
+  // pair and option entities
+  const entity = item.entity
+  // multiply by quote divide by base, scale to quote units
+  const scaleUp = (amount) => {
+    return BigNumber.from(amount.toString())
+      .mul(entity.quoteValue.raw.toString())
+      .div(entity.baseValue.raw.toString())
+  }
+
+  // multiply by base divide by quote, scale to base units
+  const scaleDown = (amount) => {
+    return BigNumber.from(amount.toString())
+      .mul(entity.baseValue.raw.toString())
+      .div(entity.quoteValue.raw.toString())
+  }
+
+  const getSpotPremiums = useCallback(() => {
+    return orderType === Operation.LONG
+      ? formatEther(
+          entity.isPut
+            ? scaleDown(item.market.spotOpenPremium.raw.toString())
+            : item.market.spotOpenPremium.raw.toString()
+        )
+      : orderType === Operation.CLOSE_LONG
+      ? formatEther(
+          entity.isPut
+            ? scaleUp(item.market.spotClosePremium.raw.toString())
+            : item.market.spotClosePremium.raw.toString()
+        )
+      : formatEther(
+          entity.isPut
+            ? item.market.spotUnderlyingToShort.raw.toString()
+            : scaleUp(item.market.spotUnderlyingToShort.raw.toString())
+        )
+  }, [orderType, entity.isPut, item.market, scaleUp, scaleDown])
+
+  const [prem, setPrem] = useState(getSpotPremiums())
+
+  useEffect(() => {
+    setPrem(getSpotPremiums())
+  }, [orderType])
 
   const [impact, setImpact] = useState('0.00')
   const [error, setError] = useState(false)
@@ -99,10 +133,6 @@ const Swap: React.FC = () => {
     short: '0',
   })
 
-  // slippage
-  const slippage = useSlippage()
-  // pair and option entities
-  const entity = item.entity
   // has liquidity?
   useEffect(() => {
     if (item.market) {
@@ -131,7 +161,11 @@ const Swap: React.FC = () => {
       break
     case Operation.SHORT:
       title = {
-        text: 'Buy Short Options',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: 'Purchase tokenized, written covered options',
       }
       tokenAddress = entity.underlying.address
@@ -259,7 +293,7 @@ const Swap: React.FC = () => {
       !parseEther(prem).isZero()
     ) {
       onUserInput(formatEther(scaledOptionAmount.raw.toString()))
-    } else if (orderType === Operation.WRITE && !parseEther(prem).isZero()) {
+    } else if (orderType === Operation.SHORT && !parseEther(prem).isZero()) {
       onUserInput(underlyingBalance)
     } else if (
       orderType === Operation.CLOSE_SHORT &&
@@ -273,11 +307,9 @@ const Swap: React.FC = () => {
     // If the order type is close short, the short tokens will be scaled.
     // If the option is a put, scale the inputs up.
     const orderSize = entity.isPut
-      ? orderType === Operation.CLOSE_SHORT
+      ? orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
         ? parsedAmount
-        : parsedAmount
-            .mul(entity.baseValue.raw.toString())
-            .div(entity.quoteValue.raw.toString())
+        : scaleDown(parsedAmount)
       : parsedAmount
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
   }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
@@ -290,11 +322,7 @@ const Swap: React.FC = () => {
       let debit = '0'
       let credit = '0'
       let short = '0'
-      const size = entity.isPut
-        ? parsedAmount
-            .mul(entity.baseValue.raw.toString())
-            .div(entity.quoteValue.raw.toString())
-        : parsedAmount
+      const size = entity.isPut ? scaleDown(parsedAmount) : parsedAmount
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slip
@@ -316,10 +344,7 @@ const Swap: React.FC = () => {
             setPrem(formatEther(item.market.spotOpenPremium.raw.toString()))
           }
           // sell long, Trade.getClosePremium
-        } else if (
-          orderType === Operation.CLOSE_LONG ||
-          orderType === Operation.WRITE
-        ) {
+        } else if (orderType === Operation.CLOSE_LONG) {
           if (parsedAmount.gt(BigNumber.from(0))) {
             credit = formatEther(actualPremium.raw.toString())
           } else {
@@ -329,9 +354,14 @@ const Swap: React.FC = () => {
           // buy short swap from UNDER -> RDM
         } else if (orderType === Operation.SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
+            ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
+              orderType,
+              entity.isPut ? parsedAmount : scaleUp(parsedAmount)
+            )
             short = formatEther(actualPremium.raw.toString())
           } else {
             setImpact('0.00')
+
             setPrem(
               formatEther(item.market.spotUnderlyingToShort.raw.toString())
             )
@@ -391,7 +421,7 @@ const Swap: React.FC = () => {
     // else, options are being written, so show the premium paid per option written
     return orderType === Operation.LONG
       ? long
-      : orderType === Operation.CLOSE_SHORT
+      : orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? short
       : credit
   }, [item, parsedAmount, cost, orderType, entity.isPut])
@@ -439,25 +469,16 @@ const Swap: React.FC = () => {
     if (parsedAmount && underlyingBalance) {
       // The total cost of the order
       const totalCost = parseEther(cost.debit)
-
       if (orderType === Operation.LONG) {
         // if the total cost of the order is greater than the underlying token balance, premium cant be paid.
         return !totalCost.gt(parseEther(underlyingBalance))
-      } else if (orderType === Operation.WRITE) {
+      } else if (orderType === Operation.SHORT) {
         // the amount of options requesting to be written
-        const totalCollateral = entity.isPut
-          ? parsedAmount
-              .mul(entity.baseValue.raw.toString())
-              .div(entity.quoteValue.raw.toString())
-          : parsedAmount
-        // if the write size exceeds the underlying balance, theres not enough tokens to mint options
-        return !totalCollateral.gt(parseEther(underlyingBalance))
+        return !parseEther(cost.short).gt(parseEther(underlyingBalance))
       } else if (orderType === Operation.CLOSE_LONG) {
         // the order size when closing long options
         const totalLongSold = entity.isPut
-          ? parsedAmount
-              .mul(entity.baseValue.raw.toString())
-              .div(entity.quoteValue.raw.toString())
+          ? scaleDown(parsedAmount)
           : parsedAmount
         // if the close size is greater than the amount of long options held in the wallet
         return !totalLongSold.gt(parseEther(tokenBalance))
@@ -465,16 +486,23 @@ const Swap: React.FC = () => {
         // the close size of closing short tokens
         const totalShortSold = entity.isPut
           ? parsedAmount
-          : parsedAmount
-              .mul(entity.baseValue.raw.toString())
-              .div(entity.quoteValue.raw.toString())
+          : scaleDown(parsedAmount)
         // if the close size exceeds the wallet balance of short option tokens
         return !totalShortSold.gt(parseEther(redeemBalance))
       }
     } else {
       return true
     }
-  }, [entity, parsedAmount, underlyingBalance, tokenBalance, orderType])
+  }, [
+    entity,
+    parsedAmount,
+    underlyingBalance,
+    tokenBalance,
+    orderType,
+    cost,
+    scaleDown,
+    scaleUp,
+  ])
 
   return (
     <>
@@ -483,12 +511,12 @@ const Swap: React.FC = () => {
         <Switch
           disabled={loading}
           active={
-            orderType !== Operation.CLOSE_LONG && orderType !== Operation.WRITE
+            orderType !== Operation.CLOSE_LONG && orderType !== Operation.SHORT
           }
           onClick={() => {
             if (
               orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.WRITE
+              orderType === Operation.SHORT
             ) {
               if (shortTokenAmount.greaterThan('0')) {
                 updateItem(item, Operation.CLOSE_SHORT)
@@ -499,7 +527,7 @@ const Swap: React.FC = () => {
               if (tokenAmount.greaterThan('0')) {
                 updateItem(item, Operation.CLOSE_LONG)
               } else {
-                updateItem(item, Operation.WRITE)
+                updateItem(item, Operation.SHORT)
               }
             }
           }}
@@ -524,7 +552,7 @@ const Swap: React.FC = () => {
           balance={
             orderType === Operation.LONG
               ? null
-              : orderType === Operation.WRITE
+              : orderType === Operation.SHORT
               ? null
               : scaledOptionAmount
           }
@@ -642,10 +670,30 @@ const Swap: React.FC = () => {
             </div>
           ) : (
             <>
-              {orderType === Operation.WRITE ? (
+              {orderType === Operation.SHORT ? (
                 <>
                   {approved[0] ? (
-                    <></>
+                    <Button
+                      disabled={
+                        !approved[0] ||
+                        !parsedAmount?.gt(0) ||
+                        error ||
+                        !hasLiquidity ||
+                        !isBelowSlippage() ||
+                        !getHasEnoughForTrade()
+                      }
+                      full
+                      size="sm"
+                      onClick={handleSubmitClick}
+                      isLoading={loading}
+                      text={
+                        !isBelowSlippage() && typedValue !== ''
+                          ? 'Price Impact Too High'
+                          : getHasEnoughForTrade()
+                          ? 'Confirm Trade'
+                          : 'Insufficient Balance'
+                      }
+                    />
                   ) : (
                     <>
                       <Button
@@ -654,34 +702,10 @@ const Swap: React.FC = () => {
                         size="sm"
                         onClick={handleApproval}
                         isLoading={loading}
-                        text="Approve Options"
+                        text="Approve"
                       />
                     </>
                   )}
-                  {approved[1] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleSecondaryApproval}
-                        isLoading={loading}
-                        text="Approve Tokens"
-                      />
-                    </>
-                  )}
-                  {approved[0] && approved[1] ? (
-                    <Button
-                      disabled={!parsedAmount?.gt(0) || error || !hasLiquidity}
-                      full
-                      size="sm"
-                      onClick={handleSubmitClick}
-                      isLoading={loading}
-                      text="Confirm Trade"
-                    />
-                  ) : null}
                 </>
               ) : (
                 <>
@@ -729,7 +753,6 @@ const Swap: React.FC = () => {
     </>
   )
 }
-
 const StyledEnd = styled(Box)`
   min-width: 100%;
 `

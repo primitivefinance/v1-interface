@@ -113,15 +113,22 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           </StyledData>{' '}
           which gives you the right to withdraw{' '}
           <StyledData>
-            {formatParsedAmount(
-              parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-            )}{' '}
+            {isPut
+              ? formatParsedAmount(
+                  parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
+                )
+              : formatParsedAmount(parsedAmount)}{' '}
             {underlying.token.symbol}
           </StyledData>{' '}
           when the options expire unexercised, or the right to redeem them for{' '}
           <StyledData>
             {' '}
-            {formatParsedAmount(parsedAmount)} {strike.token.symbol}
+            {formatParsedAmount(
+              parsedAmount
+                .mul(strike.raw.toString())
+                .div(underlying.raw.toString())
+            )}{' '}
+            {strike.token.symbol}
           </StyledData>{' '}
           if they are exercised.{' '}
         </>
