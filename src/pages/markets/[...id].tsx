@@ -63,7 +63,9 @@ const Market = ({ market, data }) => {
   const clearOptions = useClearOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
-
+  const handleFilterType = () => {
+    setCallPutActive(!callPutActive)
+  }
   useEffect(() => {
     const { ethereum, web3 } = window as any
     clearOptions()
@@ -116,24 +118,6 @@ const Market = ({ market, data }) => {
       setCallPutActive(data[1] === 'calls')
     }
   }, [data])
-
-  const handleFilterType = () => {
-    setCallPutActive(!callPutActive)
-    /*
-    if (!callPutActive) {
-      console.log('reached')
-      router.push(`/markets/${market}/puts`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
-    } else {
-      router.push(`/markets/${market}/calls`, `/markets/${market}/calls`, {
-        shallow: true,
-      })
-    } */
-  }
-  const handleFilterExpiry = (exp: number) => {
-    setExpiry(exp)
-  }
 
   useEffect(() => {
     setExpiry(initExpiry)

@@ -1,11 +1,36 @@
 import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { approve } from '@primitivefi/sdk'
 import { Operation } from '@/constants/index'
 import ethers from 'ethers'
+import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
+
+const approve = async (
+  signer: ethers.Signer,
+  tokenAddress: string,
+  account: string,
+  spender: string
+): Promise<ethers.Transaction> => {
+  try {
+    if (
+      !ethers.utils.isAddress(tokenAddress) ||
+      !ethers.utils.isAddress(account)
+    ) {
+      return null
+    }
+    const code: any = await signer.provider.getCode(tokenAddress)
+    let tx: any
+    if (code > 0) {
+      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
+      tx = await erc20.approve(spender, 1) // 1 gwei approval
+    } else throw 'Approval Error'
+    return tx
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 const useApprove = () => {
   const { account, library } = useWeb3React()
