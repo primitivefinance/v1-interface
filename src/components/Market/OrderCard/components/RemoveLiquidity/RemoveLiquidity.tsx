@@ -17,6 +17,7 @@ import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
+import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
@@ -38,7 +39,6 @@ import {
   useUpdateItem,
   useHandleSubmitOrder,
 } from '@/state/order/hooks'
-import { useAddNotif } from '@/state/notifs/hooks'
 
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
@@ -54,7 +54,7 @@ const RemoveLiquidity: React.FC = () => {
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
   const [submitting, setSubmit] = useState(false)
-
+  const addNotif = useAddNotif()
   const { data } = useBlockNumber()
   //slider
   const [ratio, setRatio] = useState(0)
@@ -84,7 +84,7 @@ const RemoveLiquidity: React.FC = () => {
       : SUSHISWAP_CONNECTOR[chainId]
   const optionBalance = useTokenBalance(item.entity.address)
 
-  const handleApprove = useApprove()
+  const onApprove = useApprove()
 
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -244,6 +244,18 @@ const RemoveLiquidity: React.FC = () => {
     return additional
   }, [calculateRequiredLong, optionBalance])
 
+  const handleApproval = useCallback(() => {
+    onApprove(entity.underlying.address, spender)
+      .then()
+      .catch((error) => {
+        addNotif(
+          0,
+          `Approving ${entity.underlying.symbol.toUpperCase()}`,
+          error.message,
+          ''
+        )
+      })
+  }, [entity.underlying, onApprove])
   return (
     <LiquidityContainer>
       <Spacer />
@@ -353,7 +365,15 @@ const RemoveLiquidity: React.FC = () => {
 
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
-        {loading ? (
+        <Button
+          isLoading={loading}
+          full
+          size="sm"
+          onClick={handleApproval}
+          text={`Approve`}
+        />
+        {/**
+         * {loading ? (
           <Button
             disabled={loading}
             variant="secondary"
@@ -426,6 +446,8 @@ const RemoveLiquidity: React.FC = () => {
             )}
           </>
         )}
+         * 
+         */}
       </Box>
     </LiquidityContainer>
   )

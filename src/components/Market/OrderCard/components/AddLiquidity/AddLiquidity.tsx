@@ -449,7 +449,15 @@ const AddLiquidity: React.FC = () => {
 
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
-        {loading ? (
+        <Button
+          isLoading={loading}
+          full
+          size="sm"
+          onClick={handleApproval}
+          text={`Approve`}
+        />
+        {/**
+         * {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Button
@@ -491,6 +499,8 @@ const AddLiquidity: React.FC = () => {
             />
           </>
         )}
+         * 
+         */}
       </Box>
     </LiquidityContainer>
   )
