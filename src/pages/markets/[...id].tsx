@@ -117,9 +117,6 @@ const Market = ({ market, data }) => {
     }
   }, [data])
 
-  const handleFilterType = () => {
-    setCallPutActive(!callPutActive)
-
   useEffect(() => {
     setExpiry(initExpiry)
   }, [chainId])
