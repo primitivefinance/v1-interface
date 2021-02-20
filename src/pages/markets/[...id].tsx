@@ -63,7 +63,9 @@ const Market = ({ market, data }) => {
   const clearOptions = useClearOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
-
+  const handleFilterType = () => {
+    setCallPutActive(!callPutActive)
+  }
   useEffect(() => {
     const { ethereum, web3 } = window as any
     clearOptions()
