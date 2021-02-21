@@ -12,7 +12,8 @@ import Button from '@/components/Button'
 import { tokens } from '@/constants/options'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { SUSHISWAP_CONNECTOR } from '@primitivefi/sdk'
-
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
+import WarningIcon from '@material-ui/icons/Warning'
 const Reset = () => {
   const [sushi, setSushi] = useState(true) // sushi 0
   const [dai, setDAI] = useState(true) // DAI 1
@@ -63,6 +64,8 @@ const Reset = () => {
             break
           case 5: // sushi call LP
             tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            console.log(address, ' -> ', tokenAllowance.toString())
+
             setSushiCLP(tokenAllowance.gt(2))
             break
           case 6: // sushi put long
@@ -114,28 +117,60 @@ const Reset = () => {
   return (
     <>
       <Spacer />
-      <StyledTitle>Allowance Reset Tool</StyledTitle>
-      <Spacer />
+      <StyledTitle>Approval Reset Tool</StyledTitle>
       <Spacer />
 
+      <StyledSub>
+        Double-check if you are vulnerable by searching for your address on the
+        Etherscan approval checker
+      </StyledSub>
+      <a
+        style={{ color: 'white' }}
+        href="https://etherscan.io/tokenapprovalchecker"
+        target="__blank"
+      >
+        https://etherscan.io/tokenapprovalchecker
+      </a>
+      <Spacer />
       {loading ? (
         <Loader />
       ) : (
         <>
-          {ready ? (
-            <StyledReady>YOU ARE PROTECTED, NO OPEN APPROVALS</StyledReady>
-          ) : (
+          {sushi ||
+          dai ||
+          weth ||
+          sushiCL ||
+          sushiCS ||
+          sushiCLP ||
+          sushiPL ||
+          sushiPS ||
+          sushiPLP ||
+          wethCL ||
+          wethCS ||
+          wethCLP ||
+          wethPL ||
+          wethPS ||
+          wethPLP ? (
             <>
               <StyledNot>
-                YOU ARE VULNERABLE TO EXPLOIT - PLEASE RESET ALL APPROVALS
+                <WarningIcon />
+                <Spacer size="sm" />
+                YOU ARE VULNERABLE TO EXPLOIT - PLEASE RESET ALL APPROVALS{' '}
+                <Spacer size="sm" />
+                <WarningIcon />
               </StyledNot>
               <Spacer />
               <Button variant="secondary" onClick={() => router.reload()}>
                 RE-CHECK APPROVALS
               </Button>
             </>
+          ) : (
+            <StyledReady>
+              <VerifiedUserIcon /> <Spacer size="sm" />
+              YOU ARE PROTECTED, NO OPEN APPROVALS <Spacer size="sm" />
+              <VerifiedUserIcon />
+            </StyledReady>
           )}
-          <Spacer />
           <Spacer />
 
           <Container>
@@ -153,10 +188,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset SUSHI
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI Protected
                     </Button>
                   )}
@@ -169,10 +208,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset DAI
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       DAI Protected
                     </Button>
                   )}
@@ -185,10 +228,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset SUSHI-CALL-LONG
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-LONG Protected
                     </Button>
                   )}
@@ -201,10 +248,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset SUSHI-CALL-SHORT
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-SHORT Protected
                     </Button>
                   )}
@@ -212,15 +263,19 @@ const Reset = () => {
                     <Button
                       onClick={async () =>
                         onApprove(
-                          '0x875f1f8e7426b91c388807d5257f73700d04d653',
+                          '0xbff6cbf2e7d2cd0705329c735a37be33241298e9',
                           SUSHISWAP_CONNECTOR[1]
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset SUSHI-CALL-LP
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-CALL-LP Protected
                     </Button>
                   )}
@@ -233,10 +288,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset SUSHI-PUT-LONG
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-PUT-LONG Protected
                     </Button>
                   )}
@@ -249,10 +308,14 @@ const Reset = () => {
                         )
                       }
                     >
-                      Reset SUSHI-PUT-SHORT Trades
+                      <WarningIcon />
+                      <Spacer size="sm" />
+                      Reset SUSHI-PUT-SHORT
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-PUT-SHORT Protected
                     </Button>
                   )}
@@ -260,15 +323,19 @@ const Reset = () => {
                     <Button
                       onClick={async () =>
                         onApprove(
-                          '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196',
+                          '0x45e185Be5d2FE76b71fE4283EaAD9679E674c77f',
                           SUSHISWAP_CONNECTOR[1]
                         )
                       }
                     >
-                      Reset SUSHI-PUT-LP Trades
+                      <WarningIcon />
+                      <Spacer size="sm" />
+                      Reset SUSHI-PUT-LP
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       SUSHI-PUT-LP Protected
                     </Button>
                   )}
@@ -292,10 +359,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH Protected
                     </Button>
                   )}
@@ -308,10 +379,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset DAI
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       DAI Protected
                     </Button>
                   )}
@@ -324,10 +399,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-CALL-LONG
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-CALL-LONG Protected
                     </Button>
                   )}
@@ -340,10 +419,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-CALL-SHORT
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-CALL-SHORT Protected
                     </Button>
                   )}
@@ -356,10 +439,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-CALL-LP
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-CALL-LP Protected
                     </Button>
                   )}
@@ -372,10 +459,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-PUT-LONG
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-PUT-LONG Protected
                     </Button>
                   )}
@@ -388,10 +479,14 @@ const Reset = () => {
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-PUT-SHORT
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-PUT-SHORT Protected
                     </Button>
                   )}
@@ -399,15 +494,19 @@ const Reset = () => {
                     <Button
                       onClick={async () =>
                         onApprove(
-                          '0x45e185be5d2fe76b71fe4283eaad9679e674c77f',
+                          '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196',
                           SUSHISWAP_CONNECTOR[1]
                         )
                       }
                     >
+                      <WarningIcon />
+                      <Spacer size="sm" />
                       Reset WETH-PUT-LP
                     </Button>
                   ) : (
                     <Button variant="secondary" disabled>
+                      <VerifiedUserIcon />
+                      <Spacer size="sm" />
                       WETH-PUT-LP Protected
                     </Button>
                   )}
@@ -444,12 +543,16 @@ const StyledSub = styled.div`
 const StyledReady = styled.div`
   font-size: 20px;
   font-weight: bold;
-  color: ${(props) => props.theme.color.green};
+  color: green !important;
+  display: flex;
+  align-items: center;
 `
 
 const StyledNot = styled.div`
   font-size: 20px;
   font-weight: bold;
   color: red !important;
+  display: flex;
+  align-items: center;
 `
 export default Reset

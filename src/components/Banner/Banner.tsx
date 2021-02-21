@@ -17,15 +17,12 @@ const Banner: React.FC = ({ children }) => {
   const location = useRouter()
   return (
     <StyledBanner>
-      <Spacer size="sm" />
-      <Spacer size="sm" />
-
       <Container
         alignItems="center"
         display="flex"
         flexDirection="row"
         justifyContent="center"
-        height={70}
+        height={60}
       >
         {children}
       </Container>
@@ -39,10 +36,9 @@ const StyledBanner = styled.div`
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 70px;
-  position: fixed;
-  top: 60px;
+  height: 50px;
   width: 100%;
+  z-index: 300;
 `
 
 const StyledNav = styled.div`
