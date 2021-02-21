@@ -8,6 +8,11 @@ import styled from 'styled-components'
 import { useWeb3React } from '@web3-react/core'
 import { useClearPositions } from '@/state/positions/hooks'
 import { useClearSwap } from '@/state/swap/hooks'
+import Banner from '@/components/Banner'
+import Spacer from '@/components/Spacer'
+import Link from 'next/link'
+import Button from '@/components/Button'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 interface PageProps {
   children: any
   full?: boolean
@@ -35,6 +40,21 @@ const Layout: React.FC<PageProps> = (props) => {
   return (
     <>
       <TopBar loading={props.loading && active} />
+      <Banner>
+        EMERGENCY ALERT - An exploit in Primitive approvals has been detected!
+        <Spacer size="sm" />
+        To protect your funds,
+        <Spacer size="sm" />
+        <Link href="/reset">
+          <Button size="sm" variant="secondary">
+            CLICK HERE
+          </Button>
+        </Link>{' '}
+      </Banner>
+      <Spacer />
+      <Spacer />
+      <Spacer />
+
       <StyledPage>
         <StyledMain full={props.full}>{props.children}</StyledMain>
       </StyledPage>
@@ -48,10 +68,6 @@ const StyledPage = styled.div``
 const StyledLoading = styled.div`
   margin: 0 auto;
   padding-top: 5em;
-`
-const StyledLink = styled.a`
-  text-decoration: none;
-  color: yellow;
 `
 
 interface StyledMainProps {

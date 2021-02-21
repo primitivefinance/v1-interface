@@ -17,41 +17,32 @@ const Banner: React.FC = ({ children }) => {
   const location = useRouter()
   return (
     <StyledBanner>
+      <Spacer size="sm" />
+      <Spacer size="sm" />
+
       <Container
         alignItems="center"
         display="flex"
         flexDirection="row"
-        justifyContent="space-between"
-        height={36}
+        justifyContent="center"
+        height={70}
       >
-        <StyledFlex>{children}</StyledFlex>
+        {children}
       </Container>
     </StyledBanner>
   )
 }
 
 const StyledBanner = styled.div`
-  background-image: -webkit-linear-gradient(
-    top,
-    rgba(0, 0, 0, 1),
-    rgba(255, 0, 0, 0)
-  );
+  background-color: rgba(255, 0, 0, 0.7);
   border-top: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: ${(props) => props.theme.barHeight / 2}px;
+  height: 70px;
   position: fixed;
-  top: 72px;
+  top: 60px;
   width: 100%;
-`
-
-const StyledFlex = styled.div`
-  align-items: center;
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-content: center;
 `
 
 const StyledNav = styled.div`
