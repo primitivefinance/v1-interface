@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -34,8 +35,8 @@ const Reset = () => {
   const { account } = useActiveWeb3React()
   const getAllowance = useGetTokenAllowance()
   const onApprove = useApprove()
+  const router = useRouter()
   useEffect(() => {
-    setLoading(false)
     const loadAllowances = async () => {
       tokens.map(async (address, index) => {
         let tokenAllowance
@@ -104,148 +105,318 @@ const Reset = () => {
             break
         }
       })
+      setLoading(false)
     }
-    loadAllowances()
-  }, [])
+    if (account) {
+      loadAllowances()
+    }
+  }, [account])
   return (
     <>
       <Spacer />
-      <StyledTitle>Reset Allowances</StyledTitle>
+      <StyledTitle>Allowance Reset Tool</StyledTitle>
       <Spacer />
       <Spacer />
-      <Container>
-        <StyledColumn>
-          <Box row>
-            <StyledSub>SUSHI Markets</StyledSub>
-            <Spacer />
-            <div>
-              {sushi ? (
-                <Button>Reset SUSHI</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI Trades!
-                </Button>
-              )}
-              {dai ? (
-                <Button>Reset DAI</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified DAI Trades!
-                </Button>
-              )}
-              {sushiCL ? (
-                <Button>Reset SUSHI-CALL-LONG</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-LONG Trades!
-                </Button>
-              )}
-              {sushiCS ? (
-                <Button>Reset SUSHI-CALL-SHORT</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-SHORT Trades!
-                </Button>
-              )}
-              {sushiCLP ? (
-                <Button>Reset SUSHI-CALL-LP</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-CALL-LP Trades!
-                </Button>
-              )}
-              {sushiPL ? (
-                <Button>Reset SUSHI-PUT-LONG</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-PUT-LONG Trades!
-                </Button>
-              )}
-              {sushiPS ? (
-                <Button>Reset SUSHI-PUT-SHORT Trades</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-PUT-SHORT Trades!
-                </Button>
-              )}
-              {sushiPLP ? (
-                <Button>Reset SUSHI-PUT-LP Trades</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified SUSHI-PUT-LP Trades!
-                </Button>
-              )}
-            </div>
-          </Box>
-        </StyledColumn>
-        <Spacer />
 
-        <StyledColumn>
-          <Box row>
-            <StyledSub>WETH Markets</StyledSub>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {ready ? (
+            <StyledReady>YOU ARE PROTECTED, NO OPEN APPROVALS</StyledReady>
+          ) : (
+            <>
+              <StyledNot>
+                YOU ARE VULNERABLE TO EXPLOIT - PLEASE RESET ALL APPROVALS
+              </StyledNot>
+              <Spacer />
+              <Button variant="secondary" onClick={() => router.reload()}>
+                RE-CHECK APPROVALS
+              </Button>
+            </>
+          )}
+          <Spacer />
+          <Spacer />
+
+          <Container>
+            <StyledColumn>
+              <Box row>
+                <StyledSub>SUSHI Markets</StyledSub>
+                <Spacer />
+                <div>
+                  {sushi ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI Protected
+                    </Button>
+                  )}
+                  {dai ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x6b175474e89094c44da98b954eedeac495271d0f',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset DAI
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      DAI Protected
+                    </Button>
+                  )}
+                  {sushiCL ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x875f1f8e7426b91c388807d5257f73700d04d653',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-CALL-LONG
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-LONG Protected
+                    </Button>
+                  )}
+                  {sushiCS ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x81eb1e0acfd705c34e975397de7545b6a9f0be39',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-CALL-SHORT
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-SHORT Protected
+                    </Button>
+                  )}
+                  {sushiCLP ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x875f1f8e7426b91c388807d5257f73700d04d653',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-CALL-LP
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-CALL-LP Protected
+                    </Button>
+                  )}
+                  {sushiPL ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x6688E09a0af5dAfa2a6dcD09f180F084ad964005',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-PUT-LONG
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-PUT-LONG Protected
+                    </Button>
+                  )}
+                  {sushiPS ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0xee1482a2c48f0012862e45a992666096fc767b78',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-PUT-SHORT Trades
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-PUT-SHORT Protected
+                    </Button>
+                  )}
+                  {sushiPLP ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset SUSHI-PUT-LP Trades
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      SUSHI-PUT-LP Protected
+                    </Button>
+                  )}
+                </div>
+              </Box>
+            </StyledColumn>
             <Spacer />
 
-            <div>
-              {weth ? (
-                <Button>Reset WETH</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH Trades!
-                </Button>
-              )}
-              {dai ? (
-                <Button>Reset DAI</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified DAI Trades!
-                </Button>
-              )}
-              {wethCL ? (
-                <Button>Reset WETH-CALL-LONG</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Veriiedy WETH-CALL-LONG Trades!
-                </Button>
-              )}
-              {wethCS ? (
-                <Button>Reset WETH-CALL-SHORT</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH-CALL-SHORT Trades!
-                </Button>
-              )}
-              {wethCLP ? (
-                <Button>Reset WETH-CALL-LP</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH-CALL-LP Trades!
-                </Button>
-              )}
-              {wethPL ? (
-                <Button>Reset WETH-PUT-LON</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH-PUT-LONG Trades!
-                </Button>
-              )}
-              {wethPS ? (
-                <Button>Reset WETH-PUT-SHORT</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH-PUT-SHORT Trades!
-                </Button>
-              )}
-              {wethPLP ? (
-                <Button>Reset WETH-PUT-LP</Button>
-              ) : (
-                <Button variant="secondary" disabled>
-                  Verified WETH-PUT-LP Trades!
-                </Button>
-              )}
-            </div>
-          </Box>
-        </StyledColumn>
-      </Container>
+            <StyledColumn>
+              <Box row>
+                <StyledSub>WETH Markets</StyledSub>
+                <Spacer />
+
+                <div>
+                  {weth ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH Protected
+                    </Button>
+                  )}
+                  {dai ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x6b175474e89094c44da98b954eedeac495271d0f',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset DAI
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      DAI Protected
+                    </Button>
+                  )}
+                  {wethCL ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x5b419b581081f8e38a3c450ae518e0aefd4a32b4',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-CALL-LONG
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-CALL-LONG Protected
+                    </Button>
+                  )}
+                  {wethCS ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x9e5405a11e42e7d48fbf4f2e979695641c15189b',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-CALL-SHORT
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-CALL-SHORT Protected
+                    </Button>
+                  )}
+                  {wethCLP ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x2acbf90fdff006eb6eae2b61145b603e59ade7d2',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-CALL-LP
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-CALL-LP Protected
+                    </Button>
+                  )}
+                  {wethPL ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x5b83dec645be2b8137a20175f59000c20c6dce82',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-PUT-LONG
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-PUT-LONG Protected
+                    </Button>
+                  )}
+                  {wethPS ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0xee1482a2c48f0012862e45a992666096fc767b78',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-PUT-SHORT
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-PUT-SHORT Protected
+                    </Button>
+                  )}
+                  {wethPLP ? (
+                    <Button
+                      onClick={async () =>
+                        onApprove(
+                          '0x45e185be5d2fe76b71fe4283eaad9679e674c77f',
+                          SUSHISWAP_CONNECTOR[1]
+                        )
+                      }
+                    >
+                      Reset WETH-PUT-LP
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled>
+                      WETH-PUT-LP Protected
+                    </Button>
+                  )}
+                </div>
+              </Box>
+            </StyledColumn>
+          </Container>
+        </>
+      )}
     </>
   )
 }
@@ -254,6 +425,7 @@ const Container = styled.div`
   margin-bottom: 5em;
   display: flex;
   flex-direction: row;
+  color: default;
 `
 const StyledColumn = styled(Col)`
   width: 30em;
@@ -267,5 +439,17 @@ const StyledSub = styled.div`
   font-size: 20px;
   font-weight: bold;
   color: ${(props) => props.theme.color.grey[400]};
+`
+
+const StyledReady = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${(props) => props.theme.color.green};
+`
+
+const StyledNot = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  color: red !important;
 `
 export default Reset

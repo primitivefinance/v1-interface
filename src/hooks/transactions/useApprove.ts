@@ -24,7 +24,7 @@ const approve = async (
     let tx: any
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-      tx = await erc20.approve(spender, 1) // 1 gwei approval
+      tx = await erc20.approve(spender, 0) // 0 gwei approval
     } else throw 'Approval Error'
     return tx
   } catch (error) {
