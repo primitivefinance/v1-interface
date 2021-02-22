@@ -21,4 +21,7 @@ export const tokens = [
   '0x5b83dec645be2b8137a20175f59000c20c6dce82', // weth put long
   '0xcfc9a86fccf24ef495194540e1a3d3d523893355', // weth put short
   '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196', // weth put LP
+  '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // weth
+  '0x6b175474e89094c44da98b954eedeac495271d0f', // Dai
+  '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', // yfi
 ]

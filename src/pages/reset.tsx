@@ -14,6 +14,7 @@ import { useActiveWeb3React } from '@/hooks/user/index'
 import { SUSHISWAP_CONNECTOR } from '@primitivefi/sdk'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import WarningIcon from '@material-ui/icons/Warning'
+import { DEFAULT_SLIPPAGE } from '@/constants/index'
 const Reset = () => {
   const [sushi, setSushi] = useState(true) // sushi 0
   const [dai, setDAI] = useState(true) // DAI 1
@@ -30,6 +31,10 @@ const Reset = () => {
   const [wethPL, setWethPL] = useState(true) // weth put long 12
   const [wethPS, setWethPS] = useState(true) // weth put short 13
   const [wethPLP, setWethPLP] = useState(true) // weth put LP 14
+
+  const [wethU, setWethU] = useState(true) // weth uniswap 15
+  const [daiU, setDaiU] = useState(true) // dai u 16
+  const [yfi, setYfi] = useState(true) // yfi 17
 
   const [ready, setReady] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -104,14 +109,36 @@ const Reset = () => {
             tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
             setWethPLP(tokenAllowance.gt(2))
             break
+
+          case 15: // weth U
+            tokenAllowance = await getAllowance(
+              address,
+              '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+            )
+            setWethU(tokenAllowance.gt(2))
+            break
+          case 16: // dai U
+            tokenAllowance = await getAllowance(
+              address,
+
+              '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+            )
+            setDaiU(tokenAllowance.gt(2))
+            break
+          case 17: // yfi
+            tokenAllowance = await getAllowance(
+              address,
+              '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+            )
+            setYfi(tokenAllowance.gt(2))
+            break
           default:
             break
         }
       })
-      setLoading(false)
     }
     if (account) {
-      loadAllowances()
+      loadAllowances().finally(() => setLoading(false))
     }
   }, [account])
   return (
@@ -150,7 +177,10 @@ const Reset = () => {
           wethCLP ||
           wethPL ||
           wethPS ||
-          wethPLP ? (
+          wethPLP ||
+          wethU ||
+          daiU ||
+          yfi ? (
             <>
               <StyledNot>
                 <WarningIcon />
@@ -175,8 +205,8 @@ const Reset = () => {
 
           <Container>
             <StyledColumn>
-              <Box row>
-                <StyledSub>SUSHI Markets</StyledSub>
+              <Box row justifyContent="flex-start" alignItems="center">
+                <StyledSub>Sushi Connector</StyledSub>
                 <Spacer />
                 <div>
                   {sushi ? (
@@ -346,9 +376,6 @@ const Reset = () => {
 
             <StyledColumn>
               <Box row>
-                <StyledSub>WETH Markets</StyledSub>
-                <Spacer />
-
                 <div>
                   {weth ? (
                     <Button
@@ -514,6 +541,77 @@ const Reset = () => {
               </Box>
             </StyledColumn>
           </Container>
+          <Spacer />
+          <Container>
+            <Box row justifyContent="flex-start" alignItems="center">
+              <StyledSub>Uniswap Connector</StyledSub>
+              <Spacer />
+              <div>
+                {wethU ? (
+                  <Button
+                    onClick={async () =>
+                      onApprove(
+                        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                        '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+                      )
+                    }
+                  >
+                    <WarningIcon />
+                    <Spacer size="sm" />
+                    Reset WETH
+                  </Button>
+                ) : (
+                  <Button variant="secondary" disabled>
+                    <VerifiedUserIcon />
+                    <Spacer size="sm" />
+                    WETH Protected
+                  </Button>
+                )}
+                {daiU ? (
+                  <Button
+                    onClick={async () =>
+                      onApprove(
+                        '0x6b175474e89094c44da98b954eedeac495271d0f',
+                        '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+                      )
+                    }
+                  >
+                    <WarningIcon />
+                    <Spacer size="sm" />
+                    Reset DAI
+                  </Button>
+                ) : (
+                  <Button variant="secondary" disabled>
+                    <VerifiedUserIcon />
+                    <Spacer size="sm" />
+                    DAI Protected
+                  </Button>
+                )}
+                {yfi ? (
+                  <Button
+                    onClick={async () =>
+                      onApprove(
+                        '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
+                        '0x66fD5619a2a12dB3469e5A1bC5634f981e676c75'
+                      )
+                    }
+                  >
+                    <WarningIcon />
+                    <Spacer size="sm" />
+                    Reset YFI
+                  </Button>
+                ) : (
+                  <Button variant="secondary" disabled>
+                    <VerifiedUserIcon />
+                    <Spacer size="sm" />
+                    YFI Protected
+                  </Button>
+                )}
+              </div>
+            </Box>
+          </Container>
+          <Spacer />
+          <Spacer />
         </>
       )}
     </>
@@ -521,7 +619,7 @@ const Reset = () => {
 }
 const Container = styled.div`
   max-width: 1000px;
-  margin-bottom: 5em;
+  margin-bottom: 1em;
   display: flex;
   flex-direction: row;
   color: default;
