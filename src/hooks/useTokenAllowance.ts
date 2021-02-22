@@ -46,7 +46,7 @@ export const useGetTokenAllowance = (): ((
     if (code > 0) {
       allowance = await getAllowance(library, tokenAddress, account, spender)
     }
-    return formatEther(allowance).toString()
+    return allowance
   }
   return useCallback(
     async (tokenAddress: string, spender: string) => {
