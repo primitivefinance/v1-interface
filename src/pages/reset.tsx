@@ -236,7 +236,7 @@ const Reset = () => {
                     <Button variant="secondary" disabled>
                       <VerifiedUserIcon />
                       <Spacer size="sm" />
-                      SUSHI-LONG Protected
+                      SUSHI-CALL-LONG Protected
                     </Button>
                   )}
                   {sushiCS ? (
@@ -256,7 +256,7 @@ const Reset = () => {
                     <Button variant="secondary" disabled>
                       <VerifiedUserIcon />
                       <Spacer size="sm" />
-                      SUSHI-SHORT Protected
+                      SUSHI-CALL-SHORT Protected
                     </Button>
                   )}
                   {sushiCLP ? (
