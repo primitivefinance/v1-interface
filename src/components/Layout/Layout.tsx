@@ -40,15 +40,11 @@ const Layout: React.FC<PageProps> = (props) => {
   return (
     <>
       <TopBar loading={props.loading && active} />
-      <Spacer size="sm" />
       <Banner>
-        EMERGENCY ALERT - An exploit in Primitive approvals has been detected!
-        <Spacer size="sm" />
-        To protect your funds {`->`}
-        <Spacer size="sm" />
         <Link href="/reset">
-          <Button size="sm" variant="secondary">
-            CLICK HERE
+          <Button size="sm" variant="transparent">
+            AN EXPLOIT IN PRIMITIVE APPROVALS HAS BEEN DETECTED - CLICK HERE TO
+            PROTECT YOUR FUNDS
           </Button>
         </Link>{' '}
       </Banner>
