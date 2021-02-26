@@ -76,16 +76,14 @@ const Swap: React.FC = () => {
   const entity = item.entity
   // multiply by quote divide by base, scale to quote units
   const scaleUp = (amount) => {
-    return BigNumber.from(amount.toString())
-      .mul(entity.quoteValue.raw.toString())
-      .div(entity.baseValue.raw.toString())
+    return BigNumber.from(amount).mul(entity.quoteValue.raw.toString())
   }
 
   // multiply by base divide by quote, scale to base units
   const scaleDown = (amount) => {
-    return BigNumber.from(amount.toString())
-      .mul(entity.baseValue.raw.toString())
-      .div(entity.quoteValue.raw.toString())
+    return BigNumber.from(amount.toString()).div(
+      entity.quoteValue.raw.toString()
+    )
   }
 
   const getSpotPremiums = useCallback(() => {
@@ -104,7 +102,7 @@ const Swap: React.FC = () => {
       : formatEther(
           entity.isPut
             ? item.market.spotUnderlyingToShort.raw.toString()
-            : scaleUp(item.market.spotUnderlyingToShort.raw.toString())
+            : item.market.spotUnderlyingToShort.raw.toString()
         )
   }, [orderType, entity.isPut, item.market, scaleUp, scaleDown])
 
@@ -163,7 +161,7 @@ const Swap: React.FC = () => {
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
           +item.entity.strikePrice > 5 ? '$0' : '$0.00'
-        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
+        )} ${item.entity.isCall ? 'Short Call' : 'Short Put'} ${formatExpiry(
           item.entity.expiryValue
         ).utc.substr(4, 12)}`,
         tip: 'Purchase tokenized, written covered options',
@@ -199,7 +197,11 @@ const Swap: React.FC = () => {
       break
     case Operation.CLOSE_SHORT:
       title = {
-        text: 'Close Short Position',
+        text: `Trade ${numeral(item.entity.strikePrice).format(
+          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
+        )} ${item.entity.isCall ? 'Short Call' : 'Short Put'} ${formatExpiry(
+          item.entity.expiryValue
+        ).utc.substr(4, 12)}`,
         tip: `Sell short option tokens for ${item.asset.toUpperCase()}`,
       }
       tokenAddress = entity.redeem.address
@@ -212,10 +214,16 @@ const Swap: React.FC = () => {
   const underlyingBalance = useTokenBalance(entity.underlying.address)
   const redeemBalance = useTokenBalance(entity.redeem.address)
 
-  const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
+  // renamed optionToken as RDM
+  const optionToken = new Token(
+    entity.chainId,
+    entity.redeem.address,
+    18,
+    'SHORT'
+  )
   const tokenAmount: TokenAmount = new TokenAmount(
     optionToken,
-    parseEther(tokenBalance).toString()
+    parseEther(redeemBalance).toString()
   )
 
   const scaledOptionAmount: TokenAmount = new TokenAmount(
@@ -334,7 +342,13 @@ const Swap: React.FC = () => {
           )
 
           setImpact(slip)
-          setPrem(formatEther(spot.raw.toString()))
+          setPrem(
+            formatEther(
+              entity.isPut
+                ? scaleUp(item.market.spotUnderlyingToShort.raw.toString())
+                : item.market.spotUnderlyingToShort.raw.toString()
+            )
+          )
         }
         if (orderType === Operation.LONG) {
           if (parsedAmount.gt(BigNumber.from(0))) {
@@ -356,32 +370,29 @@ const Swap: React.FC = () => {
           if (parsedAmount.gt(BigNumber.from(0))) {
             ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
               orderType,
-              entity.isPut ? parsedAmount : scaleUp(parsedAmount)
+              entity.isPut ? parsedAmount : parsedAmount
             )
             setImpact(slip)
             short = formatEther(actualPremium.raw.toString())
+            setPrem(short)
           } else {
             setImpact('0.00')
 
-            setPrem(
-              formatEther(item.market.spotUnderlyingToShort.raw.toString())
-            )
+            setPrem(getSpotPremiums())
           }
           // sell short, RDM -> UNDER
         } else if (orderType === Operation.CLOSE_SHORT) {
           if (parsedAmount.gt(BigNumber.from(0))) {
             ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
               orderType,
-              parsedAmount
+              entity.isPut ? parsedAmount : parsedAmount
             )
             short = formatEther(actualPremium.raw.toString())
             setImpact(slip)
-            setPrem(formatEther(spot.raw.toString()))
+            setPrem(short)
           } else {
             setImpact('0.00')
-            setPrem(
-              formatEther(item.market.spotUnderlyingToShort.raw.toString())
-            )
+            setPrem(getSpotPremiums())
           }
         }
         setError(false)
@@ -509,27 +520,26 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
+        <Description>
+          {' '}
+          <WarningTooltip>
+            We are working on an frontend issue related to trading long option
+            tokens.
+          </WarningTooltip>
+          <Spacer size="sm" />
+          <WarningTooltip>
+            At this time, only direct swaps on short option tokens are supported
+            by the Primitive Interface.
+          </WarningTooltip>
+        </Description>
         <Switch
           disabled={loading}
-          active={
-            orderType !== Operation.CLOSE_LONG && orderType !== Operation.SHORT
-          }
+          active={orderType === Operation.SHORT}
           onClick={() => {
-            if (
-              orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.SHORT
-            ) {
-              if (shortTokenAmount.greaterThan('0')) {
-                updateItem(item, Operation.CLOSE_SHORT)
-              } else {
-                updateItem(item, Operation.LONG)
-              }
+            if (orderType === Operation.SHORT) {
+              updateItem(item, Operation.CLOSE_SHORT)
             } else {
-              if (tokenAmount.greaterThan('0')) {
-                updateItem(item, Operation.CLOSE_LONG)
-              } else {
-                updateItem(item, Operation.SHORT)
-              }
+              updateItem(item, Operation.SHORT)
             }
           }}
         />
@@ -550,13 +560,7 @@ const Swap: React.FC = () => {
           onChange={handleTypeInput}
           quantity={typedValue}
           onClick={handleSetMax}
-          balance={
-            orderType === Operation.LONG
-              ? null
-              : orderType === Operation.SHORT
-              ? null
-              : scaledOptionAmount
-          }
+          balance={orderType === Operation.SHORT ? null : shortTokenAmount}
         />
         <Spacer size="sm" />
         <Spacer size="sm" />
@@ -586,7 +590,7 @@ const Swap: React.FC = () => {
                   data={getExecutionPrice()}
                   units={underlyingAssetSymbol()}
                   color={isBelowSlippage() ? null : 'red'}
-                  tip="The estimated price of the option after slippage."
+                  tip="The estimated price of the order after slippage."
                 />
                 <LineItem
                   label={'Price Impact'}
@@ -657,15 +661,7 @@ const Swap: React.FC = () => {
           </Description>
         ) : null}
         <StyledEnd row justifyContent="flex-start">
-          <Button
-            isLoading={loading}
-            full
-            size="sm"
-            onClick={handleApproval}
-            text={`Approve`}
-          />
-          {/**
-           *  {loading ? (
+          {loading ? (
             <div style={{ width: '100%' }}>
               <Button
                 disabled={loading}
@@ -679,7 +675,8 @@ const Swap: React.FC = () => {
             </div>
           ) : (
             <>
-              {orderType === Operation.SHORT ? (
+              {/**
+             *  {orderType === Operation.SHORT ? (
                 <>
                   {approved[0] ? (
                     <Button
@@ -718,47 +715,46 @@ const Swap: React.FC = () => {
                 </>
               ) : (
                 <>
-                  {approved[0] ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={loading}
-                        full
-                        size="sm"
-                        onClick={handleApproval}
-                        isLoading={loading}
-                        text="Approve"
-                      />
-                    </>
-                  )}
+             * 
+             */}
+
+              {approved[0] ? (
+                <></>
+              ) : (
+                <>
                   <Button
-                    disabled={
-                      !approved[0] ||
-                      !parsedAmount?.gt(0) ||
-                      error ||
-                      !hasLiquidity ||
-                      !isBelowSlippage() ||
-                      !getHasEnoughForTrade()
-                    }
+                    disabled={loading}
                     full
                     size="sm"
-                    onClick={handleSubmitClick}
+                    onClick={handleApproval}
                     isLoading={loading}
-                    text={
-                      !isBelowSlippage() && typedValue !== ''
-                        ? 'Price Impact Too High'
-                        : getHasEnoughForTrade()
-                        ? 'Confirm Trade'
-                        : 'Insufficient Balance'
-                    }
+                    text="Approve"
                   />
                 </>
               )}
+              <Button
+                disabled={
+                  !approved[0] ||
+                  !parsedAmount?.gt(0) ||
+                  error ||
+                  !hasLiquidity ||
+                  !isBelowSlippage() ||
+                  !getHasEnoughForTrade()
+                }
+                full
+                size="sm"
+                onClick={handleSubmitClick}
+                isLoading={loading}
+                text={
+                  !isBelowSlippage() && typedValue !== ''
+                    ? 'Price Impact Too High'
+                    : getHasEnoughForTrade()
+                    ? 'Confirm Trade'
+                    : 'Insufficient Balance'
+                }
+              />
             </>
           )}
-           * 
-           */}
         </StyledEnd>
       </Box>
     </>
@@ -772,11 +768,8 @@ const WarningTooltip = styled.div`
   font-size: 18px;
   display: table;
   align-items: center;
-  justify-content: center;
   width: 100%;
   letter-spacing: 1px;
-  text-transform: uppercase;
-  text-align: center;
   vertical-align: middle;
   font-size: 14px;
   opacity: 1;
@@ -798,5 +791,4 @@ const PurchaseInfo = styled.div`
   display: table;
   margin-bottom: -1em;
 `
-
 export default Swap
