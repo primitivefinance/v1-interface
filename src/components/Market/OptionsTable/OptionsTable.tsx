@@ -213,7 +213,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     key={option.entity.address}
                     onClick={() => {
                       setGreeks(!greeks)
-                      updateItem(option, Operation.SHORT)
+                      updateItem(option, Operation.LONG)
                     }}
                     href={`${baseUrl}/${option.entity.address}`}
                     columns={tableColumns}
