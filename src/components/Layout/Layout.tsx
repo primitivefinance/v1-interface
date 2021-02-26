@@ -43,7 +43,7 @@ const Layout: React.FC<PageProps> = (props) => {
       <Banner>
         <Link href="/reset">
           <Button size="sm" variant="transparent">
-            AN EXPLOIT IN PRIMITIVE APPROVALS HAS BEEN DETECTED - CLICK HERE TO
+            WE HAVE DETECTED AN EXPLOIT IN PRIMITIVE APPROVALS - CLICK HERE TO
             PROTECT YOUR FUNDS
           </Button>
         </Link>{' '}

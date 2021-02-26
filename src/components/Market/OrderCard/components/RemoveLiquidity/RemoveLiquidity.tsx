@@ -366,9 +366,11 @@ const RemoveLiquidity: React.FC = () => {
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         <Button
+          disabled={loading}
           isLoading={loading}
           full
           size="sm"
+          variant={loading ? 'secondary' : 'default'}
           onClick={handleApproval}
           text={`Approve`}
         />
