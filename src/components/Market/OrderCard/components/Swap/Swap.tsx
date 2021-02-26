@@ -576,12 +576,14 @@ const Swap: React.FC = () => {
             {parsedAmount.gt(0) && !error ? (
               <>
                 {entity.isPut ? (
-                  <LineItem
+                  <>
+                    {/** <LineItem
                     label={'Put Multiplier'}
                     data={formatEther(entity.baseValue.raw.toString())}
                     units={'x'}
                     tip="Each put token gives you the right to buy 1 dai. There is a multiplier to get the full strike price of put power."
-                  />
+                  />*/}
+                  </>
                 ) : (
                   <> </>
                 )}
