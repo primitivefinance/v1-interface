@@ -32,7 +32,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
   const entity = option.attributes.entity
 
   const handleClick = () => {
-    updateItem(option.attributes, Operation.SHORT)
+    updateItem(option.attributes, Operation.LONG)
   }
 
   const getScaledBalances = useCallback(() => {
