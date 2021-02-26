@@ -397,26 +397,7 @@ const Reset = () => {
                       WETH Protected
                     </Button>
                   )}
-                  {dai ? (
-                    <Button
-                      onClick={async () =>
-                        onApprove(
-                          '0x6b175474e89094c44da98b954eedeac495271d0f',
-                          SUSHISWAP_CONNECTOR[1]
-                        )
-                      }
-                    >
-                      <WarningIcon />
-                      <Spacer size="sm" />
-                      Reset DAI
-                    </Button>
-                  ) : (
-                    <Button variant="secondary" disabled>
-                      <VerifiedUserIcon />
-                      <Spacer size="sm" />
-                      DAI Protected
-                    </Button>
-                  )}
+
                   {wethCL ? (
                     <Button
                       onClick={async () =>

@@ -31,7 +31,7 @@ const Banner: React.FC = ({ children }) => {
 }
 
 const StyledBanner = styled.div`
-  background-color: rgba(255, 0, 0, 0.7);
+  background-color: rgba(255, 0, 0, 0.5);
   border-top: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;

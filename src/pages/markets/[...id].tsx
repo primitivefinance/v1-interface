@@ -235,6 +235,7 @@ const Market = ({ market, data }) => {
                     ) : (
                       <></>
                     )}
+                    <Spacer />
                   </ErrorBoundary>
                 </StyledSideBar>
               </StyledCol>

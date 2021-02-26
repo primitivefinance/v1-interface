@@ -134,7 +134,7 @@ export const useUpdateItem = (): ((
                 orderType,
                 loading: false,
                 approved: [
-                  parseEther(tokenAllowance).gt(parseEther('0')),
+                  parseEther(tokenAllowance.toString()).gt(parseEther('0')),
                   false,
                 ],
               })
@@ -157,8 +157,8 @@ export const useUpdateItem = (): ((
                 orderType,
                 loading: false,
                 approved: [
-                  parseEther(optionAllowance).gt(parseEther('0')),
-                  parseEther(lpAllowance).gt(parseEther('0')),
+                  parseEther(optionAllowance.toString()).gt(parseEther('0')),
+                  parseEther(lpAllowance.toString()).gt(parseEther('0')),
                 ],
               })
             )
@@ -182,8 +182,8 @@ export const useUpdateItem = (): ((
                 orderType,
                 loading: false,
                 approved: [
-                  parseEther(optionAllowance).gt(parseEther('0')),
-                  parseEther(lpAllowance).gt(parseEther('0')),
+                  parseEther(optionAllowance.toString()).gt(parseEther('0')),
+                  parseEther(lpAllowance.toString()).gt(parseEther('0')),
                 ],
               })
             )
@@ -275,8 +275,8 @@ export const useUpdateItem = (): ((
               orderType,
               loading: false,
               approved: [
-                parseEther(tokenAllowance).gt(parseEther('0')),
-                parseEther(secondaryAllowance).gt(parseEther('0')),
+                parseEther(tokenAllowance.toString()).gt(parseEther('0')),
+                parseEther(secondaryAllowance.toString()).gt(parseEther('0')),
               ],
             })
           )

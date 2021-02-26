@@ -657,15 +657,7 @@ const Swap: React.FC = () => {
           </Description>
         ) : null}
         <StyledEnd row justifyContent="flex-start">
-          <Button
-            isLoading={loading}
-            full
-            size="sm"
-            onClick={handleApproval}
-            text={`Approve`}
-          />
-          {/**
-           *  {loading ? (
+          {loading ? (
             <div style={{ width: '100%' }}>
               <Button
                 disabled={loading}
@@ -757,8 +749,6 @@ const Swap: React.FC = () => {
               )}
             </>
           )}
-           * 
-           */}
         </StyledEnd>
       </Box>
     </>
