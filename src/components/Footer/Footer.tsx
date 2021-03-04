@@ -49,7 +49,7 @@ const StyledBlockNumber = styled.h5`
   padding: px;
   opacity: 90%;
   border-radius: 10px;
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) => props.theme.color.grey[400]};
   background-color: #040404;
   display: flex;
   max-height: 0.1em;

@@ -65,6 +65,16 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
               <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
             </StyledNavItem>
           </a>
+          <a
+            style={{ textDecoration: 'none' }}
+            href="https://immunefi.com/bounty/primitive/"
+            target="__blank"
+          >
+            <StyledNavItem active={false}>
+              Bounties{' '}
+              <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+            </StyledNavItem>
+          </a>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ
