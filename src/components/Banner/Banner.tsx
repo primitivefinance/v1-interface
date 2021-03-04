@@ -22,7 +22,7 @@ const Banner: React.FC = ({ children }) => {
         display="flex"
         flexDirection="row"
         justifyContent="center"
-        height={60}
+        height={40}
       >
         {children}
       </Container>
@@ -31,14 +31,21 @@ const Banner: React.FC = ({ children }) => {
 }
 
 const StyledBanner = styled.div`
-  background-color: rgba(255, 0, 0, 0.5);
+  background-image: linear-gradient(
+    to bottom right,
+    ${(props) => props.theme.color.grey[600]},
+    black
+  );
   border-top: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;
   flex-direction: column;
-  height: 50px;
+  height: 40px;
   width: 100%;
   z-index: 300;
+  &:hover {
+    background-image: ${(props) => props.theme.color.grey[600]};
+  }
 `
 
 const StyledNav = styled.div`
