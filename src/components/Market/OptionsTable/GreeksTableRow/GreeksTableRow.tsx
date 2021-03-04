@@ -2,7 +2,9 @@ import React from 'react'
 import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
+import Button from '@/components/Button'
 import numeral from 'numeral'
+import LaunchIcon from '@material-ui/icons/Launch'
 
 export interface Greeks {
   iv: number
@@ -16,9 +18,14 @@ export interface Greeks {
 export interface GreeksTableRowProps {
   onClick: () => void
   greeks: Greeks
+  link: any
 }
 
-const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
+const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
+  onClick,
+  greeks,
+  link,
+}) => {
   const greekHeaders = [
     {
       name: 'IV',
@@ -54,6 +61,18 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({ onClick, greeks }) => {
   const { iv, delta, theta, gamma, vega, rho } = greeks
   return (
     <>
+      <StyledTableTop>
+        <StyledLink
+          onClick={() => {
+            window.open(`https://app.sushi.com/pair/${link}`, '')
+            return false
+          }}
+          href="javascript:void(0);"
+        >
+          View market on SushiSwap {''}{' '}
+          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+        </StyledLink>
+      </StyledTableTop>
       <StyledTableRow isHead>
         {greekHeaders.map((header) => {
           if (header.tip) {
@@ -86,6 +105,33 @@ interface StyleProps {
   isHead?: boolean
   isActive?: boolean
 }
+
+const StyledLink = styled.a`
+  color: ${(props) => props.theme.color.grey[400]};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
+`
+const StyledTableTop = styled.div`
+  align-items: center;
+  background-color: ${(props) => props.theme.color.grey[800]};
+  border-bottom: 1px solid ${(props) => props.theme.color.grey[700]};
+  color: ${(props) => props.theme.color.white};
+  display: flex;
+  height: ${(props) => props.theme.rowHeight}px;
+  margin-left: -${(props) => props.theme.spacing[4]}px;
+  padding-left: ${(props) => props.theme.spacing[4]}px;
+  padding-right: ${(props) => props.theme.spacing[4]}px;
+`
 
 const StyledTableRow = styled.div<StyleProps>`
   align-items: center;
