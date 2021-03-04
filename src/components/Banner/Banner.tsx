@@ -43,9 +43,6 @@ const StyledBanner = styled.div`
   height: 40px;
   width: 100%;
   z-index: 300;
-  &:hover {
-    background-image: ${(props) => props.theme.color.grey[600]};
-  }
 `
 
 const StyledNav = styled.div`
