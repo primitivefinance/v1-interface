@@ -55,16 +55,29 @@ const TopBar: React.FC<BarProps> = ({ children, loading }) => {
               Liquidity
             </StyledNavItem>
           </Link>
-          <a
-            style={{ textDecoration: 'none' }}
-            href="https://snapshot.page/#/primitive.eth"
-            target="__blank"
+
+          <StyledNavItem
+            onClick={() => {
+              window.open('https://snapshot.page/#/primitive.eth', '')
+              return false
+            }}
+            href="javascript:void(0);"
+            active={false}
           >
-            <StyledNavItem active={false}>
-              Governance{' '}
-              <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
-            </StyledNavItem>
-          </a>
+            Governance{' '}
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledNavItem>
+          <StyledNavItem
+            onClick={() => {
+              window.open('https://immunefi.com/bounty/primitive/', '')
+              return false
+            }}
+            href="javascript:void(0);"
+            active={false}
+          >
+            Bounties{' '}
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledNavItem>
           <Link href="/faq">
             <StyledNavItem active={location.pathname === '/faq' ? true : false}>
               FAQ

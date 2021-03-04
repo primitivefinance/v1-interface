@@ -217,7 +217,11 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         </StyledButtonCell>
       </TableRow>
       {toggle ? (
-        <GreeksTableRow onClick={() => setToggle(!toggle)} greeks={greeks} />
+        <GreeksTableRow
+          onClick={() => setToggle(!toggle)}
+          greeks={greeks}
+          link={market.liquidityToken.address}
+        />
       ) : (
         <></>
       )}

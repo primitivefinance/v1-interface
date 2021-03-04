@@ -43,8 +43,9 @@ const Layout: React.FC<PageProps> = (props) => {
       <Banner>
         <Link href="/reset">
           <Button size="sm" variant="transparent">
-            WE HAVE DETECTED AN EXPLOIT IN PRIMITIVE APPROVALS - CLICK HERE TO
-            PROTECT YOUR FUNDS
+            ANNOUNCEMENT - If you have used Primitive between January and March,
+            you must reset your approvals to prevent loss of funds. Click here
+            to reset them.
           </Button>
         </Link>{' '}
       </Banner>

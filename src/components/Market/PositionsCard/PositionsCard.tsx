@@ -202,7 +202,7 @@ const StyledValuesContainer = styled.div`
   flex: 1;
   flex-direction: row;
   justify-content: space-between;
-  top: -0.2em;
+  margin-top: 5px;
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
 `
@@ -216,6 +216,8 @@ const StyledPrice = styled.div`
 const StyledValue = styled.div`
   color: ${(props) => props.theme.color.white};
   font-size: 18px;
+  text-transform: uppercase;
+
   letter-spacing: 0.5px;
 `
 const StyledValues = styled.div`
