@@ -17,7 +17,7 @@ import {
   ETHERSCAN_MAINNET,
   ETHERSCAN_RINKEBY,
 } from '@/constants/index'
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 
 import { BigNumber } from 'ethers'
 import { COINGECKO_ID_FOR_MARKET } from '@/constants/index'

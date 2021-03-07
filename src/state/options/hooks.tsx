@@ -256,12 +256,14 @@ export const useUpdateOptions = (): ((
                       } else {
                         const asset = option.quoteValue.token.symbol.toUpperCase()
                         if (
-                          asset === assetName.toUpperCase() &&
-                          (option.strikePrice === '2.5' ||
-                            option.strikePrice === '480') &&
-                          (option.underlying.address ===
-                            STABLECOINS[chainId].address ||
-                            option.quoteValue.token.address === assetAddress)
+                          (asset === assetName.toUpperCase() &&
+                            (option.strikePrice === '2.5' ||
+                              option.strikePrice === '480') &&
+                            (option.underlying.address ===
+                              STABLECOINS[chainId].address ||
+                              option.quoteValue.token.address ===
+                                assetAddress)) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[1] = pairReserveTotal[1].add(
                             BigNumber.from(underlyingReserve)
