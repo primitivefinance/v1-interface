@@ -190,12 +190,13 @@ export const useUpdateOptions = (): ((
                     if (option.isCall) {
                       if (isLiquidity) {
                         if (
-                          (option.baseValue.token.symbol.toUpperCase() ===
+                          ((option.baseValue.token.symbol.toUpperCase() ===
                             'SUSHI' ||
                             option.baseValue.token.symbol.toUpperCase() ===
                               'WETH') &&
-                          (option.strikePrice === '5000' ||
-                            option.strikePrice === '30')
+                            (option.strikePrice === '5000' ||
+                              option.strikePrice === '30')) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
