@@ -156,10 +156,10 @@ export const STABLECOINS: { [key: number]: Token } = {
   4: UniswapConnectorTestnet.address,
 } */
 
-export const TRADER: { [key: number]: string } = {
+/* export const TRADER: { [key: number]: string } = {
   1: Trader.address, // FIX
   4: TraderTestnet.address,
-}
+} */
 
 export const DEFAULT_STRIKE_LOW = 0.9
 export const DEFAULT_STRIKE_MID = 1.0

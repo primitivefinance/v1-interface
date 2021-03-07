@@ -212,7 +212,7 @@ export const useUpdateItem = (): ((
             default:
               break
           }
-          const spender = TRADER[chainId]
+          const spender = TRADER[chainId].address
           const tokenAllowance = await getAllowance(tokenAddress, spender)
           let secondaryAllowance = '0'
           if (secondaryAddress) {
