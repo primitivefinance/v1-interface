@@ -11,7 +11,8 @@ const approve = async (
   signer: ethers.Signer,
   tokenAddress: string,
   account: string,
-  spender: string
+  spender: string,
+  amount: number
 ): Promise<ethers.Transaction> => {
   try {
     if (
@@ -24,7 +25,7 @@ const approve = async (
     let tx: any
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-      tx = await erc20.approve(spender, 0) // 0 gwei approval
+      tx = await erc20.approve(spender, amount) // 0 gwei approval
     } else throw 'Approval Error'
     return tx
   } catch (error) {
@@ -41,10 +42,11 @@ const useApprove = () => {
   const handleApprove = useCallback(
     async (
       tokenAddress: string,
-      spender: string
+      spender: string,
+      amount = 0
     ): Promise<ethers.Transaction | any> => {
       const signer = await library.getSigner()
-      approve(signer, tokenAddress, account, spender)
+      approve(signer, tokenAddress, account, spender, amount)
         .then((tx) => {
           if (tx?.hash) {
             addTransaction(
