@@ -13,7 +13,7 @@ import Slider from '@/components/Slider'
 import Tooltip from '@/components/Tooltip'
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -28,7 +28,7 @@ import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
 import {
   UNI_ROUTER_ADDRESS,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
   SUSHI_ROUTER_ADDRESS,
   Venue,
 } from '@primitivefi/sdk'
@@ -80,8 +80,8 @@ const RemoveLiquidity: React.FC = () => {
         ? UNI_ROUTER_ADDRESS
         : SUSHI_ROUTER_ADDRESS
       : isUniswap
-      ? UNISWAP_CONNECTOR[chainId]
-      : SUSHISWAP_CONNECTOR[chainId]
+      ? PRIMITIVE_ROUTER[chainId].address
+      : PRIMITIVE_ROUTER[chainId].address
   const optionBalance = useTokenBalance(item.entity.address)
 
   const onApprove = useApprove()

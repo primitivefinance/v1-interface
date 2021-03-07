@@ -25,3 +25,9 @@ export const tokens = [
   '0x6b175474e89094c44da98b954eedeac495271d0f', // Dai
   '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e', // yfi
 ]
+
+import { TEST_OPTIONS } from '@primitivefi/sdk'
+
+export const testAddresses = TEST_OPTIONS['eth'][4].map(
+  (option) => option.address
+)

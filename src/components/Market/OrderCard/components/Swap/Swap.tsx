@@ -15,7 +15,7 @@ import CardHeader from '@/components/CardHeader'
 import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 import OptionTextInfo from '@/components/OptionTextInfo'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -29,7 +29,7 @@ import {
   ADDRESS_ZERO,
   Venue,
   SUSHI_ROUTER_ADDRESS,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
 } from '@primitivefi/sdk'
 
 import formatBalance from '@/utils/formatBalance'
@@ -171,20 +171,6 @@ const Swap: React.FC = () => {
       tokenAddress = entity.underlying.address
       balance = entity.underlying
       break
-    case Operation.WRITE:
-      title = {
-        text: `Trade ${numeral(item.entity.strikePrice).format(
-          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
-        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
-          item.entity.expiryValue
-        ).utc.substr(4, 12)}`,
-        tip:
-          'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
-      }
-      tokenAddress = entity.underlying.address
-      secondaryAddress = entity.address
-      balance = entity.underlying
-      break
     case Operation.CLOSE_LONG:
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
@@ -263,8 +249,8 @@ const Swap: React.FC = () => {
         ? UNI_ROUTER_ADDRESS
         : SUSHI_ROUTER_ADDRESS
       : isUniswap
-      ? UNISWAP_CONNECTOR[chainId]
-      : SUSHISWAP_CONNECTOR[chainId]
+      ? PRIMITIVE_ROUTER[chainId].address
+      : PRIMITIVE_ROUTER[chainId].address
 
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const underlyingAmount: TokenAmount = new TokenAmount(

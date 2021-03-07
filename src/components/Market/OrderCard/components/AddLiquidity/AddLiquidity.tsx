@@ -9,7 +9,7 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 
 // Utilities
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation } from '@/constants/index'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
@@ -31,7 +31,7 @@ import {
   Trade,
   SushiSwapMarket,
   Venue,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
 } from '@primitivefi/sdk'
 
 const AddLiquidity: React.FC = () => {
@@ -70,8 +70,8 @@ const AddLiquidity: React.FC = () => {
   // allowance
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender = isUniswap
-    ? UNISWAP_CONNECTOR[chainId]
-    : SUSHISWAP_CONNECTOR[chainId]
+    ? PRIMITIVE_ROUTER[chainId].address
+    : PRIMITIVE_ROUTER[chainId].address
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
 
   // ==== Input Handling ====

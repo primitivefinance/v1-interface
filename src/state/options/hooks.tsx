@@ -22,7 +22,8 @@ import {
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { STABLECOINS } from '@/constants/index'
-import { optionAddresses } from '@/constants/options'
+import { optionAddresses, testAddresses } from '@/constants/options'
+const { ChainId } = SushiSwapSDK
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -68,7 +69,11 @@ export const useUpdateOptions = (): ((
         }
       }, 200)
 
-      Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
+      Protocol.getOptionsUsingMultiCall(
+        chainId,
+        chainId == ChainId.RINKEBY ? testAddresses : optionAddresses,
+        provider
+      )
         .then((optionEntitiesObject) => {
           const allKeys: string[] = Object.keys(optionEntitiesObject)
           const allPairAddresses: string[] = []
@@ -205,10 +210,11 @@ export const useUpdateOptions = (): ((
                         }
                       } else {
                         if (
-                          option.baseValue.token.symbol.toUpperCase() ===
+                          (option.baseValue.token.symbol.toUpperCase() ===
                             assetName.toUpperCase() &&
-                          (option.strikePrice === '5000' ||
-                            option.strikePrice === '30')
+                            (option.strikePrice === '5000' ||
+                              option.strikePrice === '30')) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -226,12 +232,14 @@ export const useUpdateOptions = (): ((
                       if (isLiquidity) {
                         const asset = option.quoteValue.token.symbol.toUpperCase()
                         if (
-                          (asset === 'WETH' || asset === 'SUSHI') &&
-                          (option.strikePrice === '2.5' ||
-                            option.strikePrice === '480') &&
-                          (option.underlying.address ===
-                            STABLECOINS[chainId].address ||
-                            option.quoteValue.token.address === assetAddress)
+                          ((asset === 'WETH' || asset === 'SUSHI') &&
+                            (option.strikePrice === '2.5' ||
+                              option.strikePrice === '480') &&
+                            (option.underlying.address ===
+                              STABLECOINS[chainId].address ||
+                              option.quoteValue.token.address ===
+                                assetAddress)) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)

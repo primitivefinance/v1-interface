@@ -13,7 +13,7 @@ import { FACTORY_ADDRESS } from '@uniswap/sdk'
 import { Option, EMPTY_ASSET } from '@primitivefi/sdk'
 import { parseEther } from 'ethers/lib/utils'
 import { Trade, Venue } from '@primitivefi/sdk'
-import { Uniswap, Trader, Protocol } from '@primitivefi/sdk'
+import { SushiSwap, Trader, Protocol } from '@primitivefi/sdk'
 import { TradeSettings } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import { useTradeSettings } from '@/hooks/user'
@@ -101,7 +101,7 @@ const getTrade = async (
         optionEntity.underlying,
         parsedAmountA.toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.SHORT:
       // Going SHORT on an option effectively means holding the SHORT OPTION TOKENS.
@@ -112,7 +112,7 @@ const getTrade = async (
         parsedAmountA.toString()
       )
       trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.WRITE:
       // Path: underlying -> redeem, exact redeem amount is outputAmount.
@@ -120,7 +120,7 @@ const getTrade = async (
         optionEntity.redeem,
         optionEntity.proportionalShort(parsedAmountA.toString()).toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.CLOSE_LONG:
       // Path: underlying -> redeem, exact redeem amount is outputAmount.
@@ -128,7 +128,7 @@ const getTrade = async (
         optionEntity.redeem,
         optionEntity.proportionalShort(parsedAmountA.toString()).toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.CLOSE_SHORT:
       trade.inputAmount = new TokenAmount(
@@ -137,7 +137,7 @@ const getTrade = async (
       )
       trade.outputAmount = trade.market.getOutputAmount(trade.inputAmount)[0]
 
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.ADD_LIQUIDITY:
       // primary input is the options deposit (underlying tokens)
@@ -151,7 +151,7 @@ const getTrade = async (
         parsedAmountB.toString()
       )
 
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.ADD_LIQUIDITY_CUSTOM:
       // primary input is the options deposit (underlying tokens)
@@ -164,7 +164,7 @@ const getTrade = async (
         optionEntity.underlying,
         parsedAmountB.toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.REMOVE_LIQUIDITY:
       trade.inputAmount = new TokenAmount(
@@ -175,7 +175,7 @@ const getTrade = async (
         optionEntity.underlying,
         parsedAmountB.toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.REMOVE_LIQUIDITY_CLOSE:
       trade.inputAmount = new TokenAmount(
@@ -186,7 +186,7 @@ const getTrade = async (
         optionEntity.underlying,
         parsedAmountB.toString()
       )
-      transaction = Uniswap.singlePositionCallParameters(trade, tradeSettings)
+      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     default:
       transaction = Trader.singleOperationCallParameters(trade, tradeSettings)

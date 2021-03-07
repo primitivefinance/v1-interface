@@ -11,10 +11,11 @@ import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import Button from '@/components/Button'
 import { tokens } from '@/constants/options'
 import { useActiveWeb3React } from '@/hooks/user/index'
-import { SUSHISWAP_CONNECTOR } from '@primitivefi/sdk'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import WarningIcon from '@material-ui/icons/Warning'
 import { DEFAULT_SLIPPAGE } from '@/constants/index'
+
+const VULNERABLE_CONNECTOR = { 1: '0x9Daec8D56CDCBDE72abe65F4a5daF8cc0A5bF2f9' }
 const Reset = () => {
   const [sushi, setSushi] = useState(true) // sushi 0
   const [dai, setDAI] = useState(true) // DAI 1
@@ -48,65 +49,110 @@ const Reset = () => {
         let tokenAllowance
         switch (index) {
           case 0: // sushi
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushi(tokenAllowance.gt(2))
             break
           case 1: // DAI
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setDAI(tokenAllowance.gt(2))
             break
           case 2: // WETH
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWETH(tokenAllowance.gt(2))
             break
           case 3: // sushi call long
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushiCL(tokenAllowance.gt(2))
             break
           case 4: // sushi call short
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushiCS(tokenAllowance.gt(2))
             break
           case 5: // sushi call LP
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             console.log(address, ' -> ', tokenAllowance.toString())
 
             setSushiCLP(tokenAllowance.gt(2))
             break
           case 6: // sushi put long
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushiPL(tokenAllowance.gt(2))
             break
           case 7: // sushi put short
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushiPS(tokenAllowance.gt(2))
             break
           case 8: // sushi put LP
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setSushiPLP(tokenAllowance.gt(2))
             break
           case 9: // weth call long
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethCL(tokenAllowance.gt(2))
             break
           case 10: // weth call short
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethCS(tokenAllowance.gt(2))
             break
           case 11: // weth call LP
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethCLP(tokenAllowance.gt(2))
             break
           case 12: // weth put long
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethPL(tokenAllowance.gt(2))
             break
           case 13: // weth put short
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethPS(tokenAllowance.gt(2))
             break
           case 14: // weth put lp
-            tokenAllowance = await getAllowance(address, SUSHISWAP_CONNECTOR[1])
+            tokenAllowance = await getAllowance(
+              address,
+              VULNERABLE_CONNECTOR[1]
+            )
             setWethPLP(tokenAllowance.gt(2))
             break
 
@@ -214,7 +260,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -234,7 +280,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x6b175474e89094c44da98b954eedeac495271d0f',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -254,7 +300,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x875f1f8e7426b91c388807d5257f73700d04d653',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -274,7 +320,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x81eb1e0acfd705c34e975397de7545b6a9f0be39',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -294,7 +340,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0xbff6cbf2e7d2cd0705329c735a37be33241298e9',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -314,7 +360,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x6688E09a0af5dAfa2a6dcD09f180F084ad964005',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -334,7 +380,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0xee1482a2c48f0012862e45a992666096fc767b78',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -354,7 +400,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x45e185Be5d2FE76b71fE4283EaAD9679E674c77f',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -382,7 +428,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -403,7 +449,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x5b419b581081f8e38a3c450ae518e0aefd4a32b4',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -423,7 +469,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x9e5405a11e42e7d48fbf4f2e979695641c15189b',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -443,7 +489,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x2acbf90fdff006eb6eae2b61145b603e59ade7d2',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -463,7 +509,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0x5b83dec645be2b8137a20175f59000c20c6dce82',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -483,7 +529,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0xee1482a2c48f0012862e45a992666096fc767b78',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >
@@ -503,7 +549,7 @@ const Reset = () => {
                       onClick={async () =>
                         onApprove(
                           '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196',
-                          SUSHISWAP_CONNECTOR[1]
+                          VULNERABLE_CONNECTOR[1]
                         )
                       }
                     >

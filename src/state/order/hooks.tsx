@@ -26,17 +26,19 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import {
   Trade,
   Trader,
-  Uniswap,
+  SushiSwap,
   Venue,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
   SUSHI_ROUTER_ADDRESS,
+  TRADER,
+  Operation,
 } from '@primitivefi/sdk'
 import { TradeSettings, SinglePositionParameters } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
-import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
+/* import { Operation, PRIMITIVE_ROUTER, TRADER } from '@/constants/index' */
 import { useReserves } from '@/hooks/data'
 import executeTransaction from '@/utils/executeTransaction'
 
@@ -121,8 +123,8 @@ export const useUpdateItem = (): ((
         ) {
           const spender =
             item.venue === Venue.UNISWAP
-              ? UNISWAP_CONNECTOR[chainId]
-              : SUSHISWAP_CONNECTOR[chainId]
+              ? PRIMITIVE_ROUTER[chainId].address
+              : PRIMITIVE_ROUTER[chainId].address
           if (orderType === Operation.ADD_LIQUIDITY) {
             const tokenAllowance = await getAllowance(
               item.entity.underlying.address,
@@ -236,8 +238,8 @@ export const useUpdateItem = (): ((
                 ? UNI_ROUTER_ADDRESS
                 : SUSHI_ROUTER_ADDRESS
               : isUniswap
-              ? UNISWAP_CONNECTOR[chainId]
-              : SUSHISWAP_CONNECTOR[chainId]
+              ? PRIMITIVE_ROUTER[chainId].address
+              : PRIMITIVE_ROUTER[chainId].address
 
           let tokenAddress
           let secondaryAddress
@@ -372,7 +374,7 @@ export const useHandleSubmitOrder = (): ((
         UniswapV2Factory.abi,
         signer
       )
-      // type SinglePositionParameters fails due to difference in Trader and Uniswap type
+      // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {
         case Operation.LONG:
@@ -383,7 +385,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountA.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -397,7 +399,7 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountA.toString()
           )
           trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -408,7 +410,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -419,7 +421,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -433,7 +435,7 @@ export const useHandleSubmitOrder = (): ((
             trade.inputAmount
           )[0]
 
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -451,7 +453,7 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountB.toString()
           )
 
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -468,7 +470,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -483,7 +485,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -498,7 +500,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )

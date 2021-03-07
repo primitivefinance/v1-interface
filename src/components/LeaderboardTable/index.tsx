@@ -15,7 +15,7 @@ import Spacer from '@/components/Spacer'
 import MetaMaskOnboarding from '@metamask/onboarding'
 import { useRouter } from 'next/router'
 import { useActiveWeb3React } from '@/hooks/user/index'
-import { SUSHISWAP_CONNECTOR } from '@primitivefi/sdk'
+import { PRIMITIVE_ROUTER } from '@primitivefi/sdk'
 import SushiSwapConnectorABI from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
 import ethers from 'ethers'
 
@@ -47,7 +47,7 @@ export const SPECIFICATIONS: SpecificationMetaData[] = Object.keys(ADDRESS).map(
 
 const getConnector = async (signer): Promise<ethers.Contract> => {
   const chain = await signer.getChainId()
-  const connectorAddr = SUSHISWAP_CONNECTOR[chain]
+  const connectorAddr = PRIMITIVE_ROUTER[chain].address
   const registry = new ethers.Contract(
     connectorAddr,
     SushiSwapConnectorABI.abi,
