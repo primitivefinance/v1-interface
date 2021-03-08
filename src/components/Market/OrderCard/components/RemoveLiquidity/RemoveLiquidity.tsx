@@ -84,14 +84,7 @@ const RemoveLiquidity: React.FC = () => {
   const lpTotalSupply = useTokenTotalSupply(lpToken)
 
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
-  const spender =
-    orderType === Operation.REMOVE_LIQUIDITY
-      ? isUniswap
-        ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS[chainId]
-      : isUniswap
-      ? PRIMITIVE_ROUTER[chainId].address
-      : PRIMITIVE_ROUTER[chainId].address
+  const spender = PRIMITIVE_ROUTER[chainId].address
   const optionBalance = useTokenBalance(item.entity.address)
 
   const onApprove = useApprove()
@@ -297,11 +290,11 @@ const RemoveLiquidity: React.FC = () => {
   )
 
   const isOptionApproved = useCallback(() => {
-    return approved[0] || isZero(parseEther(calculateRequiredLong()))
+    return approved[0] /* || isZero(parseEther(calculateRequiredLong())) */
   }, [approved, item.entity])
 
   const isLPApproved = useCallback(() => {
-    return approved[1] || signData
+    return /* true */ approved[1] || signData
   }, [approved, item.entity, signData])
 
   return (
@@ -385,7 +378,11 @@ const RemoveLiquidity: React.FC = () => {
           <LineItem
             label="To receive"
             data={numeral(calculateUnderlyingOutput()).format('0.00a')}
-            units={`${entity.underlying.symbol.toUpperCase()}`}
+            units={
+              entity.isWethCall
+                ? 'ETH'
+                : `${entity.underlying.symbol.toUpperCase()}`
+            }
           />
         </>
       ) : (
@@ -398,7 +395,11 @@ const RemoveLiquidity: React.FC = () => {
                 calculateRemoveOutputs().underlyingValue.raw.toString()
               )
             ).format('0.00a')}
-            units={`${entity.underlying.symbol.toUpperCase()}`}
+            units={
+              entity.isWethCall
+                ? 'ETH'
+                : `${entity.underlying.symbol.toUpperCase()}`
+            }
           />
           <Spacer size="sm" />
           <LineItem
@@ -432,7 +433,14 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() => handleApprovalPermit(spender, calculateBurn())}
+                onClick={
+                  () =>
+                    handleApprovalPermit(
+                      spender,
+                      calculateBurn()
+                    ) /* () =>
+                    handleApproval(lpToken, spender, calculateBurn()) */
+                }
                 isLoading={submitting}
                 text="Approve LP"
               />

@@ -37,7 +37,6 @@ import {
   SushiSwap,
   Venue,
   PRIMITIVE_ROUTER,
-  SUSHI_ROUTER_ADDRESS,
   TRADER,
   Operation,
 } from '@primitivefi/sdk'
@@ -182,7 +181,7 @@ export const useUpdateItem = (): ((
           const spender =
             item.venue === Venue.UNISWAP
               ? UNI_ROUTER_ADDRESS
-              : SUSHI_ROUTER_ADDRESS[chainId]
+              : PRIMITIVE_ROUTER[chainId].address
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -248,7 +247,7 @@ export const useUpdateItem = (): ((
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? isUniswap
                 ? UNI_ROUTER_ADDRESS
-                : SUSHI_ROUTER_ADDRESS[chainId]
+                : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
               ? PRIMITIVE_ROUTER[chainId].address
               : PRIMITIVE_ROUTER[chainId].address

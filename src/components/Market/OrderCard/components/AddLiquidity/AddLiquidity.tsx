@@ -19,6 +19,7 @@ import isZero from '@/utils/isZero'
 import { usePermit, useDAIPermit } from '@/hooks/transactions/usePermit'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useBalance from '@/hooks/useBalance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useItem, useHandleSubmitOrder } from '@/state/order/hooks'
@@ -68,7 +69,9 @@ const AddLiquidity: React.FC = () => {
   }, [setHasL, item])
 
   const lpToken = item.market ? item.market.liquidityToken.address : ''
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const underlyingTokenBalance = entity.isWethCall
+    ? useBalance()
+    : useTokenBalance(entity.underlying.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
 
@@ -401,7 +404,11 @@ const AddLiquidity: React.FC = () => {
   ])
 
   const underlyingAssetSymbol = useCallback(() => {
-    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    const symbol = entity.isPut
+      ? 'DAI'
+      : entity.isWethCall
+      ? 'ETH '
+      : item.asset.toUpperCase()
     return symbol === '' ? entity.underlying.symbol.toUpperCase() : symbol
   }, [item])
 
