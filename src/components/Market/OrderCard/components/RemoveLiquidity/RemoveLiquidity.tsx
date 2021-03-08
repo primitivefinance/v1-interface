@@ -78,7 +78,7 @@ const RemoveLiquidity: React.FC = () => {
     orderType === Operation.REMOVE_LIQUIDITY
       ? isUniswap
         ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
       ? PRIMITIVE_ROUTER[chainId].address
       : PRIMITIVE_ROUTER[chainId].address

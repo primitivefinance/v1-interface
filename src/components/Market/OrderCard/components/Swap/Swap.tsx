@@ -250,7 +250,7 @@ const Swap: React.FC = () => {
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
         ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
       ? PRIMITIVE_ROUTER[chainId].address
       : PRIMITIVE_ROUTER[chainId].address
