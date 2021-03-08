@@ -47,7 +47,7 @@ const useApprove = () => {
     async (
       tokenAddress: string,
       spender: string,
-      amount: any
+      amount: any = 0
     ): Promise<ethers.Transaction | any> => {
       const signer = await library.getSigner()
       approve(signer, tokenAddress, account, spender, amount)

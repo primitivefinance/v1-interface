@@ -21,6 +21,7 @@ import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import useApprove from '@/hooks/transactions/useApprove'
+import usePermit from '@/hooks/transactions/usePermit'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
@@ -54,6 +55,7 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
+import { sign } from 'crypto'
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
@@ -64,6 +66,7 @@ const formatParsedAmount = (amount: BigNumberish) => {
 const Swap: React.FC = () => {
   //state
   const [description, setDescription] = useState(false)
+  const [signData, setSignData] = useState({ v: 0, r: '', s: '', deadline: 0 })
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
@@ -258,7 +261,7 @@ const Swap: React.FC = () => {
     parseEther(underlyingTokenBalance).toString()
   )
   const onApprove = useApprove()
-
+  const handlePermit = usePermit()
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(value)
@@ -297,8 +300,16 @@ const Swap: React.FC = () => {
         ? parsedAmount
         : scaleDown(parsedAmount)
       : parsedAmount
-    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
-  }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
+    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'), signData)
+  }, [
+    submitOrder,
+    item,
+    library,
+    parsedAmount,
+    orderType,
+    entity.isPut,
+    signData,
+  ])
 
   useEffect(() => {
     if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
@@ -421,16 +432,31 @@ const Swap: React.FC = () => {
   // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
   const handleApproval = useCallback(
     (amount: string) => {
-      onApprove(tokenAddress, spender, amount)
-        .then()
-        .catch((error) => {
-          addNotif(
-            0,
-            `Approving ${item.asset.toUpperCase()}`,
-            error.message,
-            ''
-          )
-        })
+      if (item.entity.isCall) {
+        onApprove(tokenAddress, spender, amount)
+          .then()
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      } else {
+        handlePermit(spender)
+          .then((data) => {
+            setSignData(data)
+          })
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      }
     },
     [item, onApprove, tokenAddress, spender]
   )

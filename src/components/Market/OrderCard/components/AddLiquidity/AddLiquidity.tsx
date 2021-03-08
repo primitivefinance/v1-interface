@@ -470,6 +470,7 @@ const AddLiquidity: React.FC = () => {
             ) : (
               <>
                 <Button
+                  disabled={parsedUnderlyingAmount.isZero()}
                   full
                   size="sm"
                   onClick={handleApproval}
