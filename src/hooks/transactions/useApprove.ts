@@ -15,7 +15,6 @@ const approve = async (
   spender: string,
   amount: any
 ): Promise<ethers.Transaction> => {
-  console.log(parseUnits(amount.toString()).toString())
   try {
     if (
       !ethers.utils.isAddress(tokenAddress) ||
