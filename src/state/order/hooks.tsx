@@ -20,8 +20,16 @@ import {
 } from '@/constants/index'
 
 import { FACTORY_ADDRESS } from '@uniswap/sdk'
-import { SignitureData, UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
-import { Option, createOptionEntityWithAddress } from '@primitivefi/sdk'
+import {
+  SignitureData,
+  UNI_ROUTER_ADDRESS,
+  SushiSwapMarket,
+} from '@primitivefi/sdk'
+import {
+  Option,
+  createOptionEntityWithAddress,
+  SUSHI_FACTORY_ADDRESS,
+} from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import {
   Trade,
@@ -347,6 +355,12 @@ export const useHandleSubmitOrder = (): ((
         stablecoin: STABLECOINS[chainId].address,
       }
 
+      const factory = new ethers.Contract(
+        SUSHI_FACTORY_ADDRESS[chainId],
+        UniswapV2Factory.abi,
+        signer
+      )
+
       const totalSupply: BigNumberish = await getTotalSupply(
         provider,
         item.market.liquidityToken.address
@@ -379,11 +393,7 @@ export const useHandleSubmitOrder = (): ((
         signer,
         sigData
       )
-      const factory = new ethers.Contract(
-        FACTORY_ADDRESS,
-        UniswapV2Factory.abi,
-        signer
-      )
+
       // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {

@@ -4,38 +4,31 @@ import { DEFAULT_TIMELIMIT, Operation } from '@/constants/index'
 import { splitSignature } from '@ethersproject/bytes'
 import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 
-import { signDaiPermit } from 'eth-permit'
+import { signDaiPermit, signERC2612Permit } from 'eth-permit'
 
 import Dai from '@primitivefi/v1-connectors/deployments/rinkeby/Dai.json'
 
 import { Contract } from '@ethersproject/contracts'
 import { DEFAULT_DEADLINE } from '@/constants/index'
 
-const usePermit = () => {
+export const usePermit = () => {
   const { account, library, chainId } = useWeb3React()
 
   const handlePermit = useCallback(
-    async (spender: string): Promise<any> => {
-      console.log(
-        '0x9041F0DDaa47f40d59B9812887cCf36E0D2f696e',
-        Dai.address,
-        '0x9041F0DDaa47f40d59B9812887cCf36E0D2f696e' == Dai.address
-      )
-      const timeLimit = DEFAULT_TIMELIMIT
-      const deadline = '1000000000000000'
-      /* timeLimit > 0
-          ? (Math.floor(new Date().getTime() / 1000) + timeLimit).toString()
-          : DEFAULT_DEADLINE.toString() */
-      const result = await signDaiPermit(
+    async (token: string, spender: string, value: string): Promise<any> => {
+      const deadline = 1000000000000000
+      const result = await signERC2612Permit(
         library,
-        chainId === 4
-          ? Dai.address
-          : '0x9041f0ddaa47f40d59b9812887ccf36e0d2f696e',
+        token,
         account,
         spender,
-        deadline
+        value,
+        deadline,
+        1
       )
-      console.log(result)
+      console.log(
+        `normal permit params: ${[token, account, spender, value, deadline]}`
+      )
       return {
         v: result.v,
         r: result.r,
@@ -49,4 +42,30 @@ const usePermit = () => {
   return handlePermit
 }
 
-export default usePermit
+export const useDAIPermit = () => {
+  const { account, library, chainId } = useWeb3React()
+
+  const handlePermit = useCallback(
+    async (spender: string): Promise<any> => {
+      const deadline = 1000000000000000
+      const result = await signDaiPermit(
+        library,
+        chainId === 4
+          ? Dai.address
+          : '0x9041f0ddaa47f40d59b9812887ccf36e0d2f696e',
+        account,
+        spender,
+        deadline
+      )
+      return {
+        v: result.v,
+        r: result.r,
+        s: result.s,
+        deadline: deadline,
+      }
+    },
+    [account]
+  )
+
+  return handlePermit
+}

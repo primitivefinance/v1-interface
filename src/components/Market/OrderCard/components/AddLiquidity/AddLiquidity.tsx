@@ -16,7 +16,7 @@ import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
 
 // Hooks
-import usePermit from '@/hooks/transactions/usePermit'
+import { usePermit, useDAIPermit } from '@/hooks/transactions/usePermit'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
 import useTokenBalance from '@/hooks/useTokenBalance'
@@ -44,6 +44,7 @@ const AddLiquidity: React.FC = () => {
   // approval
   const onApprove = useApprove()
   const handlePermit = usePermit()
+  const handleDAIPermit = useDAIPermit()
   // notifs
   const addNotif = useAddNotif()
   // option entity in order
@@ -161,8 +162,21 @@ const AddLiquidity: React.FC = () => {
             ''
           )
         })
+    } else if (item.entity.isPut) {
+      handleDAIPermit(spender)
+        .then((data) => {
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
     } else {
-      handlePermit(spender)
+      handlePermit(entity.underlying.address, spender, approveAmount)
         .then((data) => {
           setSignData(data)
         })
@@ -175,7 +189,24 @@ const AddLiquidity: React.FC = () => {
           )
         })
     }
-  }, [entity.underlying, tokenAllowance, onApprove, underlyingValue])
+  }, [
+    entity.underlying,
+    onApprove,
+    underlyingValue,
+    setSignData,
+    handleDAIPermit,
+    handlePermit,
+  ])
+
+  const isApproved = useCallback(() => {
+    if (item.entity.isCall) {
+      return approved[0]
+    } else if (item.entity.isWethCall) {
+      return true
+    } else {
+      return approved[0] || signData
+    }
+  }, [approved, item.entity, signData])
 
   const handleSubmitClick = useCallback(() => {
     if (hasLiquidity) {
@@ -490,7 +521,7 @@ const AddLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved[0] || signData !== null ? (
+            {isApproved() ? (
               <> </>
             ) : (
               <>
@@ -506,7 +537,7 @@ const AddLiquidity: React.FC = () => {
 
             <Button
               disabled={
-                (!approved[0] && signData == null) ||
+                !isApproved() ||
                 !parsedUnderlyingAmount?.gt(0) ||
                 (hasLiquidity ? null : !parsedOptionAmount?.gt(0))
               }

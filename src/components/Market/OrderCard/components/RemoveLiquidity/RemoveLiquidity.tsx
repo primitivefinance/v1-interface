@@ -22,6 +22,7 @@ import { useAddNotif } from '@/state/notifs/hooks'
 import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
 
+import useGetPair from '@/hooks/useGetPair'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
@@ -31,6 +32,7 @@ import {
   PRIMITIVE_ROUTER,
   SUSHI_ROUTER_ADDRESS,
   Venue,
+  SignitureData,
 } from '@primitivefi/sdk'
 
 import { usePositions } from '@/state/positions/hooks'
@@ -41,15 +43,17 @@ import {
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount, JSBI } from '@uniswap/sdk'
+import { Token, TokenAmount, JSBI, ChainId } from '@uniswap/sdk'
 import numeral from 'numeral'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
 import { tryParseAmount } from '@/utils/index'
+import { usePermit, useDAIPermit } from '@/hooks/transactions/usePermit'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
+  const [signData, setSignData] = useState<SignitureData>(null)
   // toggle for advanced info
   const [advanced, setAdvanced] = useState(false)
   // state for pending txs
@@ -67,7 +71,12 @@ const RemoveLiquidity: React.FC = () => {
   const { library, chainId } = useWeb3React()
   // pair and option entities
   const entity = item.entity
-  const lpToken = item.market ? item.market.liquidityToken.address : ''
+  const lpToken =
+    chainId === ChainId.RINKEBY
+      ? useGetPair(entity.underlying.address, entity.redeem.address)
+      : item.market
+      ? item.market.liquidityToken.address
+      : ''
   const token0 = item.market ? item.market.token0.symbol : ''
   const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
@@ -85,6 +94,8 @@ const RemoveLiquidity: React.FC = () => {
   const optionBalance = useTokenBalance(item.entity.address)
 
   const onApprove = useApprove()
+  const handlePermit = usePermit()
+  const handleDAIPermit = useDAIPermit()
 
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -112,7 +123,8 @@ const RemoveLiquidity: React.FC = () => {
       library,
       BigInt(optionValue.toString()),
       orderType,
-      BigInt(underlyingValue.toString())
+      BigInt(underlyingValue.toString()),
+      signData
     )
   }, [
     submitOrder,
@@ -123,6 +135,7 @@ const RemoveLiquidity: React.FC = () => {
     ratio,
     handleRatio,
     handleRatioChange,
+    signData,
   ])
 
   const calculateUnderlyingOutput = useCallback(() => {
@@ -222,11 +235,13 @@ const RemoveLiquidity: React.FC = () => {
       new TokenAmount(item.market.liquidityToken, liquidity.toString())
     )
 
-    const totalRequiredLong = formatEther(
-      entity.proportionalLong(shortValue.raw.toString())
-    )
-    return totalRequiredLong
-  }, [item.market, lp, lpTotalSupply, ratio, item])
+    const totalRequiredLong = entity.proportionalLong(shortValue.raw.toString())
+
+    const required = totalRequiredLong.gt(parseEther(optionBalance))
+      ? optionBalance
+      : formatEther(totalRequiredLong)
+    return required
+  }, [item.market, lp, lpTotalSupply, ratio, item, optionBalance])
 
   const calculateBurn = useCallback(() => {
     if (typeof item.market === 'undefined' || !item.market.hasLiquidity)
@@ -259,6 +274,48 @@ const RemoveLiquidity: React.FC = () => {
     },
     [entity.underlying, onApprove]
   )
+
+  const handleApprovalPermit = useCallback(
+    (spender: string, amount: string) => {
+      console.log(lpToken)
+      handlePermit(lpToken, spender, parseEther(amount).toString())
+        .then((data) => {
+          console.log({ data })
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [entity.underlying, lpToken, handlePermit, underlyingValue, setSignData]
+  )
+
+  const isOptionApproved = useCallback(() => {
+    console.log(approved[0])
+    if (item.entity.isCall) {
+      return approved[0]
+    } else if (item.entity.isWethCall) {
+      return true
+    } else {
+      return approved[0]
+    }
+  }, [approved, item.entity])
+
+  const isLPApproved = useCallback(() => {
+    if (item.entity.isCall) {
+      return approved[1]
+    } else if (item.entity.isWethCall) {
+      return true
+    } else {
+      return approved[1] || signData
+    }
+  }, [approved, item.entity, signData])
+
   return (
     <LiquidityContainer>
       <Spacer />
@@ -380,22 +437,20 @@ const RemoveLiquidity: React.FC = () => {
           />
         ) : (
           <>
-            {approved[1] ? (
+            {isLPApproved() ? (
               <></>
             ) : (
               <Button
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() =>
-                  handleApproval(lpToken, spender, calculateBurn())
-                }
+                onClick={() => handleApprovalPermit(spender, calculateBurn())}
                 isLoading={submitting}
                 text="Approve LP"
               />
             )}
 
-            {approved[0] ? (
+            {isOptionApproved() ? (
               <></>
             ) : (
               <Button
@@ -431,7 +486,7 @@ const RemoveLiquidity: React.FC = () => {
             ) : (
               <> </>
             )}
-            {!approved[0] || !approved[1] ? null : (
+            {!isOptionApproved() || !isLPApproved() ? null : (
               <Button
                 disabled={
                   submitting || ratio === 0 || requiresAdditionalLong().gt(0)
