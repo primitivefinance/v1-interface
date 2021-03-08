@@ -26,6 +26,7 @@ import useGetPair from '@/hooks/useGetPair'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
+import isZero from '@/utils/isZero'
 
 import {
   UNI_ROUTER_ADDRESS,
@@ -296,24 +297,11 @@ const RemoveLiquidity: React.FC = () => {
   )
 
   const isOptionApproved = useCallback(() => {
-    console.log(approved[0])
-    if (item.entity.isCall) {
-      return approved[0]
-    } else if (item.entity.isWethCall) {
-      return true
-    } else {
-      return approved[0]
-    }
+    return approved[0] || isZero(parseEther(calculateRequiredLong()))
   }, [approved, item.entity])
 
   const isLPApproved = useCallback(() => {
-    if (item.entity.isCall) {
-      return approved[1]
-    } else if (item.entity.isWethCall) {
-      return true
-    } else {
-      return approved[1] || signData
-    }
+    return approved[1] || signData
   }, [approved, item.entity, signData])
 
   return (
