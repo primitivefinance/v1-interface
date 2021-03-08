@@ -167,7 +167,7 @@ const AddLiquidity: React.FC = () => {
       submitOrder(
         library,
         BigInt(parsedOptionAmount.toString()),
-        Operation.ADD_LIQUIDITY_CUSTOM,
+        orderType,
         BigInt(parsedUnderlyingAmount.toString())
       )
     }

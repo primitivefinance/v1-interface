@@ -48,7 +48,7 @@ import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useClearSwap } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
-import { getTotalSupply } from '@primitivefi/sdk'
+import { getTotalSupply, WETH9 } from '@primitivefi/sdk'
 
 const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
@@ -134,15 +134,15 @@ export const useUpdateItem = (): ((
               item.entity.underlying.address,
               spender
             )
+            const approved =
+              parseEther(tokenAllowance.toString()).gt(parseEther('0')) ||
+              item.entity.underlying.address === WETH9[chainId].address
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved: [
-                  parseEther(tokenAllowance.toString()).gt(parseEther('0')),
-                  false,
-                ],
+                approved: [approved, false],
               })
             )
             return
@@ -451,6 +451,15 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountB.toString()
           )
 
+          console.log(
+            trade.option.address,
+            trade.inputAmount.raw.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
+            trade.outputAmount.raw.toString(),
+            trade.option
+              .proportionalShort(trade.inputAmount.raw.toString())
+              .toString(),
+            tradeSettings.deadline
+          )
           transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
