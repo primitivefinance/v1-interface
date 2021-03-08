@@ -15,7 +15,7 @@ import CardHeader from '@/components/CardHeader'
 import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 import OptionTextInfo from '@/components/OptionTextInfo'
-import { Operation, SignitureData } from '@primitivefi/sdk'
+import { Operation, SignitureData, WETH9 } from '@primitivefi/sdk'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -431,10 +431,10 @@ const Swap: React.FC = () => {
   }, [impact, slippage])
 
   const isApproved = useCallback(() => {
-    if (item.entity.isCall) {
-      return approved[0]
-    } else if (item.entity.isWethCall) {
+    if (item.entity.isWethCall && orderType !== Operation.CLOSE_LONG) {
       return true
+    } else if (item.entity.isCall) {
+      return approved[0]
     } else {
       return approved[0] || signData
     }
