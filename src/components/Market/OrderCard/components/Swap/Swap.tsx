@@ -15,7 +15,7 @@ import CardHeader from '@/components/CardHeader'
 import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 import OptionTextInfo from '@/components/OptionTextInfo'
-import { Operation } from '@primitivefi/sdk'
+import { Operation, SignitureData } from '@primitivefi/sdk'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -66,7 +66,7 @@ const formatParsedAmount = (amount: BigNumberish) => {
 const Swap: React.FC = () => {
   //state
   const [description, setDescription] = useState(false)
-  const [signData, setSignData] = useState({ v: 0, r: '', s: '', deadline: 0 })
+  const [signData, setSignData] = useState<SignitureData>(null)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
@@ -432,7 +432,7 @@ const Swap: React.FC = () => {
   // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
   const handleApproval = useCallback(
     (amount: string) => {
-      if (item.entity.isCall) {
+      if (item.entity.isCall || orderType === Operation.CLOSE_LONG) {
         onApprove(tokenAddress, spender, amount)
           .then()
           .catch((error) => {
