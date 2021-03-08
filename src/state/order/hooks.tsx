@@ -119,13 +119,17 @@ export const useUpdateItem = (): ((
       } else {
         if (
           orderType === Operation.ADD_LIQUIDITY ||
+          orderType === Operation.ADD_LIQUIDITY_CUSTOM ||
           orderType === Operation.REMOVE_LIQUIDITY_CLOSE
         ) {
           const spender =
             item.venue === Venue.UNISWAP
               ? PRIMITIVE_ROUTER[chainId].address
               : PRIMITIVE_ROUTER[chainId].address
-          if (orderType === Operation.ADD_LIQUIDITY) {
+          if (
+            orderType === Operation.ADD_LIQUIDITY ||
+            orderType === Operation.ADD_LIQUIDITY_CUSTOM
+          ) {
             const tokenAllowance = await getAllowance(
               item.entity.underlying.address,
               spender
@@ -250,10 +254,6 @@ export const useUpdateItem = (): ((
             case Operation.SHORT:
               tokenAddress = item.entity.underlying.address
               break
-            case Operation.WRITE:
-              tokenAddress = item.entity.underlying.address
-              secondaryAddress = item.entity.address
-              break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
               break
@@ -297,6 +297,13 @@ export const useRemoveItem = (): (() => void) => {
     dispatch(removeItem())
   }, [dispatch])
 }
+export interface sigData {
+  v: number
+  r: string
+  s: string
+  deadline: number
+}
+
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   parsedAmountA: BigInt,
@@ -318,7 +325,8 @@ export const useHandleSubmitOrder = (): ((
       provider: Web3Provider,
       parsedAmountA: BigInt,
       operation: Operation,
-      parsedAmountB?: BigInt
+      parsedAmountB?: BigInt,
+      sigData: sigData = { v: 0, r: '', s: '', deadline: 0 }
     ) => {
       dispatch(
         updateItem({
@@ -367,7 +375,8 @@ export const useHandleSubmitOrder = (): ((
         outputAmount,
         operation,
         item.venue,
-        signer
+        signer,
+        sigData
       )
       const factory = new ethers.Contract(
         FACTORY_ADDRESS,
@@ -399,17 +408,6 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountA.toString()
           )
           trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
-          transaction = SushiSwap.singlePositionCallParameters(
-            trade,
-            tradeSettings
-          )
-          break
-        case Operation.WRITE:
-          // Path: underlying -> redeem, exact redeem amount is outputAmount.
-          trade.outputAmount = new TokenAmount(
-            optionEntity.redeem,
-            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
-          )
           transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
@@ -506,7 +504,7 @@ export const useHandleSubmitOrder = (): ((
           )
           break
         default:
-          transaction = Trader.singleOperationCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )

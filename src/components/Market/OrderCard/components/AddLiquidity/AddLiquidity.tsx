@@ -9,7 +9,7 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 
 // Utilities
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
@@ -143,7 +143,7 @@ const AddLiquidity: React.FC = () => {
 
   // ==== Transaction Handling ====
   const handleApproval = useCallback(() => {
-    onApprove(entity.underlying.address, spender)
+    onApprove(entity.underlying.address, spender, underlyingValue)
       .then()
       .catch((error) => {
         addNotif(
@@ -153,7 +153,7 @@ const AddLiquidity: React.FC = () => {
           ''
         )
       })
-  }, [entity.underlying, tokenAllowance, onApprove])
+  }, [entity.underlying, tokenAllowance, onApprove, underlyingValue])
 
   const handleSubmitClick = useCallback(() => {
     if (hasLiquidity) {
@@ -167,7 +167,7 @@ const AddLiquidity: React.FC = () => {
       submitOrder(
         library,
         BigInt(parsedOptionAmount.toString()),
-        orderType,
+        Operation.ADD_LIQUIDITY_CUSTOM,
         BigInt(parsedUnderlyingAmount.toString())
       )
     }
@@ -449,17 +449,7 @@ const AddLiquidity: React.FC = () => {
 
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
-        <Button
-          disabled={true}
-          isLoading={loading}
-          full
-          size="sm"
-          variant={loading ? 'secondary' : 'default'}
-          onClick={handleApproval}
-          text={`Approve`}
-        />
-        {/**
-         * {loading ? (
+        {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Button
@@ -501,8 +491,6 @@ const AddLiquidity: React.FC = () => {
             />
           </>
         )}
-         * 
-         */}
       </Box>
     </LiquidityContainer>
   )

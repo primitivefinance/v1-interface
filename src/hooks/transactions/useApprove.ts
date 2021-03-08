@@ -3,6 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
 import ethers from 'ethers'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
+import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -12,8 +13,9 @@ const approve = async (
   tokenAddress: string,
   account: string,
   spender: string,
-  amount: number
+  amount: any
 ): Promise<ethers.Transaction> => {
+  console.log(parseUnits(amount.toString()).toString())
   try {
     if (
       !ethers.utils.isAddress(tokenAddress) ||
@@ -25,7 +27,10 @@ const approve = async (
     let tx: any
     if (code > 0) {
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-      tx = await erc20.approve(spender, amount) // 0 gwei approval
+      tx = await erc20.approve(
+        spender,
+        parseUnits(amount.toString()).toString()
+      ) // 0 gwei approval
     } else throw 'Approval Error'
     return tx
   } catch (error) {
@@ -43,7 +48,7 @@ const useApprove = () => {
     async (
       tokenAddress: string,
       spender: string,
-      amount = 0
+      amount: any
     ): Promise<ethers.Transaction | any> => {
       const signer = await library.getSigner()
       approve(signer, tokenAddress, account, spender, amount)

@@ -244,18 +244,21 @@ const RemoveLiquidity: React.FC = () => {
     return additional
   }, [calculateRequiredLong, optionBalance])
 
-  const handleApproval = useCallback(() => {
-    onApprove(entity.underlying.address, spender)
-      .then()
-      .catch((error) => {
-        addNotif(
-          0,
-          `Approving ${entity.underlying.symbol.toUpperCase()}`,
-          error.message,
-          ''
-        )
-      })
-  }, [entity.underlying, onApprove])
+  const handleApproval = useCallback(
+    (token: string, spender: string, amount: string) => {
+      onApprove(token, spender, amount)
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${entity.underlying.symbol.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [entity.underlying, onApprove]
+  )
   return (
     <LiquidityContainer>
       <Spacer />
@@ -365,17 +368,7 @@ const RemoveLiquidity: React.FC = () => {
 
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
-        <Button
-          disabled={true}
-          isLoading={loading}
-          full
-          size="sm"
-          variant={loading ? 'secondary' : 'default'}
-          onClick={handleApproval}
-          text={`Approve`}
-        />
-        {/**
-         * {loading ? (
+        {loading ? (
           <Button
             disabled={loading}
             variant="secondary"
@@ -394,7 +387,9 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() => handleApprove(lpToken, spender)}
+                onClick={() =>
+                  handleApproval(lpToken, spender, calculateBurn())
+                }
                 isLoading={submitting}
                 text="Approve LP"
               />
@@ -407,7 +402,13 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() => handleApprove(item.entity.address, spender)}
+                onClick={() =>
+                  handleApproval(
+                    item.entity.address,
+                    spender,
+                    calculateRequiredLong()
+                  )
+                }
                 isLoading={submitting}
                 text="Approve Options"
               />
@@ -422,7 +423,7 @@ const RemoveLiquidity: React.FC = () => {
                       ? entity.strike.symbol.toLowerCase()
                       : entity.underlying.symbol.toLowerCase()
                   )}`}
-                  text={`1) Buy ${numeral(
+                  text={`Buy ${numeral(
                     formatEther(requiresAdditionalLong())
                   ).format('0.00')} Options`}
                 />{' '}
@@ -441,15 +442,13 @@ const RemoveLiquidity: React.FC = () => {
                 isLoading={submitting}
                 text={
                   requiresAdditionalLong().gt(0)
-                    ? '2) Remove Liquidity'
+                    ? 'Remove Liquidity'
                     : 'Remove Liquidity'
                 }
               />
             )}
           </>
         )}
-         * 
-         */}
       </Box>
     </LiquidityContainer>
   )

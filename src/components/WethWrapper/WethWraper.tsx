@@ -110,7 +110,7 @@ const WethWrapper: React.FC = () => {
   }, [wrap, setWrap, typedValue, onUserInput])
 
   const handleApproval = useCallback(() => {
-    onApprove(weth, weth)
+    onApprove(weth, weth, parsedAmount)
       .then(() => {
         addNotif(
           0,
