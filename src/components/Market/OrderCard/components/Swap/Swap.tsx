@@ -419,21 +419,37 @@ const Swap: React.FC = () => {
   }, [impact, slippage])
 
   // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
-  const handleApproval = useCallback(() => {
-    onApprove(tokenAddress, spender)
-      .then()
-      .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
-      })
-  }, [item, onApprove, tokenAddress, spender])
+  const handleApproval = useCallback(
+    (amount: string) => {
+      onApprove(tokenAddress, spender, amount)
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [item, onApprove, tokenAddress, spender]
+  )
 
-  const handleSecondaryApproval = useCallback(() => {
-    onApprove(secondaryAddress, spender)
-      .then()
-      .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
-      })
-  }, [item, onApprove, secondaryAddress, spender])
+  const handleSecondaryApproval = useCallback(
+    (amount: string) => {
+      onApprove(secondaryAddress, spender, amount)
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [item, onApprove, secondaryAddress, spender]
+  )
 
   const removeItem = useRemoveItem()
 
@@ -650,9 +666,9 @@ const Swap: React.FC = () => {
                 full
                 variant="secondary"
                 size="sm"
-                onClick={handleApproval}
+                onClick={() => {}}
                 isLoading={loading}
-                text="Confirm"
+                text=""
               />
             </div>
           ) : (
@@ -684,12 +700,12 @@ const Swap: React.FC = () => {
                   ) : (
                     <>
                       <Button
-                        disabled={true}
+                        disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={handleApproval}
+                        onClick={() => handleApproval(typedValue.toString())}
                         isLoading={loading}
-                        text="Approve"
+                        text="Approve Tokens"
                       />
                     </>
                   )}
@@ -701,12 +717,12 @@ const Swap: React.FC = () => {
                   ) : (
                     <>
                       <Button
-                        disabled={true}
+                        disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={handleApproval}
+                        onClick={() => handleApproval(typedValue.toString())}
                         isLoading={loading}
-                        text="Approve"
+                        text="Approve Tokens"
                       />
                     </>
                   )}
