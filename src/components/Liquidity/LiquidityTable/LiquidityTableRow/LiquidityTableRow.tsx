@@ -21,6 +21,7 @@ import { RemoveLiquidity } from '@/components/Market/OrderCard/components/Remove
 
 import { useWeb3React } from '@web3-react/core'
 import { useItem, useUpdateItem, useRemoveItem } from '@/state/order/hooks'
+import useBalance from '@/hooks/useBalance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useClickAway } from '@/hooks/utils/useClickAway'
@@ -132,7 +133,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   const lpToken = market ? market.liquidityToken.address : ''
   const token0 = market ? market.token0.symbol : ''
   const token1 = market ? market.token1.symbol : ''
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const underlyingTokenBalance = entity.isWethCall
+    ? useBalance()
+    : useTokenBalance(entity.underlying.address)
   const shortTokenBalance = useTokenBalance(entity.redeem.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
@@ -382,7 +385,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
         )}
         <TableCell>
           <span>
-            {numeral(strike).format(+strike >= 10 ? '0a' : '0.00')}{' '}
+            {numeral(strike).format(+strike >= 10 ? '0.0a' : '0.00')}{' '}
             <Units>DAI</Units>
           </span>
         </TableCell>
@@ -426,7 +429,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
                       ? underlyingTokenBalance
                       : '0'
                   ).format('0.00')}
-                  units={asset}
+                  units={entity.isWethCall ? 'ETH' : asset}
                 />
                 <Spacer />
                 <AddLiqButton />
@@ -450,7 +453,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
                       calculateLiquidityValuePerShare().totalUnderlyingPerLp
                     )
                   ).format('0.00a')}
-                  units={asset}
+                  units={entity.isWethCall ? 'ETH' : asset}
                 />
                 <Spacer />
                 <RemoveLiqButton />

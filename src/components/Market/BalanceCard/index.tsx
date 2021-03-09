@@ -9,7 +9,7 @@ import CardContent from '@/components/CardContent'
 import LineItem from '@/components/LineItem'
 import { useWeb3React } from '@web3-react/core'
 
-import mintTestTokens from '@/utils/mintTestTokens'
+//import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
@@ -17,6 +17,7 @@ import { useItem } from '@/state/order/hooks'
 
 import { Operation, STABLECOINS } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
+import { mintTestTokens, WETH9 } from '@primitivefi/sdk'
 
 import { formatEther } from 'ethers/lib/utils'
 const BalanceCard: React.FC = () => {
@@ -26,51 +27,29 @@ const BalanceCard: React.FC = () => {
   const addTransaction = useTransactionAdder()
   const { library, account, chainId } = useWeb3React()
   const daiBal = useTokenBalance(STABLECOINS[chainId].address)
+  const ethBal = useTokenBalance(WETH9[chainId].address)
 
   const handleMintTestTokens = async () => {
     const now = () => new Date().getTime()
     let tx: any
-    mintTestTokens(
-      account,
-      options.calls[0].entity.tokenAddresses[0],
-      await library.getSigner()
-    )
-      .then((tx) => {
-        if (tx?.hash) {
-          addTransaction(
-            {
-              hash: tx.hash,
-              addedTime: now(),
-              from: account,
-            },
-            Operation.MINT
-          )
-        }
+    mintTestTokens(await library.getSigner(), account)
+      .then((txs) => {
+        txs.map((tx) => {
+          if (tx?.hash) {
+            addTransaction(
+              {
+                hash: tx.hash,
+                addedTime: now(),
+                from: account,
+              },
+              Operation.MINT
+            )
+          }
+        })
       })
       .catch((err) =>
         console.log(`Issue when minting test tokens in component ${err}`)
       )
-    mintTestTokens(
-      account,
-      STABLECOINS[chainId].address,
-      await library.getSigner()
-    )
-      .then((tx) => {
-        if (tx?.hash) {
-          addTransaction(
-            {
-              hash: tx.hash,
-              addedTime: now(),
-              from: account,
-            },
-            Operation.MINT
-          )
-        }
-      })
-      .catch((err) =>
-        console.log(`Issue when minting test tokens in component ${err}`)
-      )
-
     return tx
   }
   if (loading) {
@@ -90,10 +69,10 @@ const BalanceCard: React.FC = () => {
   return (
     <>
       <CustomCard>
-        <LineItem
+        {/* <LineItem
           label={`${balance.token.symbol} Balance`}
           data={formatEther(balance.raw.toString())}
-        />
+        /> */}
         {chainId === 4 ? (
           <>
             <Spacer size="sm" />
@@ -107,6 +86,7 @@ const BalanceCard: React.FC = () => {
         ) : null}
         <Spacer size="sm" />
         <LineItem label={`DAI Balance`} data={daiBal} />
+        <LineItem label={`WETH Balance`} data={ethBal} />
       </CustomCard>
     </>
   )

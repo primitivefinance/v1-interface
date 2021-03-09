@@ -22,7 +22,8 @@ import {
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { STABLECOINS } from '@/constants/index'
-import { optionAddresses } from '@/constants/options'
+import { optionAddresses, testAddresses } from '@/constants/options'
+const { ChainId } = SushiSwapSDK
 
 export const useOptions = (): OptionsState => {
   const state = useSelector<AppState, AppState['options']>(
@@ -67,8 +68,11 @@ export const useUpdateOptions = (): ((
           return
         }
       }, 200)
-
-      Protocol.getOptionsUsingMultiCall(chainId, optionAddresses, provider)
+      Protocol.getOptionsUsingMultiCall(
+        chainId,
+        chainId == ChainId.RINKEBY ? testAddresses : optionAddresses,
+        provider
+      )
         .then((optionEntitiesObject) => {
           const allKeys: string[] = Object.keys(optionEntitiesObject)
           const allPairAddresses: string[] = []
@@ -86,7 +90,12 @@ export const useUpdateOptions = (): ((
               option.underlying.address,
             ])
           }
-          Protocol.getPairsFromMultiCall(provider, allTokensArray, venue)
+          Protocol.getPairsFromMultiCall(
+            chainId,
+            provider,
+            allTokensArray,
+            Venue.SUSHISWAP
+          )
             .then((allPairsData) => {
               const actualPairs = []
               for (const pair of allPairsData) {
@@ -159,7 +168,7 @@ export const useUpdateOptions = (): ((
                       )
                     }
 
-                    const pairType = isUniswap ? Pair : SushiSwapSDK.Pair
+                    const pairType = SushiSwapSDK.Pair
                     const pair: Pair | SushiSwapSDK.Pair = new pairType(
                       underlyingTokenAmount,
                       redeemTokenAmount
@@ -185,12 +194,13 @@ export const useUpdateOptions = (): ((
                     if (option.isCall) {
                       if (isLiquidity) {
                         if (
-                          (option.baseValue.token.symbol.toUpperCase() ===
+                          ((option.baseValue.token.symbol.toUpperCase() ===
                             'SUSHI' ||
                             option.baseValue.token.symbol.toUpperCase() ===
                               'WETH') &&
-                          (option.strikePrice === '5000' ||
-                            option.strikePrice === '30')
+                            (option.strikePrice === '5000' ||
+                              option.strikePrice === '30')) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -205,10 +215,11 @@ export const useUpdateOptions = (): ((
                         }
                       } else {
                         if (
-                          option.baseValue.token.symbol.toUpperCase() ===
+                          (option.baseValue.token.symbol.toUpperCase() ===
                             assetName.toUpperCase() &&
-                          (option.strikePrice === '5000' ||
-                            option.strikePrice === '30')
+                            (option.strikePrice === '5000' ||
+                              option.strikePrice === '30')) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -226,12 +237,14 @@ export const useUpdateOptions = (): ((
                       if (isLiquidity) {
                         const asset = option.quoteValue.token.symbol.toUpperCase()
                         if (
-                          (asset === 'WETH' || asset === 'SUSHI') &&
-                          (option.strikePrice === '2.5' ||
-                            option.strikePrice === '480') &&
-                          (option.underlying.address ===
-                            STABLECOINS[chainId].address ||
-                            option.quoteValue.token.address === assetAddress)
+                          ((asset === 'WETH' || asset === 'SUSHI') &&
+                            (option.strikePrice === '2.5' ||
+                              option.strikePrice === '480') &&
+                            (option.underlying.address ===
+                              STABLECOINS[chainId].address ||
+                              option.quoteValue.token.address ===
+                                assetAddress)) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -247,12 +260,14 @@ export const useUpdateOptions = (): ((
                       } else {
                         const asset = option.quoteValue.token.symbol.toUpperCase()
                         if (
-                          asset === assetName.toUpperCase() &&
-                          (option.strikePrice === '2.5' ||
-                            option.strikePrice === '480') &&
-                          (option.underlying.address ===
-                            STABLECOINS[chainId].address ||
-                            option.quoteValue.token.address === assetAddress)
+                          (asset === assetName.toUpperCase() &&
+                            (option.strikePrice === '2.5' ||
+                              option.strikePrice === '480') &&
+                            (option.underlying.address ===
+                              STABLECOINS[chainId].address ||
+                              option.quoteValue.token.address ===
+                                assetAddress)) ||
+                          chainId === ChainId.RINKEBY
                         ) {
                           pairReserveTotal[1] = pairReserveTotal[1].add(
                             BigNumber.from(underlyingReserve)

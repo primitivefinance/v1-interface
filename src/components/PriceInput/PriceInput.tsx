@@ -55,6 +55,8 @@ const PriceInput: React.FC<PriceInputProps> = ({
                   ? 'SHORT'
                   : balance.token.symbol.toUpperCase() === 'DAI STABLECOIN'
                   ? 'DAI'
+                  : balance.token.symbol.toUpperCase() === 'WETH'
+                  ? 'ETH'
                   : balance.token.symbol.toUpperCase()}
               </OpacitySpan>
             </RightSpan>

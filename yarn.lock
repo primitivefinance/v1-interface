@@ -2103,14 +2103,14 @@
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
-"@primitivefi/sdk@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-0.3.3.tgz#7a0249c8208900b81fa4d31762a84e5ebe19aa31"
-  integrity sha512-EZKfiOIcX4YVBh3enrCZJ70IzyhdpUwDKdDWDFNkd3+FwI3E7s4KJASe/euqs+C1P1VE6PGUOv3ii6GEwOUYAQ==
+"@primitivefi/sdk@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-1.3.3.tgz#5ed79fc18842310d76e5199faca2ca13593ea870"
+  integrity sha512-Onf9abcNemgCmjO4SieSq+LZxmPO67XTUrLf2A5UhTOxM7KiyOhP3TO8gUlHxIkBpkT4ZaKMmCLENKUOePoYiQ==
   dependencies:
     "@ethersproject/providers" "^5.0.5"
     "@primitivefi/contracts" "0.4.4"
-    "@primitivefi/v1-connectors" "1.2.2"
+    "@primitivefi/v1-connectors" "2.1.1"
     "@uniswap/v2-core" "^1.0.1"
     "@uniswap/v2-periphery" "^1.1.0-beta.0"
     bignumber.js "^9.0.0"
@@ -2121,10 +2121,10 @@
     web3 "^1.2.6"
     web3modal "^1.5.0"
 
-"@primitivefi/v1-connectors@1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.2.tgz#78b4447704f11e1b8e2ecd62058f71667556cd42"
-  integrity sha512-1vIEMbJOBpO+iQ+748UFFRRLIR0DYAFyIOWRXYGML5cdd0RoMpmkjWwpyJiXTDGfSf/81W650b2VmWTJtRmkyA==
+"@primitivefi/v1-connectors@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.1.1.tgz#a1eb2a2a28236286c458e115c7fcb74f3e3f100f"
+  integrity sha512-w5L08Zr6Jgj99q0UetfBunMSRaVIa5mV4gmbfDhVA+Omw7k5YmMen0bKTig2v4hCRkoRujj7QY/4nrm9K5V1Ug==
   dependencies:
     "@openzeppelin/contracts" "^3.2.0"
     "@primitivefi/contracts" "^0.4.2"
@@ -6617,6 +6617,13 @@ eth-lib@^0.1.26:
     servify "^0.1.12"
     ws "^3.0.0"
     xhr-request-promise "^0.1.2"
+
+eth-permit@^0.1.9:
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/eth-permit/-/eth-permit-0.1.9.tgz#670b62483c58bddeceb49d7b62741bbebfa73df8"
+  integrity sha512-jkvmvz8/YnNMWE5/S12L+DkVL0NEgL9jaFxDJWgpx+Ozfx5gGQGsgS5gkVROKmGuixtgKm3jebtykzt1FE/LVA==
+  dependencies:
+    utf8 "^3.0.0"
 
 eth-query@^2.1.0, eth-query@^2.1.2:
   version "2.1.2"
@@ -14807,7 +14814,7 @@ utf-8-validate@^5.0.2:
   dependencies:
     node-gyp-build "~3.7.0"
 
-utf8@3.0.0:
+utf8@3.0.0, utf8@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/utf8/-/utf8-3.0.0.tgz#f052eed1364d696e769ef058b183df88c87f69d1"
   integrity sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==

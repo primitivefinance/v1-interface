@@ -48,7 +48,6 @@ export const useUpdatePositions = (): ((
     async (options: OptionsAttributes[]) => {
       let positionExists = false
       const positionsArr: OptionPosition[] = []
-      console.log('positions trig')
       if (options.length === 0) {
         dispatch(
           updatePositions({

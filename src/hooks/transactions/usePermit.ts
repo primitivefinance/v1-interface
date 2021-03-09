@@ -1,75 +1,78 @@
 import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { Operation } from '@/constants/index'
+import { DEFAULT_TIMELIMIT, Operation } from '@/constants/index'
+import { splitSignature } from '@ethersproject/bytes'
+import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
+
+import { signDaiPermit, signERC2612Permit } from 'eth-permit'
+
+import Dai from '@primitivefi/v1-connectors/deployments/rinkeby/Dai.json'
+import IPERMIT from '@primitivefi/v1-connectors/build/contracts/interfaces/IERC20Permit.sol/IERC20Permit.json'
+
+import { Contract } from '@ethersproject/contracts'
+import { DEFAULT_DEADLINE } from '@/constants/index'
 import ethers from 'ethers'
-import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 
-import { useTransactionAdder } from '@/state/transactions/hooks'
-import { useAddNotif } from '@/state/notifs/hooks'
+export const usePermit = () => {
+  const { account, library, chainId } = useWeb3React()
 
-const permit = async (
-  signer: ethers.Signer,
-  tokenAddress: string,
-  account: string,
-  spender: string
-): Promise<ethers.Transaction> => {
-  try {
-    if (
-      !ethers.utils.isAddress(tokenAddress) ||
-      !ethers.utils.isAddress(account)
-    ) {
-      return null
-    }
-    const code: any = await signer.provider.getCode(tokenAddress)
-    let tx: any
-    if (code > 0) {
-      const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
-      tx = await erc20.approve(spender, 0) // 0 gwei approval
-    } else throw 'Permit Error'
-    return tx
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const usePermit = () => {
-  const { account, library } = useWeb3React()
-  const addTransaction = useTransactionAdder()
-  const now = () => new Date().getTime()
-  const throwError = useAddNotif()
-
-  const handleApprove = useCallback(
-    async (
-      tokenAddress: string,
-      spender: string
-    ): Promise<ethers.Transaction | any> => {
-      const signer = await library.getSigner()
-      permit(signer, tokenAddress, account, spender)
-        .then((tx) => {
-          if (tx?.hash) {
-            addTransaction(
-              {
-                approval: {
-                  tokenAddress: tokenAddress,
-                  spender: spender,
-                },
-                hash: tx.hash,
-                addedTime: now(),
-                from: account,
-              },
-              Operation.APPROVE
-            )
-          }
-          return tx
-        })
-        .catch((err) => {
-          throwError(0, 'Approvals Error', `${err.message}`, '')
-        })
+  const handlePermit = useCallback(
+    async (token: string, spender: string, value: string): Promise<any> => {
+      const deadline = 1000000000000000
+      const nonce: number = +(await new ethers.Contract(
+        token,
+        IPERMIT.abi,
+        library
+      ).nonces(account))
+      const result = await signERC2612Permit(
+        library,
+        token,
+        account,
+        spender,
+        value,
+        deadline,
+        nonce
+      )
+      console.log(
+        `normal permit params: ${[token, account, spender, value, deadline]}`
+      )
+      return {
+        v: result.v,
+        r: result.r,
+        s: result.s,
+        deadline: deadline,
+      }
     },
     [account]
   )
 
-  return handleApprove
+  return handlePermit
 }
 
-export default usePermit
+export const useDAIPermit = () => {
+  const { account, library, chainId } = useWeb3React()
+
+  const handlePermit = useCallback(
+    async (spender: string): Promise<any> => {
+      const deadline = 1000000000000000
+      const result = await signDaiPermit(
+        library,
+        chainId === 4
+          ? Dai.address
+          : '0x9041f0ddaa47f40d59b9812887ccf36e0d2f696e',
+        account,
+        spender,
+        deadline
+      )
+      return {
+        v: result.v,
+        r: result.r,
+        s: result.s,
+        deadline: deadline,
+      }
+    },
+    [account]
+  )
+
+  return handlePermit
+}

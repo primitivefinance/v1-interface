@@ -15,12 +15,13 @@ import CardHeader from '@/components/CardHeader'
 import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 import OptionTextInfo from '@/components/OptionTextInfo'
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { Operation, SignitureData, WETH9 } from '@primitivefi/sdk'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import useApprove from '@/hooks/transactions/useApprove'
+import { useDAIPermit, usePermit } from '@/hooks/transactions/usePermit'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
@@ -29,7 +30,7 @@ import {
   ADDRESS_ZERO,
   Venue,
   SUSHI_ROUTER_ADDRESS,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
 } from '@primitivefi/sdk'
 
 import formatBalance from '@/utils/formatBalance'
@@ -54,6 +55,7 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
+import { sign } from 'crypto'
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
@@ -64,6 +66,7 @@ const formatParsedAmount = (amount: BigNumberish) => {
 const Swap: React.FC = () => {
   //state
   const [description, setDescription] = useState(false)
+  const [signData, setSignData] = useState<SignitureData>(null)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
@@ -171,20 +174,6 @@ const Swap: React.FC = () => {
       tokenAddress = entity.underlying.address
       balance = entity.underlying
       break
-    case Operation.WRITE:
-      title = {
-        text: `Trade ${numeral(item.entity.strikePrice).format(
-          +item.entity.strikePrice > 5 ? '$0' : '$0.00'
-        )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
-          item.entity.expiryValue
-        ).utc.substr(4, 12)}`,
-        tip:
-          'Underwrite long option tokens with an underlying token deposit, and sell them for premiums denominated in underlying tokens',
-      }
-      tokenAddress = entity.underlying.address
-      secondaryAddress = entity.address
-      balance = entity.underlying
-      break
     case Operation.CLOSE_LONG:
       title = {
         text: `Trade ${numeral(item.entity.strikePrice).format(
@@ -261,10 +250,10 @@ const Swap: React.FC = () => {
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
         ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
-      ? UNISWAP_CONNECTOR[chainId]
-      : SUSHISWAP_CONNECTOR[chainId]
+      ? PRIMITIVE_ROUTER[chainId].address
+      : PRIMITIVE_ROUTER[chainId].address
 
   const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
   const underlyingAmount: TokenAmount = new TokenAmount(
@@ -272,7 +261,8 @@ const Swap: React.FC = () => {
     parseEther(underlyingTokenBalance).toString()
   )
   const onApprove = useApprove()
-
+  const handlePermit = usePermit()
+  const handleDAIPermit = useDAIPermit()
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(value)
@@ -311,8 +301,16 @@ const Swap: React.FC = () => {
         ? parsedAmount
         : scaleDown(parsedAmount)
       : parsedAmount
-    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'))
-  }, [submitOrder, item, library, parsedAmount, orderType, entity.isPut])
+    submitOrder(library, BigInt(orderSize), orderType, BigInt('0'), signData)
+  }, [
+    submitOrder,
+    item,
+    library,
+    parsedAmount,
+    orderType,
+    entity.isPut,
+    signData,
+  ])
 
   useEffect(() => {
     if (shortTokenAmount.greaterThan('0') && orderType === Operation.LONG) {
@@ -432,22 +430,90 @@ const Swap: React.FC = () => {
     return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
   }, [impact, slippage])
 
-  // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
-  const handleApproval = useCallback(() => {
-    onApprove(tokenAddress, spender)
-      .then()
-      .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
-      })
-  }, [item, onApprove, tokenAddress, spender])
+  const isApproved = useCallback(() => {
+    if (item.entity.isWethCall && orderType !== Operation.CLOSE_LONG) {
+      return true
+    } else if (item.entity.isCall) {
+      return approved[0]
+    } else {
+      return approved[0] || signData
+    }
+  }, [approved, item.entity, signData])
 
-  const handleSecondaryApproval = useCallback(() => {
-    onApprove(secondaryAddress, spender)
-      .then()
-      .catch((error) => {
-        addNotif(0, `Approving ${item.asset.toUpperCase()}`, error.message, '')
-      })
-  }, [item, onApprove, secondaryAddress, spender])
+  // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
+  const handleApproval = useCallback(
+    (amount: string) => {
+      if (item.entity.isCall || orderType === Operation.CLOSE_LONG) {
+        // call approval
+        onApprove(tokenAddress, spender, amount)
+          .then()
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      } else if (item.entity.isWethCall) {
+        // no approval
+        return
+      } else if (item.entity.isPut) {
+        // puts use dai as underlying
+        handleDAIPermit(spender)
+          .then((data) => {
+            setSignData(data)
+          })
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      } else {
+        // else, use openFlashLongWithPermit for the underlying
+        handlePermit(entity.underlying.address, spender, amount)
+          .then((data) => {
+            setSignData(data)
+          })
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      }
+    },
+    [
+      item,
+      onApprove,
+      tokenAddress,
+      spender,
+      setSignData,
+      handlePermit,
+      handleDAIPermit,
+    ]
+  )
+
+  const handleSecondaryApproval = useCallback(
+    (amount: string) => {
+      onApprove(secondaryAddress, spender, amount)
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [item, onApprove, secondaryAddress, spender]
+  )
 
   const removeItem = useRemoveItem()
 
@@ -664,19 +730,19 @@ const Swap: React.FC = () => {
                 full
                 variant="secondary"
                 size="sm"
-                onClick={handleApproval}
+                onClick={() => {}}
                 isLoading={loading}
-                text="Confirm"
+                text=""
               />
             </div>
           ) : (
             <>
               {orderType === Operation.SHORT ? (
                 <>
-                  {approved[0] ? (
+                  {isApproved() ? (
                     <Button
                       disabled={
-                        !approved[0] ||
+                        !isApproved() ||
                         !parsedAmount?.gt(0) ||
                         error ||
                         !hasLiquidity ||
@@ -698,35 +764,35 @@ const Swap: React.FC = () => {
                   ) : (
                     <>
                       <Button
-                        disabled={true}
+                        disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={handleApproval}
+                        onClick={() => handleApproval(typedValue.toString())}
                         isLoading={loading}
-                        text="Approve"
+                        text="Approve Tokens"
                       />
                     </>
                   )}
                 </>
               ) : (
                 <>
-                  {approved[0] ? (
+                  {isApproved() ? (
                     <></>
                   ) : (
                     <>
                       <Button
-                        disabled={true}
+                        disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={handleApproval}
+                        onClick={() => handleApproval(typedValue.toString())}
                         isLoading={loading}
-                        text="Approve"
+                        text="Approve Tokens"
                       />
                     </>
                   )}
                   <Button
                     disabled={
-                      !approved[0] ||
+                      !isApproved() ||
                       !parsedAmount?.gt(0) ||
                       error ||
                       !hasLiquidity ||
