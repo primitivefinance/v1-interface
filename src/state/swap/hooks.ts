@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
-import { typeInput, setLoading } from './actions'
+import { typeInput, setLoading, setReduce } from './actions'
 
 export function useSwap(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>((state) => state.swap)
@@ -15,6 +15,15 @@ export function useClearSwap() {
   }, [dispatch])
 }
 
+export function useToggleReduce(): (red: boolean) => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(
+    (red: boolean) => {
+      dispatch(setReduce({ reduce: !red }))
+    },
+    [dispatch]
+  )
+}
 export function useSetSwapLoaded(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => {

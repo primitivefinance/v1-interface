@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
 import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
@@ -26,7 +27,6 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
 import {
-  UNI_ROUTER_ADDRESS,
   ADDRESS_ZERO,
   Venue,
   SUSHI_ROUTER_ADDRESS,
@@ -49,6 +49,7 @@ import {
   useSwapActionHandlers,
   useSwap,
   useSetSwapLoaded,
+  useToggleReduce,
 } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { Token, TokenAmount } from '@uniswap/sdk'
@@ -72,7 +73,6 @@ const Swap: React.FC = () => {
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
-
   // slippage
   const slippage = useSlippage()
   // pair and option entities
@@ -122,7 +122,8 @@ const Swap: React.FC = () => {
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
   // inputs for quant
-  const { typedValue, inputLoading } = useSwap()
+  const { typedValue, inputLoading, reduce } = useSwap()
+  const toggleReduce = useToggleReduce()
   const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
   const swapLoaded = useSetSwapLoaded()
@@ -249,7 +250,7 @@ const Swap: React.FC = () => {
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
-        ? UNI_ROUTER_ADDRESS
+        ? ''
         : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
       ? PRIMITIVE_ROUTER[chainId].address
@@ -531,6 +532,14 @@ const Swap: React.FC = () => {
     return symbol
   }, [item])
 
+  const swapReduce = useCallback(() => {
+    toggleReduce(reduce)
+    if (reduce) {
+      updateItem(item, Operation.CLOSE_LONG)
+    } else {
+      updateItem(item, Operation.LONG)
+    }
+  }, [reduce])
   // Check the token outflows against the token balances and return true or false
   const getHasEnoughForTrade = useCallback(() => {
     if (parsedAmount && underlyingBalance) {
@@ -575,17 +584,22 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
+        <Box row justifyContent="space-between">
+          <Label>Reduce Only</Label>
+          <Button onClick={swapReduce}>{reduce ? 'Yes' : 'No'}</Button>
+        </Box>
+
         <Switch
           disabled={loading}
           active={
-            orderType !== Operation.CLOSE_LONG && orderType !== Operation.SHORT
+            orderType === Operation.CLOSE_LONG || orderType === Operation.LONG
           }
           onClick={() => {
             if (
               orderType === Operation.CLOSE_LONG ||
               orderType === Operation.SHORT
             ) {
-              if (shortTokenAmount.greaterThan('0')) {
+              if (reduce) {
                 updateItem(item, Operation.CLOSE_SHORT)
               } else {
                 updateItem(item, Operation.LONG)
