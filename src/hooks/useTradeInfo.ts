@@ -9,7 +9,7 @@ import {
   ADDRESS_ZERO,
 } from '@/constants/index'
 import { Operation } from '@primitivefi/sdk'
-import { FACTORY_ADDRESS } from '@uniswap/sdk'
+import { FACTORY_ADDRESS } from '@sushiswap/sdk'
 import { Option, EMPTY_ASSET } from '@primitivefi/sdk'
 import { parseEther } from 'ethers/lib/utils'
 import { Trade, Venue } from '@primitivefi/sdk'
@@ -22,7 +22,7 @@ import useOptionEntities, { OptionEntities } from '@/hooks/useOptionEntities'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useItem } from '@/state/order/hooks'
 
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 
 import { useWeb3React } from '@web3-react/core'
 import { useSlippage } from '@/state/user/hooks'
@@ -87,7 +87,7 @@ const getTrade = async (
     null
   )
   const factory = new ethers.Contract(
-    FACTORY_ADDRESS,
+    FACTORY_ADDRESS[chainId],
     UniswapV2Factory.abi,
     signer
   )

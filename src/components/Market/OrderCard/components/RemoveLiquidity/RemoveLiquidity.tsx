@@ -29,7 +29,6 @@ import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 import isZero from '@/utils/isZero'
 
 import {
-  UNI_ROUTER_ADDRESS,
   PRIMITIVE_ROUTER,
   SUSHI_ROUTER_ADDRESS,
   Venue,
@@ -44,7 +43,7 @@ import {
 } from '@/state/order/hooks'
 
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount, JSBI, ChainId } from '@uniswap/sdk'
+import { Token, TokenAmount, JSBI, ChainId } from '@sushiswap/sdk'
 import numeral from 'numeral'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
 import { tryParseAmount } from '@/utils/index'

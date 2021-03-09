@@ -26,7 +26,6 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
 import {
-  UNI_ROUTER_ADDRESS,
   ADDRESS_ZERO,
   Venue,
   SUSHI_ROUTER_ADDRESS,
@@ -51,7 +50,7 @@ import {
   useSetSwapLoaded,
 } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
@@ -249,7 +248,7 @@ const Swap: React.FC = () => {
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
-        ? UNI_ROUTER_ADDRESS
+        ? SUSHI_ROUTER_ADDRESS[chainId]
         : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
       ? PRIMITIVE_ROUTER[chainId].address

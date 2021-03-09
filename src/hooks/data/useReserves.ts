@@ -2,7 +2,7 @@ import useSWR, { responseInterface } from 'swr'
 import { Web3Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { Token, TokenAmount, Pair, JSBI, ChainId } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, ChainId } from '@sushiswap/sdk'
 
 import { useWeb3React } from '@web3-react/core'
 import { DataType } from './index'

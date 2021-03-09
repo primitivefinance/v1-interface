@@ -5,7 +5,7 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import { BigNumber, BigNumberish } from 'ethers'
 
 import { Operation } from '@primitivefi/sdk'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@sushiswap/sdk'
 
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)

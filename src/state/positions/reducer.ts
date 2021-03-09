@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { updatePositions, setLoading, clearPositions } from './actions'
 
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@sushiswap/sdk'
 import { BigNumberish } from 'ethers'
 import { EmptyAttributes } from '@/state/options/reducer'
 import { OptionsAttributes } from '@/state/options/actions'
