@@ -8,7 +8,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
-import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@sushiswap/sdk'
 import * as SushiSwapSDK from '@sushiswap/sdk'
 import { OptionsAttributes } from '../options/actions'
 import {
@@ -19,10 +19,10 @@ import {
   ADDRESS_ZERO,
 } from '@/constants/index'
 
-import { FACTORY_ADDRESS } from '@uniswap/sdk'
+import { FACTORY_ADDRESS } from '@sushiswap/sdk'
 import {
   SignitureData,
-  UNI_ROUTER_ADDRESS,
+  SUSHI_ROUTER_ADDRESS,
   SushiSwapMarket,
 } from '@primitivefi/sdk'
 import {
@@ -180,7 +180,7 @@ export const useUpdateItem = (): ((
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
           const spender =
             item.venue === Venue.UNISWAP
-              ? UNI_ROUTER_ADDRESS
+              ? SUSHI_ROUTER_ADDRESS[chainId]
               : PRIMITIVE_ROUTER[chainId].address
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
@@ -246,7 +246,7 @@ export const useUpdateItem = (): ((
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? isUniswap
-                ? UNI_ROUTER_ADDRESS
+                ? SUSHI_ROUTER_ADDRESS[chainId]
                 : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
               ? PRIMITIVE_ROUTER[chainId].address

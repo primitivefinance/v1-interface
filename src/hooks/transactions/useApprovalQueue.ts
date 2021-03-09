@@ -2,7 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumberish } from 'ethers'
 
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trade, TokenAmount, CurrencyAmount, ETHER } from '@uniswap/sdk'
+import { Trade, TokenAmount, CurrencyAmount, ETHER } from '@sushiswap/sdk'
 import { useCallback, useMemo, useState } from 'react'
 import { useTokenAllowance } from '@/hooks/data/useTokenAllowance'
 import { getAllowance } from '@primitivefi/sdk'

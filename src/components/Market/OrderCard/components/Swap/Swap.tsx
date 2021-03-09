@@ -52,11 +52,12 @@ import {
   useToggleReduce,
 } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
 import { sign } from 'crypto'
+import useBalance from '@/hooks/useBalance'
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
@@ -199,9 +200,10 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
-  const underlyingBalance = useTokenBalance(entity.underlying.address)
+  const underlyingBalance = entity.isWethCall
+    ? useBalance()
+    : useTokenBalance(entity.underlying.address)
   const redeemBalance = useTokenBalance(entity.redeem.address)
-
   const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
   const tokenAmount: TokenAmount = new TokenAmount(
     optionToken,
@@ -243,24 +245,13 @@ const Swap: React.FC = () => {
       .toString()
   )
 
-  const isUniswap = item.venue === Venue.UNISWAP ? true : false
-
   // if a short or close short order is submitted, use the router to swap between short<>underlying
   // else, use the connector contract to buy, write, and sell long option tokens.
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-      ? isUniswap
-        ? ''
-        : SUSHI_ROUTER_ADDRESS[chainId]
-      : isUniswap
-      ? PRIMITIVE_ROUTER[chainId].address
+      ? SUSHI_ROUTER_ADDRESS[chainId]
       : PRIMITIVE_ROUTER[chainId].address
 
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
-  const underlyingAmount: TokenAmount = new TokenAmount(
-    entity.underlying,
-    parseEther(underlyingTokenBalance).toString()
-  )
   const onApprove = useApprove()
   const handlePermit = usePermit()
   const handleDAIPermit = useDAIPermit()

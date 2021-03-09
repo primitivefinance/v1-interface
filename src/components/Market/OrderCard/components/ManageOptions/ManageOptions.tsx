@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { formatEther } from 'ethers/lib/utils'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'

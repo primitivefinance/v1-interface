@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { Token, TokenAmount, Pair, JSBI, ChainId } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, ChainId } from '@sushiswap/sdk'
 import { useKeepSWRDataLiveAsBlocksArrive } from '../utils/index'
 import { useActiveWeb3React } from '@/hooks/user'
 import useSWR, { responseInterface } from 'swr'

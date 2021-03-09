@@ -23,13 +23,7 @@ import formatExpiry from '@/utils/formatExpiry'
 import { TokenAmount } from '@sushiswap/sdk'
 
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import {
-  Option,
-  UniswapMarket,
-  SushiSwapMarket,
-  Operation,
-  Venue,
-} from '@primitivefi/sdk'
+import { Option, SushiSwapMarket, Operation, Venue } from '@primitivefi/sdk'
 
 export interface TableColumns {
   key: string
@@ -41,7 +35,7 @@ export interface TableColumns {
   reserves: string[]
   expiry: number
   isCall: boolean
-  market: UniswapMarket | SushiSwapMarket
+  market: SushiSwapMarket
 }
 
 export interface OptionsTableRowProps {
