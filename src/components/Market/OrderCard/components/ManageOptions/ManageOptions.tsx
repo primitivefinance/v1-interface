@@ -11,7 +11,7 @@ import Loader from '@/components/Loader'
 
 import LineItem from '@/components/LineItem'
 import MultiLineItem from '@/components/MultiLineItem'
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { useReserves } from '@/hooks/data/useReserves'
 import { useItem, useUpdateItem } from '@/state/order/hooks'

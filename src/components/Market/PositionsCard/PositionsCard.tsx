@@ -12,7 +12,7 @@ import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
 
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 
 import { usePositions } from '@/state/positions/hooks'
 import { useUpdateItem, useItem } from '@/state/order/hooks'

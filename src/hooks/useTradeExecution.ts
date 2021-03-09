@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState, useRef } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
 
 import {
-  Operation,
   DEFAULT_DEADLINE,
   DEFAULT_TIMELIMIT,
   STABLECOINS,
   ADDRESS_ZERO,
 } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import { FACTORY_ADDRESS } from '@uniswap/sdk'
 import { Option, EMPTY_ASSET } from '@primitivefi/sdk'
 import { parseEther } from 'ethers/lib/utils'
@@ -81,7 +81,8 @@ const getTrade = async (
     outputAmount,
     operation,
     Venue.UNISWAP,
-    signer
+    signer,
+    null
   )
   const factory = new ethers.Contract(
     FACTORY_ADDRESS,
@@ -110,14 +111,6 @@ const getTrade = async (
         parsedAmountA.toString()
       )
       trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
-      transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
-      break
-    case Operation.WRITE:
-      // Path: underlying -> redeem, exact redeem amount is outputAmount.
-      trade.outputAmount = new TokenAmount(
-        optionEntity.redeem,
-        optionEntity.proportionalShort(parsedAmountA.toString()).toString()
-      )
       transaction = SushiSwap.singlePositionCallParameters(trade, tradeSettings)
       break
     case Operation.CLOSE_LONG:
