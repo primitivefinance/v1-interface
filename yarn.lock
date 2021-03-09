@@ -2121,16 +2121,6 @@
     web3 "^1.2.6"
     web3modal "^1.5.0"
 
-"@primitivefi/v1-connectors@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.0.0.tgz#cbcdecb69879adee05c7b7300fed0ad9d384134c"
-  integrity sha512-uwkrCoj7vP6rwDxjYQtcvTTHkSPh5kAE7rPvg+xU/BmAx0HF/YIRK9BqYFn5MvbBCbBC7A6q/aDesc6X6jNmxw==
-  dependencies:
-    "@openzeppelin/contracts" "^3.2.0"
-    "@primitivefi/contracts" "^0.4.2"
-    "@uniswap/v2-core" "^1.0.1"
-    "@uniswap/v2-periphery" "^1.1.0-beta.0"
-
 "@primitivefi/v1-connectors@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.1.1.tgz#a1eb2a2a28236286c458e115c7fcb74f3e3f100f"
