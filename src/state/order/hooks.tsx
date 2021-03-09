@@ -20,8 +20,16 @@ import {
 } from '@/constants/index'
 
 import { FACTORY_ADDRESS } from '@uniswap/sdk'
-import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
-import { Option, createOptionEntityWithAddress } from '@primitivefi/sdk'
+import {
+  SignitureData,
+  UNI_ROUTER_ADDRESS,
+  SushiSwapMarket,
+} from '@primitivefi/sdk'
+import {
+  Option,
+  createOptionEntityWithAddress,
+  SUSHI_FACTORY_ADDRESS,
+} from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import {
   Trade,
@@ -29,7 +37,6 @@ import {
   SushiSwap,
   Venue,
   PRIMITIVE_ROUTER,
-  SUSHI_ROUTER_ADDRESS,
   TRADER,
   Operation,
 } from '@primitivefi/sdk'
@@ -174,7 +181,7 @@ export const useUpdateItem = (): ((
           const spender =
             item.venue === Venue.UNISWAP
               ? UNI_ROUTER_ADDRESS
-              : SUSHI_ROUTER_ADDRESS
+              : PRIMITIVE_ROUTER[chainId].address
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -240,7 +247,7 @@ export const useUpdateItem = (): ((
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? isUniswap
                 ? UNI_ROUTER_ADDRESS
-                : SUSHI_ROUTER_ADDRESS
+                : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
               ? PRIMITIVE_ROUTER[chainId].address
               : PRIMITIVE_ROUTER[chainId].address
@@ -297,7 +304,7 @@ export const useRemoveItem = (): (() => void) => {
     dispatch(removeItem())
   }, [dispatch])
 }
-export interface sigData {
+export interface SigData {
   v: number
   r: string
   s: string
@@ -308,7 +315,8 @@ export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   parsedAmountA: BigInt,
   operation: Operation,
-  parsedAmountB?: BigInt
+  parsedAmountB?: BigInt,
+  sigData?: SigData
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
@@ -326,7 +334,7 @@ export const useHandleSubmitOrder = (): ((
       parsedAmountA: BigInt,
       operation: Operation,
       parsedAmountB?: BigInt,
-      sigData: sigData = { v: 0, r: '', s: '', deadline: 0 }
+      sigData: SigData = null
     ) => {
       dispatch(
         updateItem({
@@ -340,11 +348,17 @@ export const useHandleSubmitOrder = (): ((
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
         slippage: '0.0',
-        timeLimit: DEFAULT_TIMELIMIT,
+        timeLimit: 0,
         receiver: account,
-        deadline: DEFAULT_DEADLINE,
+        deadline: sigData ? sigData.deadline : 1000000000000000,
         stablecoin: STABLECOINS[chainId].address,
       }
+
+      const factory = new ethers.Contract(
+        SUSHI_FACTORY_ADDRESS[chainId],
+        UniswapV2Factory.abi,
+        signer
+      )
 
       const totalSupply: BigNumberish = await getTotalSupply(
         provider,
@@ -378,11 +392,7 @@ export const useHandleSubmitOrder = (): ((
         signer,
         sigData
       )
-      const factory = new ethers.Contract(
-        FACTORY_ADDRESS,
-        UniswapV2Factory.abi,
-        signer
-      )
+
       // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {

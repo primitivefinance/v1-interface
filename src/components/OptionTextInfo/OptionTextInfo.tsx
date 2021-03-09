@@ -41,8 +41,6 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         return 'BUY'
       case Operation.SHORT:
         return 'BUY'
-      case Operation.WRITE:
-        return 'SELL TO OPEN'
       case Operation.CLOSE_LONG:
         return 'SELL TO CLOSE'
       case Operation.CLOSE_SHORT:
@@ -76,7 +74,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           : ''}{' '}
         {isPut ? 'PUT' : 'CALL'}{' '}
       </StyledData>
-      {orderType === Operation.WRITE ? (
+      {orderType === Operation.SHORT ? (
         <>
           by depositing{' '}
           <StyledData>
@@ -103,34 +101,6 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
             {formatParsedAmount(short.raw.toString())} {short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
-        </>
-      ) : orderType === Operation.SHORT ? (
-        <>
-          for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
-          </StyledData>{' '}
-          which gives you the right to withdraw{' '}
-          <StyledData>
-            {isPut
-              ? formatParsedAmount(
-                  parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-                )
-              : formatParsedAmount(parsedAmount)}{' '}
-            {underlying.token.symbol}
-          </StyledData>{' '}
-          when the options expire unexercised, or the right to redeem them for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(
-              parsedAmount
-                .mul(strike.raw.toString())
-                .div(underlying.raw.toString())
-            )}{' '}
-            {strike.token.symbol}
-          </StyledData>{' '}
-          if they are exercised.{' '}
         </>
       ) : orderType === Operation.LONG ? (
         isPut ? (

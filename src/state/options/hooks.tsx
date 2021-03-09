@@ -68,7 +68,6 @@ export const useUpdateOptions = (): ((
           return
         }
       }, 200)
-
       Protocol.getOptionsUsingMultiCall(
         chainId,
         chainId == ChainId.RINKEBY ? testAddresses : optionAddresses,
@@ -91,7 +90,12 @@ export const useUpdateOptions = (): ((
               option.underlying.address,
             ])
           }
-          Protocol.getPairsFromMultiCall(provider, allTokensArray, venue)
+          Protocol.getPairsFromMultiCall(
+            chainId,
+            provider,
+            allTokensArray,
+            Venue.SUSHISWAP
+          )
             .then((allPairsData) => {
               const actualPairs = []
               for (const pair of allPairsData) {
@@ -164,7 +168,7 @@ export const useUpdateOptions = (): ((
                       )
                     }
 
-                    const pairType = isUniswap ? Pair : SushiSwapSDK.Pair
+                    const pairType = SushiSwapSDK.Pair
                     const pair: Pair | SushiSwapSDK.Pair = new pairType(
                       underlyingTokenAmount,
                       redeemTokenAmount

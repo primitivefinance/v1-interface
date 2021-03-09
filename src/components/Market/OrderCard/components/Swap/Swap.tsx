@@ -15,13 +15,13 @@ import CardHeader from '@/components/CardHeader'
 import Switch from '@/components/Switch'
 import Separator from '@/components/Separator'
 import OptionTextInfo from '@/components/OptionTextInfo'
-import { Operation } from '@primitivefi/sdk'
+import { Operation, SignitureData, WETH9 } from '@primitivefi/sdk'
 
 import { BigNumber, BigNumberish, ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import useApprove from '@/hooks/transactions/useApprove'
-import usePermit from '@/hooks/transactions/usePermit'
+import { useDAIPermit, usePermit } from '@/hooks/transactions/usePermit'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
@@ -66,7 +66,7 @@ const formatParsedAmount = (amount: BigNumberish) => {
 const Swap: React.FC = () => {
   //state
   const [description, setDescription] = useState(false)
-  const [signData, setSignData] = useState({ v: 0, r: '', s: '', deadline: 0 })
+  const [signData, setSignData] = useState<SignitureData>(null)
   // executes transactions
   const submitOrder = useHandleSubmitOrder()
   const updateItem = useUpdateItem()
@@ -250,7 +250,7 @@ const Swap: React.FC = () => {
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
       ? isUniswap
         ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS
+        : SUSHI_ROUTER_ADDRESS[chainId]
       : isUniswap
       ? PRIMITIVE_ROUTER[chainId].address
       : PRIMITIVE_ROUTER[chainId].address
@@ -262,6 +262,7 @@ const Swap: React.FC = () => {
   )
   const onApprove = useApprove()
   const handlePermit = usePermit()
+  const handleDAIPermit = useDAIPermit()
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(value)
@@ -429,10 +430,21 @@ const Swap: React.FC = () => {
     return impact !== 'NaN' ? Math.abs(parseFloat(impact)) < 30 : true
   }, [impact, slippage])
 
+  const isApproved = useCallback(() => {
+    if (item.entity.isWethCall && orderType !== Operation.CLOSE_LONG) {
+      return true
+    } else if (item.entity.isCall) {
+      return approved[0]
+    } else {
+      return approved[0] || signData
+    }
+  }, [approved, item.entity, signData])
+
   // executes an approval transaction for the `tokenAddress` and `spender`, both dynamic vars.
   const handleApproval = useCallback(
     (amount: string) => {
-      if (item.entity.isCall) {
+      if (item.entity.isCall || orderType === Operation.CLOSE_LONG) {
+        // call approval
         onApprove(tokenAddress, spender, amount)
           .then()
           .catch((error) => {
@@ -443,8 +455,26 @@ const Swap: React.FC = () => {
               ''
             )
           })
+      } else if (item.entity.isWethCall) {
+        // no approval
+        return
+      } else if (item.entity.isPut) {
+        // puts use dai as underlying
+        handleDAIPermit(spender)
+          .then((data) => {
+            setSignData(data)
+          })
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
       } else {
-        handlePermit(spender)
+        // else, use openFlashLongWithPermit for the underlying
+        handlePermit(entity.underlying.address, spender, amount)
           .then((data) => {
             setSignData(data)
           })
@@ -458,7 +488,15 @@ const Swap: React.FC = () => {
           })
       }
     },
-    [item, onApprove, tokenAddress, spender]
+    [
+      item,
+      onApprove,
+      tokenAddress,
+      spender,
+      setSignData,
+      handlePermit,
+      handleDAIPermit,
+    ]
   )
 
   const handleSecondaryApproval = useCallback(
@@ -701,10 +739,10 @@ const Swap: React.FC = () => {
             <>
               {orderType === Operation.SHORT ? (
                 <>
-                  {approved[0] ? (
+                  {isApproved() ? (
                     <Button
                       disabled={
-                        !approved[0] ||
+                        !isApproved() ||
                         !parsedAmount?.gt(0) ||
                         error ||
                         !hasLiquidity ||
@@ -738,7 +776,7 @@ const Swap: React.FC = () => {
                 </>
               ) : (
                 <>
-                  {approved[0] ? (
+                  {isApproved() ? (
                     <></>
                   ) : (
                     <>
@@ -754,7 +792,7 @@ const Swap: React.FC = () => {
                   )}
                   <Button
                     disabled={
-                      !approved[0] ||
+                      !isApproved() ||
                       !parsedAmount?.gt(0) ||
                       error ||
                       !hasLiquidity ||

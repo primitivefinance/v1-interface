@@ -10,7 +10,7 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'

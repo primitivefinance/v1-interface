@@ -23,11 +23,8 @@ import OrderOptions from './components/OrderOptions'
 import ManageOptions from './components/ManageOptions'
 import formatBalance from '@/utils/formatBalance'
 import formatExpiry from '@/utils/formatExpiry'
-import {
-  Operation,
-  ETHERSCAN_MAINNET,
-  ETHERSCAN_RINKEBY,
-} from '@/constants/index'
+import { ETHERSCAN_MAINNET, ETHERSCAN_RINKEBY } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import numeral from 'numeral'
 
 export interface OrderContentProps {
