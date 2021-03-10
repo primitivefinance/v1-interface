@@ -621,21 +621,24 @@ const Swap: React.FC = () => {
           quantity={typedValue}
           onClick={handleSetMax}
           balance={
-            orderType === Operation.LONG
-              ? null
-              : orderType === Operation.SHORT
-              ? null
-              : scaledOptionAmount
+            orderType === Operation.CLOSE_LONG
+              ? scaledOptionAmount
+              : orderType === Operation.CLOSE_SHORT
+              ? scaledShortToken
+              : null
           }
         />
         <Spacer size="sm" />
-        <Box row justifyContent="space-between" alignItems="center">
-          <Label text="Reduce Existing Position"></Label>
-          <Spacer />
-          <Button size="sm" round variant="transparent" onClick={swapReduce}>
-            {reduce ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
-          </Button>
-        </Box>
+        <div style={{ width: '100%' }}>
+          <Box row justifyContent="space-between" alignItems="center">
+            <Label text="Reduce Existing Position"></Label>
+            <Spacer />
+            <Button size="sm" round variant="transparent" onClick={swapReduce}>
+              {reduce ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+            </Button>
+          </Box>
+        </div>
+
         <Separator />
         <Spacer size="sm" />
         <Title full>Order Summary</Title>

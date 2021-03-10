@@ -80,7 +80,6 @@ export const useUpdateItem = (): ((
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
   const clear = useClearSwap()
-  const toggleReduce = useToggleReduce()
   const clearLP = useClearLP()
   return useCallback(
     async (
@@ -97,7 +96,6 @@ export const useUpdateItem = (): ((
           approved: [false, false],
         })
       )
-      toggleReduce(true)
       let manage = false
       switch (orderType) {
         case Operation.MINT:
@@ -306,8 +304,11 @@ export const useUpdateItem = (): ((
 
 export const useRemoveItem = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
+  const toggleReduce = useToggleReduce()
 
   return useCallback(() => {
+    toggleReduce(true)
+
     dispatch(removeItem())
   }, [dispatch])
 }
