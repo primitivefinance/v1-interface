@@ -31,6 +31,8 @@ import {
   PositionsCard,
 } from '@/components/Market'
 import BalanceCard from '@/components/Market/BalanceCard'
+import { useItem } from '@/state/order/hooks'
+
 import { useSetLoading } from '@/state/positions/hooks'
 import {
   useOptions,
@@ -63,9 +65,15 @@ const Market = ({ market, data }) => {
   const clearOptions = useClearOptions()
   const updateOptions = useUpdateOptions()
   const setLoading = useSetLoading()
+  const { item } = useItem()
   const handleFilterType = () => {
     setCallPutActive(!callPutActive)
   }
+  useEffect(() => {
+    if (item?.entity) {
+      setCallPutActive(item.entity.isCall)
+    }
+  }, [item])
   useEffect(() => {
     const { ethereum, web3 } = window as any
     clearOptions()
