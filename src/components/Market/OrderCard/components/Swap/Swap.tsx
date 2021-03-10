@@ -36,6 +36,8 @@ import {
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import formatExpiry from '@/utils/formatExpiry'
 
 import {
@@ -524,12 +526,12 @@ const Swap: React.FC = () => {
   }, [item])
 
   const swapReduce = useCallback(() => {
-    toggleReduce(reduce)
     if (reduce) {
-      updateItem(item, Operation.CLOSE_LONG)
-    } else {
       updateItem(item, Operation.LONG)
+    } else {
+      updateItem(item, Operation.CLOSE_LONG)
     }
+    toggleReduce(reduce)
   }, [reduce])
   // Check the token outflows against the token balances and return true or false
   const getHasEnoughForTrade = useCallback(() => {
@@ -575,10 +577,6 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
-        <Box row justifyContent="space-between">
-          <Label>Reduce Only</Label>
-          <Button onClick={swapReduce}>{reduce ? 'Yes' : 'No'}</Button>
-        </Box>
 
         <Switch
           disabled={loading}
@@ -586,25 +584,21 @@ const Swap: React.FC = () => {
             orderType === Operation.CLOSE_LONG || orderType === Operation.LONG
           }
           onClick={() => {
-            if (
-              orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.SHORT
-            ) {
-              if (reduce) {
+            if (reduce) {
+              if (orderType === Operation.CLOSE_LONG) {
                 updateItem(item, Operation.CLOSE_SHORT)
               } else {
-                updateItem(item, Operation.LONG)
+                updateItem(item, Operation.CLOSE_LONG)
               }
             } else {
-              if (tokenAmount.greaterThan('0')) {
-                updateItem(item, Operation.CLOSE_LONG)
-              } else {
+              if (orderType === Operation.LONG) {
                 updateItem(item, Operation.SHORT)
+              } else {
+                updateItem(item, Operation.LONG)
               }
             }
           }}
         />
-
         {hasLiquidity ? null : (
           <>
             <Spacer size="sm" />
@@ -630,6 +624,19 @@ const Swap: React.FC = () => {
           }
         />
         <Spacer size="sm" />
+        <Box
+          style={{ width: '100%' }}
+          row
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Label text="Reduce Existing Position"></Label>
+          <Spacer />
+          <Button size="sm" round variant="transparent" onClick={swapReduce}>
+            {reduce ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+          </Button>
+        </Box>
+        <Separator />
         <Spacer size="sm" />
         <Title full>Order Summary</Title>
 
