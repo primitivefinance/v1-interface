@@ -296,7 +296,6 @@ const Swap: React.FC = () => {
     // If the order type is close short, the short tokens will be scaled.
     // If the option is a put, scale the inputs up.
     const orderSize = getScaledAmount()
-    console.log(entity.isPut, orderSize.toString())
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'), signData)
   }, [
     submitOrder,
