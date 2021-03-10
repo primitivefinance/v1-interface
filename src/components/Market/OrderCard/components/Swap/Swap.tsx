@@ -624,12 +624,7 @@ const Swap: React.FC = () => {
           }
         />
         <Spacer size="sm" />
-        <Box
-          style={{ width: '100%' }}
-          row
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Box row justifyContent="space-between" alignItems="center">
           <Label text="Reduce Existing Position"></Label>
           <Spacer />
           <Button size="sm" round variant="transparent" onClick={swapReduce}>
