@@ -29,13 +29,13 @@ const Switch: React.FC<SwitchProps> = ({
               disabled
               active={active}
               onClick={onClick}
-              text={primaryText ? primaryText : 'Buy'}
+              text={primaryText ? primaryText : 'Long'}
             />
             <ToggleButton
               disabled
               active={!active}
               onClick={onClick}
-              text={secondaryText ? secondaryText : 'Sell'}
+              text={secondaryText ? secondaryText : 'Short'}
             />
           </Toggle>
         </StyledFilterBarInner>
@@ -49,12 +49,12 @@ const Switch: React.FC<SwitchProps> = ({
           <ToggleButton
             active={active}
             onClick={onClick}
-            text={primaryText ? primaryText : 'Buy'}
+            text={primaryText ? primaryText : 'Long'}
           />
           <ToggleButton
             active={!active}
             onClick={onClick}
-            text={secondaryText ? secondaryText : 'Sell'}
+            text={secondaryText ? secondaryText : 'Short'}
           />
         </Toggle>
       </StyledFilterBarInner>

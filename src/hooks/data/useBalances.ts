@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 
-import { Token, TokenAmount, Pair, JSBI, ChainId } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, ChainId } from '@sushiswap/sdk'
 import OptionContract from '@primitivefi/contracts/artifacts/Option.json'
 import IERC20 from '@uniswap/v2-core/build/IERC20.json'
 

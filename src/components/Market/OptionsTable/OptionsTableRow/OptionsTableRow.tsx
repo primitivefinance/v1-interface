@@ -23,13 +23,7 @@ import formatExpiry from '@/utils/formatExpiry'
 import { TokenAmount } from '@sushiswap/sdk'
 
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
-import {
-  Option,
-  UniswapMarket,
-  SushiSwapMarket,
-  Operation,
-  Venue,
-} from '@primitivefi/sdk'
+import { Option, SushiSwapMarket, Operation, Venue } from '@primitivefi/sdk'
 
 export interface TableColumns {
   key: string
@@ -41,7 +35,7 @@ export interface TableColumns {
   reserves: string[]
   expiry: number
   isCall: boolean
-  market: UniswapMarket | SushiSwapMarket
+  market: SushiSwapMarket
 }
 
 export interface OptionsTableRowProps {
@@ -220,7 +214,12 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         <GreeksTableRow
           onClick={() => setToggle(!toggle)}
           greeks={greeks}
-          link={market.liquidityToken.address}
+          links={[
+            market.liquidityToken.address,
+            market.option.address,
+            market.option.redeem.address,
+          ]}
+          chainId={market.chainId}
         />
       ) : (
         <></>

@@ -11,7 +11,7 @@ import { useOptions } from '@/state/options/hooks'
 import { OptionsAttributes } from '../options/actions'
 import { getBalance, Venue } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@sushiswap/sdk'
 
 export const usePositions = (): {
   loading: boolean

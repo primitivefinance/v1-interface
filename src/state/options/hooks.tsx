@@ -6,18 +6,12 @@ import { AppDispatch, AppState } from '../index'
 import { updateOptions, OptionsAttributes, clearOptions } from './actions'
 import { OptionsState } from './reducer'
 
-import { Pair, Token, TokenAmount } from '@uniswap/sdk'
+import { Pair, Token, TokenAmount } from '@sushiswap/sdk'
 import * as SushiSwapSDK from '@sushiswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 
 import { Protocol } from '@primitivefi/sdk'
-import {
-  Trade,
-  Option,
-  UniswapMarket,
-  SushiSwapMarket,
-  Venue,
-} from '@primitivefi/sdk'
+import { Trade, Option, SushiSwapMarket, Venue } from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
@@ -175,13 +169,9 @@ export const useUpdateOptions = (): ((
                     )
                     option.setPair(pair)
 
-                    const marketType = isUniswap
-                      ? UniswapMarket
-                      : SushiSwapMarket
+                    const marketType = SushiSwapMarket
 
-                    const market:
-                      | UniswapMarket
-                      | SushiSwapMarket = new marketType(
+                    const market: SushiSwapMarket = new marketType(
                       option,
                       underlyingTokenAmount,
                       redeemTokenAmount

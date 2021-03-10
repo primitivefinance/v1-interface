@@ -31,11 +31,7 @@ const Banner: React.FC = ({ children }) => {
 }
 
 const StyledBanner = styled.div`
-  background-image: linear-gradient(
-    to bottom right,
-    ${(props) => props.theme.color.grey[600]},
-    black
-  );
+  background-color: ${(props) => props.theme.color.grey[800]};
   border-top: 1px solid ${(props) => props.theme.color.grey[600]};
   color: ${(props) => props.theme.color.white};
   display: flex;

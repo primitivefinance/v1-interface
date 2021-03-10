@@ -149,7 +149,7 @@ export default function Updater(): null {
                   // EXTREMELY DIRTY SOLUTION...
                   reloadItem(orderType)
                 } else {
-                  updateItem(item, orderType)
+                  updateItem(item, orderType, null, true)
                 }
               }
             } else {

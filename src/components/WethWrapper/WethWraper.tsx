@@ -25,7 +25,7 @@ import useApprove from '@/hooks/transactions/useApprove'
 import executeTransaction from '@/utils/executeTransaction'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 
-import { TokenAmount, Token } from '@uniswap/sdk'
+import { TokenAmount, Token } from '@sushiswap/sdk'
 import { ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 

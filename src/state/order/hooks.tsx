@@ -8,7 +8,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
-import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@sushiswap/sdk'
 import * as SushiSwapSDK from '@sushiswap/sdk'
 import { OptionsAttributes } from '../options/actions'
 import {
@@ -19,10 +19,10 @@ import {
   ADDRESS_ZERO,
 } from '@/constants/index'
 
-import { FACTORY_ADDRESS } from '@uniswap/sdk'
+import { FACTORY_ADDRESS } from '@sushiswap/sdk'
 import {
   SignitureData,
-  UNI_ROUTER_ADDRESS,
+  SUSHI_ROUTER_ADDRESS,
   SushiSwapMarket,
 } from '@primitivefi/sdk'
 import {
@@ -53,7 +53,7 @@ import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { useClearSwap } from '@/state/swap/hooks'
+import { useClearSwap, useToggleReduce } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
 import { getTotalSupply, WETH9 } from '@primitivefi/sdk'
 
@@ -73,7 +73,8 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  lpPair?: Pair | SushiSwapSDK.Pair
+  lpPair?: Pair | SushiSwapSDK.Pair,
+  reset?: boolean
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -84,7 +85,8 @@ export const useUpdateItem = (): ((
     async (
       item: OptionsAttributes,
       orderType: Operation,
-      lpPair?: Pair | SushiSwapSDK.Pair
+      lpPair?: Pair | SushiSwapSDK.Pair | null,
+      reset?: boolean
     ) => {
       dispatch(
         updateItem({
@@ -111,8 +113,11 @@ export const useUpdateItem = (): ((
         default:
           break
       }
-      clear()
-      clearLP()
+      if (!reset) {
+        clear()
+        clearLP()
+      }
+
       if (orderType === Operation.NONE) {
         dispatch(
           updateItem({
@@ -180,7 +185,7 @@ export const useUpdateItem = (): ((
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
           const spender =
             item.venue === Venue.UNISWAP
-              ? UNI_ROUTER_ADDRESS
+              ? SUSHI_ROUTER_ADDRESS[chainId]
               : PRIMITIVE_ROUTER[chainId].address
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
@@ -246,7 +251,7 @@ export const useUpdateItem = (): ((
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? isUniswap
-                ? UNI_ROUTER_ADDRESS
+                ? SUSHI_ROUTER_ADDRESS[chainId]
                 : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
               ? PRIMITIVE_ROUTER[chainId].address
@@ -299,8 +304,11 @@ export const useUpdateItem = (): ((
 
 export const useRemoveItem = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
+  const toggleReduce = useToggleReduce()
 
   return useCallback(() => {
+    toggleReduce(true)
+
     dispatch(removeItem())
   }, [dispatch])
 }
@@ -429,6 +437,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
+          console.log(trade.outputAmount.raw.toString())
           transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings

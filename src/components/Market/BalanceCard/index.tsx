@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-
 import Button from '@/components/Button'
 import Spacer from '@/components/Spacer'
 import Card from '@/components/Card'
@@ -8,6 +7,7 @@ import Loader from '@/components/Loader'
 import CardContent from '@/components/CardContent'
 import LineItem from '@/components/LineItem'
 import { useWeb3React } from '@web3-react/core'
+import { useETHBalance } from '@/hooks/data'
 
 //import mintTestTokens from '@/utils/mintTestTokens'
 import { useTransactionAdder } from '@/state/transactions/hooks'
@@ -15,11 +15,16 @@ import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
 import { useItem } from '@/state/order/hooks'
 
-import { Operation, STABLECOINS } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
-import { mintTestTokens, WETH9 } from '@primitivefi/sdk'
+import { mintTestTokens, WETH9, Operation, STABLECOINS } from '@primitivefi/sdk'
 
 import { formatEther } from 'ethers/lib/utils'
+const fetcher = (library) => (...args) => {
+  const [method, ...params] = args
+  console.log(method, params)
+  return library[method](...params)
+}
+
 const BalanceCard: React.FC = () => {
   const { loading, balance } = usePositions()
   const options = useOptions()
@@ -27,7 +32,18 @@ const BalanceCard: React.FC = () => {
   const addTransaction = useTransactionAdder()
   const { library, account, chainId } = useWeb3React()
   const daiBal = useTokenBalance(STABLECOINS[chainId].address)
-  const ethBal = useTokenBalance(WETH9[chainId].address)
+  const wethBal = useTokenBalance(WETH9[chainId].address)
+
+  const [ethBal, setEth] = useState('')
+  useEffect(() => {
+    const get = async () => {
+      library.getBalance(account).then((data) => {
+        console.log(data.toString())
+        setEth(data.toString())
+      })
+    }
+    get()
+  }, [library])
 
   const handleMintTestTokens = async () => {
     const now = () => new Date().getTime()
@@ -69,10 +85,6 @@ const BalanceCard: React.FC = () => {
   return (
     <>
       <CustomCard>
-        {/* <LineItem
-          label={`${balance.token.symbol} Balance`}
-          data={formatEther(balance.raw.toString())}
-        /> */}
         {chainId === 4 ? (
           <>
             <Spacer size="sm" />
@@ -84,9 +96,17 @@ const BalanceCard: React.FC = () => {
             />
           </>
         ) : null}
-        <Spacer size="sm" />
+
         <LineItem label={`DAI Balance`} data={daiBal} />
-        <LineItem label={`WETH Balance`} data={ethBal} />
+        <Spacer size="sm" />
+        {balance.token.symbol === 'WETH' ? (
+          <LineItem label={`ETH Balance`} data={formatEther(ethBal)} />
+        ) : (
+          <LineItem
+            label={`${balance.token.symbol} Balance`}
+            data={formatEther(balance.raw.toString())}
+          />
+        )}
       </CustomCard>
     </>
   )

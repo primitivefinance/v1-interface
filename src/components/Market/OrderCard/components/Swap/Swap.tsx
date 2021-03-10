@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Box from '@/components/Box'
 import Button from '@/components/Button'
 import IconButton from '@/components/IconButton'
+import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
 import Loader from '@/components/Loader'
 import PriceInput from '@/components/PriceInput'
@@ -26,7 +27,6 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import { useSlippage } from '@/state/user/hooks'
 
 import {
-  UNI_ROUTER_ADDRESS,
   ADDRESS_ZERO,
   Venue,
   SUSHI_ROUTER_ADDRESS,
@@ -36,6 +36,8 @@ import {
 import formatBalance from '@/utils/formatBalance'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import formatExpiry from '@/utils/formatExpiry'
 
 import {
@@ -49,13 +51,15 @@ import {
   useSwapActionHandlers,
   useSwap,
   useSetSwapLoaded,
+  useToggleReduce,
 } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import numeral from 'numeral'
 import { tryParseAmount } from '@/utils/tryParseAmount'
 import { sign } from 'crypto'
+import useBalance from '@/hooks/useBalance'
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
@@ -72,7 +76,6 @@ const Swap: React.FC = () => {
   const updateItem = useUpdateItem()
   // approval state
   const { item, orderType, loading, approved } = useItem()
-
   // slippage
   const slippage = useSlippage()
   // pair and option entities
@@ -122,7 +125,8 @@ const Swap: React.FC = () => {
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
   // inputs for quant
-  const { typedValue, inputLoading } = useSwap()
+  const { typedValue, inputLoading, reduce } = useSwap()
+  const toggleReduce = useToggleReduce()
   const { onUserInput } = useSwapActionHandlers()
   const parsedAmount = tryParseAmount(typedValue)
   const swapLoaded = useSetSwapLoaded()
@@ -198,9 +202,10 @@ const Swap: React.FC = () => {
       break
   }
   const tokenBalance = useTokenBalance(entity.address)
-  const underlyingBalance = useTokenBalance(entity.underlying.address)
+  const underlyingBalance = entity.isWethCall
+    ? useBalance()
+    : useTokenBalance(entity.underlying.address)
   const redeemBalance = useTokenBalance(entity.redeem.address)
-
   const optionToken = new Token(entity.chainId, entity.address, 18, 'LONG')
   const tokenAmount: TokenAmount = new TokenAmount(
     optionToken,
@@ -242,24 +247,13 @@ const Swap: React.FC = () => {
       .toString()
   )
 
-  const isUniswap = item.venue === Venue.UNISWAP ? true : false
-
   // if a short or close short order is submitted, use the router to swap between short<>underlying
   // else, use the connector contract to buy, write, and sell long option tokens.
   const spender =
     orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-      ? isUniswap
-        ? UNI_ROUTER_ADDRESS
-        : SUSHI_ROUTER_ADDRESS[chainId]
-      : isUniswap
-      ? PRIMITIVE_ROUTER[chainId].address
+      ? SUSHI_ROUTER_ADDRESS[chainId]
       : PRIMITIVE_ROUTER[chainId].address
 
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
-  const underlyingAmount: TokenAmount = new TokenAmount(
-    entity.underlying,
-    parseEther(underlyingTokenBalance).toString()
-  )
   const onApprove = useApprove()
   const handlePermit = usePermit()
   const handleDAIPermit = useDAIPermit()
@@ -293,14 +287,19 @@ const Swap: React.FC = () => {
     }
   }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
-  const handleSubmitClick = useCallback(() => {
-    // If the order type is close short, the short tokens will be scaled.
-    // If the option is a put, scale the inputs up.
+  const getScaledAmount = useCallback(() => {
     const orderSize = entity.isPut
       ? orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
         ? parsedAmount
         : scaleDown(parsedAmount)
       : parsedAmount
+    return orderSize
+  }, [orderType, entity.isPut, parsedAmount, scaleDown])
+
+  const handleSubmitClick = useCallback(() => {
+    // If the order type is close short, the short tokens will be scaled.
+    // If the option is a put, scale the inputs up.
+    const orderSize = getScaledAmount()
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'), signData)
   }, [
     submitOrder,
@@ -531,6 +530,14 @@ const Swap: React.FC = () => {
     return symbol
   }, [item])
 
+  const swapReduce = useCallback(() => {
+    if (reduce) {
+      updateItem(item, Operation.LONG)
+    } else {
+      updateItem(item, Operation.CLOSE_LONG)
+    }
+    toggleReduce(reduce)
+  }, [reduce])
   // Check the token outflows against the token balances and return true or false
   const getHasEnoughForTrade = useCallback(() => {
     if (parsedAmount && underlyingBalance) {
@@ -575,31 +582,28 @@ const Swap: React.FC = () => {
     <>
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
+
         <Switch
           disabled={loading}
           active={
-            orderType !== Operation.CLOSE_LONG && orderType !== Operation.SHORT
+            orderType === Operation.CLOSE_LONG || orderType === Operation.LONG
           }
           onClick={() => {
-            if (
-              orderType === Operation.CLOSE_LONG ||
-              orderType === Operation.SHORT
-            ) {
-              if (shortTokenAmount.greaterThan('0')) {
+            if (reduce) {
+              if (orderType === Operation.CLOSE_LONG) {
                 updateItem(item, Operation.CLOSE_SHORT)
               } else {
-                updateItem(item, Operation.LONG)
+                updateItem(item, Operation.CLOSE_LONG)
               }
             } else {
-              if (tokenAmount.greaterThan('0')) {
-                updateItem(item, Operation.CLOSE_LONG)
-              } else {
+              if (orderType === Operation.LONG) {
                 updateItem(item, Operation.SHORT)
+              } else {
+                updateItem(item, Operation.LONG)
               }
             }
           }}
         />
-
         {hasLiquidity ? null : (
           <>
             <Spacer size="sm" />
@@ -617,14 +621,25 @@ const Swap: React.FC = () => {
           quantity={typedValue}
           onClick={handleSetMax}
           balance={
-            orderType === Operation.LONG
-              ? null
-              : orderType === Operation.SHORT
-              ? null
-              : scaledOptionAmount
+            orderType === Operation.CLOSE_LONG
+              ? scaledOptionAmount
+              : orderType === Operation.CLOSE_SHORT
+              ? scaledShortToken
+              : null
           }
         />
         <Spacer size="sm" />
+        <div style={{ width: '100%' }}>
+          <Box row justifyContent="space-between" alignItems="center">
+            <Label text="Reduce Existing Position"></Label>
+            <Spacer />
+            <Button size="sm" round variant="transparent" onClick={swapReduce}>
+              {reduce ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+            </Button>
+          </Box>
+        </div>
+
+        <Separator />
         <Spacer size="sm" />
         <Title full>Order Summary</Title>
 
@@ -685,9 +700,7 @@ const Swap: React.FC = () => {
               <PurchaseInfo>
                 <OptionTextInfo
                   orderType={orderType}
-                  parsedAmount={parsedAmount
-                    .mul(getPutMultiplier())
-                    .div(parseEther('1'))}
+                  parsedAmount={getScaledAmount()}
                   isPut={entity.isPut}
                   strike={entity.quoteValue}
                   underlying={entity.baseValue}
@@ -767,7 +780,9 @@ const Swap: React.FC = () => {
                         disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={() => handleApproval(typedValue.toString())}
+                        onClick={() =>
+                          handleApproval(formatEther(getScaledAmount()))
+                        }
                         isLoading={loading}
                         text="Approve Tokens"
                       />
@@ -784,7 +799,9 @@ const Swap: React.FC = () => {
                         disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={() => handleApproval(typedValue.toString())}
+                        onClick={() =>
+                          handleApproval(formatEther(getScaledAmount()))
+                        }
                         isLoading={loading}
                         text="Approve Tokens"
                       />

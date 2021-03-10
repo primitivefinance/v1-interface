@@ -9,7 +9,7 @@ import Box from '@/components/Box'
 import { BigNumberish } from 'ethers'
 import Tooltip from '@/components/Tooltip'
 
-import { TokenAmount, JSBI } from '@uniswap/sdk'
+import { TokenAmount, JSBI } from '@sushiswap/sdk'
 
 import formatEtherBalance from '@/utils/formatEtherBalance'
 
