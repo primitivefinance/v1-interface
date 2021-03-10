@@ -67,10 +67,16 @@ const Contracts: React.FC = () => {
                 <TableCell>
                   <StyledLink
                     target="__none"
-                    href={contract.audit !== 'N/A' ? contract.audit : null}
+                    href={contract.audit === 'N/A' ? null : contract.audit}
                   >
                     {contract.audit !== 'N/A' ? (
-                      <Button variant="secondary">Open Zeppelin</Button>
+                      contract.audit === 'VULNERABLE' ? (
+                        <Button disabled variant="secondary">
+                          VULNERABLE
+                        </Button>
+                      ) : (
+                        <Button variant="secondary">Open Zeppelin</Button>
+                      )
                     ) : (
                       <Button disabled variant="secondary">
                         Pending

@@ -4,6 +4,11 @@ import RedeemFactory from '@primitivefi/contracts/deployments/live_1/RedeemFacto
 import Registry from '@primitivefi/contracts/deployments/live_1/Registry.json'
 import Trader from '@primitivefi/contracts/deployments/live_1/Trader.json'
 
+import PrimitiveRouter from '@primitivefi/v1-connectors/deployments/live/PrimitiveRouter.json'
+import PrimitiveCore from '@primitivefi/v1-connectors/deployments/live/PrimitiveCore.json'
+import PrimitiveSwaps from '@primitivefi/v1-connectors/deployments/live/PrimitiveSwaps.json'
+import PrimitiveLiquidity from '@primitivefi/v1-connectors/deployments/live/PrimitiveLiquidity.json'
+
 export interface ContractMetaData {
   address: string
   name: string
@@ -20,6 +25,10 @@ export const NAME_FOR_CONTRACT: { [key: string]: string } = {
   optionFactory: 'OptionFactory',
   redeemFactory: 'RedeemFactory',
   uniswapConnector: 'UniswapConnector',
+  router: 'PrimitiveRouter',
+  core: 'PrimitiveCore',
+  swaps: 'PrimitiveSwaps',
+  liquidity: 'PrimitiveLiquidity',
 }
 
 export const ADDRESS_FOR_CONTRACT: { [key: string]: string } = {
@@ -30,6 +39,10 @@ export const ADDRESS_FOR_CONTRACT: { [key: string]: string } = {
   optionFactory: OptionFactory.address,
   redeemFactory: RedeemFactory.address,
   uniswapConnector: UniswapConnector.address,
+  router: PrimitiveRouter.address,
+  core: PrimitiveCore.address,
+  swaps: PrimitiveSwaps.address,
+  liquidity: PrimitiveLiquidity.address,
 }
 
 export const RECEIPT_FOR_CONTRACT: { [key: string]: Object } = {
@@ -39,6 +52,10 @@ export const RECEIPT_FOR_CONTRACT: { [key: string]: Object } = {
   optionFactory: OptionFactory.receipt,
   redeemFactory: RedeemFactory.receipt,
   uniswapConnector: UniswapConnector.receipt,
+  router: PrimitiveRouter.receipt,
+  core: PrimitiveCore.receipt,
+  swaps: PrimitiveSwaps.receipt,
+  liquidity: PrimitiveLiquidity.receipt,
 }
 
 export const AUDIT_FOR_CONTRACT: { [key: string]: string } = {
@@ -48,7 +65,11 @@ export const AUDIT_FOR_CONTRACT: { [key: string]: string } = {
   registry: 'N/A',
   optionFactory: 'N/A',
   redeemFactory: 'N/A',
-  uniswapConnector: 'N/A',
+  uniswapConnector: 'VULNERABLE',
+  router: 'N/A',
+  core: 'N/A',
+  swaps: 'N/A',
+  liquidity: 'N/A',
 }
 
 export const CONTRACTS: ContractMetaData[] = Object.keys(NAME_FOR_CONTRACT).map(
