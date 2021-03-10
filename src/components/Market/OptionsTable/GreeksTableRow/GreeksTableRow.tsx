@@ -3,8 +3,12 @@ import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
 import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
 import numeral from 'numeral'
 import LaunchIcon from '@material-ui/icons/Launch'
+import { ETHERSCAN_RINKEBY, ETHERSCAN_MAINNET } from '@primitivefi/sdk'
+import { ChainId } from '@sushiswap/sdk'
+import Title from '@/components/Title'
 
 export interface Greeks {
   iv: number
@@ -18,13 +22,15 @@ export interface Greeks {
 export interface GreeksTableRowProps {
   onClick: () => void
   greeks: Greeks
-  link: any
+  links: string[]
+  chainId: ChainId
 }
 
 const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
   onClick,
   greeks,
-  link,
+  links,
+  chainId,
 }) => {
   const greekHeaders = [
     {
@@ -59,19 +65,48 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
     },
   ]
   const { iv, delta, theta, gamma, vega, rho } = greeks
+  const base =
+    chainId === ChainId.RINKEBY ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   return (
     <>
       <StyledTableTop>
         <StyledLink
           onClick={() => {
-            window.open(`https://app.sushi.com/pair/${link}`, '')
+            window.open(`https://app.sushi.com/pair/${links[0]}`, '')
             return false
           }}
           href="javascript:void(0);"
         >
-          View market on SushiSwap {''}{' '}
+          View on SushiSwap {''}{' '}
           <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
         </StyledLink>
+        <Spacer />
+        <StyledLink
+          onClick={() => {
+            window.open(`${base}/${links[1]}`, '')
+            return false
+          }}
+          href="javascript:void(0);"
+        >
+          Option {''}{' '}
+          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+        </StyledLink>
+        <Spacer />
+        <StyledLink
+          onClick={() => {
+            window.open(`${base}/${links[2]}`, '')
+            return false
+          }}
+          href="javascript:void(0);"
+        >
+          Short Option {''}{' '}
+          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+        </StyledLink>
+        {/* <Spacer />
+        <StyledLink href="/manage">
+          Manage Option {''}{' '}
+          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+        </StyledLink> */}
       </StyledTableTop>
       <StyledTableRow isHead>
         {greekHeaders.map((header) => {
