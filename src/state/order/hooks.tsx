@@ -429,6 +429,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
+          console.log(trade.outputAmount.raw.toString())
           transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings

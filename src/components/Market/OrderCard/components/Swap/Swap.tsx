@@ -283,14 +283,20 @@ const Swap: React.FC = () => {
     }
   }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
-  const handleSubmitClick = useCallback(() => {
-    // If the order type is close short, the short tokens will be scaled.
-    // If the option is a put, scale the inputs up.
+  const getScaledAmount = useCallback(() => {
     const orderSize = entity.isPut
       ? orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
         ? parsedAmount
         : scaleDown(parsedAmount)
       : parsedAmount
+    return orderSize
+  }, [orderType, entity.isPut, parsedAmount, scaleDown])
+
+  const handleSubmitClick = useCallback(() => {
+    // If the order type is close short, the short tokens will be scaled.
+    // If the option is a put, scale the inputs up.
+    const orderSize = getScaledAmount()
+    console.log(entity.isPut, orderSize.toString())
     submitOrder(library, BigInt(orderSize), orderType, BigInt('0'), signData)
   }, [
     submitOrder,
@@ -675,9 +681,7 @@ const Swap: React.FC = () => {
               <PurchaseInfo>
                 <OptionTextInfo
                   orderType={orderType}
-                  parsedAmount={parsedAmount
-                    .mul(getPutMultiplier())
-                    .div(parseEther('1'))}
+                  parsedAmount={getScaledAmount()}
                   isPut={entity.isPut}
                   strike={entity.quoteValue}
                   underlying={entity.baseValue}
@@ -757,7 +761,9 @@ const Swap: React.FC = () => {
                         disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={() => handleApproval(typedValue.toString())}
+                        onClick={() =>
+                          handleApproval(formatEther(getScaledAmount()))
+                        }
                         isLoading={loading}
                         text="Approve Tokens"
                       />
@@ -774,7 +780,9 @@ const Swap: React.FC = () => {
                         disabled={parsedAmount.isZero()}
                         full
                         size="sm"
-                        onClick={() => handleApproval(typedValue.toString())}
+                        onClick={() =>
+                          handleApproval(formatEther(getScaledAmount()))
+                        }
                         isLoading={loading}
                         text="Approve Tokens"
                       />

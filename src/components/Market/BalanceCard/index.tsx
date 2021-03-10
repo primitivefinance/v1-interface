@@ -15,9 +15,8 @@ import { useOptions } from '@/state/options/hooks'
 import { usePositions } from '@/state/positions/hooks'
 import { useItem } from '@/state/order/hooks'
 
-import { Operation, STABLECOINS } from '@/constants/index'
 import useTokenBalance from '@/hooks/useTokenBalance'
-import { mintTestTokens, WETH9 } from '@primitivefi/sdk'
+import { mintTestTokens, WETH9, Operation, STABLECOINS } from '@primitivefi/sdk'
 
 import { formatEther } from 'ethers/lib/utils'
 const BalanceCard: React.FC = () => {
