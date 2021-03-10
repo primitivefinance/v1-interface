@@ -12,6 +12,7 @@ import IPERMIT from '@primitivefi/v1-connectors/build/contracts/interfaces/IERC2
 import { Contract } from '@ethersproject/contracts'
 import { DEFAULT_DEADLINE } from '@/constants/index'
 import ethers from 'ethers'
+import { STABLECOINS } from '@primitivefi/sdk'
 
 export const usePermit = () => {
   const { account, library, chainId } = useWeb3React()
@@ -57,9 +58,7 @@ export const useDAIPermit = () => {
       const deadline = 1000000000000000
       const result = await signDaiPermit(
         library,
-        chainId === 4
-          ? Dai.address
-          : '0x9041f0ddaa47f40d59b9812887ccf36e0d2f696e',
+        STABLECOINS[chainId].address,
         account,
         spender,
         deadline
