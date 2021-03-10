@@ -73,7 +73,8 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  lpPair?: Pair | SushiSwapSDK.Pair
+  lpPair?: Pair | SushiSwapSDK.Pair,
+  reset?: boolean
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -85,7 +86,8 @@ export const useUpdateItem = (): ((
     async (
       item: OptionsAttributes,
       orderType: Operation,
-      lpPair?: Pair | SushiSwapSDK.Pair
+      lpPair?: Pair | SushiSwapSDK.Pair | null,
+      reset?: boolean
     ) => {
       dispatch(
         updateItem({
@@ -113,8 +115,11 @@ export const useUpdateItem = (): ((
         default:
           break
       }
-      clear()
-      clearLP()
+      if (!reset) {
+        clear()
+        clearLP()
+      }
+
       if (orderType === Operation.NONE) {
         dispatch(
           updateItem({
