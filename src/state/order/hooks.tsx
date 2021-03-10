@@ -53,7 +53,7 @@ import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { useClearSwap } from '@/state/swap/hooks'
+import { useClearSwap, useToggleReduce } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
 import { getTotalSupply, WETH9 } from '@primitivefi/sdk'
 
@@ -79,6 +79,7 @@ export const useUpdateItem = (): ((
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
   const clear = useClearSwap()
+  const toggleReduce = useToggleReduce()
   const clearLP = useClearLP()
   return useCallback(
     async (
@@ -94,6 +95,7 @@ export const useUpdateItem = (): ((
           approved: [false, false],
         })
       )
+      toggleReduce(true)
       let manage = false
       switch (orderType) {
         case Operation.MINT:
