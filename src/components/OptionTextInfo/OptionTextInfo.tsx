@@ -65,11 +65,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         {isPut &&
         (orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT)
           ? formatParsedAmount(parsedAmount)
-          : formatParsedAmount(
-              parsedAmount
-                .mul(strike.raw.toString())
-                .div(underlying.raw.toString())
-            )}{' '}
+          : formatParsedAmount(parsedAmount)}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
           : ''}{' '}
