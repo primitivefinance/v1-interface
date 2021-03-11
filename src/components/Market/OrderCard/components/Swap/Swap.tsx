@@ -340,7 +340,7 @@ const Swap: React.FC = () => {
         if (orderType === Operation.LONG) {
           if (parsedAmount.toString() !== '0') {
             setImpact(slip)
-            debit = formatEther(scaleDown(actualPremium.raw).toString())
+            debit = formatEther(actualPremium.raw.toString())
             setPrem(debit)
           } else {
             setImpact('0.00')
@@ -420,7 +420,9 @@ const Swap: React.FC = () => {
     )
 
     // the total cost to swap short tokens to underlying tokens
-    const short = cost.short
+    const short = formatEther(
+      parseEther(cost.short).mul(parseEther('1')).div(parsedAmount)
+    )
 
     // if options are being bought, display the price per long
     // if short options are being closed, display the underlying received per short
@@ -923,22 +925,6 @@ const Swap: React.FC = () => {
     </>
   )
 }
-
-///
-const WarningTooltip = styled.div`
-  color: yellow;
-  font-size: 18px;
-  display: table;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-align: center;
-  vertical-align: middle;
-  font-size: 14px;
-  opacity: 1;
-`
 
 const StyledInnerTitle = styled.div`
   color: ${(props) => props.theme.color.white};
