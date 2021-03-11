@@ -304,6 +304,8 @@ const Swap: React.FC = () => {
       ? orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
         ? parsedAmount
         : scaleDown(parsedAmount)
+      : orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
+      ? scaleUp(parsedAmount)
       : parsedAmount
     return orderSize
   }, [orderType, entity.isPut, parsedAmount, scaleDown])
