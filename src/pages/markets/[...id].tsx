@@ -235,14 +235,7 @@ const Market = ({ market, data }) => {
                     <BalanceCard />
                     <Spacer size="sm" />
                     <TransactionCard />
-                    <Spacer size="sm" />
-                    {market === 'eth' || market === 'weth' ? (
-                      <>
-                        <WethWrapper />
-                      </>
-                    ) : (
-                      <></>
-                    )}
+
                     <Spacer />
                   </ErrorBoundary>
                 </StyledSideBar>

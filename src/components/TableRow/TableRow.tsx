@@ -7,6 +7,7 @@ export interface TableRowProps {
   isActive?: boolean
   height?: number
   align?: string
+  isNav?: boolean
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
@@ -17,6 +18,7 @@ const TableRow: React.FC<TableRowProps> = (props) => {
       isHead={props.isHead}
       height={props.height}
       align={props.align}
+      isNav={props.isNav}
     >
       {props.children}
     </StyledTableRow>
@@ -28,6 +30,7 @@ interface StyleProps {
   isActive?: boolean
   height?: number
   align?: string
+  isNav?: boolean
 }
 
 const StyledTableRow = styled.div<StyleProps>`
@@ -37,8 +40,13 @@ const StyledTableRow = styled.div<StyleProps>`
     props.isActive ? 'transparent' : 'transparent'};
   border-bottom: 1px solid
     ${(props) => (props.isHead ? 'transparent' : props.theme.color.grey[800])};
-  color: ${(props) => props.theme.color.white};
+  color: ${(props) =>
+    props.isHead ? props.theme.color.grey[400] : props.theme.color.white};
   cursor: ${(props) => (props.isHead ? null : 'pointer')};
+  text-transform: ${(props) => (props.isHead ? 'uppercase' : 'inital')};
+  font-size: ${(props) => (props.isHead ? '12px' : 'intital')};
+  letter-spacing: ${(props) => (props.isHead ? '1px' : 'intital')};
+  margin-bottom: ${(props) => (props.isHead ? '-1em' : 'inital')};
   display: flex;
   height: ${(props) => (props.height ? props.height : props.theme.rowHeight)}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
@@ -49,7 +57,7 @@ const StyledTableRow = styled.div<StyleProps>`
     background-color: ${(props) =>
       props.isHead ? 'transparent' : props.theme.color.grey[800]};
     color: ${(props) =>
-      props.isHead ? props.theme.color.white : props.theme.color.white};
+      props.isHead ? props.theme.color[400] : props.theme.color.white};
     //font-weight: ${(props) => (props.isHead ? '400' : '600')};
   }
 `
