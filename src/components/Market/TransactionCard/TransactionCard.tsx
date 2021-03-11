@@ -74,9 +74,6 @@ const TransactionCard: React.FC = () => {
         <Spacer size="sm" />
         {open ? (
           <CardContent>
-            <Button variant="secondary" onClick={() => clear()}>
-              Clear All
-            </Button>
             <StyledContainer>
               <Table>
                 <TableRow isHead>
@@ -93,7 +90,7 @@ const TransactionCard: React.FC = () => {
                       const date = new Date(txs[hash].confirmedTime)
                       const start = new Date(txs[hash].addedTime)
                       return (
-                        <StyledTableRow isHead key={i}>
+                        <StyledTableRow key={i}>
                           <TableCell>
                             {!txs[hash].receipt ? (
                               <StyledDate>
@@ -146,11 +143,15 @@ const TransactionCard: React.FC = () => {
                 </Scroll>
               </Table>
             </StyledContainer>
-            <div style={{ marginTop: '-1em' }} />
+            <Button variant="secondary" onClick={() => clear()}>
+              Clear All
+            </Button>
+            <div style={{ marginTop: '-.5em' }} />
           </CardContent>
         ) : null}
         <Spacer size="sm" />
       </Card>
+      <Spacer />
     </div>
   )
 }
@@ -165,7 +166,7 @@ const StyledBox = styled(Box)`
 `
 
 const StyledContainer = styled.div`
-  width: 110%;
+  width: 105%;
   justify-content: space-around;
   padding-left: 0.5em;
 `

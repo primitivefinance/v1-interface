@@ -314,7 +314,7 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
                 alt={'icon'}
               />
               <Spacer size="sm" />
-              WETH
+              ETH
             </>
           ) : (
             <>

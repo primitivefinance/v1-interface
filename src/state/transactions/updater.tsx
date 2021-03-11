@@ -62,7 +62,7 @@ export default function Updater(): null {
   useEffect(() => {
     const timer = setInterval(
       () => {
-        if (library && options?.calls[0].asset) {
+        if (library && options?.calls[0]?.asset) {
           console.log('updating -', router.pathname)
           if (router.pathname === '/liquidity') {
             updateOptions('', Venue.SUSHISWAP, true)

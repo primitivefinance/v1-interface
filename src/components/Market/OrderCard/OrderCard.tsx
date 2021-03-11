@@ -31,19 +31,12 @@ export interface OrderContentProps {
   manage: boolean
 }
 
-const OrderContent: React.FC<OrderContentProps> = () => {
+const OrderContent: React.FC<OrderContentProps> = (props) => {
   const { orderType } = useItem()
 
-  if (orderType !== Operation.NONE) {
-    return <Submit orderType={orderType} />
-  }
-  if (orderType === Operation.NONE) {
-    return (
-      <>
-        <OrderOptions />
-      </>
-    )
-  }
+  return (
+    <>{props.manage ? <ManageOptions /> : <Submit orderType={orderType} />}</>
+  )
 }
 
 export interface OrderProps {
@@ -99,22 +92,21 @@ const OrderCard: React.FC<OrderProps> = ({ orderState }) => {
           {loading ? <LoadingOverlay></LoadingOverlay> : null}
           <ErrorBoundary fallback={<span>ORDER ERROR</span>}>
             <Reverse />
+            {/**
+             * 
+             *  <>
+              <IconButton
+                variant="transparent"
+                onClick={() => {
+                  setManage(!manage)
+                }}
+              >
+                {manage ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </IconButton>
+            </>
+             */}
+
             <OrderContent manage={manage} />
-            {orderType === Operation.NONE ? (
-              <>
-                <IconButton
-                  text="Manage Options"
-                  variant="transparent"
-                  onClick={() => {
-                    updateItem(item, Operation.NONE)
-                    setManage(!manage)
-                  }}
-                >
-                  {manage ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
-                {manage ? <ManageOptions /> : null}
-              </>
-            ) : null}
           </ErrorBoundary>
         </CardContent>
       </Card>

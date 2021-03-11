@@ -42,11 +42,10 @@ const Layout: React.FC<PageProps> = (props) => {
       <TopBar loading={props.loading && active} />
       <Banner>
         <Link href="/reset">
-          <Button size="sm" variant="transparent">
-            ANNOUNCEMENT - If you have used Primitive between January and March,
-            you must reset your approvals to prevent loss of funds. Click here
-            to reset them.
-          </Button>
+          <StyledA>
+            If you used Primitive between January and March 2021, you must reset
+            your approvals to prevent loss of funds. Click here to reset them!
+          </StyledA>
         </Link>{' '}
       </Banner>
 
@@ -65,6 +64,14 @@ const StyledLoading = styled.div`
   padding-top: 5em;
 `
 
+const StyledA = styled.div`
+  cursor: pointer;
+  color: ${(props) => props.theme.color.white};
+  font-size: 14px;
+  &:hover {
+    color: ${(props) => props.theme.color.grey[400]};
+  }
+`
 interface StyledMainProps {
   full?: boolean
 }

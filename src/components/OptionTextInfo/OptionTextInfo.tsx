@@ -42,9 +42,9 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       case Operation.SHORT:
         return 'BUY'
       case Operation.CLOSE_LONG:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       case Operation.CLOSE_SHORT:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       default:
         return 'SELL'
     }
@@ -62,12 +62,9 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       You will <StyledData>{getOrderTitle()}</StyledData>{' '}
       <StyledData>
         {' '}
-        {isPut
-          ? formatParsedAmount(
-              parsedAmount
-                .mul(strike.raw.toString())
-                .div(underlying.raw.toString())
-            )
+        {isPut &&
+        (orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT)
+          ? formatParsedAmount(parsedAmount)
           : formatParsedAmount(parsedAmount)}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
@@ -76,13 +73,12 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       </StyledData>
       {orderType === Operation.SHORT ? (
         <>
-          by depositing{' '}
+          for{' '}
           <StyledData>
-            {formatParsedAmount(parsedAmount)} {credit.token.symbol}
-          </StyledData>{' '}
-          as collateral for{' '}
-          <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+            {formatParsedAmount(
+              isPut ? short.raw.toString() : short.raw.toString()
+            )}{' '}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -90,7 +86,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+            {formatParsedAmount(credit.raw.toString())}{' '}
+            {credit.token.symbol === 'WETH' ? 'ETH' : credit.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -98,7 +95,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
+            {formatParsedAmount(short.raw.toString())}{' '}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -107,7 +105,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to sell{' '}
             <StyledData>
@@ -124,7 +123,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to purchase{' '}
             <StyledData>
