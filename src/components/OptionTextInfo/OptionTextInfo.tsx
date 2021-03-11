@@ -42,9 +42,9 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       case Operation.SHORT:
         return 'BUY'
       case Operation.CLOSE_LONG:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       case Operation.CLOSE_SHORT:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       default:
         return 'SELL'
     }
