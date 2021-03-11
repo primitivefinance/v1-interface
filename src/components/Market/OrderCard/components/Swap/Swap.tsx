@@ -338,7 +338,7 @@ const Swap: React.FC = () => {
         )
 
         if (orderType === Operation.LONG) {
-          if (parsedAmount.toString() !== '0') {
+          if (parsedAmount.toString() !== '') {
             setImpact(slip)
             debit = formatEther(actualPremium.raw.toString())
             setPrem(formatEther(actualPremium.raw.toString()))
@@ -348,7 +348,7 @@ const Swap: React.FC = () => {
           }
           // sell long, Trade.getClosePremium
         } else if (orderType === Operation.CLOSE_LONG) {
-          if (parsedAmount.toString() !== '0') {
+          if (parsedAmount.toString() !== '') {
             setImpact(slip)
             credit = formatEther(actualPremium.raw.toString())
             setPrem(formatEther(actualPremium.raw.toString()))
@@ -358,7 +358,7 @@ const Swap: React.FC = () => {
           }
           // buy short swap from UNDER -> RDM
         } else if (orderType === Operation.SHORT) {
-          if (parsedAmount.toString() !== '0') {
+          if (parsedAmount.toString() !== '') {
             setImpact(slip)
             short = formatEther(
               entity.isPut
@@ -373,13 +373,14 @@ const Swap: React.FC = () => {
           }
           // sell short, RDM -> UNDER
         } else if (orderType === Operation.CLOSE_SHORT) {
-          if (parsedAmount.toString() !== '0') {
+          if (parsedAmount.toString() !== '') {
+            setImpact(slip)
+
             short = formatEther(
               entity.isPut
                 ? scaleDown(actualPremium.raw.toString())
                 : scaleUp(actualPremium.raw.toString())
             )
-            setImpact(slip)
             setPrem(short)
           } else {
             setImpact('0.00')
@@ -388,7 +389,8 @@ const Swap: React.FC = () => {
         }
         setError(false)
       } catch (e) {
-        console.log(e)
+        setImpact('0.00')
+        setPrem(getSpotPremiums())
         setError(true)
       }
       swapLoaded()
@@ -807,12 +809,16 @@ const Swap: React.FC = () => {
           </>
         ) : null}
         <Spacer size="sm" />
-        {error ? (
+        {/**
+         *  {error ? (
           <Description>
             <WarningLabel>Order quantity too large!</WarningLabel>
             <Spacer size="sm" />
           </Description>
         ) : null}
+         * 
+         */}
+
         <StyledEnd row justifyContent="flex-start">
           {loading ? (
             <div style={{ width: '100%' }}>
