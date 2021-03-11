@@ -925,6 +925,20 @@ const Swap: React.FC = () => {
     </>
   )
 }
+const WarningTooltip = styled.div`
+  color: yellow;
+  font-size: 18px;
+  display: table;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 14px;
+  opacity: 1;
+`
 
 const StyledInnerTitle = styled.div`
   color: ${(props) => props.theme.color.white};
