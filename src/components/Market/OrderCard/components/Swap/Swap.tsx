@@ -536,7 +536,11 @@ const Swap: React.FC = () => {
 
   // either the underlying asset for calls, or DAI for puts
   const underlyingAssetSymbol = useCallback(() => {
-    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    const symbol = entity.isPut
+      ? 'DAI'
+      : entity.isWethCall
+      ? 'ETH'
+      : item.asset.toUpperCase()
     return symbol
   }, [item])
 

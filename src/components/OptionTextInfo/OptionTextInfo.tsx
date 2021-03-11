@@ -78,7 +78,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
             {formatParsedAmount(
               isPut ? short.raw.toString() : short.raw.toString()
             )}{' '}
-            {short.token.symbol}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -86,7 +86,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+            {formatParsedAmount(credit.raw.toString())}{' '}
+            {credit.token.symbol === 'WETH' ? 'ETH' : credit.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -94,7 +95,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
+            {formatParsedAmount(short.raw.toString())}{' '}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -103,7 +105,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to sell{' '}
             <StyledData>
@@ -120,7 +123,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to purchase{' '}
             <StyledData>

@@ -156,7 +156,8 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
           <TableCell>
             {isCall ? (
               <span>
-                {numeral(bid).format('(0.000a)')} <Units>{units}</Units>
+                {numeral(bid).format('(0.000a)')}{' '}
+                <Units>{units === 'WETH' ? 'ETH' : units}</Units>
               </span>
             ) : (
               <span>
