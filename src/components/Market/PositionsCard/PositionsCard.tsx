@@ -8,6 +8,7 @@ import Card from '@/components/Card'
 import CardContent from '@/components/CardContent'
 import CardTitle from '@/components/CardTitle'
 import Separator from '@/components/Separator'
+import LineItem from '@/components/LineItem'
 import Spacer from '@/components/Spacer'
 import Box from '@/components/Box'
 import Loader from '@/components/Loader'
@@ -80,14 +81,24 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           </StyledExpiry>
         </StyledExpiryContainer>
         <StyledValuesContainer>
-          <StyledValue>
-            {numeral(getScaledBalances().long).format('0.00a')}{' '}
-            <Units>{isPut ? 'Put' : 'Call'}</Units>
-          </StyledValue>
-          <StyledValue>
-            {numeral(getScaledBalances().redeem).format('0.00a')}{' '}
-            <Units>{`Short ${isPut ? 'Put' : 'Call'}`}</Units>{' '}
-          </StyledValue>
+          <LineItem
+            label={'long options'}
+            data={
+              getScaledBalances().long !== '0'
+                ? numeral(getScaledBalances().long).format('0.0000a')
+                : '--'
+            }
+          />
+          {getScaledBalances().redeem !== '0' ? (
+            <LineItem
+              label={`short options`}
+              data={
+                getScaledBalances().long !== '0'
+                  ? numeral(getScaledBalances().redeem).format('0.0000a')
+                  : '--'
+              }
+            />
+          ) : null}
         </StyledValuesContainer>
       </StyledPrice>
     </StyledPosition>
@@ -146,6 +157,7 @@ const PositionsCard: React.FC = () => {
           </div>
         </CardTitle>
         <Spacer size="sm" />
+        <Spacer size="sm" />
 
         {!open ? (
           <Spacer size="sm" />
@@ -193,6 +205,11 @@ const StyledExpiryContainer = styled.div`
   flex-direction: row;
   flex: 1;
   justify-content: space-between;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-bottom: 0px solid ${(props) => props.theme.color.grey[600]};
+  height: 80%;
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
 `
@@ -200,9 +217,10 @@ const StyledExpiryContainer = styled.div`
 const StyledValuesContainer = styled.div`
   display: flex;
   flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   margin-top: 5px;
+  margin-bottom: 5px;
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[4]}px;
 `
@@ -227,7 +245,7 @@ const StyledValues = styled.div`
 `
 
 const StyledExpiry = styled.span`
-  color: ${(props) => props.theme.color.grey[400]};
+  color: ${(props) => props.theme.color.white};
   font-size: 14px;
   letter-spacing: 0.5px;
 `
