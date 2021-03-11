@@ -62,9 +62,14 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       You will <StyledData>{getOrderTitle()}</StyledData>{' '}
       <StyledData>
         {' '}
-        {isPut
+        {isPut &&
+        (orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT)
           ? formatParsedAmount(parsedAmount)
-          : formatParsedAmount(parsedAmount)}{' '}
+          : formatParsedAmount(
+              parsedAmount
+                .mul(strike.raw.toString())
+                .div(underlying.raw.toString())
+            )}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
           : ''}{' '}
@@ -74,7 +79,10 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
+            {formatParsedAmount(
+              isPut ? short.raw.toString() : short.raw.toString()
+            )}{' '}
+            {short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>

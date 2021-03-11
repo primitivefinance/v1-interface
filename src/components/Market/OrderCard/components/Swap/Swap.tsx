@@ -124,6 +124,7 @@ const Swap: React.FC = () => {
         )
   }, [orderType, entity.isPut, item.market, scaleUp, scaleDown])
   useEffect(() => {
+    console.log(getSpotPremiums())
     setPrem(getSpotPremiums())
   }, [orderType])
 
@@ -336,29 +337,28 @@ const Swap: React.FC = () => {
           orderType,
           entity.isPut ? scaleUp(parsedAmount) : parsedAmount
         )
-
         if (orderType === Operation.LONG) {
-          if (parsedAmount.toString() !== '') {
+          if (parsedAmount.toString() !== '0') {
             setImpact(slip)
-            debit = formatEther(actualPremium.raw.toString())
-            setPrem(formatEther(actualPremium.raw.toString()))
+            debit = formatEther(scaleDown(actualPremium.raw).toString())
+            setPrem(debit)
           } else {
             setImpact('0.00')
             setPrem(getSpotPremiums())
           }
           // sell long, Trade.getClosePremium
         } else if (orderType === Operation.CLOSE_LONG) {
-          if (parsedAmount.toString() !== '') {
+          if (parsedAmount.toString() !== '0') {
             setImpact(slip)
             credit = formatEther(actualPremium.raw.toString())
-            setPrem(formatEther(actualPremium.raw.toString()))
+            setPrem(credit)
           } else {
             setImpact('0.00')
             setPrem(getSpotPremiums())
           }
           // buy short swap from UNDER -> RDM
         } else if (orderType === Operation.SHORT) {
-          if (parsedAmount.toString() !== '') {
+          if (parsedAmount.toString() !== '0') {
             setImpact(slip)
             short = formatEther(
               entity.isPut
@@ -373,7 +373,7 @@ const Swap: React.FC = () => {
           }
           // sell short, RDM -> UNDER
         } else if (orderType === Operation.CLOSE_SHORT) {
-          if (parsedAmount.toString() !== '') {
+          if (parsedAmount.toString() !== '0') {
             setImpact(slip)
 
             short = formatEther(
