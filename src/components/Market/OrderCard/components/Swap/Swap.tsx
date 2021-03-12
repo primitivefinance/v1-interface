@@ -304,6 +304,8 @@ const Swap: React.FC = () => {
       ? orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
         ? parsedAmount
         : scaleDown(parsedAmount)
+      : orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
+      ? scaleUp(parsedAmount)
       : parsedAmount
     return orderSize
   }, [orderType, entity.isPut, parsedAmount, scaleDown])
@@ -328,14 +330,14 @@ const Swap: React.FC = () => {
       let debit = '0'
       let credit = '0'
       let short = '0'
-      const size = entity.isPut ? scaleDown(parsedAmount) : parsedAmount
+      const size = getScaledAmount()
       let actualPremium: TokenAmount
       let spot: TokenAmount
       let slip
       try {
         ;[spot, actualPremium, slip] = item.market.getExecutionPrice(
           orderType,
-          entity.isPut ? scaleUp(parsedAmount) : parsedAmount
+          size
         )
         if (orderType === Operation.LONG) {
           if (parsedAmount.toString() !== '0') {
@@ -360,11 +362,7 @@ const Swap: React.FC = () => {
         } else if (orderType === Operation.SHORT) {
           if (parsedAmount.toString() !== '0') {
             setImpact(slip)
-            short = formatEther(
-              entity.isPut
-                ? scaleDown(actualPremium.raw.toString())
-                : scaleUp(actualPremium.raw.toString())
-            )
+            short = formatEther(actualPremium.raw.toString())
             setPrem(short)
           } else {
             setImpact('0.00')
@@ -376,11 +374,7 @@ const Swap: React.FC = () => {
           if (parsedAmount.toString() !== '0') {
             setImpact(slip)
 
-            short = formatEther(
-              entity.isPut
-                ? scaleDown(actualPremium.raw.toString())
-                : scaleUp(actualPremium.raw.toString())
-            )
+            short = formatEther(actualPremium.raw.toString())
             setPrem(short)
           } else {
             setImpact('0.00')
