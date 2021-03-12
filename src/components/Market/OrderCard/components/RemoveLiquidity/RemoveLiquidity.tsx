@@ -441,7 +441,7 @@ const RemoveLiquidity: React.FC = () => {
                     handleApproval(lpToken, spender, calculateBurn()) */
                 }
                 isLoading={submitting}
-                text="Approve LP"
+                text="Permit LP Tokens"
               />
             )}
 
