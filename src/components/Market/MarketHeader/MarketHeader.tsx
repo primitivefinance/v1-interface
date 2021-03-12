@@ -8,7 +8,7 @@ import Tooltip from '@/components/Tooltip'
 import Spacer from '@/components/Spacer'
 import Loader from '@/components/Loader'
 import LaunchIcon from '@material-ui/icons/Launch'
-
+import Banner from '@/components/Banner'
 import useSWR from 'swr'
 import { useOptions } from '@/state/options/hooks'
 import { useUpdatePrice } from '@/state/price/hooks'
@@ -148,12 +148,28 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
           {children}
         </StyledTitle>
       </LitContainer>
+      <Spacer size="sm" />
+      {name === 'Wrapped ETH' ? (
+        <Banner round>
+          WETH markets now accept ETH for swaps and liquidity provision.
+        </Banner>
+      ) : (
+        <></>
+      )}
       <Reverse />
     </StyledHeader>
   )
 }
+const Message = styled.div`
+  border: 2px solid ${(props) => props.theme.color.grey[800]};
+  color: white;
+  padding: 0.7em;
+  display: flex;
+  justify-content: center;
+  border-radius: 0.5em;
+`
 const Reverse = styled.div`
-  margin-bottom: -1em;
+  margin-bottom: -2em;
 `
 
 const Asset = styled.div`

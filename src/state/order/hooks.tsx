@@ -8,7 +8,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 import numeral from 'numeral'
-import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@uniswap/sdk'
+import { Token, TokenAmount, Pair, JSBI, BigintIsh } from '@sushiswap/sdk'
 import * as SushiSwapSDK from '@sushiswap/sdk'
 import { OptionsAttributes } from '../options/actions'
 import {
@@ -19,24 +19,33 @@ import {
   ADDRESS_ZERO,
 } from '@/constants/index'
 
-import { FACTORY_ADDRESS } from '@uniswap/sdk'
-import { UNI_ROUTER_ADDRESS } from '@primitivefi/sdk'
-import { Option, createOptionEntityWithAddress } from '@primitivefi/sdk'
+import { FACTORY_ADDRESS } from '@sushiswap/sdk'
+import {
+  SignitureData,
+  SUSHI_ROUTER_ADDRESS,
+  SushiSwapMarket,
+} from '@primitivefi/sdk'
+import {
+  Option,
+  createOptionEntityWithAddress,
+  SUSHI_FACTORY_ADDRESS,
+} from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import {
   Trade,
   Trader,
-  Uniswap,
+  SushiSwap,
   Venue,
-  SUSHISWAP_CONNECTOR,
-  SUSHI_ROUTER_ADDRESS,
+  PRIMITIVE_ROUTER,
+  TRADER,
+  Operation,
 } from '@primitivefi/sdk'
 import { TradeSettings, SinglePositionParameters } from '@primitivefi/sdk'
 import UniswapV2Factory from '@uniswap/v2-core/build/UniswapV2Factory.json'
 import useTokenAllowance, {
   useGetTokenAllowance,
 } from '@/hooks/useTokenAllowance'
-import { Operation, UNISWAP_CONNECTOR, TRADER } from '@/constants/index'
+/* import { Operation, PRIMITIVE_ROUTER, TRADER } from '@/constants/index' */
 import { useReserves } from '@/hooks/data'
 import executeTransaction from '@/utils/executeTransaction'
 
@@ -44,9 +53,9 @@ import { useSlippage } from '@/state/user/hooks'
 import { useBlockNumber } from '@/hooks/data'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
-import { useClearSwap } from '@/state/swap/hooks'
+import { useClearSwap, useToggleReduce } from '@/state/swap/hooks'
 import { useClearLP } from '@/state/liquidity/hooks'
-import { getTotalSupply } from '@primitivefi/sdk'
+import { getTotalSupply, WETH9 } from '@primitivefi/sdk'
 
 const EMPTY_TOKEN: Token = new Token(1, ADDRESS_ZERO, 18)
 
@@ -64,7 +73,8 @@ export const useItem = (): {
 export const useUpdateItem = (): ((
   item: OptionsAttributes,
   orderType: Operation,
-  lpPair?: Pair | SushiSwapSDK.Pair
+  lpPair?: Pair | SushiSwapSDK.Pair,
+  reset?: boolean
 ) => void) => {
   const { chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -75,7 +85,8 @@ export const useUpdateItem = (): ((
     async (
       item: OptionsAttributes,
       orderType: Operation,
-      lpPair?: Pair | SushiSwapSDK.Pair
+      lpPair?: Pair | SushiSwapSDK.Pair | null,
+      reset?: boolean
     ) => {
       dispatch(
         updateItem({
@@ -102,8 +113,11 @@ export const useUpdateItem = (): ((
         default:
           break
       }
-      clear()
-      clearLP()
+      if (!reset) {
+        clear()
+        clearLP()
+      }
+
       if (orderType === Operation.NONE) {
         dispatch(
           updateItem({
@@ -117,26 +131,30 @@ export const useUpdateItem = (): ((
       } else {
         if (
           orderType === Operation.ADD_LIQUIDITY ||
+          orderType === Operation.ADD_LIQUIDITY_CUSTOM ||
           orderType === Operation.REMOVE_LIQUIDITY_CLOSE
         ) {
           const spender =
             item.venue === Venue.UNISWAP
-              ? UNISWAP_CONNECTOR[chainId]
-              : SUSHISWAP_CONNECTOR[chainId]
-          if (orderType === Operation.ADD_LIQUIDITY) {
+              ? PRIMITIVE_ROUTER[chainId].address
+              : PRIMITIVE_ROUTER[chainId].address
+          if (
+            orderType === Operation.ADD_LIQUIDITY ||
+            orderType === Operation.ADD_LIQUIDITY_CUSTOM
+          ) {
             const tokenAllowance = await getAllowance(
               item.entity.underlying.address,
               spender
             )
+            const approved =
+              parseEther(tokenAllowance.toString()).gt(parseEther('0')) ||
+              item.entity.underlying.address === WETH9[chainId].address
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
-                approved: [
-                  parseEther(tokenAllowance.toString()).gt(parseEther('0')),
-                  false,
-                ],
+                approved: [approved, false],
               })
             )
             return
@@ -167,8 +185,8 @@ export const useUpdateItem = (): ((
         } else if (orderType === Operation.REMOVE_LIQUIDITY) {
           const spender =
             item.venue === Venue.UNISWAP
-              ? UNI_ROUTER_ADDRESS
-              : SUSHI_ROUTER_ADDRESS
+              ? SUSHI_ROUTER_ADDRESS[chainId]
+              : PRIMITIVE_ROUTER[chainId].address
           if (item.market) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
@@ -210,7 +228,7 @@ export const useUpdateItem = (): ((
             default:
               break
           }
-          const spender = TRADER[chainId]
+          const spender = TRADER[chainId].address
           const tokenAllowance = await getAllowance(tokenAddress, spender)
           let secondaryAllowance = '0'
           if (secondaryAddress) {
@@ -233,11 +251,11 @@ export const useUpdateItem = (): ((
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
               ? isUniswap
-                ? UNI_ROUTER_ADDRESS
-                : SUSHI_ROUTER_ADDRESS
+                ? SUSHI_ROUTER_ADDRESS[chainId]
+                : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
-              ? UNISWAP_CONNECTOR[chainId]
-              : SUSHISWAP_CONNECTOR[chainId]
+              ? PRIMITIVE_ROUTER[chainId].address
+              : PRIMITIVE_ROUTER[chainId].address
 
           let tokenAddress
           let secondaryAddress
@@ -247,10 +265,6 @@ export const useUpdateItem = (): ((
               break
             case Operation.SHORT:
               tokenAddress = item.entity.underlying.address
-              break
-            case Operation.WRITE:
-              tokenAddress = item.entity.underlying.address
-              secondaryAddress = item.entity.address
               break
             case Operation.CLOSE_LONG:
               tokenAddress = item.entity.address
@@ -290,16 +304,27 @@ export const useUpdateItem = (): ((
 
 export const useRemoveItem = (): (() => void) => {
   const dispatch = useDispatch<AppDispatch>()
+  const toggleReduce = useToggleReduce()
 
   return useCallback(() => {
+    toggleReduce(true)
+
     dispatch(removeItem())
   }, [dispatch])
 }
+export interface SigData {
+  v: number
+  r: string
+  s: string
+  deadline: number
+}
+
 export const useHandleSubmitOrder = (): ((
   provider: Web3Provider,
   parsedAmountA: BigInt,
   operation: Operation,
-  parsedAmountB?: BigInt
+  parsedAmountB?: BigInt,
+  sigData?: SigData
 ) => void) => {
   const dispatch = useDispatch<AppDispatch>()
   const addTransaction = useTransactionAdder()
@@ -316,7 +341,8 @@ export const useHandleSubmitOrder = (): ((
       provider: Web3Provider,
       parsedAmountA: BigInt,
       operation: Operation,
-      parsedAmountB?: BigInt
+      parsedAmountB?: BigInt,
+      sigData: SigData = null
     ) => {
       dispatch(
         updateItem({
@@ -330,11 +356,17 @@ export const useHandleSubmitOrder = (): ((
       const signer: ethers.Signer = await provider.getSigner()
       const tradeSettings: TradeSettings = {
         slippage: '0.0',
-        timeLimit: DEFAULT_TIMELIMIT,
+        timeLimit: 0,
         receiver: account,
-        deadline: DEFAULT_DEADLINE,
+        deadline: sigData ? sigData.deadline : 1000000000000000,
         stablecoin: STABLECOINS[chainId].address,
       }
+
+      const factory = new ethers.Contract(
+        SUSHI_FACTORY_ADDRESS[chainId],
+        UniswapV2Factory.abi,
+        signer
+      )
 
       const totalSupply: BigNumberish = await getTotalSupply(
         provider,
@@ -365,14 +397,11 @@ export const useHandleSubmitOrder = (): ((
         outputAmount,
         operation,
         item.venue,
-        signer
+        signer,
+        sigData
       )
-      const factory = new ethers.Contract(
-        FACTORY_ADDRESS,
-        UniswapV2Factory.abi,
-        signer
-      )
-      // type SinglePositionParameters fails due to difference in Trader and Uniswap type
+
+      // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {
         case Operation.LONG:
@@ -383,7 +412,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountA.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -397,18 +426,7 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountA.toString()
           )
           trade.inputAmount = trade.market.getInputAmount(trade.outputAmount)[0]
-          transaction = Uniswap.singlePositionCallParameters(
-            trade,
-            tradeSettings
-          )
-          break
-        case Operation.WRITE:
-          // Path: underlying -> redeem, exact redeem amount is outputAmount.
-          trade.outputAmount = new TokenAmount(
-            optionEntity.redeem,
-            optionEntity.proportionalShort(parsedAmountA.toString()).toString()
-          )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -419,7 +437,8 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             optionEntity.proportionalShort(parsedAmountA.toString()).toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          console.log(trade.outputAmount.raw.toString())
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -433,7 +452,7 @@ export const useHandleSubmitOrder = (): ((
             trade.inputAmount
           )[0]
 
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -451,7 +470,16 @@ export const useHandleSubmitOrder = (): ((
             parsedAmountB.toString()
           )
 
-          transaction = Uniswap.singlePositionCallParameters(
+          console.log(
+            trade.option.address,
+            trade.inputAmount.raw.toString(), // make sure this isnt amountADesired, amountADesired is the quantity for the internal function
+            trade.outputAmount.raw.toString(),
+            trade.option
+              .proportionalShort(trade.inputAmount.raw.toString())
+              .toString(),
+            tradeSettings.deadline
+          )
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -468,7 +496,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -483,7 +511,7 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
@@ -498,13 +526,13 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.underlying,
             parsedAmountB.toString()
           )
-          transaction = Uniswap.singlePositionCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )
           break
         default:
-          transaction = Trader.singleOperationCallParameters(
+          transaction = SushiSwap.singlePositionCallParameters(
             trade,
             tradeSettings
           )

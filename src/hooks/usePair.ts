@@ -5,7 +5,7 @@ import { useWeb3React } from '@web3-react/core'
 
 import { BigNumberish } from 'ethers'
 import { isAddress, getAddress } from '@ethersproject/address'
-import { Token, Pair, TokenAmount, JSBI } from '@uniswap/sdk'
+import { Token, Pair, TokenAmount, JSBI } from '@sushiswap/sdk'
 import { useContract } from '@/hooks/utils/index'
 import * as IUniswapV2Pair from '@uniswap/v2-periphery/build/IUniswapV2Pair.json'
 import { Contract } from 'ethers'

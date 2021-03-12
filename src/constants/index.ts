@@ -1,5 +1,5 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { ChainId, JSBI, Percent, Token, WETH } from '@uniswap/sdk'
+import { ChainId, JSBI, Percent, Token, WETH } from '@sushiswap/sdk'
 import { parseEther } from 'ethers/lib/utils'
 
 import { injected, walletconnect } from '../connectors'
@@ -151,15 +151,15 @@ export const STABLECOINS: { [key: number]: Token } = {
   ),
 }
 
-export const UNISWAP_CONNECTOR: { [key: number]: string } = {
+/* export const UNISWAP_CONNECTOR: { [key: number]: string } = {
   1: UniswapConnector.address, // FIX
   4: UniswapConnectorTestnet.address,
-}
+} */
 
-export const TRADER: { [key: number]: string } = {
+/* export const TRADER: { [key: number]: string } = {
   1: Trader.address, // FIX
   4: TraderTestnet.address,
-}
+} */
 
 export const DEFAULT_STRIKE_LOW = 0.9
 export const DEFAULT_STRIKE_MID = 1.0

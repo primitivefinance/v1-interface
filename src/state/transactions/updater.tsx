@@ -10,8 +10,8 @@ import { useUpdatePositions } from '@/state/positions/hooks'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import formatExpiry from '@/utils/formatExpiry'
-import { Operation, ADDRESS_FOR_MARKET } from '@/constants/index'
-import { Venue } from '@primitivefi/sdk'
+import { ADDRESS_FOR_MARKET } from '@/constants/index'
+import { Venue, Operation } from '@primitivefi/sdk'
 
 import numeral from 'numeral'
 
@@ -62,7 +62,7 @@ export default function Updater(): null {
   useEffect(() => {
     const timer = setInterval(
       () => {
-        if (library && options.calls[0].asset) {
+        if (library && options?.calls[0]?.asset) {
           console.log('updating -', router.pathname)
           if (router.pathname === '/liquidity') {
             updateOptions('', Venue.SUSHISWAP, true)
@@ -149,7 +149,7 @@ export default function Updater(): null {
                   // EXTREMELY DIRTY SOLUTION...
                   reloadItem(orderType)
                 } else {
-                  updateItem(item, orderType)
+                  updateItem(item, orderType, null, true)
                 }
               }
             } else {

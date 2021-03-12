@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import Spacer from '@/components/Spacer'
 import Contracts from '@/components/Contracts'
+import Button from '@/components/Button'
 
 import Link from 'next/link'
 
@@ -22,6 +23,23 @@ const Risks: React.FC = () => {
         </StyledText>
         <StyledSpacer size={24} />
 
+        <StyledSubtitle>Incidents</StyledSubtitle>
+        <StyledSpacer size={24} />
+        <StyledText>
+          On February 21, 2021, Primitive's UniswapConnector smart contract was
+          identified to have a vulnerability that exposed wallets which approved
+          the contract. If you used the Primitive app between January and
+          February of 2021, please reset your approvals for the vulnerable smart
+          contract by clicking the button below: <Spacer />
+          <Button>
+            <Link href={'/reset'}>
+              <StyledNavItem>Reset Approvals</StyledNavItem>
+            </Link>
+          </Button>
+        </StyledText>
+
+        <StyledSpacer size={24} />
+
         <StyledSubtitle>Admin Keys</StyledSubtitle>
         <StyledSpacer size={24} />
         <StyledText>
@@ -36,6 +54,16 @@ const Risks: React.FC = () => {
           Option Factory contract, and will be removed after the contracts have
           been battle-tested for several months. The factory has no control over
           Options which have already been deployed.
+        </StyledText>
+        <StyledSpacer size={24} />
+        <StyledText>
+          The Primitive Router contract has an admin-controlled function to
+          pause the Primitive Router contract. This does not pause the
+          functionality of the protocol, it only prevents "UX" functions from
+          being executed. "UX" functions are a multi-step operation that is
+          bundled into a single transaction, to save the user gas costs. This
+          will only inconvenience users if paused, not prevent them from using
+          the protocol entirely.
         </StyledText>
         <StyledSpacer size={24} />
 

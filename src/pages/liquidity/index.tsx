@@ -192,7 +192,7 @@ const StyledMarket = styled.div`
   width: 100%;
   min-height: 85vh;
   overflow-x: hidden;
-  overfloy-y: allowed !important;
+  overflow-y: allowed !important;
   position: absolute;
   &::-webkit-scrollbar {
     width: 0px;
@@ -207,8 +207,7 @@ const StyledMarket = styled.div`
     height: 30px;
     background-color: ${(props) => props.theme.color.grey[700]};
   }
-  scrollbar-color: ${(props) => props.theme.color.grey[700]}
-    ${(props) => props.theme.color.grey[800]};
+  scrollbar-color: ${(props) => props.theme.color.grey[800]};
   scrollbar-width: thin;
 `
 

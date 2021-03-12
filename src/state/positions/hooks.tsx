@@ -11,7 +11,7 @@ import { useOptions } from '@/state/options/hooks'
 import { OptionsAttributes } from '../options/actions'
 import { getBalance, Venue } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@sushiswap/sdk'
 
 export const usePositions = (): {
   loading: boolean
@@ -48,7 +48,6 @@ export const useUpdatePositions = (): ((
     async (options: OptionsAttributes[]) => {
       let positionExists = false
       const positionsArr: OptionPosition[] = []
-      console.log('positions trig')
       if (options.length === 0) {
         dispatch(
           updatePositions({

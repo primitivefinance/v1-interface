@@ -10,7 +10,7 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Tooltip from '@/components/Tooltip'
 import WarningLabel from '@/components/WarningLabel'
-import { Operation, TRADER } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
@@ -30,7 +30,8 @@ import {
 import { useAddNotif } from '@/state/notifs/hooks'
 import { useSwapActionHandlers, useSwap } from '@/state/swap/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
+import { TRADER } from '@primitivefi/sdk'
 import { tryParseAmount } from '@/utils/index'
 
 const Manage: React.FC = () => {
@@ -105,7 +106,7 @@ const Manage: React.FC = () => {
     balance,
     parseEther(tokenBalance).toString()
   )
-  const spender = TRADER[chainId]
+  const spender = TRADER[chainId].address
   const underlyingTokenBalance = useTokenBalance(underlyingToken.address)
   const handleApprove = useApprove()
 

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { formatEther } from 'ethers/lib/utils'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 
 import Button from '@/components/Button'
 import Box from '@/components/Box'
 import Spacer from '@/components/Spacer'
 
 import LineItem from '@/components/LineItem'
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import { useReserves } from '@/hooks/data/useReserves'
 import { useItem, useUpdateItem } from '@/state/order/hooks'
 import { usePositions } from '@/state/positions/hooks'
@@ -186,7 +186,7 @@ const OrderOptions: React.FC = () => {
                   disabled={false}
                   size="sm"
                   variant="secondary"
-                  onClick={() => change(Operation.WRITE)}
+                  onClick={() => change(Operation.SHORT)}
                 >
                   Write
                 </Button>

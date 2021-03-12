@@ -3,8 +3,13 @@ import styled from 'styled-components'
 import TableCell from '@/components/TableCell'
 import Tooltip from '@/components/Tooltip'
 import Button from '@/components/Button'
+import Spacer from '@/components/Spacer'
+import Box from '@/components/Box'
 import numeral from 'numeral'
 import LaunchIcon from '@material-ui/icons/Launch'
+import { ETHERSCAN_RINKEBY, ETHERSCAN_MAINNET } from '@primitivefi/sdk'
+import { ChainId } from '@sushiswap/sdk'
+import Title from '@/components/Title'
 
 export interface Greeks {
   iv: number
@@ -18,13 +23,15 @@ export interface Greeks {
 export interface GreeksTableRowProps {
   onClick: () => void
   greeks: Greeks
-  link: any
+  links: string[]
+  chainId: ChainId
 }
 
 const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
   onClick,
   greeks,
-  link,
+  links,
+  chainId,
 }) => {
   const greekHeaders = [
     {
@@ -59,20 +66,10 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
     },
   ]
   const { iv, delta, theta, gamma, vega, rho } = greeks
+  const base =
+    chainId === ChainId.RINKEBY ? ETHERSCAN_RINKEBY : ETHERSCAN_MAINNET
   return (
     <>
-      <StyledTableTop>
-        <StyledLink
-          onClick={() => {
-            window.open(`https://app.sushi.com/pair/${link}`, '')
-            return false
-          }}
-          href="javascript:void(0);"
-        >
-          View market on SushiSwap {''}{' '}
-          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
-        </StyledLink>
-      </StyledTableTop>
       <StyledTableRow isHead>
         {greekHeaders.map((header) => {
           if (header.tip) {
@@ -97,6 +94,59 @@ const GreeksTableRow: React.FC<GreeksTableRowProps> = ({
         <TableCell>{numeral(vega / 100).format('0.00')}</TableCell>
         <TableCell>{numeral(rho / 100).format('0.00')}</TableCell>
       </StyledTableRow>
+      <StyledTableTop>
+        {/* <Spacer />
+        <StyledLink href="/manage">
+          Manage Option {''}{' '}
+          <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+        </StyledLink> */}
+        <Box column justifyContent="flex-end">
+          <StyledLink
+            onClick={() => {
+              window.open(`https://app.sushi.com/pair/${links[0]}`, '')
+              return false
+            }}
+            href="javascript:void(0);"
+          >
+            View Option Market on SushiSwap {''}{' '}
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledLink>
+        </Box>
+        <StyledBox row alignItems="center" justifyContent="space-around">
+          <StyledLinkSub
+            onClick={() => {
+              window.open(`${base}/${links[1]}`, '')
+              return false
+            }}
+            href="javascript:void(0);"
+          >
+            Option Token
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledLinkSub>
+
+          <StyledLinkSub
+            onClick={() => {
+              window.open(`${base}/${links[2]}`, '')
+              return false
+            }}
+            href="javascript:void(0);"
+          >
+            Short Option Token
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledLinkSub>
+
+          <StyledLinkSub
+            onClick={() => {
+              window.open(`${base}/${links[0]}`, '')
+              return false
+            }}
+            href="javascript:void(0);"
+          >
+            LP Token
+            <LaunchIcon style={{ marginLeft: '.3em', fontSize: '14px' }} />
+          </StyledLinkSub>
+        </StyledBox>
+      </StyledTableTop>
     </>
   )
 }
@@ -113,9 +163,27 @@ const StyledLink = styled.a`
   align-items: center;
   text-transform: uppercase;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
+  cursor: pointer;
+  &:hover {
+    color: ${(props) => props.theme.color.white};
+  }
+`
+
+const StyledBox = styled(Box)`
+  width: 30em;
+`
+const StyledLinkSub = styled.a`
+  color: ${(props) => props.theme.color.grey[400]};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-transform: initial;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0px;
   cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.color.white};
@@ -127,6 +195,7 @@ const StyledTableTop = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.color.grey[700]};
   color: ${(props) => props.theme.color.white};
   display: flex;
+  justify-content: space-between;
   height: ${(props) => props.theme.rowHeight}px;
   margin-left: -${(props) => props.theme.spacing[4]}px;
   padding-left: ${(props) => props.theme.spacing[4]}px;
@@ -136,7 +205,7 @@ const StyledTableTop = styled.div`
 const StyledTableRow = styled.div<StyleProps>`
   align-items: center;
   background-color: ${(props) => props.theme.color.grey[800]};
-  border-bottom: 1px solid
+  border-bottom: 2px solid
     ${(props) =>
       props.isHead || props.isActive
         ? 'transparent'

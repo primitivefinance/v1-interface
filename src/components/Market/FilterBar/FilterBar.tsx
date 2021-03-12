@@ -8,6 +8,7 @@ import ToggleButton from '@/components/ToggleButton'
 import Spacer from '@/components/Spacer'
 import formatExpiry from '@/utils/formatExpiry'
 import { ACTIVE_EXPIRIES } from '@/constants/index'
+import { useRemoveItem } from '@/state/order/hooks'
 
 export interface FilterBarProps {
   active: boolean
@@ -18,8 +19,9 @@ export interface FilterBarProps {
 
 const FilterBar: React.FC<FilterBarProps> = (props) => {
   const { active, setCallActive, expiry, setExpiry } = props
-
+  const removeItem = useRemoveItem()
   const handleToggleClick = useCallback(() => {
+    removeItem()
     setCallActive(!active)
   }, [active, setCallActive])
 

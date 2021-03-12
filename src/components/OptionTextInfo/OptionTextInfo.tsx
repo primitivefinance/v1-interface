@@ -5,12 +5,16 @@ import { parseEther, formatEther } from 'ethers/lib/utils'
 import { BigNumber, BigNumberish } from 'ethers'
 
 import { Operation } from '@primitivefi/sdk'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@sushiswap/sdk'
 
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
-    bigAmt.lt(parseEther('0.01')) ? '0.0000' : '0.00'
+    bigAmt.lt(parseEther('0.01'))
+      ? '0.0000'
+      : bigAmt.gt(parseEther('1000'))
+      ? '0'
+      : '0.00'
   )
 }
 
@@ -41,12 +45,10 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         return 'BUY'
       case Operation.SHORT:
         return 'BUY'
-      case Operation.WRITE:
-        return 'SELL TO OPEN'
       case Operation.CLOSE_LONG:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       case Operation.CLOSE_SHORT:
-        return 'SELL TO CLOSE'
+        return 'SELL'
       default:
         return 'SELL'
     }
@@ -64,27 +66,28 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       You will <StyledData>{getOrderTitle()}</StyledData>{' '}
       <StyledData>
         {' '}
-        {isPut
+        {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? formatParsedAmount(
-              parsedAmount
-                .mul(strike.raw.toString())
-                .div(underlying.raw.toString())
+              isPut
+                ? parsedAmount
+                : parsedAmount.mul(parseEther('1')).div(strike.raw.toString())
             )
-          : formatParsedAmount(parsedAmount)}{' '}
+          : formatParsedAmount(
+              parsedAmount.mul(parseEther('1')).div(underlying.raw.toString())
+            )}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
           : ''}{' '}
         {isPut ? 'PUT' : 'CALL'}{' '}
       </StyledData>
-      {orderType === Operation.WRITE ? (
+      {orderType === Operation.SHORT ? (
         <>
-          by depositing{' '}
+          for{' '}
           <StyledData>
-            {formatParsedAmount(parsedAmount)} {credit.token.symbol}
-          </StyledData>{' '}
-          as collateral for{' '}
-          <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+            {formatParsedAmount(
+              isPut ? short.raw.toString() : short.raw.toString()
+            )}{' '}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -92,7 +95,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(credit.raw.toString())} {credit.token.symbol}
+            {formatParsedAmount(credit.raw.toString())}{' '}
+            {credit.token.symbol === 'WETH' ? 'ETH' : credit.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
         </>
@@ -100,44 +104,18 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
         <>
           for{' '}
           <StyledData>
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
+            {formatParsedAmount(short.raw.toString())}{' '}
+            {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>{' '}
           in premium.{' '}
-        </>
-      ) : orderType === Operation.SHORT ? (
-        <>
-          for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(short.raw.toString())} {short.token.symbol}
-          </StyledData>{' '}
-          which gives you the right to withdraw{' '}
-          <StyledData>
-            {isPut
-              ? formatParsedAmount(
-                  parsedAmount.mul(strike.raw.toString()).div(parseEther('1'))
-                )
-              : formatParsedAmount(parsedAmount)}{' '}
-            {underlying.token.symbol}
-          </StyledData>{' '}
-          when the options expire unexercised, or the right to redeem them for{' '}
-          <StyledData>
-            {' '}
-            {formatParsedAmount(
-              parsedAmount
-                .mul(strike.raw.toString())
-                .div(underlying.raw.toString())
-            )}{' '}
-            {strike.token.symbol}
-          </StyledData>{' '}
-          if they are exercised.{' '}
         </>
       ) : orderType === Operation.LONG ? (
         isPut ? (
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to sell{' '}
             <StyledData>
@@ -154,7 +132,8 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           <>
             for{' '}
             <StyledData>
-              {formatParsedAmount(debit.raw.toString())} {debit.token.symbol}
+              {formatParsedAmount(debit.raw.toString())}{' '}
+              {debit.token.symbol === 'WETH' ? 'ETH' : debit.token.symbol}
             </StyledData>{' '}
             which gives you the right to purchase{' '}
             <StyledData>

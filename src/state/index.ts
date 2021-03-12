@@ -46,6 +46,7 @@ const store = configureStore({
         'price/updatePrice',
         'swap/typeInput',
         'swap/setLoading',
+        'swap/setReduce',
         'swap/clearInput',
         'transactions/addTransaction',
         'transactions/clearAllTransactions',

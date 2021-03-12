@@ -9,19 +9,22 @@ import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 
 // Utilities
-import { Operation, UNISWAP_CONNECTOR } from '@/constants/index'
+import { sign } from 'crypto'
+import { Operation, SignitureData } from '@primitivefi/sdk'
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 import isZero from '@/utils/isZero'
 
 // Hooks
+import { usePermit, useDAIPermit } from '@/hooks/transactions/usePermit'
 import useApprove from '@/hooks/transactions/useApprove'
 import useTokenAllowance from '@/hooks/useTokenAllowance'
+import useBalance from '@/hooks/useBalance'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useItem, useHandleSubmitOrder } from '@/state/order/hooks'
 import { useWeb3React } from '@web3-react/core'
-import { TokenAmount, Fraction, Rounding } from '@uniswap/sdk'
+import { TokenAmount, Fraction, Rounding } from '@sushiswap/sdk'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { tryParseAmount } from '@/utils/index'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
@@ -31,7 +34,7 @@ import {
   Trade,
   SushiSwapMarket,
   Venue,
-  SUSHISWAP_CONNECTOR,
+  PRIMITIVE_ROUTER,
 } from '@primitivefi/sdk'
 
 const AddLiquidity: React.FC = () => {
@@ -41,6 +44,8 @@ const AddLiquidity: React.FC = () => {
   const { library, chainId } = useWeb3React()
   // approval
   const onApprove = useApprove()
+  const handlePermit = usePermit()
+  const handleDAIPermit = useDAIPermit()
   // notifs
   const addNotif = useAddNotif()
   // option entity in order
@@ -52,6 +57,7 @@ const AddLiquidity: React.FC = () => {
   const parsedUnderlyingAmount = tryParseAmount(underlyingValue)
   // set null lp
   const [hasLiquidity, setHasL] = useState(false)
+  const [signData, setSignData] = useState<SignitureData>(null)
 
   // pair and option entities
   const entity = item.entity
@@ -63,15 +69,17 @@ const AddLiquidity: React.FC = () => {
   }, [setHasL, item])
 
   const lpToken = item.market ? item.market.liquidityToken.address : ''
-  const underlyingTokenBalance = useTokenBalance(entity.underlying.address)
+  const underlyingTokenBalance = entity.isWethCall
+    ? useBalance()
+    : useTokenBalance(entity.underlying.address)
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
 
   // allowance
   const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender = isUniswap
-    ? UNISWAP_CONNECTOR[chainId]
-    : SUSHISWAP_CONNECTOR[chainId]
+    ? PRIMITIVE_ROUTER[chainId].address
+    : PRIMITIVE_ROUTER[chainId].address
   const tokenAllowance = useTokenAllowance(entity.underlying.address, spender)
 
   // ==== Input Handling ====
@@ -143,17 +151,65 @@ const AddLiquidity: React.FC = () => {
 
   // ==== Transaction Handling ====
   const handleApproval = useCallback(() => {
-    onApprove(entity.underlying.address, spender)
-      .then()
-      .catch((error) => {
-        addNotif(
-          0,
-          `Approving ${entity.underlying.symbol.toUpperCase()}`,
-          error.message,
-          ''
-        )
-      })
-  }, [entity.underlying, tokenAllowance, onApprove])
+    const approveAmount = hasLiquidity
+      ? underlyingValue
+      : BigNumber.from(underlyingValue).add(optionValue).toString()
+    if (item.entity.isCall) {
+      onApprove(entity.underlying.address, spender, approveAmount)
+        .then()
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${entity.underlying.symbol.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    } else if (item.entity.isPut) {
+      handleDAIPermit(spender)
+        .then((data) => {
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    } else {
+      handlePermit(entity.underlying.address, spender, approveAmount)
+        .then((data) => {
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    }
+  }, [
+    entity.underlying,
+    onApprove,
+    underlyingValue,
+    setSignData,
+    handleDAIPermit,
+    handlePermit,
+  ])
+
+  const isApproved = useCallback(() => {
+    if (item.entity.isCall) {
+      return approved[0]
+    } else if (item.entity.isWethCall) {
+      return true
+    } else {
+      return approved[0] || signData
+    }
+  }, [approved, item.entity, signData])
 
   const handleSubmitClick = useCallback(() => {
     if (hasLiquidity) {
@@ -161,14 +217,16 @@ const AddLiquidity: React.FC = () => {
         library,
         BigInt(parsedUnderlyingAmount.toString()),
         orderType,
-        BigInt(parsedUnderlyingAmount.toString())
+        BigInt(parsedUnderlyingAmount.toString()),
+        signData
       )
     } else {
       submitOrder(
         library,
         BigInt(parsedOptionAmount.toString()),
         orderType,
-        BigInt(parsedUnderlyingAmount.toString())
+        BigInt(parsedUnderlyingAmount.toString()),
+        signData
       )
     }
   }, [
@@ -178,6 +236,7 @@ const AddLiquidity: React.FC = () => {
     parsedOptionAmount,
     parsedUnderlyingAmount,
     orderType,
+    signData,
   ])
 
   // ==== Information Calculation Handling ====
@@ -345,7 +404,11 @@ const AddLiquidity: React.FC = () => {
   ])
 
   const underlyingAssetSymbol = useCallback(() => {
-    const symbol = entity.isPut ? 'DAI' : item.asset.toUpperCase()
+    const symbol = entity.isPut
+      ? 'DAI'
+      : entity.isWethCall
+      ? 'ETH '
+      : item.asset.toUpperCase()
     return symbol === '' ? entity.underlying.symbol.toUpperCase() : symbol
   }, [item])
 
@@ -449,17 +512,7 @@ const AddLiquidity: React.FC = () => {
 
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
-        <Button
-          disabled={true}
-          isLoading={loading}
-          full
-          size="sm"
-          variant={loading ? 'secondary' : 'default'}
-          onClick={handleApproval}
-          text={`Approve`}
-        />
-        {/**
-         * {loading ? (
+        {loading ? (
           <div style={{ width: '100%' }}>
             <Box column alignItems="center" justifyContent="center">
               <Button
@@ -475,11 +528,12 @@ const AddLiquidity: React.FC = () => {
           </div>
         ) : (
           <>
-            {approved[0] ? (
+            {isApproved() ? (
               <> </>
             ) : (
               <>
                 <Button
+                  disabled={parsedUnderlyingAmount.isZero()}
                   full
                   size="sm"
                   onClick={handleApproval}
@@ -490,7 +544,7 @@ const AddLiquidity: React.FC = () => {
 
             <Button
               disabled={
-                !approved[0] ||
+                !isApproved() ||
                 !parsedUnderlyingAmount?.gt(0) ||
                 (hasLiquidity ? null : !parsedOptionAmount?.gt(0))
               }
@@ -501,8 +555,6 @@ const AddLiquidity: React.FC = () => {
             />
           </>
         )}
-         * 
-         */}
       </Box>
     </LiquidityContainer>
   )

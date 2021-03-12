@@ -2103,14 +2103,14 @@
   resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
   integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
 
-"@primitivefi/sdk@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-0.3.3.tgz#7a0249c8208900b81fa4d31762a84e5ebe19aa31"
-  integrity sha512-EZKfiOIcX4YVBh3enrCZJ70IzyhdpUwDKdDWDFNkd3+FwI3E7s4KJASe/euqs+C1P1VE6PGUOv3ii6GEwOUYAQ==
+"@primitivefi/sdk@1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-1.4.1.tgz#26e119e386a82b4cd548df727673df799644d6c7"
+  integrity sha512-omgDP8tbNN3Uwm/cqKd+jsthkoIgdSUsfhfo1jrdW56uVKxROLIT5ggy+17lyyWgI75tCT+7oUV4X+rWR9H1wg==
   dependencies:
     "@ethersproject/providers" "^5.0.5"
     "@primitivefi/contracts" "0.4.4"
-    "@primitivefi/v1-connectors" "1.2.2"
+    "@primitivefi/v1-connectors" "2.2.0"
     "@uniswap/v2-core" "^1.0.1"
     "@uniswap/v2-periphery" "^1.1.0-beta.0"
     bignumber.js "^9.0.0"
@@ -2121,10 +2121,10 @@
     web3 "^1.2.6"
     web3modal "^1.5.0"
 
-"@primitivefi/v1-connectors@1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-1.2.2.tgz#78b4447704f11e1b8e2ecd62058f71667556cd42"
-  integrity sha512-1vIEMbJOBpO+iQ+748UFFRRLIR0DYAFyIOWRXYGML5cdd0RoMpmkjWwpyJiXTDGfSf/81W650b2VmWTJtRmkyA==
+"@primitivefi/v1-connectors@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.2.0.tgz#d4d48f7e0d432446ad308e986980a5e16f849777"
+  integrity sha512-FvFfQPKPqkbCiWJBmjqRbwr5tiRcqgYkIIDv0Q9IaIbUMj2m3jxCBi2W06DgNVypU8ORF5prVqpbFFdjfyShZA==
   dependencies:
     "@openzeppelin/contracts" "^3.2.0"
     "@primitivefi/contracts" "^0.4.2"
@@ -2151,10 +2151,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
-"@sushiswap/sdk@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@sushiswap/sdk/-/sdk-3.0.2.tgz#2d8db96168bf4b224edfc33b1404742431aa3726"
-  integrity sha512-cuI2NGd6V6R00nj70MmJZi9/LoRD0Wjz0ytDRajWrRq8ohO5/CNsQRuQyezCqgJkPklENT6UzJ05rX+eVMuKcA==
+"@sushiswap/sdk@5.0.0-canary.3":
+  version "5.0.0-canary.3"
+  resolved "https://registry.yarnpkg.com/@sushiswap/sdk/-/sdk-5.0.0-canary.3.tgz#c8bcf891ef0914f82c568daafcf4adfad5064947"
+  integrity sha512-W0JQVEMXbzVyUCWTPuAw0+v5/hxyikivVIwx9m99uwP/wXJTvQeIsxoGmaEO2tuO0bvjmTSom8WKaoyccINkhA==
   dependencies:
     "@uniswap/v2-core" "^1.0.0"
     big.js "^5.2.2"
@@ -2711,19 +2711,6 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@uniswap/lib/-/lib-1.1.1.tgz#0afd29601846c16e5d082866cbb24a9e0758e6bc"
   integrity sha512-2yK7sLpKIT91TiS5sewHtOa7YuM8IuBXVl4GZv2jZFys4D2sY7K5vZh6MqD25TPA95Od+0YzCVq6cTF2IKrOmg==
-
-"@uniswap/sdk@^3.0.3-beta.1":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@uniswap/sdk/-/sdk-3.0.3.tgz#8201c7c72215d0030cb99acc7e661eff895c18a9"
-  integrity sha512-t4s8bvzaCFSiqD2qfXIm3rWhbdnXp+QjD3/mRaeVDHK7zWevs6RGEb1ohMiNgOCTZANvBayb4j8p+XFdnMBadQ==
-  dependencies:
-    "@uniswap/v2-core" "^1.0.0"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.1"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
-    toformat "^2.0.0"
 
 "@uniswap/v2-core@1.0.0":
   version "1.0.0"
@@ -6617,6 +6604,13 @@ eth-lib@^0.1.26:
     servify "^0.1.12"
     ws "^3.0.0"
     xhr-request-promise "^0.1.2"
+
+eth-permit@^0.1.9:
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/eth-permit/-/eth-permit-0.1.9.tgz#670b62483c58bddeceb49d7b62741bbebfa73df8"
+  integrity sha512-jkvmvz8/YnNMWE5/S12L+DkVL0NEgL9jaFxDJWgpx+Ozfx5gGQGsgS5gkVROKmGuixtgKm3jebtykzt1FE/LVA==
+  dependencies:
+    utf8 "^3.0.0"
 
 eth-query@^2.1.0, eth-query@^2.1.2:
   version "2.1.2"
@@ -14807,7 +14801,7 @@ utf-8-validate@^5.0.2:
   dependencies:
     node-gyp-build "~3.7.0"
 
-utf8@3.0.0:
+utf8@3.0.0, utf8@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/utf8/-/utf8-3.0.0.tgz#f052eed1364d696e769ef058b183df88c87f69d1"
   integrity sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==

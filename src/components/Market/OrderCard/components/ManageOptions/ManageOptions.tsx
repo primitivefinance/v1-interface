@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { formatEther } from 'ethers/lib/utils'
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@sushiswap/sdk'
 
 import Label from '@/components/Label'
 import Button from '@/components/Button'
@@ -11,7 +11,7 @@ import Loader from '@/components/Loader'
 
 import LineItem from '@/components/LineItem'
 import MultiLineItem from '@/components/MultiLineItem'
-import { Operation } from '@/constants/index'
+import { Operation } from '@primitivefi/sdk'
 import formatEtherBalance from '@/utils/formatEtherBalance'
 import { useReserves } from '@/hooks/data/useReserves'
 import { useItem, useUpdateItem } from '@/state/order/hooks'

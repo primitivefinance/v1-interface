@@ -25,12 +25,12 @@ import useApprove from '@/hooks/transactions/useApprove'
 import executeTransaction from '@/utils/executeTransaction'
 import { useTransactionAdder } from '@/state/transactions/hooks'
 
-import { WETH, TokenAmount, Token } from '@uniswap/sdk'
+import { TokenAmount, Token } from '@sushiswap/sdk'
 import { ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 import WethArtifact from '@primitivefi/contracts/artifacts/WETH9.json'
-import { SinglePositionParameters } from '@primitivefi/sdk'
+import { SinglePositionParameters, WETH9 } from '@primitivefi/sdk'
 
 const WethWrapper: React.FC = () => {
   const { active, library, chainId, account } = useWeb3React()
@@ -66,9 +66,9 @@ const WethWrapper: React.FC = () => {
 
   useEffect(() => {
     if (active) {
-      setWeth(WETH[chainId].address)
+      setWeth(WETH9[chainId].address)
     }
-  }, [active, WETH, chainId])
+  }, [active, WETH9, chainId])
 
   const getEthBalance = async () => {
     const bal = await library.getBalance(account)
@@ -110,7 +110,7 @@ const WethWrapper: React.FC = () => {
   }, [wrap, setWrap, typedValue, onUserInput])
 
   const handleApproval = useCallback(() => {
-    onApprove(weth, weth)
+    onApprove(weth, weth, parsedAmount)
       .then(() => {
         addNotif(
           0,
@@ -197,7 +197,7 @@ const WethWrapper: React.FC = () => {
                   wrap
                     ? new TokenAmount(ETH_TOKEN, ethBal)
                     : new TokenAmount(
-                        WETH[chainId],
+                        WETH9[chainId],
                         parseEther(wethBalance).toString()
                       )
                 }
