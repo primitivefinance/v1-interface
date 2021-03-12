@@ -10,7 +10,11 @@ import { TokenAmount } from '@sushiswap/sdk'
 const formatParsedAmount = (amount: BigNumberish) => {
   const bigAmt = BigNumber.from(amount)
   return numeral(formatEther(bigAmt)).format(
-    bigAmt.lt(parseEther('0.01')) ? '0.0000' : '0.00'
+    bigAmt.lt(parseEther('0.01'))
+      ? '0.0000'
+      : bigAmt.gt(parseEther('1000'))
+      ? '0'
+      : '0.00'
   )
 }
 
@@ -62,10 +66,15 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
       You will <StyledData>{getOrderTitle()}</StyledData>{' '}
       <StyledData>
         {' '}
-        {isPut &&
-        (orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT)
-          ? formatParsedAmount(parsedAmount)
-          : formatParsedAmount(parsedAmount)}{' '}
+        {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
+          ? formatParsedAmount(
+              isPut
+                ? parsedAmount
+                : parsedAmount.mul(parseEther('1')).div(strike.raw.toString())
+            )
+          : formatParsedAmount(
+              parsedAmount.mul(parseEther('1')).div(underlying.raw.toString())
+            )}{' '}
         {orderType === Operation.SHORT || orderType === Operation.CLOSE_SHORT
           ? 'SHORT'
           : ''}{' '}
