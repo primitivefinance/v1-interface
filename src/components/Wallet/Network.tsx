@@ -6,6 +6,13 @@ export interface NetworkProps {
 }
 
 export const Network: React.FC<NetworkProps> = ({ id }) => {
+  if (id === 42) {
+    return (
+      <StyledKovan>
+        <h4>Kovan</h4>
+      </StyledKovan>
+    )
+  }
   if (id === 3) {
     return (
       <StyledRopsten>
@@ -22,6 +29,11 @@ export const Network: React.FC<NetworkProps> = ({ id }) => {
   }
   return null
 }
+
+const StyledKovan = styled.div`
+  align-items: center;
+  color: purple;
+`
 
 const StyledRink = styled.div`
   align-items: center;
