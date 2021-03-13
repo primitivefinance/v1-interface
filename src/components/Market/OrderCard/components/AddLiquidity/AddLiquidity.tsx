@@ -529,7 +529,20 @@ const AddLiquidity: React.FC = () => {
         ) : (
           <>
             {isApproved() ? (
-              <> </>
+              <>
+                {' '}
+                <Button
+                  disabled={
+                    !isApproved() ||
+                    !parsedUnderlyingAmount?.gt(0) ||
+                    (hasLiquidity ? null : !parsedOptionAmount?.gt(0))
+                  }
+                  full
+                  size="sm"
+                  onClick={handleSubmitClick}
+                  text={`Add Liquidity`}
+                />
+              </>
             ) : (
               <>
                 <Button
@@ -541,18 +554,6 @@ const AddLiquidity: React.FC = () => {
                 />
               </>
             )}
-
-            <Button
-              disabled={
-                !isApproved() ||
-                !parsedUnderlyingAmount?.gt(0) ||
-                (hasLiquidity ? null : !parsedOptionAmount?.gt(0))
-              }
-              full
-              size="sm"
-              onClick={handleSubmitClick}
-              text={`Add Liquidity`}
-            />
           </>
         )}
       </Box>

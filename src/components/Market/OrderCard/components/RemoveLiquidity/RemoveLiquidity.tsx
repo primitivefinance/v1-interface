@@ -149,11 +149,11 @@ const RemoveLiquidity: React.FC = () => {
 
   const isOptionApproved = useCallback(() => {
     return approved[0] || calculateLongBurn().isZero()
-  }, [approved, item.entity])
+  }, [approved, item.entity, ratio])
 
   const isLPApproved = useCallback(() => {
     return approved[1] || signData
-  }, [approved, item.entity, signData])
+  }, [approved, item.entity, signData, ratio])
 
   const uninitializedMarket = useCallback(() => {
     return (
@@ -225,8 +225,8 @@ const RemoveLiquidity: React.FC = () => {
   }, [uninitializedMarket, calculateLongBurn])
 
   const calculateReceived = useCallback(() => {
-    let underlyingReceived: string = '0'
-    let shortReceived: string = '0'
+    let underlyingReceived = '0'
+    let shortReceived = '0'
     if (uninitializedMarket()) {
       return { shortReceived, underlyingReceived }
     }
