@@ -119,8 +119,13 @@ const Liquidity = ({ icons }) => {
       </>
     )
   }
-  if (!(chainId === 4 || chainId === 1) && active) {
-    return <Text>Switch to Rinkeby or Mainnet Networks</Text>
+  if (!(chainId === 42 || chainId === 4 || chainId === 1) && active) {
+    return (
+      <>
+        <Spacer />
+        <Text>Switch to Rinkeby, Kovan, or Mainnet Networks</Text>
+      </>
+    )
   }
   if (
     !MetaMaskOnboarding.isMetaMaskInstalled() ||

@@ -7,6 +7,7 @@ import TableRow from '@/components/TableRow'
 import Spacer from '@/components/Spacer'
 
 import Loader from '../Loader'
+import { useWeb3React } from '@web3-react/core'
 
 const headers = [
   {
@@ -21,6 +22,8 @@ interface MarketProps {
   lists: any
 }
 const MarketTable: React.FC<MarketProps> = ({ lists }) => {
+  const { chainId } = useWeb3React()
+
   return (
     <TableBody>
       <StyledTableRow isHead>
@@ -31,6 +34,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
       <GreyBack />
       {lists?.asset ? (
         lists.asset.tokens.map((token, index) => {
+          if (token.chainId !== chainId) return
           return (
             <Link
               href={`/markets/${encodeURIComponent(
@@ -68,6 +72,7 @@ const MarketTable: React.FC<MarketProps> = ({ lists }) => {
       )}
       {lists.defi ? (
         lists.defi.tokens.map((token, index) => {
+          if (token.chainId !== chainId) return
           return (
             <Link
               href={`/markets/${encodeURIComponent(

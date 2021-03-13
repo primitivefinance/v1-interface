@@ -1,41 +1,25 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react'
+import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
 import Button from '@/components/Button'
-import IconButton from '@/components/IconButton'
-import Label from '@/components/Label'
 import LineItem from '@/components/LineItem'
-import Loader from '@/components/Loader'
-import PriceInput from '@/components/PriceInput'
 import Spacer from '@/components/Spacer'
 import Slider from '@/components/Slider'
-import Tooltip from '@/components/Tooltip'
-
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
-import { Operation } from '@/constants/index'
 
 import { BigNumber } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import { useAddNotif } from '@/state/notifs/hooks'
 
-import { useReserves } from '@/hooks/data'
 import useApprove from '@/hooks/transactions/useApprove'
 
 import useGetPair from '@/hooks/useGetPair'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
-import isZero from '@/utils/isZero'
 
-import {
-  PRIMITIVE_ROUTER,
-  SUSHI_ROUTER_ADDRESS,
-  Venue,
-  SignitureData,
-} from '@primitivefi/sdk'
+import { PRIMITIVE_ROUTER, SignitureData } from '@primitivefi/sdk'
 
-import { usePositions } from '@/state/positions/hooks'
 import {
   useItem,
   useUpdateItem,
@@ -47,7 +31,7 @@ import { Token, TokenAmount, JSBI, ChainId } from '@sushiswap/sdk'
 import numeral from 'numeral'
 import { useLiquidityActionHandlers, useLP } from '@/state/liquidity/hooks'
 import { tryParseAmount } from '@/utils/index'
-import { usePermit, useDAIPermit } from '@/hooks/transactions/usePermit'
+import { usePermit } from '@/hooks/transactions/usePermit'
 
 const RemoveLiquidity: React.FC = () => {
   // executes transactions
@@ -77,18 +61,14 @@ const RemoveLiquidity: React.FC = () => {
       : item.market
       ? item.market.liquidityToken.address
       : ''
-  const token0 = item.market ? item.market.token0.symbol : ''
-  const token1 = item.market ? item.market.token1.symbol : ''
   const lp = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
 
-  const isUniswap = item.venue === Venue.UNISWAP ? true : false
   const spender = PRIMITIVE_ROUTER[chainId].address
   const optionBalance = useTokenBalance(item.entity.address)
 
   const onApprove = useApprove()
   const handlePermit = usePermit()
-  const handleDAIPermit = useDAIPermit()
 
   const handleRatioChange = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -131,127 +111,6 @@ const RemoveLiquidity: React.FC = () => {
     signData,
   ])
 
-  const calculateUnderlyingOutput = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
-      return '0'
-
-    const liquidity = parseEther(lp).mul(ratio).div(1000)
-    if (liquidity.isZero()) return '0'
-    if (ratio === 0) return '0'
-    const shortValue = item.market.getLiquidityValue(
-      entity.redeem,
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(item.market.liquidityToken, liquidity.toString())
-    )
-
-    const underlyingValue = item.market.getLiquidityValue(
-      entity.underlying,
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(item.market.liquidityToken, liquidity.toString())
-    )
-
-    const totalUnderlyingPerLp = formatEther(
-      entity
-        .proportionalLong(shortValue.raw.toString())
-        .add(underlyingValue.raw.toString())
-    )
-    return totalUnderlyingPerLp
-  }, [item.market, lp, lpTotalSupply, ratio])
-
-  const calculateRemoveOutputs = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
-      ratio === 0
-    ) {
-      const shortValue = new TokenAmount(entity.redeem, '0')
-      const underlyingValue = new TokenAmount(entity.underlying, '0')
-      return {
-        shortValue,
-        underlyingValue,
-      }
-    }
-
-    const liquidity = parseEther(lp).mul(ratio).div(1000)
-    const shortValue = item.market.getLiquidityValue(
-      entity.redeem,
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(item.market.liquidityToken, liquidity.toString())
-    )
-
-    const underlyingValue = item.market.getLiquidityValue(
-      entity.underlying,
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(item.market.liquidityToken, liquidity.toString())
-    )
-
-    return { shortValue, underlyingValue }
-  }, [item.market, lp, lpTotalSupply, ratio])
-
-  const calculateRequiredLong = useCallback(() => {
-    if (
-      typeof item.market === 'undefined' ||
-      item.market === null ||
-      !item.market.hasLiquidity ||
-      BigNumber.from(parseEther(lpTotalSupply)).isZero()
-    )
-      return '0'
-
-    const liquidity = parseEther(lp).mul(ratio).div(1000)
-    if (liquidity.isZero()) return '0'
-    if (ratio === 0) return '0'
-    const shortValue = item.market.getLiquidityValue(
-      entity.redeem,
-      new TokenAmount(
-        item.market.liquidityToken,
-        parseEther(lpTotalSupply).toString()
-      ),
-      new TokenAmount(item.market.liquidityToken, liquidity.toString())
-    )
-
-    const totalRequiredLong = entity.proportionalLong(shortValue.raw.toString())
-
-    const required = totalRequiredLong.gt(parseEther(optionBalance))
-      ? optionBalance
-      : formatEther(totalRequiredLong)
-    return required
-  }, [item.market, lp, lpTotalSupply, ratio, item, optionBalance])
-
-  const calculateBurn = useCallback(() => {
-    if (typeof item.market === 'undefined' || !item.market.hasLiquidity)
-      return '0'
-    const liquidity = parseEther(lp)
-      .mul(parseEther(ratio.toString()))
-      .div(parseEther('1000'))
-    return formatEther(liquidity)
-  }, [item.market, lp, ratio])
-
-  const requiresAdditionalLong = useCallback(() => {
-    const additional = parseEther(calculateRequiredLong()).sub(
-      parseEther(optionBalance)
-    )
-    return additional
-  }, [calculateRequiredLong, optionBalance])
-
   const handleApproval = useCallback(
     (token: string, spender: string, amount: string) => {
       onApprove(token, spender, amount)
@@ -269,9 +128,9 @@ const RemoveLiquidity: React.FC = () => {
   )
 
   const handleApprovalPermit = useCallback(
-    (spender: string, amount: string) => {
+    (spender: string, amount: BigNumber) => {
       console.log(lpToken)
-      handlePermit(lpToken, spender, parseEther(amount).toString())
+      handlePermit(lpToken, spender, amount.toString())
         .then((data) => {
           console.log({ data })
           setSignData(data)
@@ -289,12 +148,113 @@ const RemoveLiquidity: React.FC = () => {
   )
 
   const isOptionApproved = useCallback(() => {
-    return approved[0] /* || isZero(parseEther(calculateRequiredLong())) */
-  }, [approved, item.entity])
+    return approved[0] || calculateLongBurn().isZero()
+  }, [approved, item.entity, ratio])
 
   const isLPApproved = useCallback(() => {
-    return /* true */ approved[1] || signData
-  }, [approved, item.entity, signData])
+    return approved[1] || signData
+  }, [approved, item.entity, signData, ratio])
+
+  const uninitializedMarket = useCallback(() => {
+    return (
+      typeof item.market === 'undefined' ||
+      item.market === null ||
+      !item.market.hasLiquidity ||
+      BigNumber.from(parseEther(lpTotalSupply)).isZero() ||
+      ratio === 0
+    )
+  }, [item.market, item.market.hasLiquidity, lpTotalSupply, ratio])
+
+  const calculateLPBurn = useCallback(() => {
+    if (uninitializedMarket()) return parseEther('0')
+    const liquidity = parseEther(lp)
+      .mul(parseEther(ratio.toString()))
+      .div(parseEther('1000'))
+    return liquidity
+  }, [uninitializedMarket, lp, ratio])
+
+  const calculateRemoveOutputs = useCallback(() => {
+    if (uninitializedMarket()) {
+      const shortValue = new TokenAmount(entity.redeem, '0')
+      const underlyingValue = new TokenAmount(entity.underlying, '0')
+      return {
+        shortValue,
+        underlyingValue,
+      }
+    }
+    const liquidity = calculateLPBurn()
+    const shortValue = item.market.getLiquidityValue(
+      entity.redeem,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+    const underlyingValue = item.market.getLiquidityValue(
+      entity.underlying,
+      new TokenAmount(
+        item.market.liquidityToken,
+        parseEther(lpTotalSupply).toString()
+      ),
+      new TokenAmount(item.market.liquidityToken, liquidity.toString())
+    )
+    return { shortValue, underlyingValue }
+  }, [
+    item.market,
+    uninitializedMarket,
+    entity.redeem,
+    entity.underlying,
+    calculateLPBurn,
+  ])
+
+  const calculateLongBurn = useCallback((): BigNumber => {
+    if (uninitializedMarket()) return parseEther('0')
+    const { shortValue } = calculateRemoveOutputs()
+    const proportionalLong = entity.proportionalLong(shortValue.raw.toString())
+    const balance = parseEther(optionBalance)
+    const longBurned = proportionalLong.gt(balance) ? balance : proportionalLong
+    return longBurned
+  }, [uninitializedMarket, calculateRemoveOutputs, optionBalance])
+
+  const calculateShortBurn = useCallback((): BigNumber => {
+    if (uninitializedMarket()) return parseEther('0')
+    const longBurned = calculateLongBurn()
+    const shortBurned = entity.proportionalShort(longBurned.toString())
+    return shortBurned
+  }, [uninitializedMarket, calculateLongBurn])
+
+  const calculateReceived = useCallback(() => {
+    let underlyingReceived = '0'
+    let shortReceived = '0'
+    if (uninitializedMarket()) {
+      return { shortReceived, underlyingReceived }
+    }
+    const { shortValue, underlyingValue } = calculateRemoveOutputs()
+    const maxLong = entity.proportionalLong(shortValue.raw.toString())
+    const longBurn = calculateLongBurn()
+    const shortBurn = calculateShortBurn()
+    if (maxLong.eq(longBurn)) {
+      underlyingReceived = formatEther(
+        maxLong.add(underlyingValue.raw.toString())
+      )
+      shortReceived = '0'
+    } else {
+      underlyingReceived = formatEther(
+        longBurn.add(underlyingValue.raw.toString())
+      )
+
+      shortReceived = formatEther(
+        BigNumber.from(shortValue.raw.toString()).sub(shortBurn)
+      )
+    }
+    return { shortReceived, underlyingReceived }
+  }, [
+    uninitializedMarket,
+    calculateRemoveOutputs,
+    calculateLongBurn,
+    calculateShortBurn,
+  ])
 
   return (
     <LiquidityContainer>
@@ -344,73 +304,39 @@ const RemoveLiquidity: React.FC = () => {
         />
       </Box>
       <Spacer size="sm" />
-
       <LineItem
-        label="This requires"
-        data={`${numeral(calculateBurn()).format('0.00')}`}
+        label="Burn"
+        data={`${numeral(formatEther(calculateLPBurn())).format('0.00')}`}
         units={`SLP`}
       />
-
-      {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
-        <>
-          <Spacer size="sm" />
-          <LineItem
-            label="And requires"
-            data={`${numeral(calculateRequiredLong()).format('0.00a')}`}
-            units={`LONG`}
-          />
-          {requiresAdditionalLong().gt(0) ? (
-            <>
-              <Spacer size="sm" />
-              <LineItem
-                label="You need"
-                data={`${numeral(formatEther(requiresAdditionalLong())).format(
-                  '0.00a'
-                )}`}
-                units={`LONG`}
-              />{' '}
-            </>
-          ) : (
-            <> </>
-          )}{' '}
-          <Spacer size="sm" />
-          <LineItem
-            label="To receive"
-            data={numeral(calculateUnderlyingOutput()).format('0.00a')}
-            units={
-              entity.isWethCall
-                ? 'ETH'
-                : `${entity.underlying.symbol.toUpperCase()}`
-            }
-          />
-        </>
-      ) : (
-        <>
-          <Spacer size="sm" />
-          <LineItem
-            label="To receive"
-            data={numeral(
-              formatEther(
-                calculateRemoveOutputs().underlyingValue.raw.toString()
-              )
-            ).format('0.00a')}
-            units={
-              entity.isWethCall
-                ? 'ETH'
-                : `${entity.underlying.symbol.toUpperCase()}`
-            }
-          />
-          <Spacer size="sm" />
-          <LineItem
-            label="To Receive"
-            data={numeral(
-              formatEther(calculateRemoveOutputs().shortValue.raw.toString())
-            ).format('0.00a')}
-            units={`SHORT`}
-          />{' '}
-        </>
-      )}
-
+      <Spacer size="sm" />
+      <LineItem
+        label="Burn"
+        data={`${numeral(formatEther(calculateLongBurn())).format('0.00')}`}
+        units={`LONG`}
+      />
+      <Spacer size="sm" />
+      <LineItem
+        label="Burn"
+        data={`${numeral(formatEther(calculateShortBurn())).format('0.00')}`}
+        units={`SHORT`}
+      />
+      <Spacer size="sm" />
+      <LineItem
+        label="Receive"
+        data={numeral(calculateReceived().underlyingReceived).format('0.00')}
+        units={
+          entity.isWethCall
+            ? 'ETH'
+            : `${entity.underlying.symbol.toUpperCase()}`
+        }
+      />
+      <Spacer size="sm" />
+      <LineItem
+        label="Receive"
+        data={numeral(calculateReceived().shortReceived).format('0.00')}
+        units={`SHORT`}
+      />{' '}
       <Spacer size="sm" />
       <Box row justifyContent="flex-start">
         {loading ? (
@@ -432,14 +358,7 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={
-                  () =>
-                    handleApprovalPermit(
-                      spender,
-                      calculateBurn()
-                    ) /* () =>
-                    handleApproval(lpToken, spender, calculateBurn()) */
-                }
+                onClick={() => handleApprovalPermit(spender, calculateLPBurn())}
                 isLoading={submitting}
                 text="Permit LP Tokens"
               />
@@ -456,45 +375,21 @@ const RemoveLiquidity: React.FC = () => {
                   handleApproval(
                     item.entity.address,
                     spender,
-                    calculateRequiredLong()
+                    formatEther(calculateLongBurn())
                   )
                 }
                 isLoading={submitting}
                 text="Approve Options"
               />
             )}
-            {requiresAdditionalLong().gt(0) ? (
-              <>
-                <Button
-                  full
-                  size="sm"
-                  href={`/markets/${encodeURIComponent(
-                    entity.underlying.symbol.toUpperCase() === 'DAI'
-                      ? entity.strike.symbol.toLowerCase()
-                      : entity.underlying.symbol.toLowerCase()
-                  )}`}
-                  text={`Buy ${numeral(
-                    formatEther(requiresAdditionalLong())
-                  ).format('0.00')} Options`}
-                />{' '}
-              </>
-            ) : (
-              <> </>
-            )}
             {!isOptionApproved() || !isLPApproved() ? null : (
               <Button
-                disabled={
-                  submitting || ratio === 0 || requiresAdditionalLong().gt(0)
-                }
+                disabled={submitting || ratio === 0}
                 full
                 size="sm"
                 onClick={handleSubmitClick}
                 isLoading={submitting}
-                text={
-                  requiresAdditionalLong().gt(0)
-                    ? 'Remove Liquidity'
-                    : 'Remove Liquidity'
-                }
+                text={'Remove Liquidity'}
               />
             )}
           </>

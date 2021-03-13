@@ -10,13 +10,19 @@ import { Pair, Token, TokenAmount } from '@sushiswap/sdk'
 import * as SushiSwapSDK from '@sushiswap/sdk'
 import ethers, { BigNumberish, BigNumber } from 'ethers'
 
-import { Protocol } from '@primitivefi/sdk'
-import { Trade, Option, SushiSwapMarket, Venue } from '@primitivefi/sdk'
+import {
+  Protocol,
+  Option,
+  SushiSwapMarket,
+  Venue,
+  TEST_OPTIONS,
+} from '@primitivefi/sdk'
 
 import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { STABLECOINS } from '@/constants/index'
-import { optionAddresses, testAddresses } from '@/constants/options'
+import { optionAddresses } from '@/constants/options'
+import { testAddresses } from '../../constants/options'
 const { ChainId } = SushiSwapSDK
 
 export const useOptions = (): OptionsState => {
@@ -43,6 +49,7 @@ export const useUpdateOptions = (): ((
   const addNotif = useAddNotif()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
+  const isTestnet = chainId === ChainId.RINKEBY || chainId === ChainId.KOVAN
 
   return useCallback(
     async (
@@ -54,17 +61,26 @@ export const useUpdateOptions = (): ((
       const calls: OptionsAttributes[] = []
       const puts: OptionsAttributes[] = []
       const provider = library
-      const isUniswap = venue === Venue.UNISWAP ? true : false
-      console.log('loading options')
+      console.log(`loading options for ${assetName}`)
       setTimeout(() => {
         if (!provider) {
           console.log('system fail')
           return
         }
       }, 200)
+      const key =
+        assetName === '' || assetName === 'WETH'
+          ? 'eth'
+          : assetName.toLowerCase()
+      let testAddresses
+      if (TEST_OPTIONS[key]) {
+        testAddresses = TEST_OPTIONS[key][chainId]?.map(
+          (option) => option.address
+        )
+      }
       Protocol.getOptionsUsingMultiCall(
         chainId,
-        chainId == ChainId.RINKEBY ? testAddresses : optionAddresses,
+        isTestnet ? testAddresses : optionAddresses,
         provider
       )
         .then((optionEntitiesObject) => {
@@ -74,11 +90,7 @@ export const useUpdateOptions = (): ((
           for (let i = 0; i < allKeys.length; i++) {
             const key: string = allKeys[i]
             const option: Option = optionEntitiesObject[key]
-            allPairAddresses.push(
-              isUniswap
-                ? option.uniswapPairAddress
-                : option.sushiswapPairAddress
-            )
+            allPairAddresses.push(option.sushiswapPairAddress)
             allTokensArray.push([
               option.redeem.address,
               option.underlying.address,
@@ -190,7 +202,7 @@ export const useUpdateOptions = (): ((
                               'WETH') &&
                             (option.strikePrice === '5000' ||
                               option.strikePrice === '30')) ||
-                          chainId === ChainId.RINKEBY
+                          isTestnet
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -209,7 +221,7 @@ export const useUpdateOptions = (): ((
                             assetName.toUpperCase() &&
                             (option.strikePrice === '5000' ||
                               option.strikePrice === '30')) ||
-                          chainId === ChainId.RINKEBY
+                          isTestnet
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -234,7 +246,7 @@ export const useUpdateOptions = (): ((
                               STABLECOINS[chainId].address ||
                               option.quoteValue.token.address ===
                                 assetAddress)) ||
-                          chainId === ChainId.RINKEBY
+                          isTestnet
                         ) {
                           pairReserveTotal[0] = pairReserveTotal[0].add(
                             BigNumber.from(underlyingReserve)
@@ -257,7 +269,7 @@ export const useUpdateOptions = (): ((
                               STABLECOINS[chainId].address ||
                               option.quoteValue.token.address ===
                                 assetAddress)) ||
-                          chainId === ChainId.RINKEBY
+                          isTestnet
                         ) {
                           pairReserveTotal[1] = pairReserveTotal[1].add(
                             BigNumber.from(underlyingReserve)

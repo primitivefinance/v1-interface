@@ -29,7 +29,7 @@ import { TokenAmount, Token } from '@sushiswap/sdk'
 import { ethers } from 'ethers'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
-import WethArtifact from '@primitivefi/contracts/artifacts/WETH9.json'
+import WethArtifact from '@primitivefi/contracts/artifacts/contracts/test/tokens/WETH9.sol/WETH9.json'
 import { SinglePositionParameters, WETH9 } from '@primitivefi/sdk'
 
 const WethWrapper: React.FC = () => {

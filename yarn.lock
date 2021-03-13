@@ -2093,24 +2093,33 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/context-base/-/context-base-0.14.0.tgz#c67fc20a4d891447ca1a855d7d70fa79a3533001"
   integrity sha512-sDOAZcYwynHFTbLo6n8kIbLiVF3a3BLkrmehJUyEbT9F+Smbi47kLGS2gG2g0fjBLR/Lr1InPD7kXL7FaTqEkw==
 
+"@openzeppelin/contracts@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.0.1.tgz#2f327f77d16b43f14674086b2b634bda38cb0838"
+  integrity sha512-uSrD7hZ0ViuHGqHZbeHawZBi/uy7aBiNramXAt2dFFuSuoU4u9insS3V3zdVfOnYSPreUo636xSOuQIFN4//HA==
+
 "@openzeppelin/contracts@^3.2.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.3.0.tgz#ffdb693c5c349fc33bba420248dd3ac0a2d7c408"
   integrity sha512-AemZEsQYtUp1WRkcmZm1div5ORfTpLquLaziCIrSagjxyKdmObxuaY1yjQ5SHFMctR8rLwp706NXTbiIRJg7pw==
 
-"@primitivefi/contracts@0.4.4", "@primitivefi/contracts@^0.4.2":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.4.4.tgz#082de30bf71b4895bd767b916cb9d641a430f783"
-  integrity sha512-J2JzR36lwmnWHCgGakPm5bRCKqAtixJFTjkBbiJ31ZmKGrjxKBCMeOmJzSbGbqXUyTYfT/Mfik6tZ+oZEQL8bA==
+"@primitivefi/contracts@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@primitivefi/contracts/-/contracts-0.6.0.tgz#436759bc67b66d8887ffd38829923f4de7e382cf"
+  integrity sha512-Kjik84J4Z3xhgSlSeWnjbMc8f9guuNG7DPl94yFDSLPUGsf4FgdqEQmdSy26sPWC0lEpTVssC/0awFo3inXirw==
+  dependencies:
+    "@openzeppelin/contracts" "3.0.1"
+    "@uniswap/v2-core" "^1.0.1"
+    "@uniswap/v2-periphery" "^1.1.0-beta.0"
 
-"@primitivefi/sdk@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-1.4.1.tgz#26e119e386a82b4cd548df727673df799644d6c7"
-  integrity sha512-omgDP8tbNN3Uwm/cqKd+jsthkoIgdSUsfhfo1jrdW56uVKxROLIT5ggy+17lyyWgI75tCT+7oUV4X+rWR9H1wg==
+"@primitivefi/sdk@1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@primitivefi/sdk/-/sdk-1.4.2.tgz#fbd3a2a681dbf808a3b1db0d228b9e0d25520ad6"
+  integrity sha512-otbzMU+NY7m/6F1213SMAZcch5r8wZF3X18sS1T7yl6I5UP5X2b/Txd0JXm00ByQ86dzivU7PRP6uec2jTy/6A==
   dependencies:
     "@ethersproject/providers" "^5.0.5"
-    "@primitivefi/contracts" "0.4.4"
-    "@primitivefi/v1-connectors" "2.2.0"
+    "@primitivefi/contracts" "0.6.0"
+    "@primitivefi/v1-connectors" "2.2.1"
     "@uniswap/v2-core" "^1.0.1"
     "@uniswap/v2-periphery" "^1.1.0-beta.0"
     bignumber.js "^9.0.0"
@@ -2121,13 +2130,13 @@
     web3 "^1.2.6"
     web3modal "^1.5.0"
 
-"@primitivefi/v1-connectors@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.2.0.tgz#d4d48f7e0d432446ad308e986980a5e16f849777"
-  integrity sha512-FvFfQPKPqkbCiWJBmjqRbwr5tiRcqgYkIIDv0Q9IaIbUMj2m3jxCBi2W06DgNVypU8ORF5prVqpbFFdjfyShZA==
+"@primitivefi/v1-connectors@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@primitivefi/v1-connectors/-/v1-connectors-2.2.1.tgz#0616a9ca593de048d11b524b047f3e0b26edc92e"
+  integrity sha512-2wAS3XnFK7K6h8viUvrd/6IdB4Hrd9pa1eV5ETssARNC434PYLbOuTaYdX5XaOkAFM509gEAk5ZGordBoZFlKQ==
   dependencies:
     "@openzeppelin/contracts" "^3.2.0"
-    "@primitivefi/contracts" "^0.4.2"
+    "@primitivefi/contracts" "0.6.0"
     "@uniswap/v2-core" "^1.0.1"
     "@uniswap/v2-periphery" "^1.1.0-beta.0"
 

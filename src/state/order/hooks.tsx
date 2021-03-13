@@ -18,6 +18,7 @@ import {
   DEFAULT_ALLOWANCE,
   ADDRESS_ZERO,
 } from '@/constants/index'
+import useTokenBalance from '@/hooks/useTokenBalance'
 
 import { FACTORY_ADDRESS } from '@sushiswap/sdk'
 import {
@@ -29,6 +30,7 @@ import {
   Option,
   createOptionEntityWithAddress,
   SUSHI_FACTORY_ADDRESS,
+  getBalance,
 } from '@primitivefi/sdk'
 import { parseEther, formatEther } from 'ethers/lib/utils'
 import {
@@ -76,7 +78,7 @@ export const useUpdateItem = (): ((
   lpPair?: Pair | SushiSwapSDK.Pair,
   reset?: boolean
 ) => void) => {
-  const { chainId } = useWeb3React()
+  const { library, account, chainId } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const getAllowance = useGetTokenAllowance()
   const clear = useClearSwap()
@@ -96,6 +98,7 @@ export const useUpdateItem = (): ((
           approved: [false, false],
         })
       )
+
       let manage = false
       switch (orderType) {
         case Operation.MINT:
@@ -146,9 +149,16 @@ export const useUpdateItem = (): ((
               item.entity.underlying.address,
               spender
             )
+            const tokenBalance = await getBalance(
+              library,
+              item.entity.underlying.address,
+              account
+            )
+
             const approved =
-              parseEther(tokenAllowance.toString()).gt(parseEther('0')) ||
-              item.entity.underlying.address === WETH9[chainId].address
+              parseEther(tokenAllowance.toString()).gt(
+                parseEther(tokenBalance.toString())
+              ) || item.entity.underlying.address === WETH9[chainId].address
             dispatch(
               updateItem({
                 item,
@@ -169,14 +179,29 @@ export const useUpdateItem = (): ((
               spender
             )
             const lpAllowance = await getAllowance(lpToken, spender)
+            const longBalance = await getBalance(
+              library,
+              item.entity.address,
+              account
+            )
+
+            const lpBalance = await getBalance(
+              library,
+              item.market.liquidityToken.address,
+              account
+            )
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
                 approved: [
-                  parseEther(optionAllowance.toString()).gt(parseEther('0')),
-                  parseEther(lpAllowance.toString()).gt(parseEther('0')),
+                  parseEther(optionAllowance.toString()).gt(
+                    parseEther(longBalance.toString())
+                  ),
+                  parseEther(lpAllowance.toString()).gt(
+                    parseEther(lpBalance.toString())
+                  ),
                 ],
               })
             )
@@ -194,14 +219,29 @@ export const useUpdateItem = (): ((
               spender
             )
             const lpAllowance = await getAllowance(lpToken, spender)
+            const longBalance = await getBalance(
+              library,
+              item.entity.address,
+              account
+            )
+
+            const lpBalance = await getBalance(
+              library,
+              item.market.liquidityToken.address,
+              account
+            )
             dispatch(
               updateItem({
                 item,
                 orderType,
                 loading: false,
                 approved: [
-                  parseEther(optionAllowance.toString()).gt(parseEther('0')),
-                  parseEther(lpAllowance.toString()).gt(parseEther('0')),
+                  parseEther(optionAllowance.toString()).gt(
+                    parseEther(longBalance.toString())
+                  ),
+                  parseEther(lpAllowance.toString()).gt(
+                    parseEther(lpBalance.toString())
+                  ),
                 ],
               })
             )
@@ -234,14 +274,28 @@ export const useUpdateItem = (): ((
           if (secondaryAddress) {
             secondaryAllowance = await getAllowance(secondaryAddress, spender)
           }
+          const secondaryBal = await getBalance(
+            library,
+            secondaryAddress,
+            account
+          )
+          const tokenBalance = await getBalance(
+            library,
+            item.entity.underlying.address,
+            account
+          )
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
               approved: [
-                parseEther(tokenAllowance).gt(parseEther('0')),
-                parseEther(secondaryAllowance).gt(parseEther('0')),
+                parseEther(tokenAllowance).gt(
+                  parseEther(tokenBalance.toString())
+                ),
+                parseEther(secondaryAllowance).gt(
+                  parseEther(secondaryBal.toString())
+                ),
               ],
             })
           )
@@ -283,14 +337,26 @@ export const useUpdateItem = (): ((
           } else {
             secondaryAllowance = '0'
           }
+
+          const primaryBal = await getBalance(library, tokenAddress, account)
+          const secondaryBal = await getBalance(
+            library,
+            secondaryAddress,
+            account
+          )
+
           dispatch(
             updateItem({
               item,
               orderType,
               loading: false,
               approved: [
-                parseEther(tokenAllowance.toString()).gt(parseEther('0')),
-                parseEther(secondaryAllowance.toString()).gt(parseEther('0')),
+                parseEther(tokenAllowance.toString()).gt(
+                  parseEther(primaryBal.toString())
+                ),
+                parseEther(secondaryAllowance.toString()).gt(
+                  parseEther(secondaryBal.toString())
+                ),
               ],
             })
           )

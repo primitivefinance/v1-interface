@@ -12,8 +12,8 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.10.0",
     "@metamask/onboarding": "^1.0.0",
-    "@primitivefi/sdk": "1.4.1",
-    "@primitivefi/v1-connectors": "2.2.0",
+    "@primitivefi/sdk": "1.4.2",
+    "@primitivefi/v1-connectors": "2.2.1",
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -66,7 +66,7 @@
     ]
   },
   "devDependencies": {
-    "@primitivefi/contracts": "0.4.4",
+    "@primitivefi/contracts": "0.6.0",
     "@sushiswap/sdk": "5.0.0-canary.3",
     "@types/jest": "^26.0.7",
     "@types/node": "^14.0.26",
