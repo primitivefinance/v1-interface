@@ -64,7 +64,9 @@ export const useUpdateOptions = (): ((
       }, 200)
       Protocol.getOptionsUsingMultiCall(
         chainId,
-        chainId == ChainId.RINKEBY ? testAddresses : optionAddresses,
+        chainId == ChainId.RINKEBY || chainId == ChainId.KOVAN
+          ? testAddresses
+          : optionAddresses,
         provider
       )
         .then((optionEntitiesObject) => {
