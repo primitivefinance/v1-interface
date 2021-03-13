@@ -3,10 +3,6 @@ import { ChainId, JSBI, Percent, Token, WETH } from '@sushiswap/sdk'
 import { parseEther } from 'ethers/lib/utils'
 
 import { injected, walletconnect } from '../connectors'
-import UniswapConnectorTestnet from '@primitivefi/v1-connectors/deployments/rinkeby/UniswapConnector03.json'
-import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
-import Trader from '@primitivefi/contracts/deployments/live_1/Trader.json'
-import TraderTestnet from '@primitivefi/contracts/deployments/rinkeby/Trader.json'
 
 export interface Wallet {
   connector: AbstractConnector
@@ -47,6 +43,7 @@ export const NAME_FOR_MARKET: { [key: string]: string } = {
   aave: 'Aave',
   snx: 'Synthetix',
   mkr: 'Maker',
+  rai: 'RAI',
 }
 
 export const SORT_FOR_MARKET: { [key: string]: number } = {
@@ -59,6 +56,7 @@ export const SORT_FOR_MARKET: { [key: string]: number } = {
   aave: 6,
   snx: 7,
   mkr: 8,
+  rai: 9,
 }
 
 export const COINGECKO_ID_FOR_MARKET: { [key: string]: string } = {
@@ -71,6 +69,7 @@ export const COINGECKO_ID_FOR_MARKET: { [key: string]: string } = {
   aave: 'aave',
   snx: 'havven',
   mkr: 'maker',
+  rai: 'rai',
 }
 
 export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
@@ -83,6 +82,7 @@ export const ADDRESS_FOR_MARKET: { [key: string]: string } = {
   aave: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
   snx: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
   mkr: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+  rai: '0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919',
 }
 
 export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
@@ -95,6 +95,7 @@ export const ACTIVE_FOR_MARKET: { [key: string]: boolean } = {
   aave: false,
   snx: false,
   mkr: false,
+  rai: true,
 }
 
 export const MARKETS: Market[] = Object.keys(SORT_FOR_MARKET).map(

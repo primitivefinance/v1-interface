@@ -250,7 +250,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
   const handleOnClick = useCallback(() => {
     //setProvide(true)
     setToggle(!toggle)
-    console.log(toggle)
     onClick()
   }, [toggle, item])
 
@@ -259,7 +258,6 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
     onClick()
   }
   const nodeRef = useClickAway(() => {
-    console.log(toggle)
     setToggle(!toggle)
     onClick()
   })

@@ -1,8 +1,8 @@
 import UniswapConnector from '@primitivefi/v1-connectors/deployments/live/UniswapConnector03.json'
-import OptionFactory from '@primitivefi/contracts/deployments/live_1/OptionFactory.json'
-import RedeemFactory from '@primitivefi/contracts/deployments/live_1/RedeemFactory.json'
-import Registry from '@primitivefi/contracts/deployments/live_1/Registry.json'
-import Trader from '@primitivefi/contracts/deployments/live_1/Trader.json'
+import OptionFactory from '@primitivefi/contracts/deployments/live/OptionFactory.json'
+import RedeemFactory from '@primitivefi/contracts/deployments/live/RedeemFactory.json'
+import Registry from '@primitivefi/contracts/deployments/live/Registry.json'
+import Trader from '@primitivefi/contracts/deployments/live/Trader.json'
 
 import PrimitiveRouter from '@primitivefi/v1-connectors/deployments/live/PrimitiveRouter.json'
 import PrimitiveCore from '@primitivefi/v1-connectors/deployments/live/PrimitiveCore.json'

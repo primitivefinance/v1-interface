@@ -17,6 +17,7 @@ import { useItem } from '@/state/order/hooks'
 
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { mintTestTokens, WETH9, Operation, STABLECOINS } from '@primitivefi/sdk'
+import { ChainId } from '@sushiswap/sdk'
 
 import { formatEther } from 'ethers/lib/utils'
 const fetcher = (library) => (...args) => {
@@ -31,7 +32,10 @@ const BalanceCard: React.FC = () => {
   const { item } = useItem()
   const addTransaction = useTransactionAdder()
   const { library, account, chainId } = useWeb3React()
-  const daiBal = useTokenBalance(STABLECOINS[chainId].address)
+  const daiBal =
+    chainId === ChainId.KOVAN
+      ? '0'
+      : useTokenBalance(STABLECOINS[chainId].address)
   const wethBal = useTokenBalance(WETH9[chainId].address)
 
   const [ethBal, setEth] = useState('')
@@ -85,7 +89,7 @@ const BalanceCard: React.FC = () => {
   return (
     <>
       <CustomCard>
-        {chainId === 4 ? (
+        {chainId === 4 || chainId === 42 ? (
           <>
             <Spacer size="sm" />
             <Button
@@ -99,12 +103,12 @@ const BalanceCard: React.FC = () => {
 
         <LineItem label={`DAI Balance`} data={daiBal} />
         <Spacer size="sm" />
-        {balance.token.symbol === 'WETH' ? (
+        {balance?.token.symbol === 'WETH' ? (
           <LineItem label={`ETH Balance`} data={formatEther(ethBal)} />
         ) : (
           <LineItem
-            label={`${balance.token.symbol} Balance`}
-            data={formatEther(balance.raw.toString())}
+            label={`${balance?.token.symbol} Balance`}
+            data={formatEther(balance ? balance?.raw.toString() : '0')}
           />
         )}
       </CustomCard>
