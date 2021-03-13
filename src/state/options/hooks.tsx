@@ -22,6 +22,7 @@ import { useActiveWeb3React } from '@/hooks/user/index'
 import { useAddNotif } from '@/state/notifs/hooks'
 import { STABLECOINS } from '@/constants/index'
 import { optionAddresses } from '@/constants/options'
+import { testAddresses } from '../../constants/options'
 const { ChainId } = SushiSwapSDK
 
 export const useOptions = (): OptionsState => {
@@ -71,9 +72,12 @@ export const useUpdateOptions = (): ((
         assetName === '' || assetName === 'WETH'
           ? 'eth'
           : assetName.toLowerCase()
-      const testAddresses = TEST_OPTIONS[key][chainId]?.map(
-        (option) => option.address
-      )
+      let testAddresses
+      if (TEST_OPTIONS[key]) {
+        testAddresses = TEST_OPTIONS[key][chainId]?.map(
+          (option) => option.address
+        )
+      }
       Protocol.getOptionsUsingMultiCall(
         chainId,
         isTestnet ? testAddresses : optionAddresses,
