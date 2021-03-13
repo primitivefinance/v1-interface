@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Operation } from '@/constants/index'
-import ethers from 'ethers'
+import ethers, { BigNumber } from 'ethers'
 import ERC20 from '@primitivefi/contracts/artifacts/ERC20.json'
 import { parseEther, formatEther, parseUnits } from 'ethers/lib/utils'
 
@@ -28,7 +28,7 @@ const approve = async (
       const erc20 = new ethers.Contract(tokenAddress, ERC20.abi, signer)
       tx = await erc20.approve(
         spender,
-        parseUnits(amount.toString()).toString()
+        BigNumber.from(parseUnits(amount)).mul(BigNumber.from('2')).toString()
       ) // 0 gwei approval
     } else throw 'Approval Error'
     return tx
