@@ -69,6 +69,8 @@ const Position: React.FC<TokenProps> = ({ option }) => {
     return balances
   }, [isPut, entity, option, option.long, option.redeem])
 
+  if (getScaledBalances().redeem === '0' && getScaledBalances().long === '0')
+    return null
   return (
     <StyledPosition onClick={handleClick}>
       <StyledPrice>
@@ -93,7 +95,7 @@ const Position: React.FC<TokenProps> = ({ option }) => {
             <LineItem
               label={`short options`}
               data={
-                getScaledBalances().long !== '0'
+                getScaledBalances().redeem !== '0'
                   ? numeral(getScaledBalances().redeem).format('0.0000a')
                   : '--'
               }
