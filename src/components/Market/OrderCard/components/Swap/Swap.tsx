@@ -249,14 +249,7 @@ const Swap: React.FC = () => {
 
   const scaledShortToken: TokenAmount = new TokenAmount(
     shortTokenAmount.token,
-    BigNumber.from(shortTokenAmount.raw.toString())
-      .mul(
-        entity.isPut
-          ? entity.baseValue.raw.toString()
-          : entity.quoteValue.raw.toString()
-      )
-      .div(entity.baseValue.raw.toString())
-      .toString()
+    scaleDown(BigNumber.from(shortTokenAmount.raw.toString())).toString()
   )
 
   // if a short or close short order is submitted, use the router to swap between short<>underlying
