@@ -344,8 +344,6 @@ export const useUpdateItem = (): ((
             secondaryAddress,
             account
           )
-          console.log('SPENDER CHECK -> ', spender)
-          console.log(tokenAllowance.toString(), primaryBal.toString())
           dispatch(
             updateItem({
               item,
