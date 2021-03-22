@@ -23,26 +23,29 @@ const Banner: React.FC<BannerProp> = ({ children, round = false }) => {
   const [is, setIs] = useState(true)
   if (!is) return null
   return (
-    <StyledBanner round={round}>
-      <Container
-        alignItems="center"
-        display="flex"
-        flexDirection="row"
-        justifyContent="space-between"
-        height={40}
-      >
-        <Spacer />
-
-        <Box row>{children}</Box>
-        <IconButton
-          onClick={() => setIs(false)}
-          size="sm"
-          variant="transparent"
+    <>
+      <StyledBanner round={round}>
+        <Container
+          alignItems="center"
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          height={40}
         >
-          <CancelIcon style={{ color: 'white' }} />
-        </IconButton>
-      </Container>
-    </StyledBanner>
+          <Spacer />
+
+          <Box row>{children}</Box>
+          <IconButton
+            onClick={() => setIs(false)}
+            size="sm"
+            variant="transparent"
+          >
+            <CancelIcon style={{ color: 'white' }} />
+          </IconButton>
+        </Container>
+      </StyledBanner>
+      {round ? null : <Spacer size="lg" />}
+    </>
   )
 }
 const StyledBanner = styled.div<BannerProp>`
@@ -52,6 +55,7 @@ const StyledBanner = styled.div<BannerProp>`
   border-radius: ${(props) => (props.round ? '.5em' : '0')};
   display: flex;
   flex-direction: column;
+  position: ${(props) => (props.round ? 'inital' : 'fixed')};
   height: 40px;
   font-size: 14px;
   width: 100%;

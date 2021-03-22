@@ -272,7 +272,7 @@ const StyledMarket = styled.div`
   height: 90%;
   position: absolute;
   overflow-x: hidden;
-  overflow-y: auto !important;
+  overflow-y: hidden;
   &::-webkit-scrollbar {
     width: 1px;
     height: 15px;
