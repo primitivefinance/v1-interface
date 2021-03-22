@@ -304,7 +304,7 @@ export const useUpdateItem = (): ((
           const isUniswap = item.venue === Venue.UNISWAP ? true : false
           const spender =
             orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-              ? isUniswap
+              ? !isUniswap
                 ? SUSHI_ROUTER_ADDRESS[chainId]
                 : PRIMITIVE_ROUTER[chainId].address
               : isUniswap
@@ -344,7 +344,6 @@ export const useUpdateItem = (): ((
             secondaryAddress,
             account
           )
-
           dispatch(
             updateItem({
               item,

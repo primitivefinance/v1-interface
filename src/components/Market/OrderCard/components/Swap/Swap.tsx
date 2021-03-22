@@ -124,7 +124,6 @@ const Swap: React.FC = () => {
         )
   }, [orderType, entity.isPut, item.market, scaleUp, scaleDown])
   useEffect(() => {
-    console.log(getSpotPremiums())
     setPrem(getSpotPremiums())
   }, [orderType])
 
@@ -249,14 +248,7 @@ const Swap: React.FC = () => {
 
   const scaledShortToken: TokenAmount = new TokenAmount(
     shortTokenAmount.token,
-    BigNumber.from(shortTokenAmount.raw.toString())
-      .mul(
-        entity.isPut
-          ? entity.baseValue.raw.toString()
-          : entity.quoteValue.raw.toString()
-      )
-      .div(entity.baseValue.raw.toString())
-      .toString()
+    scaleDown(BigNumber.from(shortTokenAmount.raw.toString())).toString()
   )
 
   // if a short or close short order is submitted, use the router to swap between short<>underlying
@@ -434,7 +426,10 @@ const Swap: React.FC = () => {
   }, [impact, slippage])
 
   const isApproved = useCallback(() => {
-    if (item.entity.isWethCall && orderType !== Operation.CLOSE_LONG) {
+    if (
+      item.entity.isWethCall &&
+      (orderType === Operation.LONG || orderType === Operation.SHORT)
+    ) {
       return true
     } else if (item.entity.isCall) {
       return approved[0]
@@ -448,6 +443,17 @@ const Swap: React.FC = () => {
     (amount: string) => {
       if (item.entity.isCall || orderType === Operation.CLOSE_LONG) {
         // call approval
+        onApprove(tokenAddress, spender, amount)
+          .then()
+          .catch((error) => {
+            addNotif(
+              0,
+              `Approving ${item.asset.toUpperCase()}`,
+              error.message,
+              ''
+            )
+          })
+      } else if (orderType === Operation.CLOSE_SHORT) {
         onApprove(tokenAddress, spender, amount)
           .then()
           .catch((error) => {
@@ -834,86 +840,40 @@ const Swap: React.FC = () => {
             </div>
           ) : (
             <>
-              {orderType === Operation.SHORT ? (
-                <>
-                  {isApproved() ? (
-                    <Button
-                      disabled={
-                        !isApproved() ||
-                        !parsedAmount?.gt(0) ||
-                        error ||
-                        !hasLiquidity ||
-                        !isBelowSlippage() ||
-                        !getHasEnoughForTrade()
-                      }
-                      full
-                      size="sm"
-                      onClick={handleSubmitClick}
-                      isLoading={loading}
-                      text={
-                        !isBelowSlippage() && typedValue !== ''
-                          ? 'Price Impact Too High'
-                          : getHasEnoughForTrade()
-                          ? 'Confirm Trade'
-                          : 'Insufficient Balance'
-                      }
-                    />
-                  ) : (
-                    <>
-                      <Button
-                        disabled={parsedAmount.isZero()}
-                        full
-                        size="sm"
-                        onClick={() =>
-                          handleApproval(formatEther(getScaledAmount()))
-                        }
-                        isLoading={loading}
-                        text="Approve Tokens"
-                      />
-                    </>
-                  )}
-                </>
+              {isApproved() ? (
+                <Button
+                  disabled={
+                    !isApproved() ||
+                    !parsedAmount?.gt(0) ||
+                    error ||
+                    !hasLiquidity ||
+                    !isBelowSlippage() ||
+                    !getHasEnoughForTrade()
+                  }
+                  full
+                  size="sm"
+                  onClick={handleSubmitClick}
+                  isLoading={loading}
+                  text={
+                    !isBelowSlippage() && typedValue !== ''
+                      ? 'Price Impact Too High'
+                      : getHasEnoughForTrade()
+                      ? 'Confirm Trade'
+                      : 'Insufficient Balance'
+                  }
+                />
               ) : (
                 <>
-                  {isApproved() ? (
-                    <>
-                      {' '}
-                      <Button
-                        disabled={
-                          !isApproved() ||
-                          !parsedAmount?.gt(0) ||
-                          error ||
-                          !hasLiquidity ||
-                          !isBelowSlippage() ||
-                          !getHasEnoughForTrade()
-                        }
-                        full
-                        size="sm"
-                        onClick={handleSubmitClick}
-                        isLoading={loading}
-                        text={
-                          !isBelowSlippage() && typedValue !== ''
-                            ? 'Price Impact Too High'
-                            : getHasEnoughForTrade()
-                            ? 'Confirm Trade'
-                            : 'Insufficient Balance'
-                        }
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        disabled={parsedAmount.isZero()}
-                        full
-                        size="sm"
-                        onClick={() =>
-                          handleApproval(formatEther(getScaledAmount()))
-                        }
-                        isLoading={loading}
-                        text="Approve Tokens"
-                      />
-                    </>
-                  )}
+                  <Button
+                    disabled={parsedAmount.isZero()}
+                    full
+                    size="sm"
+                    onClick={() =>
+                      handleApproval(formatEther(getScaledAmount()))
+                    }
+                    isLoading={loading}
+                    text="Approve Tokens"
+                  />
                 </>
               )}
             </>

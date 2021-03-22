@@ -83,14 +83,16 @@ const Position: React.FC<TokenProps> = ({ option }) => {
           </StyledExpiry>
         </StyledExpiryContainer>
         <StyledValuesContainer>
-          <LineItem
-            label={'long options'}
-            data={
-              getScaledBalances().long !== '0'
-                ? numeral(getScaledBalances().long).format('0.0000a')
-                : '--'
-            }
-          />
+          {getScaledBalances().long !== '0' ? (
+            <LineItem
+              label={'long options'}
+              data={
+                getScaledBalances().long !== '0'
+                  ? numeral(getScaledBalances().long).format('0.0000a')
+                  : '--'
+              }
+            />
+          ) : null}
           {getScaledBalances().redeem !== '0' ? (
             <LineItem
               label={`short options`}
