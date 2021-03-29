@@ -502,7 +502,7 @@ const mintTestTokens = async (
   token: string,
   signer: ethers.Signer
 ): Promise<any> => {
-  const amount = ethers.utils.parseEther('1000000000')
+  const amount = ethers.utils.parseEther('1000')
 
   const contract = new ethers.Contract(token, ERC20.abi, signer)
   contract
