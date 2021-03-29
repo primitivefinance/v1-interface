@@ -33,6 +33,21 @@ interface Position {
   liquidity: number
   unlocked: boolean
 }
+interface Calibration {
+  strike: number
+  sigma: number
+  time: number
+}
+interface Capital {
+  RX1: number
+  RX2: number
+  liquidity: number
+}
+interface Accumulator {
+  ARX1: number
+  ARX2: number
+  blockNumberLast: number
+}
 const Experimental = () => {
   const tokenX = '0xf09A9Db4327b16A9663e46f49bDaab1A0BEC1252'
   const tokenY = '0xf292A6Aa8fAEfC375326AC64bA69904301bD210b'
@@ -49,6 +64,21 @@ const Experimental = () => {
     BY2: 0,
     liquidity: 0,
     unlocked: false,
+  })
+  const [calibration, setCali] = useState<Calibration>({
+    strike: 0,
+    sigma: 0,
+    time: 0,
+  })
+  const [capital, setCapital] = useState<Capital>({
+    RX1: 0,
+    RX2: 0,
+    liquidity: 0,
+  })
+  const [accumulator, setAccum] = useState<Accumulator>({
+    ARX1: 0,
+    ARX2: 0,
+    blockNumberLast: 0,
   })
   const tokenXBalance = useTokenBalance(tokenX)
   const tokenYBalance = useTokenBalance(tokenY)
