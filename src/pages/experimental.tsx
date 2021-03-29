@@ -23,7 +23,10 @@ import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import mintTestTokens from '@/utils/mintTestTokens'
 import { useTokenBalance } from '@/hooks/data/useTokenBalance'
 import { parseEther, formatEther } from 'ethers/lib/utils'
-import { Console } from 'console'
+import getCapital from '@/utils/experimental/getCapital'
+import getAccumulator from '@/utils/experimental/getAccumulator'
+import getCalibration from '@/utils/experimental/getCalibration'
+import getPosition from '@/utils/experimental/getPosition'
 
 interface Position {
   owner: string
@@ -80,11 +83,38 @@ const Experimental = () => {
     ARX2: 0,
     blockNumberLast: 0,
   })
+  useEffect(async () => {
+    if (library) {
+      const tempPos = await getPosition(account, '1', library.getSigner())
+      if (tempPos) setPos(tempPos)
+
+      const tempC = await getCalibration(library.getSigner())
+      if (tempC) setCali(tempC)
+
+      const tempCap = await getCapital(library.getSigner())
+      if (tempCap) setCapital(tempCap)
+
+      const tempAcc = await getAccumulator(library.getSigner())
+      if (tempAcc) setAccum(tempAcc)
+    }
+  }, [library, account])
   const tokenXBalance = useTokenBalance(tokenX)
   const tokenYBalance = useTokenBalance(tokenY)
+  const [swapToX, setToSwapX] = useState(false)
+  const [swap1, setSwap1] = useState('')
+  const [swap2, setSwap2] = useState('')
 
+  const requiredAlt = useCallback(() => {
+    if (swap1 !== '') {
+      return swap1
+    } else {
+      return '0'
+    }
+  }, [swap1, swap2, swapToX])
+  const submitSwap = useCallback(() => {
+    return
+  }, [swap1, swap2])
   const [addLP, setAddLP] = useState('')
-  const [required, setRequired] = useState('0')
   const requiredY = useCallback(() => {
     if (addLP !== '') {
       return addLP
@@ -195,47 +225,78 @@ const Experimental = () => {
               <Box row>
                 <StyledHeader>
                   <Box column>
-                    Token 1 (X) Balance -{' '}
-                    {parseEther(parseInt(tokenXBalance).toString())
-                      .div('100000000')
-                      .toString()}
+                    <div style={{ minWidth: '17em' }} />
+                    <Box>
+                      Engine Calibration
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Strike Price"
+                        data={calibration.strike}
+                        units="Token 2 (Y)"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Sigma"
+                        data={calibration.sigma}
+                        units="σ"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem label="Time Factor" data={calibration.time} />
+                    </Box>
+                    <Spacer size="lg" />
+                    <Box>
+                      Pool Capital
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="X Reserve"
+                        data={capital.RX1}
+                        units="Token 1 (X)"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Y Reserve"
+                        data={capital.RX2}
+                        units="Token 2 (Y)"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Total Liquidity"
+                        data={capital.liquidity}
+                        units="LP"
+                      />
+                    </Box>
+                    <Spacer size="lg" />
+                    <Box>
+                      Accumulator
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="X Accum. Reserve"
+                        data={accumulator.ARX1}
+                        units="Token 1 (X)"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Y Accum. Reserve"
+                        data={accumulator.ARX2}
+                        units="Token 2 (Y)"
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Last Block Checked"
+                        data={accumulator.blockNumberLast}
+                      />
+                    </Box>
                   </Box>
-                  <Spacer size="sm" />
-                  <Button
-                    variant="secondary"
-                    full
-                    onClick={async () =>
-                      await mintTestTokens(account, tokenX, library.getSigner())
-                    }
-                  >
-                    Mint X Tokens
-                  </Button>
-                  <Spacer />
-                  <Box column>
-                    Token 2 (Y) Balance -{' '}
-                    {parseEther(parseInt(tokenYBalance).toString())
-                      .div('100000000')
-                      .toString()}
-                  </Box>
-                  <Spacer size="sm" />
-                  <Button
-                    variant="secondary"
-                    full
-                    onClick={async () =>
-                      await mintTestTokens(account, tokenY, library.getSigner())
-                    }
-                  >
-                    Mint Y Tokens
-                  </Button>
-                  <Spacer size="lg" />
+                </StyledHeader>
+                <StyledHeader>
                   <Box>
                     <Box row justifyContent="space-between" alignItems="center">
                       {' '}
                       Your Option Position{' '}
                       <Label text={position.unlocked ? 'unlocked' : 'locked'} />
                     </Box>
-                    <div style={{ minWidth: '17em' }} />
-                    <Spacer />
+                    <div style={{ minWidth: '20em' }} />
+                    <Spacer size="sm" />
                     <LineItem label="Nonce" data={position.nonce} />
                     <Spacer size="sm" />
                     <LineItem
@@ -257,6 +318,57 @@ const Experimental = () => {
                     />
                   </Box>
                   <Spacer size="lg" />
+                  Token Balances
+                  <Spacer size="sm" />
+                  <Box column>
+                    <LineItem
+                      label=""
+                      data={parseEther(parseInt(tokenXBalance).toString())
+                        .div('100000000')
+                        .toString()}
+                      units="Token 1 (X)"
+                    />
+                  </Box>
+                  <Spacer size="sm" />
+                  <Box column>
+                    <LineItem
+                      label=""
+                      data={parseEther(parseInt(tokenYBalance).toString())
+                        .div('100000000')
+                        .toString()}
+                      units="Token 2 (Y)"
+                    />
+                  </Box>
+                  <Spacer size="sm" />
+                  <Box row>
+                    <Button
+                      variant="secondary"
+                      full
+                      onClick={async () =>
+                        await mintTestTokens(
+                          account,
+                          tokenX,
+                          library.getSigner()
+                        )
+                      }
+                    >
+                      Mint X Tokens
+                    </Button>
+                    <Spacer size="sm" />
+                    <Button
+                      variant="secondary"
+                      full
+                      onClick={async () =>
+                        await mintTestTokens(
+                          account,
+                          tokenY,
+                          library.getSigner()
+                        )
+                      }
+                    >
+                      Mint Y Tokens
+                    </Button>
+                  </Box>
                 </StyledHeader>
 
                 <StyledHeader>
@@ -267,8 +379,8 @@ const Experimental = () => {
                       <div style={{ minWidth: '17em' }} />
                       <PriceInput
                         title="Token 1 (X)"
-                        quantity={addLP}
-                        onChange={(input) => setAddLP(input)}
+                        quantity={swap1}
+                        onChange={(input) => setSwap1(input)}
                         onClick={() => {
                           return
                         }}
@@ -276,7 +388,7 @@ const Experimental = () => {
                       <Spacer size="sm" />
                       <LineItem
                         label="Token 2 (Y) Required"
-                        data={requiredY()}
+                        data={requiredAlt()}
                         units="Token 2 (Y)"
                       />
                       <Spacer size="sm" />
@@ -315,12 +427,6 @@ const Experimental = () => {
                         Confirm Add Liquidity
                       </Button>
                     </Box>
-                  </Box>
-                </StyledHeader>
-
-                <StyledHeader>
-                  <Box column>
-                    <Box>Create / Update Option Position</Box>
                   </Box>
                 </StyledHeader>
               </Box>
