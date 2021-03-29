@@ -6,6 +6,9 @@ import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
 import Button from '@/components/Button'
 import Notifs from '@/components/Notifs'
+import PriceInput from '@/components/PriceInput'
+import LineItem from '@/components/LineItem'
+import Label from '@/components/Label'
 import { BigNumber } from 'ethers'
 
 import MetaMaskOnboarding from '@metamask/onboarding'
@@ -19,7 +22,17 @@ import { useClearNotif } from '@/state/notifs/hooks'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
 import mintTestTokens from '@/utils/mintTestTokens'
 import { useTokenBalance } from '@/hooks/data/useTokenBalance'
-import { parseEther } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
+import { Console } from 'console'
+
+interface Position {
+  owner: string
+  nonce: number
+  BX1: number
+  BY2: number
+  liquidity: number
+  unlocked: boolean
+}
 const Experimental = () => {
   const tokenX = '0xf09A9Db4327b16A9663e46f49bDaab1A0BEC1252'
   const tokenY = '0xf292A6Aa8fAEfC375326AC64bA69904301bD210b'
@@ -29,9 +42,29 @@ const Experimental = () => {
   const router = useRouter()
   const clear = useClearNotif()
 
+  const [position, setPos] = useState<Position>({
+    owner: account,
+    nonce: 0,
+    BX1: 0,
+    BY2: 0,
+    liquidity: 0,
+    unlocked: false,
+  })
   const tokenXBalance = useTokenBalance(tokenX)
   const tokenYBalance = useTokenBalance(tokenY)
 
+  const [addLP, setAddLP] = useState('')
+  const [required, setRequired] = useState('0')
+  const requiredY = useCallback(() => {
+    if (addLP !== '') {
+      return addLP
+    } else {
+      return '0'
+    }
+  }, [addLP])
+  const submitLP = useCallback(() => {
+    return
+  }, [requiredY, addLP])
   useEffect(() => {
     const { ethereum, web3 } = window as any
 
@@ -64,7 +97,6 @@ const Experimental = () => {
       }
     }
   }, [id, chainId, storeId])
-
   if (!active) {
     return (
       <>
@@ -130,15 +162,18 @@ const Experimental = () => {
                 Experimental Replicator
               </StyledHeaderContainer>
 
-              <Spacer />
               <Box row>
                 <StyledHeader>
-                  <Spacer />
                   <Box column>
-                    Token 1 (X) Balance - {tokenXBalance.toString()}
+                    Token 1 (X) Balance -{' '}
+                    {parseEther(parseInt(tokenXBalance).toString())
+                      .div('100000000')
+                      .toString()}
                   </Box>
                   <Spacer size="sm" />
                   <Button
+                    variant="secondary"
+                    full
                     onClick={async () =>
                       await mintTestTokens(account, tokenX, library.getSigner())
                     }
@@ -147,22 +182,117 @@ const Experimental = () => {
                   </Button>
                   <Spacer />
                   <Box column>
-                    Token 2 (Y) Balance - {tokenYBalance.toString()}
+                    Token 2 (Y) Balance -{' '}
+                    {parseEther(parseInt(tokenYBalance).toString())
+                      .div('100000000')
+                      .toString()}
                   </Box>
                   <Spacer size="sm" />
-
                   <Button
+                    variant="secondary"
+                    full
                     onClick={async () =>
                       await mintTestTokens(account, tokenY, library.getSigner())
                     }
                   >
                     Mint Y Tokens
                   </Button>
+                  <Spacer size="lg" />
+                  <Box>
+                    <Box row justifyContent="space-between" alignItems="center">
+                      {' '}
+                      Your Option Position{' '}
+                      <Label text={position.unlocked ? 'unlocked' : 'locked'} />
+                    </Box>
+                    <div style={{ minWidth: '17em' }} />
+                    <Spacer />
+                    <LineItem label="Nonce" data={position.nonce} />
+                    <Spacer size="sm" />
+                    <LineItem
+                      label="Token 1 (X) Balance"
+                      data={position.BX1}
+                      units="Token 1 (X)"
+                    />
+                    <Spacer size="sm" />
+                    <LineItem
+                      label="Token 2 (Y) Balance"
+                      data={position.BY2}
+                      units="Token 2 (Y)"
+                    />
+                    <Spacer size="sm" />
+                    <LineItem
+                      label="Liquidity"
+                      data={position.liquidity}
+                      units="LP"
+                    />
+                  </Box>
+                  <Spacer size="lg" />
                 </StyledHeader>
 
-                <StyledHeader>Swap</StyledHeader>
+                <StyledHeader>
+                  <Box column>
+                    <Box>
+                      Swap
+                      <Spacer size="sm" />
+                      <div style={{ minWidth: '17em' }} />
+                      <PriceInput
+                        title="Token 1 (X)"
+                        quantity={addLP}
+                        onChange={(input) => setAddLP(input)}
+                        onClick={() => {
+                          return
+                        }}
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Token 2 (Y) Required"
+                        data={requiredY()}
+                        units="Token 2 (Y)"
+                      />
+                      <Spacer size="sm" />
+                      <Button
+                        variant="secondary"
+                        full
+                        onClick={() => submitLP()}
+                      >
+                        Confirm Swap
+                      </Button>
+                    </Box>
+                    <Spacer />
+                    <Box>
+                      Add Liquidity
+                      <Spacer size="sm" />
+                      <PriceInput
+                        title="Token 1 (X)"
+                        quantity={addLP}
+                        onChange={(input) => setAddLP(input)}
+                        onClick={() => {
+                          return
+                        }}
+                      />
+                      <Spacer size="sm" />
+                      <LineItem
+                        label="Token 2 (Y) Required"
+                        data={requiredY()}
+                        units="Token 2 (Y)"
+                      />
+                      <Spacer size="sm" />
+                      <Button
+                        variant="secondary"
+                        full
+                        onClick={() => submitLP()}
+                      >
+                        Confirm Add Liquidity
+                      </Button>
+                    </Box>
+                  </Box>
+                </StyledHeader>
 
-                <StyledHeader>Liquidity</StyledHeader>
+                <StyledHeader>
+                  <Box column>
+                    <Box>Create / Update Option Position</Box>
+                  </Box>
+                </StyledHeader>
               </Box>
             </Col>
           </Grid>
@@ -214,11 +344,12 @@ const StyledHeader = styled.div`
   width: 33%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   font-size: 18px;
   flex-grow: 1;
   color: white;
+  padding: 2em;
 `
 
 const Text = styled.span`
