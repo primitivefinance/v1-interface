@@ -149,13 +149,6 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ marketId, children }) => {
         </StyledTitle>
       </LitContainer>
       <Spacer size="sm" />
-      {name === 'Wrapped ETH' ? (
-        <Banner round>
-          WETH markets now accept ETH for swaps and liquidity provision.
-        </Banner>
-      ) : (
-        <></>
-      )}
       <Reverse />
     </StyledHeader>
   )

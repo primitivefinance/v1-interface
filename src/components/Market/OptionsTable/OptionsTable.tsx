@@ -205,7 +205,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
           ) : (
             <ScrollBody>
               {options[type].map((option) => {
-                if (+new Date() / 1000 >= option.entity.expiryValue) return null
+                //if (+new Date() / 1000 >= option.entity.expiryValue) return null
                 const allGreeks: Greeks = calculateAllGreeks(option)
                 const tableColumns: TableColumns = formatTableColumns(option)
                 return (
@@ -213,7 +213,7 @@ const OptionsTable: React.FC<OptionsTableProps> = (props) => {
                     key={option.entity.address}
                     onClick={() => {
                       setGreeks(!greeks)
-                      updateItem(option, Operation.LONG)
+                      updateItem(option, Operation.CLOSE_SHORT)
                     }}
                     href={`${baseUrl}/${option.entity.address}`}
                     columns={tableColumns}

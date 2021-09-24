@@ -154,7 +154,6 @@ export const useUpdateItem = (): ((
               item.entity.underlying.address,
               account
             )
-
             const approved =
               parseEther(tokenAllowance.toString()).gt(
                 parseEther(tokenBalance.toString())
@@ -344,6 +343,7 @@ export const useUpdateItem = (): ((
             secondaryAddress,
             account
           )
+
           dispatch(
             updateItem({
               item,
@@ -513,11 +513,8 @@ export const useHandleSubmitOrder = (): ((
             optionEntity.redeem,
             parsedAmountA.toString()
           )
-          trade.outputAmount = trade.market.getOutputAmount(
-            trade.inputAmount
-          )[0]
 
-          transaction = SushiSwap.singlePositionCallParameters(
+          transaction = Trader.singleOperationCallParameters(
             trade,
             tradeSettings
           )

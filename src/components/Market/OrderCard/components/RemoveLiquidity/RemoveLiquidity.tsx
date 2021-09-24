@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 
 import Box from '@/components/Box'
@@ -256,54 +256,14 @@ const RemoveLiquidity: React.FC = () => {
     calculateShortBurn,
   ])
 
+  useEffect(() => {
+    const liquidity = parseEther(lp).mul(Number(1000)).div(1000)
+    onOptionInput(liquidity.toString())
+  }, [lp])
+
   return (
     <LiquidityContainer>
       <Spacer />
-      <LineItem
-        label={'Amount'}
-        data={Math.round(10 * (ratio / 10)) / 10 + '%'}
-        units={'%'}
-      ></LineItem>
-      <Spacer size="sm" />
-      <Slider
-        min={1}
-        max={1000}
-        step={1}
-        value={ratio}
-        onChange={handleRatioChange}
-      />
-      <Spacer size="sm" />
-      <Box row justifyContent="space-around">
-        <Button
-          variant="transparent"
-          text="25%"
-          onClick={() => {
-            handleRatio(250)
-          }}
-        />
-        <Button
-          variant="transparent"
-          text="50%"
-          onClick={() => {
-            handleRatio(500)
-          }}
-        />
-        <Button
-          variant="transparent"
-          text="75%"
-          onClick={() => {
-            handleRatio(750)
-          }}
-        />
-        <Button
-          variant="transparent"
-          text="100%"
-          onClick={() => {
-            handleRatio(1000)
-          }}
-        />
-      </Box>
-      <Spacer size="sm" />
       <LineItem
         label="Burn"
         data={`${numeral(formatEther(calculateLPBurn())).format('0.00')}`}
@@ -400,6 +360,6 @@ const RemoveLiquidity: React.FC = () => {
 }
 
 const LiquidityContainer = styled.div`
-  width: 34em;
+  width: 100%;
 `
 export default RemoveLiquidity

@@ -370,7 +370,9 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 
         {expiry ? (
           <TableCell>
-            <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>
+            <span className="expired">
+              {formatExpiry(expiry).utc.substr(4, 12)}
+            </span>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -405,64 +407,39 @@ const LiquidityTableRow: React.FC<LiquidityTableRowProps> = ({
 
       {toggle && item.entity?.address === key ? (
         <OrderTableRow>
-          <OrderContainer
-            row
-            justifyContent="space-between"
-            alignItems="flex-start"
-          >
-            <Choice>
-              <StyledTitle>
-                <LineItem
-                  label={'Asset Balance'}
-                  data={numeral(
-                    parseEther(underlyingTokenBalance).gt(
-                      parseUnits('1', 'gwei')
-                    )
-                      ? underlyingTokenBalance
-                      : '0'
-                  ).format('0.00')}
-                  units={entity.isWethCall ? 'ETH' : asset}
-                />
-                <Spacer />
-                <AddLiqButton />
-              </StyledTitle>
-              {orderType === Operation.ADD_LIQUIDITY ? (
-                <>
-                  <Spacer size="sm" />
-                  <Separator />
-                  <AddLiquidity />
-                </>
-              ) : null}
-            </Choice>
-
-            <Spacer />
-            <Choice>
-              <StyledTitle>
-                <LineItem
-                  label={'Liquidity Balance'}
-                  data={numeral(
-                    formatEther(
-                      calculateLiquidityValuePerShare().totalUnderlyingPerLp
-                    )
-                  ).format('0.00a')}
-                  units={entity.isWethCall ? 'ETH' : asset}
-                />
-                <Spacer />
-                <RemoveLiqButton />
-              </StyledTitle>
-              {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
-                <>
-                  <Spacer size="sm" />
-                  <Separator />
-                  <RemoveLiquidity />
-                </>
-              ) : null}
-            </Choice>
-          </OrderContainer>
+          <Choice>
+            <StyledTitle>
+              <LineItem
+                label={'Liquidity Balance'}
+                data={numeral(
+                  formatEther(
+                    calculateLiquidityValuePerShare().totalUnderlyingPerLp
+                  )
+                ).format('0.00a')}
+                units={entity.isWethCall ? 'ETH' : asset}
+              />
+              <Spacer />
+              <RemoveLiqButton />
+            </StyledTitle>
+            {orderType === Operation.REMOVE_LIQUIDITY_CLOSE ? (
+              <>
+                <Spacer size="sm" />
+                <Separator />
+                <RemoveLiquidity />
+              </>
+            ) : null}
+          </Choice>
         </OrderTableRow>
       ) : (
         <></>
       )}
+      <style>
+        {`
+          .expired {
+            color: red;
+          }
+        `}
+      </style>
     </StyledDiv>
   )
 }
@@ -480,7 +457,7 @@ const StyledInnerTitle = styled.div`
 `
 
 const Choice = styled.div`
-  min-width: 33em;
+  width: 100%;
   background-color: ${(props) => props.theme.color.black};
   padding: 1em;
   border-radius: 0.5em;
@@ -504,7 +481,7 @@ const StyledTitle = styled.div`
   font-weight: 800;
   display: flex;
   letter-spacing: 0.5px;
-  width: 30em;
+  width: 100%;
   justify-content: space-between;
 `
 const StyledDiv = styled.div`
