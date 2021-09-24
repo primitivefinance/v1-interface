@@ -86,11 +86,11 @@ const LiquidityTable: React.FC<OptionsTableProps> = (props) => {
                     })
                     .indexOf(true) !== -1
 
-                if (
+                /* if (
                   +new Date() / 1000 >= option.entity.expiryValue &&
                   !hasPosition
                 )
-                  return null
+                  return null */
                 return (
                   <LiquidityTableRow
                     key={option.entity.address}
