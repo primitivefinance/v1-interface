@@ -184,7 +184,9 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
         )}
         {expiry ? (
           <TableCell>
-            <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>
+            <Expiy>
+              <span>{formatExpiry(expiry).utc.substr(4, 12)}</span>
+            </Expiy>
           </TableCell>
         ) : (
           <TableCell>-</TableCell>
@@ -228,6 +230,10 @@ const OptionsTableRow: React.FC<OptionsTableRowProps> = ({
     </StyledDiv>
   )
 }
+
+const Expiy = styled.span`
+  color: red;
+`
 
 const StyledT = styled.span`
   border-width: 0 0 1px 0;
