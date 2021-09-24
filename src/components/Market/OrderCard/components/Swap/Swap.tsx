@@ -655,26 +655,12 @@ const Swap: React.FC = () => {
                 ) : (
                   <> </>
                 )}
-                <LineItem
-                  label={'Execution Price'}
-                  data={getExecutionPrice()}
-                  units={underlyingAssetSymbol()}
-                  color={isBelowSlippage() ? null : 'red'}
-                  tip="The estimated price of the option after slippage."
-                />
-                <LineItem
-                  label={'Price Impact'}
-                  data={`${Math.abs(parseFloat(impact)).toString()}`}
-                  units="%"
-                  color={isBelowSlippage() ? null : 'red'}
-                  tip="The % change in the price paid."
-                />
               </>
             ) : (
               <>
                 <LineItem
-                  label={'Spot Price'}
-                  data={formatBalance(prem)}
+                  label={'Option Value'}
+                  data={entity.isPut ? entity.strikePrice : 1}
                   units={underlyingAssetSymbol()}
                   color={null}
                   tip="The current spot price of the option."
