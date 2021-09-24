@@ -41,12 +41,10 @@ const Layout: React.FC<PageProps> = (props) => {
     <>
       <TopBar loading={props.loading && active} />
       <Banner>
-        <Link href="/reset">
-          <StyledA>
-            If you used Primitive between January and March 2021, you must reset
-            your approvals to prevent loss of funds. Click here to reset them!
-          </StyledA>
-        </Link>{' '}
+        <StyledA>
+          Primitive V1 is no longer supported by this interface. All deployed
+          options have expired. Please close your positions.
+        </StyledA>
       </Banner>
 
       <StyledPage>
@@ -68,9 +66,6 @@ const StyledA = styled.div`
   cursor: pointer;
   color: ${(props) => props.theme.color.white};
   font-size: 14px;
-  &:hover {
-    color: ${(props) => props.theme.color.grey[400]};
-  }
 `
 interface StyledMainProps {
   full?: boolean

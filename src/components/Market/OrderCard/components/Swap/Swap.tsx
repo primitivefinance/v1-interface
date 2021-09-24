@@ -199,7 +199,7 @@ const Swap: React.FC = () => {
       break
     case Operation.CLOSE_SHORT:
       title = {
-        text: `Sell Short - ${numeral(item.entity.strikePrice).format(
+        text: `Close - ${numeral(item.entity.strikePrice).format(
           +item.entity.strikePrice > 5 ? '$0' : '$0.00'
         )} ${item.entity.isCall ? 'Call' : 'Put'} ${formatExpiry(
           item.entity.expiryValue
@@ -604,99 +604,6 @@ const Swap: React.FC = () => {
       <Box column alignItems="center">
         <CardHeader title={title} onClick={() => removeItem()} />
         <Spacer size="sm" />
-        <div style={{ width: '100%' }}>
-          <Box row justifyContent="space-between" alignItems="center">
-            <Button
-              size="sm"
-              full
-              disabled={loading}
-              variant={
-                orderType === Operation.LONG || orderType === Operation.SHORT
-                  ? 'secondary'
-                  : 'transparent'
-              }
-              onClick={swapReduce}
-            >
-              Buy
-            </Button>
-            <Button
-              size="sm"
-              full
-              disabled={loading}
-              variant={
-                orderType === Operation.CLOSE_LONG ||
-                orderType === Operation.CLOSE_SHORT
-                  ? 'secondary'
-                  : 'transparent'
-              }
-              onClick={swapReduce}
-            >
-              Sell
-            </Button>
-            <Button
-              size="sm"
-              full
-              disabled
-              variant={'transparent'}
-              onClick={swapReduce}
-            >
-              Manage
-            </Button>
-          </Box>
-        </div>
-        <Spacer size="sm" />
-        <div style={{ width: '100%' }}>
-          <Box row justifyContent="space-between" alignItems="center">
-            <Button
-              size="sm"
-              full
-              disabled={loading}
-              variant={
-                orderType === Operation.CLOSE_LONG ||
-                orderType === Operation.LONG
-                  ? 'secondary'
-                  : 'transparent'
-              }
-              onClick={() => {
-                if (orderType === Operation.SHORT) {
-                  updateItem(item, Operation.LONG)
-                } else if (orderType === Operation.LONG) {
-                  updateItem(item, Operation.SHORT)
-                } else if (orderType === Operation.CLOSE_SHORT) {
-                  updateItem(item, Operation.CLOSE_LONG)
-                } else {
-                  updateItem(item, Operation.CLOSE_SHORT)
-                }
-              }}
-            >
-              Long
-            </Button>
-            <Button
-              size="sm"
-              full
-              disabled={loading}
-              variant={
-                orderType === Operation.CLOSE_SHORT ||
-                orderType === Operation.SHORT
-                  ? 'secondary'
-                  : 'transparent'
-              }
-              onClick={() => {
-                if (orderType === Operation.SHORT) {
-                  updateItem(item, Operation.LONG)
-                } else if (orderType === Operation.LONG) {
-                  updateItem(item, Operation.SHORT)
-                } else if (orderType === Operation.CLOSE_SHORT) {
-                  updateItem(item, Operation.CLOSE_LONG)
-                } else {
-                  updateItem(item, Operation.CLOSE_SHORT)
-                }
-              }}
-            >
-              Short
-            </Button>
-          </Box>
-        </div>
         <Spacer size="sm" />
         <Spacer size="sm" />
 
@@ -748,26 +655,12 @@ const Swap: React.FC = () => {
                 ) : (
                   <> </>
                 )}
-                <LineItem
-                  label={'Execution Price'}
-                  data={getExecutionPrice()}
-                  units={underlyingAssetSymbol()}
-                  color={isBelowSlippage() ? null : 'red'}
-                  tip="The estimated price of the option after slippage."
-                />
-                <LineItem
-                  label={'Price Impact'}
-                  data={`${Math.abs(parseFloat(impact)).toString()}`}
-                  units="%"
-                  color={isBelowSlippage() ? null : 'red'}
-                  tip="The % change in the price paid."
-                />
               </>
             ) : (
               <>
                 <LineItem
-                  label={'Spot Price'}
-                  data={formatBalance(prem)}
+                  label={'Option Value'}
+                  data={entity.isPut ? entity.strikePrice : 1}
                   units={underlyingAssetSymbol()}
                   color={null}
                   tip="The current spot price of the option."
