@@ -357,7 +357,8 @@ const Downgrade = () => {
   const redeemTokenBalance = useTokenBalance(redeem)
 
   const handleApprovalPermit = useCallback(
-    (spender: string, amount: BigNumber) => {
+    (spender: string) => {
+      let amount = parseEther(lpTokenBalance)
       handlePermit(lpToken, spender, amount.toString())
         .then((data) => {
           console.log({ data })
@@ -367,7 +368,7 @@ const Downgrade = () => {
           addNotif(0, `Approving ${lpToken}`, error.message, '')
         })
     },
-    [underlying, lpToken, handlePermit, setSignData]
+    [underlying, lpToken, handlePermit, setSignData, lpTokenBalance]
   )
 
   const getSigner = useCallback(async () => {
@@ -453,6 +454,7 @@ const Downgrade = () => {
 
     const value = '0'
     const deadline = signData ? signData.deadline : 1000000000000000
+    console.log({ signData }, 'in fn caller')
     const params = liquidity.interface.encodeFunctionData(
       'removeShortLiquidityThenCloseOptionsWithPermit',
       [
@@ -460,20 +462,41 @@ const Downgrade = () => {
         inputAmount,
         amountAMin.toString(),
         amountBMin.toString(),
-        deadline,
+        signData.deadline,
         signData.v,
         signData.r,
         signData.s,
       ]
     )
 
+    /* const params = liquidity.interface.encodeFunctionData(
+      'removeShortLiquidityThenCloseOptions',
+      [
+        option,
+        inputAmount,
+        amountAMin.toString(),
+        amountBMin.toString(),
+        deadline,
+      ]
+    ) */
+
     const calldata = router.interface.encodeFunctionData('executeCall', [
       LIQUIDITY,
       params,
     ])
 
-    await executeTransaction(library, ROUTER, calldata, value)
-  }, [account, library])
+    console.log(LIQUIDITY, params)
+
+    await router.executeCall(LIQUIDITY, params)
+  }, [
+    account,
+    library,
+    lpTotalSupply,
+    lpTokenBalance,
+    lpToken,
+    signData,
+    setSignData,
+  ])
 
   const isLPApproved = useCallback(() => {
     return approved || signData
@@ -504,9 +527,7 @@ const Downgrade = () => {
           disabled={submitting}
           full
           size="sm"
-          onClick={() =>
-            handleApprovalPermit(ROUTER, ethers.constants.MaxUint256)
-          }
+          onClick={() => handleApprovalPermit(ROUTER)}
           isLoading={submitting}
           text="Permit LP Tokens"
         />
