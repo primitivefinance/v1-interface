@@ -285,7 +285,9 @@ const Downgrade = () => {
   const handleApproval = useCallback(
     (token: string, spender: string, amount: string) => {
       onApprove(token, spender, amount)
-        .then()
+        .then(() => {
+          setApproved(true)
+        })
         .catch((error) => {
           addNotif(0, `Approving ${token} for ${spender}`, error.message, '')
         })
