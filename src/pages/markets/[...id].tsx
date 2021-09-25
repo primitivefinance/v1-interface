@@ -332,6 +332,33 @@ import Button from '@/components/Button'
 import { parseEther } from '@ethersproject/units'
 import useApprove from '@/hooks/transactions/useApprove'
 
+const allOptions = {
+  option0: {
+    underlying: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', //weth
+    option: '0x5b419b581081f8e38a3c450ae518e0aefd4a32b4', // weth call long
+    redeem: '0x9e5405a11e42e7d48fbf4f2e979695641c15189b', // weth call short
+    lp: '0x2acbf90fdff006eb6eae2b61145b603e59ade7d2', // weth call lp
+  },
+  option1: {
+    underlying: '0x6b175474e89094c44da98b954eedeac495271d0f', // dai
+    option: '0x5b83dec645be2b8137a20175f59000c20c6dce82', // weth put long
+    redeem: '0xcfc9a86fccf24ef495194540e1a3d3d523893355', // weth put short
+    lp: '0xfe7f6780a3c19aef662edd7076f63c2ae99a2196', // weth put LP
+  },
+  option2: {
+    underlying: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2', // sushi
+    option: '0x875f1f8e7426b91c388807d5257f73700d04d653', // sushi call long
+    redeem: '0x81eb1e0acfd705c34e975397de7545b6a9f0be39', // sushi call short
+    lp: '0xbff6cbf2e7d2cd0705329c735a37be33241298e9', // sushi call LP
+  },
+  option3: {
+    underlying: '0x6b175474e89094c44da98b954eedeac495271d0f', // dai
+    option: '0x6688E09a0af5dAfa2a6dcD09f180F084ad964005', // sushi put long
+    redeem: '0xee1482a2c48f0012862e45a992666096fc767b78', // sushi put short
+    lp: '0x45e185Be5d2FE76b71fE4283EaAD9679E674c77f', // sushi put LP
+  },
+}
+
 const Downgrade = () => {
   const { library, chainId, account } = useWeb3React()
   const [option, setOption] = useState(
