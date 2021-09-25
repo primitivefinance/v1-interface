@@ -168,16 +168,16 @@ export const useUpdateItem = (): ((
             )
             return
           }
-          if (
-            orderType === Operation.REMOVE_LIQUIDITY_CLOSE &&
-            item.market.liquidityToken
-          ) {
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
-              item.entity.address,
-              spender
+              item.entity.redeem.address,
+              TRADER[chainId].address
             )
-            const lpAllowance = await getAllowance(lpToken, spender)
+            const lpAllowance = await getAllowance(
+              lpToken,
+              PRIMITIVE_ROUTER[chainId].address
+            )
             const longBalance = await getBalance(
               library,
               item.entity.address,
@@ -301,15 +301,7 @@ export const useUpdateItem = (): ((
           return
         } else {
           const isUniswap = item.venue === Venue.UNISWAP ? true : false
-          const spender =
-            orderType === Operation.CLOSE_SHORT || orderType === Operation.SHORT
-              ? !isUniswap
-                ? SUSHI_ROUTER_ADDRESS[chainId]
-                : PRIMITIVE_ROUTER[chainId].address
-              : isUniswap
-              ? PRIMITIVE_ROUTER[chainId].address
-              : PRIMITIVE_ROUTER[chainId].address
-
+          const spender = TRADER[chainId].address
           let tokenAddress
           let secondaryAddress
           switch (orderType) {
@@ -454,18 +446,21 @@ export const useHandleSubmitOrder = (): ((
       const amountsOut: BigNumberish[] = []
       const reserves: BigNumberish[] = []
 
+      const op =
+        operation === Operation.REMOVE_LIQUIDITY_CLOSE
+          ? operation
+          : Operation.UNWIND
       const trade: Trade = new Trade(
         optionEntity,
         item.market,
         totalSupply,
         inputAmount,
         outputAmount,
-        operation,
+        op,
         item.venue,
         signer,
         sigData
       )
-
       // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {
