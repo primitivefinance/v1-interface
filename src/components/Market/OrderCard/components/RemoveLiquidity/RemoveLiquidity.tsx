@@ -132,7 +132,7 @@ const RemoveLiquidity: React.FC = () => {
       handlePermit(
         entity.redeem.address,
         TRADER[chainId].address,
-        amount.toString()
+        calculateShortBurn().toString()
       )
         .then((data) => {
           console.log({ data })
@@ -151,7 +151,7 @@ const RemoveLiquidity: React.FC = () => {
   )
   const handleApprovalPermitLP = useCallback(
     (spender: string, amount: BigNumber) => {
-      handlePermit(lpToken, spender, amount.toString())
+      handlePermit(lpToken, spender, calculateLPBurn.toString())
         .then((data) => {
           console.log({ data })
           setSignData(data)
@@ -322,7 +322,7 @@ const RemoveLiquidity: React.FC = () => {
       <Box row justifyContent="flex-start">
         {loading ? (
           <Button
-            disabled={loading}
+            disabled={!loading}
             variant="secondary"
             full
             size="sm"
