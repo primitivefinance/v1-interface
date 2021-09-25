@@ -129,10 +129,12 @@ const RemoveLiquidity: React.FC = () => {
 
   const handleApprovalPermitRDM = useCallback(
     (spender: string, amount: BigNumber) => {
+      const burn = calculateShortBurn()
+
       handlePermit(
         entity.redeem.address,
         TRADER[chainId].address,
-        calculateShortBurn().toString()
+        burn.toString()
       )
         .then((data) => {
           console.log({ data })
@@ -151,7 +153,8 @@ const RemoveLiquidity: React.FC = () => {
   )
   const handleApprovalPermitLP = useCallback(
     (spender: string, amount: BigNumber) => {
-      handlePermit(lpToken, spender, calculateLPBurn.toString())
+      const burn = calculateLPBurn()
+      handlePermit(lpToken, spender, burn.toString())
         .then((data) => {
           console.log({ data })
           setSignData(data)
