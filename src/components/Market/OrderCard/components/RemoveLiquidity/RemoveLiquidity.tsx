@@ -344,7 +344,7 @@ const RemoveLiquidity: React.FC = () => {
             )}
             {!isOptionApproved() || !isLPApproved() ? null : (
               <Button
-                disabled={submitting || ratio === 0}
+                disabled={submitting}
                 full
                 size="sm"
                 onClick={handleSubmitClick}
