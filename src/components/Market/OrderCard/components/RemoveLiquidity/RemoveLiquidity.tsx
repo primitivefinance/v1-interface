@@ -18,7 +18,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import { useBlockNumber } from '@/hooks/data/useBlockNumber'
 
-import { PRIMITIVE_ROUTER, SignitureData } from '@primitivefi/sdk'
+import { PRIMITIVE_ROUTER, SignitureData, TRADER } from '@primitivefi/sdk'
 
 import {
   useItem,
@@ -127,9 +127,30 @@ const RemoveLiquidity: React.FC = () => {
     [entity.underlying, onApprove]
   )
 
-  const handleApprovalPermit = useCallback(
+  const handleApprovalPermitRDM = useCallback(
     (spender: string, amount: BigNumber) => {
-      console.log(lpToken)
+      handlePermit(
+        entity.redeem.address,
+        TRADER[chainId].address,
+        amount.toString()
+      )
+        .then((data) => {
+          console.log({ data })
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(
+            0,
+            `Approving ${item.asset.toUpperCase()}`,
+            error.message,
+            ''
+          )
+        })
+    },
+    [entity.underlying, lpToken, handlePermit, underlyingValue, setSignData]
+  )
+  const handleApprovalPermitLP = useCallback(
+    (spender: string, amount: BigNumber) => {
       handlePermit(lpToken, spender, amount.toString())
         .then((data) => {
           console.log({ data })
@@ -318,7 +339,9 @@ const RemoveLiquidity: React.FC = () => {
                 disabled={submitting}
                 full
                 size="sm"
-                onClick={() => handleApprovalPermit(spender, calculateLPBurn())}
+                onClick={() =>
+                  handleApprovalPermitLP(spender, calculateLPBurn())
+                }
                 isLoading={submitting}
                 text="Permit LP Tokens"
               />
@@ -332,14 +355,13 @@ const RemoveLiquidity: React.FC = () => {
                 full
                 size="sm"
                 onClick={() =>
-                  handleApproval(
-                    item.entity.address,
-                    spender,
-                    formatEther(calculateLongBurn())
+                  handleApprovalPermitRDM(
+                    TRADER[chainId].address,
+                    calculateShortBurn()
                   )
                 }
                 isLoading={submitting}
-                text="Approve Options"
+                text="Permit RDM"
               />
             )}
             {!isOptionApproved() || !isLPApproved() ? null : (

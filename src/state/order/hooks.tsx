@@ -168,16 +168,16 @@ export const useUpdateItem = (): ((
             )
             return
           }
-          if (
-            orderType === Operation.REMOVE_LIQUIDITY_CLOSE &&
-            item.market.liquidityToken
-          ) {
+          if (orderType === Operation.REMOVE_LIQUIDITY_CLOSE) {
             const lpToken = item.market.liquidityToken.address
             const optionAllowance = await getAllowance(
-              item.entity.address,
-              spender
+              item.entity.redeem.address,
+              TRADER[chainId].address
             )
-            const lpAllowance = await getAllowance(lpToken, spender)
+            const lpAllowance = await getAllowance(
+              lpToken,
+              PRIMITIVE_ROUTER[chainId].address
+            )
             const longBalance = await getBalance(
               library,
               item.entity.address,
