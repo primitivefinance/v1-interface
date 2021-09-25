@@ -317,38 +317,7 @@ const Downgrade = () => {
         />
       )}
 
-      {isRDMApproved() ? (
-        <Button
-          disabled={true}
-          full
-          size="sm"
-          onClick={() =>
-            handleApproval(
-              redeem,
-              TRADER,
-              parseEther('1000000000000').toString()
-            )
-          }
-          isLoading={submitting}
-          text="Approve Redeem"
-        />
-      ) : (
-        <Button
-          disabled={submitting}
-          full
-          size="sm"
-          onClick={() =>
-            handleApproval(
-              redeem,
-              TRADER,
-              parseEther('1000000000000').toString()
-            )
-          }
-          isLoading={submitting}
-          text="Approve Redeem"
-        />
-      )}
-      {isRDMApproved() && isLPApproved() ? (
+      {isLPApproved() ? (
         <Button
           disabled={submitting}
           full
