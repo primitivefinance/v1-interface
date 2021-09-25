@@ -265,13 +265,14 @@ import { optionAddresses, tokens } from '@/constants/options'
 import { abi as RouterAbi } from '@primitivefi/v1-connectors/build/contracts/PrimitiveRouter.sol/PrimitiveRouter.json'
 import { abi as LiquidityAbi } from '@primitivefi/v1-connectors/build/contracts/connectors/PrimitiveLiquidity.sol/PrimitiveLiquidity.json'
 import { ethers } from 'ethers'
+import { usePermit } from '@/hooks/transactions/usePermit'
 
-const executeTransaction = async (
+async function executeTransaction(
   provider: any,
   target: string,
   calldata: string,
   value: string
-): Promise<any> => {
+): Promise<any> {
   let tx: any = {}
   try {
     tx = await provider
@@ -285,9 +286,33 @@ const executeTransaction = async (
   return tx
 }
 
+import { BigNumber } from '@ethersproject/bignumber'
+import { TokenAmount } from '@sushiswap/sdk'
+import useTokenBalance from '@/hooks/useTokenBalance'
+
 const Downgrade = () => {
   const { library, chainId, account } = useWeb3React()
   const [option, setOption] = useState()
+  const [signData, setSignData] = useState<SignitureData>(null)
+  const [lpToken, setLpToken] = useState()
+  const handlePermit = usePermit()
+  const { addNotif } = useClearNotif()
+
+  const lpTokenBalance = useTokenBalance(lpToken)
+
+  const handleApprovalPermit = useCallback(
+    (spender: string, amount: BigNumber) => {
+      handlePermit(lpToken, spender, amount.toString())
+        .then((data) => {
+          console.log({ data })
+          setSignData(data)
+        })
+        .catch((error) => {
+          addNotif(0, `Approving ${lpToken}`, error.message, '')
+        })
+    },
+    [entity.underlying, lpToken, handlePermit, underlyingValue, setSignData]
+  )
 
   const getSigner = useCallback(async () => {
     if (library) {
@@ -304,16 +329,18 @@ const Downgrade = () => {
     const underlyingToken = trade.option.underlying
     const redeemReserve = trade.market.reserveOf(redeemToken)
     const underlyingReserve = trade.market.reserveOf(underlyingToken)
+
+    const inputAmount = lpTokenBalance.toString() // amount of liquidity in users wallet
     // should always be redeem
     amountAMin = isZero(trade.totalSupply)
       ? BigNumber.from('0')
-      : BigNumber.from(inputAmount.raw.toString())
+      : BigNumber.from(inputAmount)
           .mul(redeemReserve.raw.toString())
           .div(trade.totalSupply)
     // should always be underlying
     amountBMin = isZero(trade.totalSupply)
       ? BigNumber.from('0')
-      : BigNumber.from(inputAmount.raw.toString())
+      : BigNumber.from(inputAmount)
           .mul(underlyingReserve.raw.toString())
           .div(trade.totalSupply)
 
@@ -325,46 +352,20 @@ const Downgrade = () => {
       amountBMin.toString(),
       tradeSettings.slippage
     )
-    if (trade.signitureData !== null) {
-      fn = 'removeShortLiquidityThenCloseOptionsWithPermit'
-      fnArgs = [
-        trade.option.address,
-        trade.inputAmount.raw.toString(),
-        amountAMin.toString(),
-        amountBMin.toString(),
-        deadline,
-        trade.signitureData.v,
-        trade.signitureData.r,
-        trade.signitureData.s,
-      ]
-    } else {
-      fn = 'removeShortLiquidityThenCloseOptions'
-      fnArgs = [
-        trade.option.address,
-        trade.inputAmount.raw.toString(),
-        amountAMin.toString(),
-        amountBMin.toString(),
-      ]
-    }
 
-    params = getParams(Liquidity, fn, fnArgs)
-
-    contract = PrimitiveRouter
-    methodName = 'executeCall'
-    args = [Liquidity.address, params]
-    value = '0'
-
+    const value = '0'
+    const deadline = signData ? signData.deadline : 1000000000000000
     const params = liquidity.interface.encodeFunctionData(
       'removeShortLiquidityThenCloseOptionsWithPermit',
       [
-        trade.option.address,
-        trade.inputAmount.raw.toString(),
+        option,
+        inputAmount,
         amountAMin.toString(),
         amountBMin.toString(),
         deadline,
-        trade.signitureData.v,
-        trade.signitureData.r,
-        trade.signitureData.s,
+        signData.v,
+        signData.r,
+        signData.s,
       ]
     )
 
@@ -372,10 +373,33 @@ const Downgrade = () => {
       LIQUIDITY,
       params,
     ])
+
+    await executeTransaction(library, ROUTER, calldata, value)
   }, [account])
   return (
     <div>
       <Text> Test</Text>
+      {isLPApproved() ? (
+        <></>
+      ) : (
+        <Button
+          disabled={submitting}
+          full
+          size="sm"
+          onClick={() => handleApprovalPermit(spender, calculateLPBurn())}
+          isLoading={submitting}
+          text="Permit LP Tokens"
+        />
+      )}
+
+      <Button
+        disabled={submitting}
+        full
+        size="sm"
+        onClick={handleSubmitClick}
+        isLoading={submitting}
+        text={'Remove Liquidity'}
+      />
     </div>
   )
 }
