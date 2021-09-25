@@ -31,6 +31,7 @@ import {
   Venue,
   SUSHI_ROUTER_ADDRESS,
   PRIMITIVE_ROUTER,
+  TRADER,
 } from '@primitivefi/sdk'
 
 import formatBalance from '@/utils/formatBalance'
@@ -454,7 +455,7 @@ const Swap: React.FC = () => {
             )
           })
       } else if (orderType === Operation.CLOSE_SHORT) {
-        onApprove(tokenAddress, spender, amount)
+        onApprove(item.entity.redeem.address, TRADER[chainId].address, amount)
           .then()
           .catch((error) => {
             addNotif(
