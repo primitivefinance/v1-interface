@@ -18,7 +18,7 @@ import {
 } from '@/constants/index'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Grid, Col, Row } from 'react-styled-flexboxgrid'
-import { useClearNotif } from '@/state/notifs/hooks'
+import { useAddNotif, useClearNotif } from '@/state/notifs/hooks'
 
 import Loader from '@/components/Loader'
 import Disclaimer from '@/components/Disclaimer'
@@ -259,11 +259,15 @@ const Market = ({ market, data }) => {
 const TRADER = '0xc1de48E9577A7CF18594323A73CDcF1EE19962E8'
 const ROUTER = '0x9264416B621054e16fAB8d6423b5a1e354D19fEc'
 const LIQUIDITY = '0x996Eeff28277FD17738913e573D1c452b4377A16'
+const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
 import { optionAddresses, tokens } from '@/constants/options'
 
 import { abi as RouterAbi } from '@primitivefi/v1-connectors/build/contracts/PrimitiveRouter.sol/PrimitiveRouter.json'
 import { abi as LiquidityAbi } from '@primitivefi/v1-connectors/build/contracts/connectors/PrimitiveLiquidity.sol/PrimitiveLiquidity.json'
+import { abi as TraderAbi } from '@primitivefi/contracts/artifacts/contracts/option/extensions/Trader.sol/Trader.json'
+import { abi as OptionAbi } from '@primitivefi/contracts/artifacts/contracts/option/primitives/Option.sol/Option.json'
+
 import { ethers } from 'ethers'
 import { usePermit } from '@/hooks/transactions/usePermit'
 
@@ -273,6 +277,7 @@ async function executeTransaction(
   calldata: string,
   value: string
 ): Promise<any> {
+  console.log(` executing tx: ${target} ${calldata}`)
   let tx: any = {}
   try {
     tx = await provider
@@ -286,13 +291,36 @@ async function executeTransaction(
   return tx
 }
 
+async function callTrader(
+  trader: ethers.Contract,
+  method: string,
+  args: any[]
+): Promise<any> {
+  console.log(` executing tx: ${args}`)
+  let tx: any = {}
+  try {
+    tx = await trader[method](...args)
+    console.log(`tx: ${tx}`)
+  } catch (err) {
+    throw Error(`Issue when attempting to submit transaction`)
+  }
+
+  return tx
+}
+
 async function getReserves(provider: any, target: string) {
   const signer = await provider.getSigner()
   const pool = new ethers.Contract(target, PairAbi, signer)
-  const data = pool.interface.encodeFunctionData('getReserves', [target])
+  const data = pool.interface.encodeFunctionData('getReserves', [])
   const value = '0'
-  const reserves = await signer.call({ to: target, data, value })
+  const reserves = await pool.getReserves()
   return reserves
+}
+
+async function getParameters(signer: any, option: string) {
+  const token = new ethers.Contract(option, OptionAbi, signer)
+  const params = await token.getParameters()
+  return params
 }
 
 import { BigNumber } from '@ethersproject/bignumber'
@@ -300,18 +328,33 @@ import { TokenAmount } from '@sushiswap/sdk'
 import useTokenBalance from '@/hooks/useTokenBalance'
 import { abi as PairAbi } from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
+import Button from '@/components/Button'
+import { parseEther } from '@ethersproject/units'
+import useApprove from '@/hooks/transactions/useApprove'
 
 const Downgrade = () => {
   const { library, chainId, account } = useWeb3React()
-  const [option, setOption] = useState('')
-  const [redeem, setRedeem] = useState('')
+  const [option, setOption] = useState(
+    '0x5b419b581081f8e38a3c450ae518e0aefd4a32b4'
+  ) // weth call
+  const [redeem, setRedeem] = useState(
+    '0x9E5405a11E42e7d48fbF4F2E979695641c15189b'
+  ) //'0x9e5405a11e42e7d48fbf4f2e979695641c15189b') // weth redeem
+  const [underlying, setUnderlying] = useState(WETH)
   const [signData, setSignData] = useState<SignitureData>(null)
-  const [lpToken, setLpToken] = useState()
+  const [lpToken, setLpToken] = useState(
+    '0x2acbf90fdff006eb6eae2b61145b603e59ade7d2'
+  )
+  const [approved, setApproved] = useState(false)
+  const [submitting, setSubmit] = useState(false)
   const handlePermit = usePermit()
   const addNotif = useAddNotif()
+  const onApprove = useApprove()
 
   const lpTokenBalance = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+
+  const redeemTokenBalance = useTokenBalance(redeem)
 
   const handleApprovalPermit = useCallback(
     (spender: string, amount: BigNumber) => {
@@ -324,7 +367,7 @@ const Downgrade = () => {
           addNotif(0, `Approving ${lpToken}`, error.message, '')
         })
     },
-    [entity.underlying, lpToken, handlePermit, underlyingValue, setSignData]
+    [underlying, lpToken, handlePermit, setSignData]
   )
 
   const getSigner = useCallback(async () => {
@@ -333,45 +376,80 @@ const Downgrade = () => {
     }
   }, [library])
 
-  const callRemove = useCallback(async () => {
+  const safeUnwind = useCallback(async () => {
+    const signer = await getSigner()
+    const trader = new ethers.Contract(TRADER, TraderAbi, signer)
+
+    const balance = parseEther(redeemTokenBalance)
+    const { _base, _quote } = await getParameters(signer, option)
+    const optionQuantity = balance.mul(_base).div(_quote)
+    console.log(
+      optionQuantity.toString(),
+      balance.toString(),
+      _base.toString(),
+      _quote.toString()
+    )
+
+    const args = [option, optionQuantity.toString(), account]
+
+    const calldata = trader.interface.encodeFunctionData('safeUnwind', args)
+
+    console.log([
+      option.toString(),
+      optionQuantity.toString(),
+      account.toString(),
+    ])
+
+    /* await trader.safeUnwind(
+      option.toString(),
+      optionQuantity.toString(),
+      account.toString()
+    ) */
+    await callTrader(trader, 'safeUnwind', args)
+  }, [library, account, redeemTokenBalance])
+
+  const removeLiquidity = useCallback(async () => {
     const signer = await getSigner()
     const router = new ethers.Contract(ROUTER, RouterAbi, signer)
     const liquidity = new ethers.Contract(LIQUIDITY, LiquidityAbi, signer)
 
-    const pool = ''
+    const pool = lpToken
     const reserves = await getReserves(library, pool)
+    console.log(reserves)
 
     const [token0, token1] =
-      option.toLowerCase() < redeem.toLowerCase()
-        ? [option, redeem]
-        : [redeem, option]
+      underlying.toLowerCase() < redeem.toLowerCase()
+        ? [underlying, redeem]
+        : [redeem, underlying]
 
-    const [reserve0, reserve1] = [reserves.reserve0, reserves.reserve1]
+    const [reserve0, reserve1] = [reserves._reserve0, reserves._reserve1]
 
-    const isOption = token0 == option ? true : false
+    const isUnderlying = token0 == underlying ? true : false
 
-    const inputAmount = lpTokenBalance.toString() // amount of liquidity in users wallet
+    const [underlyingReserve, redeemReserve] = isUnderlying
+      ? [reserve0, reserve1]
+      : [reserve1, reserve0]
+    console.log(underlyingReserve, redeemReserve)
+
+    const inputAmount = ethers.utils.parseEther(lpTokenBalance.toString()) // amount of liquidity in users wallet
+    const totalSupply = ethers.utils.parseEther(lpTotalSupply)
     // should always be redeem
-    amountAMin = isZero(trade.totalSupply)
-      ? BigNumber.from('0')
-      : BigNumber.from(inputAmount)
-          .mul(redeemReserve.raw.toString())
-          .div(trade.totalSupply)
+    let amountAMin = BigNumber.from(inputAmount)
+      .mul(redeemReserve)
+      .div(totalSupply)
     // should always be underlying
-    amountBMin = isZero(trade.totalSupply)
-      ? BigNumber.from('0')
-      : BigNumber.from(inputAmount)
-          .mul(underlyingReserve.raw.toString())
-          .div(trade.totalSupply)
+    let amountBMin = BigNumber.from(inputAmount)
+      .mul(underlyingReserve)
+      .div(totalSupply)
 
-    amountAMin = trade.calcMinimumOutSlippage(
+    /*  amountAMin = trade.calcMinimumOutSlippage(
       amountAMin.toString(),
       tradeSettings.slippage
     )
     amountBMin = trade.calcMinimumOutSlippage(
       amountBMin.toString(),
       tradeSettings.slippage
-    )
+    ) */
 
     const value = '0'
     const deadline = signData ? signData.deadline : 1000000000000000
@@ -395,7 +473,27 @@ const Downgrade = () => {
     ])
 
     await executeTransaction(library, ROUTER, calldata, value)
-  }, [account])
+  }, [account, library])
+
+  const isLPApproved = useCallback(() => {
+    return approved || signData
+  }, [approved, signData])
+
+  const isRDMApproved = useCallback(() => {
+    return approved || signData
+  }, [approved, signData])
+
+  const handleApproval = useCallback(
+    (token: string, spender: string, amount: string) => {
+      onApprove(token, spender, amount)
+        .then()
+        .catch((error) => {
+          addNotif(0, `Approving ${token} for ${spender}`, error.message, '')
+        })
+    },
+    [underlying, onApprove]
+  )
+
   return (
     <div>
       <Text> Test</Text>
@@ -406,7 +504,9 @@ const Downgrade = () => {
           disabled={submitting}
           full
           size="sm"
-          onClick={() => handleApprovalPermit(spender, calculateLPBurn())}
+          onClick={() =>
+            handleApprovalPermit(ROUTER, ethers.constants.MaxUint256)
+          }
           isLoading={submitting}
           text="Permit LP Tokens"
         />
@@ -416,9 +516,37 @@ const Downgrade = () => {
         disabled={submitting}
         full
         size="sm"
-        onClick={handleSubmitClick}
+        onClick={removeLiquidity}
         isLoading={submitting}
         text={'Remove Liquidity'}
+      />
+
+      {isRDMApproved() ? (
+        <></>
+      ) : (
+        <Button
+          disabled={submitting}
+          full
+          size="sm"
+          onClick={() =>
+            handleApproval(
+              redeem,
+              TRADER,
+              parseEther('1000000000000').toString()
+            )
+          }
+          isLoading={submitting}
+          text="Approve Redeem"
+        />
+      )}
+
+      <Button
+        disabled={submitting}
+        full
+        size="sm"
+        onClick={safeUnwind}
+        isLoading={submitting}
+        text={'Close Position'}
       />
     </div>
   )
