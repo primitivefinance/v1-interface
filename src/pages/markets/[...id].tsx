@@ -40,7 +40,7 @@ import {
   useUpdateOptions,
   useClearOptions,
 } from '@/state/options/hooks'
-import { Venue } from '@primitivefi/sdk'
+import { SignitureData, Venue } from '@primitivefi/sdk'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const data = params?.id
@@ -286,19 +286,32 @@ async function executeTransaction(
   return tx
 }
 
+async function getReserves(provider: any, target: string) {
+  const signer = await provider.getSigner()
+  const pool = new ethers.Contract(target, PairAbi, signer)
+  const data = pool.interface.encodeFunctionData('getReserves', [target])
+  const value = '0'
+  const reserves = await signer.call({ to: target, data, value })
+  return reserves
+}
+
 import { BigNumber } from '@ethersproject/bignumber'
 import { TokenAmount } from '@sushiswap/sdk'
 import useTokenBalance from '@/hooks/useTokenBalance'
+import { abi as PairAbi } from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 
 const Downgrade = () => {
   const { library, chainId, account } = useWeb3React()
-  const [option, setOption] = useState()
+  const [option, setOption] = useState('')
+  const [redeem, setRedeem] = useState('')
   const [signData, setSignData] = useState<SignitureData>(null)
   const [lpToken, setLpToken] = useState()
   const handlePermit = usePermit()
-  const { addNotif } = useClearNotif()
+  const addNotif = useAddNotif()
 
   const lpTokenBalance = useTokenBalance(lpToken)
+  const lpTotalSupply = useTokenTotalSupply(lpToken)
 
   const handleApprovalPermit = useCallback(
     (spender: string, amount: BigNumber) => {
@@ -325,10 +338,17 @@ const Downgrade = () => {
     const router = new ethers.Contract(ROUTER, RouterAbi, signer)
     const liquidity = new ethers.Contract(LIQUIDITY, LiquidityAbi, signer)
 
-    const redeemToken = trade.option.redeem
-    const underlyingToken = trade.option.underlying
-    const redeemReserve = trade.market.reserveOf(redeemToken)
-    const underlyingReserve = trade.market.reserveOf(underlyingToken)
+    const pool = ''
+    const reserves = await getReserves(library, pool)
+
+    const [token0, token1] =
+      option.toLowerCase() < redeem.toLowerCase()
+        ? [option, redeem]
+        : [redeem, option]
+
+    const [reserve0, reserve1] = [reserves.reserve0, reserves.reserve1]
+
+    const isOption = token0 == option ? true : false
 
     const inputAmount = lpTokenBalance.toString() // amount of liquidity in users wallet
     // should always be redeem
