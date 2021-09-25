@@ -295,63 +295,59 @@ const Downgrade = () => {
     },
     [underlying, onApprove]
   )
-  console.log(redeemTokenBalance)
   return (
     <div>
-      {parseInt(redeemTokenBalance) > 0 ? (
-        isRDMApproved() ? (
-          <>
-            <Button
-              disabled={submitting}
-              full
-              size="sm"
-              onClick={() =>
-                handleApproval(
-                  redeem,
-                  TRADER,
-                  parseEther('1000000000000').toString()
-                )
-              }
-              isLoading={submitting}
-              text="Approve Redeem"
-            />
-            <Button
-              disabled={true}
-              full
-              size="sm"
-              onClick={safeUnwind}
-              isLoading={submitting}
-              text={'Close Position'}
-            />
-          </>
-        ) : (
-          <>
-            <Button
-              disabled={true}
-              full
-              size="sm"
-              onClick={() =>
-                handleApproval(
-                  redeem,
-                  TRADER,
-                  parseEther('1000000000000').toString()
-                )
-              }
-              isLoading={submitting}
-              text="Approve Redeem"
-            />
-            <Button
-              disabled={submitting}
-              full
-              size="sm"
-              onClick={safeUnwind}
-              isLoading={submitting}
-              text={'Close Position'}
-            />
-          </>
-        )
+      <Style>{parseInt(redeemTokenBalance)}</Style>
+      {isRDMApproved() ? (
+        <>
+          <Button
+            disabled={submitting}
+            full
+            size="sm"
+            onClick={() =>
+              handleApproval(
+                redeem,
+                TRADER,
+                parseEther('1000000000000').toString()
+              )
+            }
+            isLoading={submitting}
+            text="Approve Redeem"
+          />
+          <Button
+            disabled={true}
+            full
+            size="sm"
+            onClick={safeUnwind}
+            isLoading={submitting}
+            text={'Close Position'}
+          />
+        </>
       ) : (
-        <Style>No Balance</Style>
+        <>
+          <Button
+            disabled={true}
+            full
+            size="sm"
+            onClick={() =>
+              handleApproval(
+                redeem,
+                TRADER,
+                parseEther('1000000000000').toString()
+              )
+            }
+            isLoading={submitting}
+            text="Approve Redeem"
+          />
+          <Button
+            disabled={submitting}
+            full
+            size="sm"
+            onClick={safeUnwind}
+            isLoading={submitting}
+            text={'Close Position'}
+          />
+        </>
       )}
     </div>
   )
