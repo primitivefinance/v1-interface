@@ -297,7 +297,7 @@ const Downgrade = () => {
   )
   return (
     <div>
-      <Style>{parseInt(redeemTokenBalance)}</Style>
+      <Style>RDM Balance - {parseFloat(redeemTokenBalance)}</Style>
       {isRDMApproved() ? (
         <>
           <Button
