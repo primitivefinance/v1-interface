@@ -105,11 +105,7 @@ const OptionTextInfo: React.FC<OptionTextInfoProps> = ({
           for{' '}
           <StyledData>
             {formatParsedAmount(
-              isPut
-                ? parsedAmount
-                    .mul(underlying.raw.toString())
-                    .div(parseEther('1'))
-                : parsedAmount.mul(parseEther('1')).div(strike.raw.toString())
+              parsedAmount.mul(parseEther('1')).div(strike.raw.toString())
             )}{' '}
             {short.token.symbol === 'WETH' ? 'ETH' : short.token.symbol}
           </StyledData>
