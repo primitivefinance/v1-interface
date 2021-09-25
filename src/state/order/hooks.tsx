@@ -454,18 +454,21 @@ export const useHandleSubmitOrder = (): ((
       const amountsOut: BigNumberish[] = []
       const reserves: BigNumberish[] = []
 
+      const op =
+        Operation === Operation.REMOVE_LIQUIDITY_CLOSE
+          ? Operation
+          : Operation.UNWIND
       const trade: Trade = new Trade(
         optionEntity,
         item.market,
         totalSupply,
         inputAmount,
         outputAmount,
-        operation,
+        op,
         item.venue,
         signer,
         sigData
       )
-
       // type SinglePositionParameters fails due to difference in Trader and SushiSwap type
       let transaction: any
       switch (operation) {
