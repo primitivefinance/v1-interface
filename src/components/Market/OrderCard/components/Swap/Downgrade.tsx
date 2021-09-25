@@ -297,7 +297,9 @@ const Downgrade = () => {
   )
   return (
     <div>
-      <Style>RDM Balance - {parseFloat(redeemTokenBalance)}</Style>
+      <Style>
+        <span>RDM Balance</span> {parseFloat(redeemTokenBalance)}
+      </Style>
       {isRDMApproved() ? (
         <>
           <Button
@@ -355,5 +357,9 @@ const Downgrade = () => {
 
 const Style = styled.div`
   color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 1em;
 `
 export default Downgrade
