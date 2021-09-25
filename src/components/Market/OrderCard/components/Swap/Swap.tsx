@@ -287,11 +287,7 @@ const Swap: React.FC = () => {
       orderType === Operation.CLOSE_SHORT &&
       !parseEther(prem).isZero()
     ) {
-      if (entity.isPut) {
-        onUserInput(formatEther(scaledOptionAmount.raw.toString()))
-      } else {
-        onUserInput(formatEther(scaledShortToken.raw.toString()))
-      }
+      onUserInput(formatEther(scaledShortToken.raw.toString()))
     }
   }, [tokenBalance, onUserInput, prem, underlyingBalance, orderType])
 
@@ -631,9 +627,7 @@ const Swap: React.FC = () => {
             orderType === Operation.CLOSE_LONG
               ? scaledOptionAmount
               : orderType === Operation.CLOSE_SHORT
-              ? entity.isPut
-                ? shortTokenAmount
-                : scaledShortToken
+              ? scaledShortToken
               : null
           }
         />
@@ -754,9 +748,7 @@ const Swap: React.FC = () => {
                   onClick={handleSubmitClick}
                   isLoading={loading}
                   text={
-                    !isBelowSlippage() && typedValue !== ''
-                      ? 'Amount Too High'
-                      : getHasEnoughForTrade()
+                    getHasEnoughForTrade()
                       ? 'Confirm Trade'
                       : 'Insufficient Balance'
                   }
