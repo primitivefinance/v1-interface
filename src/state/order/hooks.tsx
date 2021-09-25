@@ -301,7 +301,7 @@ export const useUpdateItem = (): ((
           return
         } else {
           const isUniswap = item.venue === Venue.UNISWAP ? true : false
-          const spender = PRIMITIVE_ROUTER[chainId].address
+          const spender = TRADER[chainId].address
           let tokenAddress
           let secondaryAddress
           switch (orderType) {
