@@ -455,7 +455,7 @@ export const useHandleSubmitOrder = (): ((
       const reserves: BigNumberish[] = []
 
       const op =
-        Operation === Operation.REMOVE_LIQUIDITY_CLOSE
+        operation === Operation.REMOVE_LIQUIDITY_CLOSE
           ? Operation
           : Operation.UNWIND
       const trade: Trade = new Trade(
