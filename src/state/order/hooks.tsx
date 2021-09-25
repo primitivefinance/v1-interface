@@ -456,7 +456,7 @@ export const useHandleSubmitOrder = (): ((
 
       const op =
         operation === Operation.REMOVE_LIQUIDITY_CLOSE
-          ? Operation
+          ? operation
           : Operation.UNWIND
       const trade: Trade = new Trade(
         optionEntity,
