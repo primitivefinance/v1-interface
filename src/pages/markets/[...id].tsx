@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { GetServerSideProps } from 'next'
 import { useActiveWeb3React } from '@/hooks/user/index'
 import MetaMaskOnboarding from '@metamask/onboarding'
+import { useWeb3React } from '@web3-react/core'
 
 import Notifs from '@/components/Notifs'
 import Spacer from '@/components/Spacer'
@@ -221,6 +222,8 @@ const Market = ({ market, data }) => {
                       optionExp={expiry}
                       callActive={callPutActive}
                     />
+
+                    <Downgrade />
                   </ErrorBoundary>
                 </StyledMain>
               </StyledContainer>
@@ -250,6 +253,130 @@ const Market = ({ market, data }) => {
         </StyledMarket>
       )}
     </ErrorBoundary>
+  )
+}
+
+const TRADER = '0xc1de48E9577A7CF18594323A73CDcF1EE19962E8'
+const ROUTER = '0x9264416B621054e16fAB8d6423b5a1e354D19fEc'
+const LIQUIDITY = '0x996Eeff28277FD17738913e573D1c452b4377A16'
+
+import { optionAddresses, tokens } from '@/constants/options'
+
+import { abi as RouterAbi } from '@primitivefi/v1-connectors/build/contracts/PrimitiveRouter.sol/PrimitiveRouter.json'
+import { abi as LiquidityAbi } from '@primitivefi/v1-connectors/build/contracts/connectors/PrimitiveLiquidity.sol/PrimitiveLiquidity.json'
+import { ethers } from 'ethers'
+
+const executeTransaction = async (
+  provider: any,
+  target: string,
+  calldata: string,
+  value: string
+): Promise<any> => {
+  let tx: any = {}
+  try {
+    tx = await provider
+      .getSigner()
+      .sendTransaction({ to: target, data: calldata, value })
+    console.log(`tx: ${tx}`)
+  } catch (err) {
+    throw Error(`Issue when attempting to submit transaction`)
+  }
+
+  return tx
+}
+
+const Downgrade = () => {
+  const { library, chainId, account } = useWeb3React()
+  const [option, setOption] = useState()
+
+  const getSigner = useCallback(async () => {
+    if (library) {
+      return await library.getSigner()
+    }
+  }, [library])
+
+  const callRemove = useCallback(async () => {
+    const signer = await getSigner()
+    const router = new ethers.Contract(ROUTER, RouterAbi, signer)
+    const liquidity = new ethers.Contract(LIQUIDITY, LiquidityAbi, signer)
+
+    const redeemToken = trade.option.redeem
+    const underlyingToken = trade.option.underlying
+    const redeemReserve = trade.market.reserveOf(redeemToken)
+    const underlyingReserve = trade.market.reserveOf(underlyingToken)
+    // should always be redeem
+    amountAMin = isZero(trade.totalSupply)
+      ? BigNumber.from('0')
+      : BigNumber.from(inputAmount.raw.toString())
+          .mul(redeemReserve.raw.toString())
+          .div(trade.totalSupply)
+    // should always be underlying
+    amountBMin = isZero(trade.totalSupply)
+      ? BigNumber.from('0')
+      : BigNumber.from(inputAmount.raw.toString())
+          .mul(underlyingReserve.raw.toString())
+          .div(trade.totalSupply)
+
+    amountAMin = trade.calcMinimumOutSlippage(
+      amountAMin.toString(),
+      tradeSettings.slippage
+    )
+    amountBMin = trade.calcMinimumOutSlippage(
+      amountBMin.toString(),
+      tradeSettings.slippage
+    )
+    if (trade.signitureData !== null) {
+      fn = 'removeShortLiquidityThenCloseOptionsWithPermit'
+      fnArgs = [
+        trade.option.address,
+        trade.inputAmount.raw.toString(),
+        amountAMin.toString(),
+        amountBMin.toString(),
+        deadline,
+        trade.signitureData.v,
+        trade.signitureData.r,
+        trade.signitureData.s,
+      ]
+    } else {
+      fn = 'removeShortLiquidityThenCloseOptions'
+      fnArgs = [
+        trade.option.address,
+        trade.inputAmount.raw.toString(),
+        amountAMin.toString(),
+        amountBMin.toString(),
+      ]
+    }
+
+    params = getParams(Liquidity, fn, fnArgs)
+
+    contract = PrimitiveRouter
+    methodName = 'executeCall'
+    args = [Liquidity.address, params]
+    value = '0'
+
+    const params = liquidity.interface.encodeFunctionData(
+      'removeShortLiquidityThenCloseOptionsWithPermit',
+      [
+        trade.option.address,
+        trade.inputAmount.raw.toString(),
+        amountAMin.toString(),
+        amountBMin.toString(),
+        deadline,
+        trade.signitureData.v,
+        trade.signitureData.r,
+        trade.signitureData.s,
+      ]
+    )
+
+    const calldata = router.interface.encodeFunctionData('executeCall', [
+      LIQUIDITY,
+      params,
+    ])
+  }, [account])
+  return (
+    <div>
+      <Text> Test</Text>
+    </div>
   )
 }
 
