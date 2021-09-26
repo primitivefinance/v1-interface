@@ -4,7 +4,7 @@ import { useWeb3React } from '@web3-react/core'
 
 import { useAddNotif, useClearNotif } from '@/state/notifs/hooks'
 
-import { SignitureData, Venue } from '@primitivefi/sdk'
+import { getAllowance, SignitureData, Venue } from '@primitivefi/sdk'
 
 const TRADER = '0xc1de48E9577A7CF18594323A73CDcF1EE19962E8'
 const ROUTER = '0x9264416B621054e16fAB8d6423b5a1e354D19fEc'
@@ -83,6 +83,7 @@ import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import Button from '@/components/Button'
 import { parseEther } from '@ethersproject/units'
 import useApprove from '@/hooks/transactions/useApprove'
+import useTokenAllowance from '@/hooks/useTokenAllowance'
 
 const allOptions = {
   option0: {
@@ -130,23 +131,9 @@ const Downgrade = () => {
 
   const lpTokenBalance = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+  const redeemAllowance = useTokenAllowance(redeem, TRADER)
 
   const redeemTokenBalance = useTokenBalance(redeem)
-
-  const handleApprovalPermit = useCallback(
-    (spender: string) => {
-      const amount = parseEther(lpTokenBalance)
-      handlePermit(lpToken, spender, amount.toString())
-        .then((data) => {
-          console.log({ data })
-          setSignData(data)
-        })
-        .catch((error) => {
-          addNotif(0, `Approving ${lpToken}`, error.message, '')
-        })
-    },
-    [underlying, lpToken, handlePermit, setSignData, lpTokenBalance]
-  )
 
   const getSigner = useCallback(async () => {
     if (library) {
@@ -170,130 +157,24 @@ const Downgrade = () => {
 
     const args = [option, optionQuantity.toString(), account]
 
-    const calldata = trader.interface.encodeFunctionData('safeUnwind', args)
-
-    console.log([
-      option.toString(),
-      optionQuantity.toString(),
-      account.toString(),
-    ])
-
-    /* await trader.safeUnwind(
-      option.toString(),
-      optionQuantity.toString(),
-      account.toString()
-    ) */
     await callTrader(trader, 'safeUnwind', args)
   }, [library, account, redeemTokenBalance])
 
-  const removeLiquidity = useCallback(async () => {
-    const signer = await getSigner()
-    const router = new ethers.Contract(ROUTER, RouterAbi, signer)
-    const liquidity = new ethers.Contract(LIQUIDITY, LiquidityAbi, signer)
-
-    const pool = lpToken
-    const reserves = await getReserves(library, pool)
-    console.log(reserves)
-
-    const [token0, token1] =
-      underlying.toLowerCase() < redeem.toLowerCase()
-        ? [underlying, redeem]
-        : [redeem, underlying]
-
-    const [reserve0, reserve1] = [reserves._reserve0, reserves._reserve1]
-
-    const isUnderlying = token0 == underlying ? true : false
-
-    const [underlyingReserve, redeemReserve] = isUnderlying
-      ? [reserve0, reserve1]
-      : [reserve1, reserve0]
-    console.log(underlyingReserve, redeemReserve)
-
-    const inputAmount = ethers.utils.parseEther(lpTokenBalance.toString()) // amount of liquidity in users wallet
-    const totalSupply = ethers.utils.parseEther(lpTotalSupply)
-    // should always be redeem
-    const amountAMin = BigNumber.from(inputAmount)
-      .mul(redeemReserve)
-      .div(totalSupply)
-    // should always be underlying
-    const amountBMin = BigNumber.from(inputAmount)
-      .mul(underlyingReserve)
-      .div(totalSupply)
-
-    /*  amountAMin = trade.calcMinimumOutSlippage(
-      amountAMin.toString(),
-      tradeSettings.slippage
-    )
-    amountBMin = trade.calcMinimumOutSlippage(
-      amountBMin.toString(),
-      tradeSettings.slippage
-    ) */
-
-    const value = '0'
-    const deadline = signData ? signData.deadline : 1000000000000000
-    console.log({ signData }, 'in fn caller')
-    const params = liquidity.interface.encodeFunctionData(
-      'removeShortLiquidityThenCloseOptionsWithPermit',
-      [
-        option,
-        inputAmount,
-        amountAMin.toString(),
-        amountBMin.toString(),
-        signData.deadline,
-        signData.v,
-        signData.r,
-        signData.s,
-      ]
-    )
-
-    /* const params = liquidity.interface.encodeFunctionData(
-      'removeShortLiquidityThenCloseOptions',
-      [
-        option,
-        inputAmount,
-        amountAMin.toString(),
-        amountBMin.toString(),
-        deadline,
-      ]
-    ) */
-
-    const calldata = router.interface.encodeFunctionData('executeCall', [
-      LIQUIDITY,
-      params,
-    ])
-
-    console.log(LIQUIDITY, params)
-
-    await router.executeCall(LIQUIDITY, params)
-  }, [
-    account,
-    library,
-    lpTotalSupply,
-    lpTokenBalance,
-    lpToken,
-    signData,
-    setSignData,
-  ])
-
-  const isLPApproved = useCallback(() => {
-    return approved || signData
-  }, [approved, signData])
-
   const isRDMApproved = useCallback(() => {
-    return approved || signData
-  }, [approved, signData])
+    return redeemAllowance > redeemTokenBalance
+  }, [library, redeemAllowance, redeemTokenBalance])
 
   const handleApproval = useCallback(
-    (token: string, spender: string, amount: string) => {
-      onApprove(token, spender, amount)
+    (amount: string) => {
+      onApprove(redeem, TRADER, amount)
         .then(() => {
           setApproved(true)
         })
         .catch((error) => {
-          addNotif(0, `Approving ${token} for ${spender}`, error.message, '')
+          addNotif(0, `Approving ${redeem} for ${TRADER}`, error.message, '')
         })
     },
-    [underlying, onApprove]
+    [redeem, onApprove]
   )
   return (
     <div>
@@ -303,21 +184,17 @@ const Downgrade = () => {
       {isRDMApproved() ? (
         <>
           <Button
-            disabled={submitting}
+            disabled={true}
             full
             size="sm"
             onClick={() =>
-              handleApproval(
-                redeem,
-                TRADER,
-                parseEther('1000000000000').toString()
-              )
+              handleApproval(parseEther('1000000000000').toString())
             }
             isLoading={submitting}
             text="Approve Redeem"
           />
           <Button
-            disabled={true}
+            disabled={false}
             full
             size="sm"
             onClick={safeUnwind}
@@ -328,21 +205,17 @@ const Downgrade = () => {
       ) : (
         <>
           <Button
-            disabled={true}
+            disabled={false}
             full
             size="sm"
             onClick={() =>
-              handleApproval(
-                redeem,
-                TRADER,
-                parseEther('1000000000000').toString()
-              )
+              handleApproval(parseEther('1000000000000').toString())
             }
             isLoading={submitting}
             text="Approve Redeem"
           />
           <Button
-            disabled={submitting}
+            disabled={true}
             full
             size="sm"
             onClick={safeUnwind}

@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import { useWeb3React } from '@web3-react/core'
 
-import { useAddNotif, useClearNotif } from '@/state/notifs/hooks'
+import { useAddNotif } from '@/state/notifs/hooks'
 
-import { SignitureData, Venue } from '@primitivefi/sdk'
+import { SignitureData } from '@primitivefi/sdk'
 
 const TRADER = '0xc1de48E9577A7CF18594323A73CDcF1EE19962E8'
 const ROUTER = '0x9264416B621054e16fAB8d6423b5a1e354D19fEc'
 const LIQUIDITY = '0x996Eeff28277FD17738913e573D1c452b4377A16'
 const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-
-import { optionAddresses, tokens } from '@/constants/options'
 
 import { abi as RouterAbi } from '@primitivefi/v1-connectors/build/contracts/PrimitiveRouter.sol/PrimitiveRouter.json'
 import { abi as LiquidityAbi } from '@primitivefi/v1-connectors/build/contracts/connectors/PrimitiveLiquidity.sol/PrimitiveLiquidity.json'
@@ -21,26 +19,6 @@ import { abi as OptionAbi } from '@primitivefi/contracts/artifacts/contracts/opt
 import { ethers } from 'ethers'
 import { usePermit } from '@/hooks/transactions/usePermit'
 import { useItem } from '@/state/order/hooks'
-
-async function executeTransaction(
-  provider: any,
-  target: string,
-  calldata: string,
-  value: string
-): Promise<any> {
-  console.log(` executing tx: ${target} ${calldata}`)
-  let tx: any = {}
-  try {
-    tx = await provider
-      .getSigner()
-      .sendTransaction({ to: target, data: calldata, value })
-    console.log(`tx: ${tx}`)
-  } catch (err) {
-    throw Error(`Issue when attempting to submit transaction`)
-  }
-
-  return tx
-}
 
 async function callTrader(
   trader: ethers.Contract,
@@ -80,7 +58,7 @@ import useTokenBalance from '@/hooks/useTokenBalance'
 import { abi as PairAbi } from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import Button from '@/components/Button'
-import { parseEther } from '@ethersproject/units'
+import { formatEther, parseEther } from '@ethersproject/units'
 import useApprove from '@/hooks/transactions/useApprove'
 
 const allOptions = {
@@ -169,19 +147,6 @@ const Downgrade = () => {
 
     const args = [option, optionQuantity.toString(), account]
 
-    const calldata = trader.interface.encodeFunctionData('safeUnwind', args)
-
-    console.log([
-      option.toString(),
-      optionQuantity.toString(),
-      account.toString(),
-    ])
-
-    /* await trader.safeUnwind(
-      option.toString(),
-      optionQuantity.toString(),
-      account.toString()
-    ) */
     await callTrader(trader, 'safeUnwind', args)
   }, [library, account, redeemTokenBalance])
 
@@ -219,25 +184,23 @@ const Downgrade = () => {
       .mul(underlyingReserve)
       .div(totalSupply)
 
-    /*  amountAMin = trade.calcMinimumOutSlippage(
-      amountAMin.toString(),
-      tradeSettings.slippage
-    )
-    amountBMin = trade.calcMinimumOutSlippage(
-      amountBMin.toString(),
-      tradeSettings.slippage
-    ) */
+    const slippage = ethers.BigNumber.from(0.05 * 1000)
+    const one = ethers.BigNumber.from(1000)
 
-    const value = '0'
-    const deadline = signData ? signData.deadline : 1000000000000000
-    console.log({ signData }, 'in fn caller')
+    const amountAMinAdjusted = ethers.BigNumber.from(amountAMin)
+      .mul(one.sub(slippage))
+      .div(1000)
+    const amountBMinAdjusted = ethers.BigNumber.from(amountBMin)
+      .mul(one.sub(slippage))
+      .div(1000)
+
     const params = liquidity.interface.encodeFunctionData(
       'removeShortLiquidityThenCloseOptionsWithPermit',
       [
         option,
         inputAmount,
-        amountAMin.toString(),
-        amountBMin.toString(),
+        item.entity.isPut ? amountBMinAdjusted : amountAMinAdjusted.toString(),
+        item.entity.isPut ? amountAMinAdjusted : amountBMinAdjusted.toString(),
         signData.deadline,
         signData.v,
         signData.r,
@@ -245,26 +208,11 @@ const Downgrade = () => {
       ]
     )
 
-    /* const params = liquidity.interface.encodeFunctionData(
-      'removeShortLiquidityThenCloseOptions',
-      [
-        option,
-        inputAmount,
-        amountAMin.toString(),
-        amountBMin.toString(),
-        deadline,
-      ]
-    ) */
-
-    const calldata = router.interface.encodeFunctionData('executeCall', [
-      LIQUIDITY,
-      params,
-    ])
-
     console.log(LIQUIDITY, params)
 
     await router.executeCall(LIQUIDITY, params)
   }, [
+    item.entity.isPut,
     account,
     library,
     lpTotalSupply,
