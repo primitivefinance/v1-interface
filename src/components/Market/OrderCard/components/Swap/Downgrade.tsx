@@ -181,49 +181,23 @@ const Downgrade = () => {
       <Style>
         <span>RDM Balance</span> {parseFloat(redeemTokenBalance)}
       </Style>
-      {isRDMApproved() ? (
-        <>
-          <Button
-            disabled={true}
-            full
-            size="sm"
-            onClick={() =>
-              handleApproval(parseEther('1000000000000').toString())
-            }
-            isLoading={submitting}
-            text="Approve Redeem"
-          />
-          <Button
-            disabled={false}
-            full
-            size="sm"
-            onClick={safeUnwind}
-            isLoading={submitting}
-            text={'Close Position'}
-          />
-        </>
-      ) : (
-        <>
-          <Button
-            disabled={false}
-            full
-            size="sm"
-            onClick={() =>
-              handleApproval(parseEther('1000000000000').toString())
-            }
-            isLoading={submitting}
-            text="Approve Redeem"
-          />
-          <Button
-            disabled={true}
-            full
-            size="sm"
-            onClick={safeUnwind}
-            isLoading={submitting}
-            text={'Close Position'}
-          />
-        </>
-      )}
+
+      <Button
+        disabled={false}
+        full
+        size="sm"
+        onClick={() => handleApproval(parseEther('1000000000000').toString())}
+        isLoading={submitting}
+        text="Approve Redeem"
+      />
+      <Button
+        disabled={false}
+        full
+        size="sm"
+        onClick={safeUnwind}
+        isLoading={submitting}
+        text={'Close Position'}
+      />
     </div>
   )
 }
