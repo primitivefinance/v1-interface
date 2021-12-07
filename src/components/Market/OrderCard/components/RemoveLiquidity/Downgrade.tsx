@@ -60,6 +60,7 @@ import useTokenTotalSupply from '@/hooks/useTokenTotalSupply'
 import Button from '@/components/Button'
 import { formatEther, parseEther } from '@ethersproject/units'
 import useApprove from '@/hooks/transactions/useApprove'
+import useTokenAllowance from '@/hooks/useTokenAllowance'
 
 const allOptions = {
   option0: {
@@ -107,6 +108,7 @@ const Downgrade = () => {
 
   const lpTokenBalance = useTokenBalance(lpToken)
   const lpTotalSupply = useTokenTotalSupply(lpToken)
+  const lpTokenAllowance = useTokenAllowance(lpToken, ROUTER)
 
   const redeemTokenBalance = useTokenBalance(redeem)
 
@@ -194,23 +196,46 @@ const Downgrade = () => {
       .mul(one.sub(slippage))
       .div(1000)
 
-    const params = liquidity.interface.encodeFunctionData(
-      'removeShortLiquidityThenCloseOptionsWithPermit',
-      [
-        option,
-        inputAmount,
-        item.entity.isPut ? amountBMinAdjusted : amountAMinAdjusted.toString(),
-        item.entity.isPut ? amountAMinAdjusted : amountBMinAdjusted.toString(),
-        signData.deadline,
-        signData.v,
-        signData.r,
-        signData.s,
-      ]
-    )
+    if (signData) {
+      const params = liquidity.interface.encodeFunctionData(
+        'removeShortLiquidityThenCloseOptionsWithPermit',
+        [
+          option,
+          inputAmount,
+          item.entity.isPut
+            ? amountBMinAdjusted
+            : amountAMinAdjusted.toString(),
+          item.entity.isPut
+            ? amountAMinAdjusted
+            : amountBMinAdjusted.toString(),
+          signData.deadline,
+          signData.v,
+          signData.r,
+          signData.s,
+        ]
+      )
 
-    console.log(LIQUIDITY, params)
+      console.log(LIQUIDITY, params)
 
-    await router.executeCall(LIQUIDITY, params)
+      await router.executeCall(LIQUIDITY, params)
+    } else {
+      console.log({ signData })
+      const params = liquidity.interface.encodeFunctionData(
+        'removeShortLiquidityThenCloseOptions',
+        [
+          option,
+          inputAmount.toHexString(),
+          item.entity.isPut
+            ? amountBMinAdjusted
+            : amountAMinAdjusted.toHexString(),
+          item.entity.isPut
+            ? amountAMinAdjusted
+            : amountBMinAdjusted.toHexString(),
+        ]
+      )
+
+      await router.executeCall(LIQUIDITY, params)
+    }
   }, [
     item.entity.isPut,
     account,
@@ -223,7 +248,9 @@ const Downgrade = () => {
   ])
 
   const isLPApproved = useCallback(() => {
-    return signData
+    return (
+      signData || parseEther(lpTokenAllowance).gt(parseEther(lpTokenBalance))
+    )
   }, [approved, signData])
 
   const isRDMApproved = useCallback(() => {
@@ -245,45 +272,23 @@ const Downgrade = () => {
 
   return (
     <div>
-      {isLPApproved() ? (
-        <Button
-          disabled={true}
-          full
-          size="sm"
-          onClick={() => handleApprovalPermit(ROUTER)}
-          isLoading={submitting}
-          text="Permit LP Tokens"
-        />
-      ) : (
-        <Button
-          disabled={submitting}
-          full
-          size="sm"
-          onClick={() => handleApprovalPermit(ROUTER)}
-          isLoading={submitting}
-          text="Permit LP Tokens"
-        />
-      )}
+      <Button
+        disabled={submitting}
+        full
+        size="sm"
+        onClick={() => handleApprovalPermit(ROUTER)}
+        isLoading={submitting}
+        text="Permit LP Tokens"
+      />
 
-      {isLPApproved() ? (
-        <Button
-          disabled={submitting}
-          full
-          size="sm"
-          onClick={removeLiquidity}
-          isLoading={submitting}
-          text={'Remove Liquidity'}
-        />
-      ) : (
-        <Button
-          disabled={true}
-          full
-          size="sm"
-          onClick={removeLiquidity}
-          isLoading={submitting}
-          text={'Remove Liquidity'}
-        />
-      )}
+      <Button
+        disabled={submitting}
+        full
+        size="sm"
+        onClick={removeLiquidity}
+        isLoading={submitting}
+        text={'Remove Liquidity'}
+      />
     </div>
   )
 }
