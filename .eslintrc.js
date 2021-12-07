@@ -17,7 +17,11 @@ module.exports = {
   ],
   rules: {
     // Include .prettierrc.js rules
-    'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+    'prettier/prettier': [
+      'error',
+      {},
+      { usePrettierrc: true, endOfLine: 'auto' },
+    ],
 
     'react/prop-types': 'off',
   },
